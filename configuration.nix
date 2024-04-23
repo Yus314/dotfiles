@@ -68,7 +68,7 @@
   };
  i18n.inputMethod = {
 	enabled = "fcitx5";
-	fcitx5.addons = [pkgs.fcitx5-mozc];
+  fcitx5.addons = [ pkgs.fcitx5-mozc];
 };
 fonts = {
  packages = with pkgs; [
@@ -91,6 +91,8 @@ programs.zsh.enable = true;
 users.users.kaki.shell = pkgs.zsh;
 security.polkit.enable = true;
 
+services.meshcentral.enable = true;
+
   # Enable the X11 windowing system.
   services.xserver.enable = true;
  
@@ -102,6 +104,7 @@ security.polkit.enable = true;
   services.xserver = {
 	desktopManager = {
 	xterm.enable = false;
+  runXdgAutostartIfNone = true;
 	};
 	displayManager = {
 		defaultSession = "none+i3";
@@ -166,6 +169,7 @@ security.polkit.enable = true;
   nix-output-monitor
 dig
 git
+meshcentral
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
