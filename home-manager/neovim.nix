@@ -161,6 +161,9 @@
       ts-autotag = {
         enable = true;
       };
+      gitsigns = {
+        enable = true;
+      };
       rust-tools = {
         enable = true;
         inlayHints = {

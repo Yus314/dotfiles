@@ -25,6 +25,10 @@ in {
     ./alacritty.nix
     ./git.nix
   ];
+  programs.gh = {
+    enable = true;
+  };
+
   #programs.vivaldi = {
   #enable = true;
   #};

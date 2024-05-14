@@ -1,20 +1,20 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
+
+{ inputs, config, pkgs, ... }:
+
 {
-  inputs,
-  config,
-  pkgs,
-  ...
-}: {
-  imports = [
-    # Include the results of the hardware scan.
-    ./hardware-configuration.nix
-  ];
+  imports =
+    [
+      # Include the results of the hardware scan.
+      ./hardware-configuration.nix
+    ];
   # Bootloader
   nix = {
     settings = {
-      experimental-features = ["nix-command" "flakes"];
+      experimental-features = [ "nix-command" "flakes" ];
+      access-tokens = ;
     };
   };
   nixpkgs.config.allowUnfree = true;
@@ -101,7 +101,7 @@
   # Enable the GNOME Desktop Environment.
   #services.xserver.displayManager.gdm.enable = true;
   #services.xserver.desktopManager.gnome.enable = true;
-  environment.pathsToLink = ["/libexec"];
+  environment.pathsToLink = [ "/libexec" ];
   services.xserver = {
     desktopManager = {
       xterm.enable = false;
@@ -109,10 +109,16 @@
     };
     displayManager = {
       defaultSession = "none+i3";
+      setupCommands = ''
+        				LEFT='HDMI-0'
+        				CENTER='DP-0'
+        				RIGHT='DP-4'
+        				${pkgs.xorg.xrandr}/bin/xrandr --output $CENTER  --output $LEFT  --left-of $CENTER --output $RIGHT  --right-of $CENTER
+        			'';
     };
     windowManager.i3 = {
       enable = true;
-      extraPackages = with pkgs; [
+      extraPackages = with pkgs;[
         rofi
         i3status
         i3lock
