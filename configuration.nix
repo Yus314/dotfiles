@@ -1,14 +1,16 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ inputs,config, pkgs, ... }:
-
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  inputs,
+  config,
+  pkgs,
+  ...
+}: {
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
   # Bootloader
   nix = {
     settings = {
@@ -20,22 +22,22 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.extraModulePackages = with config.boot.kernelPackages; [r8125 nvidia_x11];
-  boot.kernelModules = [ "r8125"];
-  boot.initrd.kernelModules = ["nvidia" ];
+  boot.kernelModules = ["r8125"];
+  boot.initrd.kernelModules = ["nvidia"];
   services.xserver.videoDrivers = ["nvidia"];
   hardware.opengl = {
-	enable = true;
-	driSupport = true;
- 	driSupport32Bit = true;
-};
- hardware.nvidia = {
-	modesetting.enable = true;
-	powerManagement.enable = false;
-	powerManagement.finegrained =false;
-	open = false;
-	nvidiaSettings = true;
-	package = config.boot.kernelPackages.nvidiaPackages.stable;
-};  
+    enable = true;
+    driSupport = true;
+    driSupport32Bit = true;
+  };
+  hardware.nvidia = {
+    modesetting.enable = true;
+    powerManagement.enable = false;
+    powerManagement.finegrained = false;
+    open = false;
+    nvidiaSettings = true;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+  };
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
@@ -46,8 +48,8 @@
   # Enable networking
   networking.networkmanager.enable = true;
   services.resolved = {
-  enable = true;
-};
+    enable = true;
+  };
 
   # Set your time zone.
   time.timeZone = "Asia/Tokyo";
@@ -66,64 +68,67 @@
     LC_TELEPHONE = "ja_JP.UTF-8";
     LC_TIME = "ja_JP.UTF-8";
   };
- i18n.inputMethod = {
-	enabled = "fcitx5";
-  fcitx5.addons = [ pkgs.fcitx5-mozc];
-};
-fonts = {
- packages = with pkgs; [
- noto-fonts-cjk-serif
- noto-fonts-cjk-sans
- noto-fonts-emoji
- nerdfonts
-];
-fontDir.enable = true;
-fontconfig = {
-	defaultFonts = {
-		serif = ["Noto Serif CJK JP" "Noto Color Emoji"];
-		sansSerif = ["Noto Sans CJK JP" "Noto Color Emoji"];
-		monospace = ["JetBrainsMono Nerd Font" "Noto Color Emoji"];
-		emoji = ["Noto Color Emoji"];
-		};
-	};
-};
-programs.zsh.enable = true;
-users.users.kaki.shell = pkgs.zsh;
-security.polkit.enable = true;
+  i18n.inputMethod = {
+    enabled = "fcitx5";
+    fcitx5.addons = [pkgs.fcitx5-mozc];
+  };
+  fonts = {
+    packages = with pkgs; [
+      noto-fonts-cjk-serif
+      noto-fonts-cjk-sans
+      noto-fonts-emoji
+      nerdfonts
+    ];
+    fontDir.enable = true;
+    fontconfig = {
+      defaultFonts = {
+        serif = ["Noto Serif CJK JP" "Noto Color Emoji"];
+        sansSerif = ["Noto Sans CJK JP" "Noto Color Emoji"];
+        monospace = ["JetBrainsMono Nerd Font" "Noto Color Emoji"];
+        emoji = ["Noto Color Emoji"];
+      };
+    };
+  };
+  programs.zsh.enable = true;
+  users.users.kaki.shell = pkgs.zsh;
+  security.polkit.enable = true;
 
-services.meshcentral.enable = true;
+  services.meshcentral.enable = true;
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
- 
 
   # Enable the GNOME Desktop Environment.
   #services.xserver.displayManager.gdm.enable = true;
   #services.xserver.desktopManager.gnome.enable = true;
   environment.pathsToLink = ["/libexec"];
   services.xserver = {
-	desktopManager = {
-	xterm.enable = false;
-  runXdgAutostartIfNone = true;
-	};
-	displayManager = {
-		defaultSession = "none+i3";
-	};
-	windowManager.i3 = {
-	enable = true;
-	extraPackages = with pkgs;[
-		rofi
-		i3status
-		i3lock
-		i3blocks
-	];
-	};
-};
+    desktopManager = {
+      xterm.enable = false;
+      runXdgAutostartIfNone = true;
+    };
+    displayManager = {
+      defaultSession = "none+i3";
+    };
+    windowManager.i3 = {
+      enable = true;
+      extraPackages = with pkgs; [
+        rofi
+        i3status
+        i3lock
+        i3blocks
+      ];
+    };
+  };
 
   # Configure keymap in X11
   services.xserver = {
     layout = "us";
     xkbVariant = "";
+  };
+  services.mysql = {
+    enable = true;
+    package = pkgs.mariadb;
   };
 
   # Enable CUPS to print documents.
@@ -153,11 +158,11 @@ services.meshcentral.enable = true;
   users.users.kaki = {
     isNormalUser = true;
     description = "kaki";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = ["networkmanager" "wheel"];
     packages = with pkgs; [
       firefox
       gh
-      lshw	
+      lshw
     ];
   };
 
@@ -165,11 +170,11 @@ services.meshcentral.enable = true;
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
-  nix-output-monitor
-dig
-git
-meshcentral
+    #  wget
+    nix-output-monitor
+    dig
+    git
+    meshcentral
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -198,5 +203,4 @@ meshcentral
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11"; # Did you read the comment?
-
 }

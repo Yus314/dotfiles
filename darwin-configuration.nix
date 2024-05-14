@@ -9,4 +9,14 @@
   # Auto upgrade nix package and the daemon service.
   services.nix-daemon.enable = true;
   nix.package = pkgs.nix;
+  nixpkgs.hostPlatform  = "aarch64-darwin";
+
+	fonts.font =   with pkgs; [
+ noto-fonts-cjk-serif
+ noto-fonts-cjk-sans
+ noto-fonts-emoji
+ nerdfonts
+];
+
+  
 }
