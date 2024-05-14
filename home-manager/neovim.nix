@@ -144,10 +144,10 @@
             enable = true;
             mappings = {
               "n" = {
-                "<M-c>" = "create";
+                "<A-x>" = "remove";
               };
               "i" = {
-                "<M-c>" = "create";
+                "<A-x>" = "remove";
               };
             };
           };
@@ -180,22 +180,22 @@
         };
       };
       none-ls = {
-       enable = true;
-      enableLspFormat = true;
+        enable = true;
+        enableLspFormat = true;
       };
-        conform-nvim = {
-          enable = true;
-          notifyOnError = true;
-          formattersByFt = {
-            nix = ["alejandra"];
-            css = ["prettierd" "prettier"];
-            rust = ["rustfmt"];
-            python = ["isort" "black"];
-          };
-          formatOnSave = {
-            lspFallback = true;
-          };
+      conform-nvim = {
+        enable = true;
+        notifyOnError = true;
+        formattersByFt = {
+          nix = ["alejandra"];
+          css = ["prettierd" "prettier"];
+          rust = ["rustfmt"];
+          python = ["isort" "black"];
         };
+        formatOnSave = {
+          lspFallback = true;
+        };
+      };
 
       # 追加するプラグイン
       # markdown-preview-nvim
@@ -208,24 +208,30 @@
       enable = true;
     };
     extraConfigLua = ''
-         local Terminal = require('toggleterm.terminal').Terminal
+             local Terminal = require('toggleterm.terminal').Terminal
 
-         local cargo_run = Terminal:new({
-         	cmd = "cargo run",
-                hidden = true, -- 通常のToggleTermコマンドでは開かれない
-                direction = "float", -- floatingウィンドウで開く
-                float_opts = {
-                  border = "curved", -- ウィンドウの境界線の種類
-      winblend = 30
-                },
-       close_on_exit = false,
-              })
+             local cargo_run = Terminal:new({
+             	cmd = "cargo run",
+                    hidden = true, -- 通常のToggleTermコマンドでは開かれない
+                    direction = "float", -- floatingウィンドウで開く
+                    float_opts = {
+                      border = "curved", -- ウィンドウの境界線の種類
+          winblend = 30
+                    },
+           close_on_exit = false,
+                  })
 
-              function _cargo_run_toggle()
-                cargo_run:toggle() -- ターミナルを開く/閉じる
-              end
+                  function _cargo_run_toggle()
+                    cargo_run:toggle() -- ターミナルを開く/閉じる
+                  end
 
-              vim.api.nvim_set_keymap("n", "<leader>r", "<cmd>lua _cargo_run_toggle()<CR>", {noremap = true, silent = true})
+                  vim.api.nvim_set_keymap("n", "<leader>r", "<cmd>lua _cargo_run_toggle()<CR>", {noremap = true, silent = true})
+      local lazygit = Terminal:new({ cmd = "lazygit", hidden = true})
+
+      function _lazygit_toggle()
+      	lazygit:toggle()
+      end
+      vim.api.nvim_set_keymap("n", "<leader>g", "<cmd>lua _lazygit_toggle()<CR>", {noremap = true, silent = true})
     '';
   };
 }
