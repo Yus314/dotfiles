@@ -6,8 +6,10 @@
 }: let
 in {
   home = rec {
-    username = "kakinumayuusuke";
-    homeDirectory = "/Users/${username}";
+    #username = "kakinumayuusuke";
+    username = "kaki";
+    #homeDirectory = "/Users/${username}";
+    homeDirectory = "/home/${username}";
     stateVersion = "23.11";
     packages = with pkgs; [
       cowsay

@@ -31,8 +31,8 @@
     homeConfigurations = {
       myHome = inputs.home-manager.lib.homeManagerConfiguration {
         pkgs = import inputs.nixpkgs {
-          #system = "x86_64-linux";
-          system = "aarch64-darwin";
+          system = "x86_64-linux";
+          #system = "aarch64-darwin";
           config.allowUnfree = true;
         };
         extraSpecialArgs = {

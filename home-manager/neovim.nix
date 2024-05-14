@@ -37,7 +37,16 @@
             enable = true;
             settings = {
               plugins = {
-                autopep8 = {
+                flake8 = {
+                  enabled = true;
+                  maxLineLength = 119;
+                  ignore = ["E203"];
+                };
+                black = {
+                  enabled = true;
+                  line_length = 119;
+                };
+                isort = {
                   enabled = true;
                 };
               };
@@ -171,21 +180,22 @@
         };
       };
       none-ls = {
-        enable = true;
-        enableLspFormat = true;
+       enable = true;
+      enableLspFormat = true;
       };
-      conform-nvim = {
-        enable = true;
-        notifyOnError = true;
-        formattersByFt = {
-          nix = ["alejandra"];
-          css = ["prettierd" "prettier"];
-          rust = ["rustfmt"];
+        conform-nvim = {
+          enable = true;
+          notifyOnError = true;
+          formattersByFt = {
+            nix = ["alejandra"];
+            css = ["prettierd" "prettier"];
+            rust = ["rustfmt"];
+            python = ["isort" "black"];
+          };
+          formatOnSave = {
+            lspFallback = true;
+          };
         };
-        formatOnSave = {
-          lspFallback = true;
-        };
-      };
 
       # 追加するプラグイン
       # markdown-preview-nvim

@@ -10,15 +10,18 @@
       };
       font = {
         normal = {
-          family = "MesloLGS NF";
+          #family = "MesloLGS NF";
+          family = "Monospace";
           style = "Regular";
         };
         bold = {
-          family = "MesloLGS NF";
+          #family = "MesloLGS NF";
+          family = "Monospace";
           style = "Bold";
         };
         italic = {
-          family = "MesloLGS NF";
+          #family = "MesloLGS NF";
+          family = "Monospace";
           style = "Italic";
         };
         size = 12.0;
