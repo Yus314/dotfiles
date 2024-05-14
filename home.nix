@@ -1,76 +1,137 @@
-{config, pkgs, inputs, ... }:
-let 
+{ config, pkgs, inputs, ... }:
+let
 in
 {
-	home = rec {
-		username="kaki";
-		homeDirectory = "/home/${username}";
-		stateVersion = "23.11";
-		packages = with pkgs; [
-			cowsay
-			bat
-			eza
-			tldr
-		];
-	};
-	imports = [ inputs.nixvim.homeManagerModules.nixvim];
-	programs.nixvim = {
-		enable = true;
-		opts = {
-			number = true;
-			tabstop = 2;
-			shiftwidth = 2;
-			smartindent = true;
-			};
-			plugins = {
-        lsp = {
-          enable = true;
-          servers = {
-            nil_ls = {
-              enable = true;
+  home=rec {
+    username = "kaki";
+    homeDirectory = "/home/${username}";
+    stateVersion = "23.11";
+    packages = with pkgs; [
+      cowsay
+      bat
+      tldr
+			nomacs
+    ];
+  };
+  imports=[ inputs.nixvim.homeManagerModules.nixvim ];
+  programs.nixvim = {
+    enable = true;
+    opts = {
+      number = true;
+      tabstop = 2;
+      shiftwidth = 2;
+      smartindent = true;
+    };
+    plugins = {
+      lsp-format = {
+        enable = true;
+      };
+      lsp = {
+        enable = true;
+        servers = {
+          #nixd = {
+          #  enable = true;
+          #  settings = {
+          #    formatting = {
+          #      command = "nixpkgs-fmt";
+          #    };
+          #  };
+          #};
+          pylsp = {
+            enable = true;
+            settings = {
+              plugins = {
+                flake8 = {
+                  enabled = true;
+									ignore = ["E203" ];
+                };
+                isort = {
+                  enabled = true;
+                };
+                black = {
+                  enabled = true;
+                };
+              };
             };
           };
+				};
+        keymaps = {
+          silent = false;
+          diagnostic = {
+            "[d" = "goto_next";
+            "]d" = "goto_prev";
+          };
+          lspBuf = {
+            "gd" = "declaration";
+            "gD" = "definition";
+            "K" = "hover";
+            "gi" = "implementation";
+            "<C-k>" = "signature_help";
+            "<space>wa" = "add_workspace_folder";
+            "<space>wr" = "remove_workspace_folder";
+            "<space>wl" = "list_workspace_folders";
+            "<space>D" = "type_definition";
+            "<space>rn" = "rename";
+            "<space>ca" = "code_action";
+            "gr" = "references";
+            "<space>f" = "format";
+          };
         };
-				telescope = {
-					enable = true;
-				};
-				lualine = {
-					enable = true;
-				};
-				copilot-vim = {
-					enable = true;
-				};
-				
-              # 追加するプラグイン
-              # copilot
-              # markdown-preview-nvim
-              # vim-markdown
-             
-				};
-			};
-	programs.zsh = {
-		enable = true;
-		autocd = true;
-		history = {
-			ignoreAllDups = true;
-		};
-		enableCompletion = true;
-    syntaxHighlighting = {
+      };
+      nvim-cmp = {
         enable = true;
+        autoEnableSources = true;
+        sources = [
+          { name = "nvim_lsp"; }
+          { name = "path"; }
+        ];
+      };
+      telescope = {
+        enable = true;
+      };
+      lualine = {
+        enable = true;
+      };
+      copilot-vim = {
+        enable = true;
+      };
+
+
+
+      # 追加するプラグイン
+      # markdown-preview-nvim
+      # vim-markdown
+
+    };
+    extraPlugins = [
+      pkgs.vimPlugins.onenord-nvim
+      pkgs.vimPlugins.fern-vim
+    ];
+    colorscheme = "onenord";
+  };
+  programs.zsh = {
+    enable = true;
+    autocd = true;
+    history = {
+      ignoreAllDups = true;
+    };
+    enableCompletion = true;
+    syntaxHighlighting = {
+      enable = true;
     };
     #autosuggestion = {
-   	#	enable = true;
+    #	enable = true;
     #};
-		enableAutosuggestions = true;
-		plugins = [
-			{
-				name = "powerlevel10k";
-				src = pkgs.zsh-powerlevel10k;
-				file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
-			}
-		];
-	};
-	programs.alacritty = {
+    enableAutosuggestions = true;
+    plugins = [
+      {
+        name = "powerlevel10k";
+        src = pkgs.zsh-powerlevel10k;
+        file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
+      }
+    ];
+  };
+  programs.alacritty = {
     enable = true;
     settings = {
       window = {
@@ -106,9 +167,9 @@ in
         };
         vi_mode_cursor = {
           text = "#2e3440";
-          cursor =  "#d8dee9";
+          cursor = "#d8dee9";
         };
-        selection  = {
+        selection = {
           text = "CellForeground";
           background = "#4c566a";
         };
@@ -124,18 +185,18 @@ in
         };
         normal = {
           black = "#3b4252";
-          red =  "#bf616a";
-          green =  "#a3be8c";
+          red = "#bf616a";
+          green = "#a3be8c";
           yellow = "#ebcb8b";
           blue = "#81a1c1";
           magenta = "#b48ead";
           cyan = "#88c0d0";
-          white =  "#e5e9f0";
+          white = "#e5e9f0";
         };
-        bright= {
+        bright = {
           black = "#4c566a";
-          red =  "#bf616a";
-          green =  "#a3be8c";
+          red = "#bf616a";
+          green = "#a3be8c";
           yellow = "#ebcb8b";
           blue = "#81a1c1";
           magenta = "#b48ead";
@@ -155,14 +216,14 @@ in
       };
     };
   };
-     
-	programs.vivaldi = {
-	enable = true;
-	};
-	programs.git = {
-		enable = true;
-		userName = "Yus314";
-		userEmail =  "shizhaoyoujie@gmail.com";
-	};
-	programs.home-manager.enable = true;
+
+  programs.vivaldi = {
+    enable = true;
+  };
+  programs.git = {
+    enable = true;
+    userName = "Yus314";
+    userEmail = "shizhaoyoujie@gmail.com";
+  };
+  programs.home-manager.enable = true;
 }
