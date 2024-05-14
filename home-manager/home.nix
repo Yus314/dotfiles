@@ -28,6 +28,9 @@ in {
   programs.gh = {
     enable = true;
   };
+  programs.lazygit = {
+    enable = true;
+  };
 
   #programs.vivaldi = {
   #enable = true;
