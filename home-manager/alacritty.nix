@@ -15,20 +15,14 @@ in {
       };
       font = {
         normal = {
-          #family = "MesloLGS NF";
-          #family = "Monospace";
           family = fam;
           style = "Regular";
         };
         bold = {
-          #family = "MesloLGS NF";
-          #family = "Monospace";
           family = fam;
           style = "Bold";
         };
         italic = {
-          #family = "MesloLGS NF";
-          #family = "Monospace";
           family = fam;
           style = "Italic";
         };
