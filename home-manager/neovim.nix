@@ -15,6 +15,11 @@
         key = "<leader>f";
         action = "<cmd>Telescope file_browser<CR>";
       }
+      {
+        mode = "n";
+        key = " ";
+        action = "<Nop>";
+      }
     ];
     plugins = {
       lsp-format = {enable = true;};
@@ -56,6 +61,17 @@
             enable = true;
             installCargo = true;
             installRustc = true;
+            settings = {
+              checkOnSave = true;
+              check = {
+                command = "clippy";
+              };
+              inlayHints = {
+                chainingHints.enable = true;
+                parameterHints.enable = true;
+                typeHints.enable = true;
+              };
+            };
           };
         };
         keymaps = {
@@ -179,8 +195,14 @@
       };
       rust-tools = {
         enable = true;
-        inlayHints = {
-          auto = true;
+        #   inlayHints = {
+        #     auto = true;
+        #   };
+        server = {
+          check = {
+            command = "clippy";
+          };
+          checkOnSave = true;
         };
       };
       none-ls = {
@@ -208,34 +230,59 @@
     extraPlugins = with pkgs.vimPlugins; [
     ];
 
-    colorschemes.nord = {
+    colorschemes.tokyonight = {
       enable = true;
     };
     extraConfigLua = ''
-             local Terminal = require('toggleterm.terminal').Terminal
+                   local Terminal = require('toggleterm.terminal').Terminal
 
-             local cargo_run = Terminal:new({
-             	cmd = "cargo run",
-                    hidden = true, -- 通常のToggleTermコマンドでは開かれない
-                    direction = "float", -- floatingウィンドウで開く
-                    float_opts = {
-                      border = "curved", -- ウィンドウの境界線の種類
-          winblend = 30
-                    },
-           close_on_exit = false,
-                  })
+                   local cargo_run = Terminal:new({
+        cmd = "cargo run",
+        hiddcen = true, -- 通常のToggleTermコマンドでは開かれない
+        close_on_exit = false,
+        })
 
-                  function _cargo_run_toggle()
-                    cargo_run:toggle() -- ターミナルを開く/閉じる
-                  end
+       function _cargo_run_toggle()
+       cargo_run:toggle() -- ターミナルを開く/閉じる
+       end
 
-                  vim.api.nvim_set_keymap("n", "<leader>r", "<cmd>lua _cargo_run_toggle()<CR>", {noremap = true, silent = true})
-      local lazygit = Terminal:new({ cmd = "lazygit", hidden = true})
+       vim.api.nvim_set_keymap("n", "<leader>r", "<cmd>lua _cargo_run_toggle()<CR>", {noremap = true, silent = true})
 
-      function _lazygit_toggle()
-      	lazygit:toggle()
-      end
-      vim.api.nvim_set_keymap("n", "<leader>g", "<cmd>lua _lazygit_toggle()<CR>", {noremap = true, silent = true})
+
+      local cargo_test = Terminal:new({
+        cmd = "cargo compete t " .. vim.fn.expand("%:t:r"),
+        hidden = true, -- 通常のToggleTermコマンドでは開かれない
+        close_on_exit = false,
+        })
+
+       function _cargo_test_toggle()
+       cargo_test:toggle() -- ターミナルを開く/閉じる
+       end
+
+       vim.api.nvim_set_keymap("n", "<leader>t", "<cmd>lua _cargo_test_toggle()<CR>", {noremap = true, silent = true})
+
+      local cargo_submit = Terminal:new({
+        cmd = "cargo compete submit " .. vim.fn.expand("%:t:r"),
+        hidden = true, -- 通常のToggleTermコマンドでは開かれない
+        close_on_exit = false,
+        })
+
+       function _cargo_submit_toggle()
+       cargo_submit:toggle() -- ターミナルを開く/閉じる
+       end
+
+       vim.api.nvim_set_keymap("n", "<leader>s", "<cmd>lua _cargo_submit_toggle()<CR>", {noremap = true, silent = true})
+
+       local lazygit = Terminal:new({
+        cmd = "lazygit",
+        hidden = true, -- 通常のToggleTermコマンドでは開かれない
+        })
+
+       function _lazygit_toggle()
+       lazygit:toggle()
+       end
+
+       vim.api.nvim_set_keymap("n", "<leader>g", "<cmd>lua _lazygit_toggle()<CR>", {noremap = true, silent = true})
     '';
   };
 }
