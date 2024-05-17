@@ -1,4 +1,9 @@
-{pkgs, ...}: {
+{pkgs, ...}: let
+  fam =
+    if pkgs.stdenv.isDarwin
+    then "MesloLGS NF"
+    else "Monospace";
+in {
   programs.alacritty = {
     enable = true;
     settings = {
@@ -10,18 +15,21 @@
       };
       font = {
         normal = {
-          family = "MesloLGS NF";
+          #family = "MesloLGS NF";
           #family = "Monospace";
+          family = fam;
           style = "Regular";
         };
         bold = {
-          family = "MesloLGS NF";
+          #family = "MesloLGS NF";
           #family = "Monospace";
+          family = fam;
           style = "Bold";
         };
         italic = {
-          family = "MesloLGS NF";
+          #family = "MesloLGS NF";
           #family = "Monospace";
+          family = fam;
           style = "Italic";
         };
         size = 12.0;
