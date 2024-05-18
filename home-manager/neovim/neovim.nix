@@ -1,22 +1,22 @@
 {
   imports = [
-    ./ts-autotag.nix
-    ./treesitter.nix
-    ./tokyonight.nix
-    ./toggleterm.nix
-    ./telescope.nix
-    ./sets.nix
-    ./rust-tools.nix
-    ./none-ls.nix
-    ./noice.nix
-    ./luasnip.nix
-    ./lualine.nix
-    ./lsp.nix
+    ./cmp/cmp.nix
+    ./cmp/copilot-vim.nix
+    ./cmp/luasnip.nix
+    ./colorschemes/tokyonight.nix
+    ./git/gitsigns.nix
     ./keys.nix
-    ./gitsigns.nix
-    ./copilot-vim.nix
-    ./conform.nix
-    ./cmp.nix
-    ./barbar.nix
+    ./langage/rust-tools.nix
+    ./langage/ts-autotag.nix
+    ./lsp/conform.nix
+    ./lsp/lsp.nix
+    ./lsp/none-ls.nix
+    ./sets.nix
+    ./telescope.nix
+    ./toggleterm.nix
+    ./treesitter.nix
+    ./ui/barbar.nix
+    ./ui/lualine.nix
+    ./ui/noice.nix
   ];
 }

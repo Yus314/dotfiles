@@ -9,6 +9,8 @@
       {
         name = "luasnip";
       }
+      {name = "buffer";}
+      {name = "path";}
     ];
     mapping = {
       "<C-r>>" = "cmp.mapping(cmp.mapping.select_next_item(), {'i', 's'})";
