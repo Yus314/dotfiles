@@ -1,5 +1,5 @@
 {
-  program.nixvim = {
+  programs.nixvim = {
     enable = true;
     opts = {
       number = true;

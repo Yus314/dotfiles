@@ -1,0 +1,22 @@
+{
+  imports = [
+    ./ts-autotag.nix
+    ./treesitter.nix
+    ./tokyonight.nix
+    ./toggleterm.nix
+    ./telescope.nix
+    ./sets.nix
+    ./rust-tools.nix
+    ./none-ls.nix
+    ./noice.nix
+    ./luasnip.nix
+    ./lualine.nix
+    ./lsp.nix
+    ./keys.nix
+    ./gitsigns.nix
+    ./copilot-vim.nix
+    ./conform.nix
+    ./cmp.nix
+    ./barbar.nix
+  ];
+}

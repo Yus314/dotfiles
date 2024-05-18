@@ -4,12 +4,18 @@
   inputs,
   ...
 }: let
+  un =
+    if pkgs.stdenv.isDarwin
+    then "kakinumayuusuke"
+    else "kaki";
+  hd =
+    if pkgs.stdenv.isDarwin
+    then "/Users/"
+    else "/home/";
 in {
   home = rec {
-    #username = "kakinumayuusuke";
-    username = "kaki";
-    #homeDirectory = "/Users/${username}";
-    homeDirectory = "/home/${username}";
+    username = un;
+    homeDirectory = hd + un;
     stateVersion = "23.11";
     packages = with pkgs; [
       cowsay
@@ -22,7 +28,7 @@ in {
   };
   imports = [
     inputs.nixvim.homeManagerModules.nixvim
-    ./neovim.nix
+    ./neovim/neovim.nix
     ./zsh.nix
     ./alacritty.nix
     ./git.nix
