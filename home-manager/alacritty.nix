@@ -12,6 +12,7 @@ in {
           lines = 30;
           columns = 100;
         };
+        option_as_alt = "Both";
       };
       font = {
         normal = {

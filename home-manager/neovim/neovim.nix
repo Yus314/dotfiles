@@ -7,10 +7,13 @@
     ./git/gitsigns.nix
     ./keys.nix
     ./langage/rust-tools.nix
+    ./langage/obsidian.nix
+    ./langage/markdown-preview.nix
     ./langage/ts-autotag.nix
     ./lsp/conform.nix
     ./lsp/lsp.nix
     ./lsp/none-ls.nix
+    ./pluginmanagers/packer.nix
     ./sets.nix
     ./telescope.nix
     ./toggleterm.nix
