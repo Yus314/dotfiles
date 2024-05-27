@@ -1,25 +1,18 @@
-{
-  imports = [
-    ./cmp/cmp.nix
-    ./cmp/copilot-vim.nix
-    ./cmp/luasnip.nix
-    ./colorschemes/tokyonight.nix
-    ./git/gitsigns.nix
-    ./keys.nix
-    ./langage/rust-tools.nix
-    ./langage/obsidian.nix
-    ./langage/markdown-preview.nix
-    ./langage/ts-autotag.nix
-    ./lsp/conform.nix
-    ./lsp/lsp.nix
-    ./lsp/none-ls.nix
-    ./pluginmanagers/packer.nix
-    ./sets.nix
-    ./telescope.nix
-    ./toggleterm.nix
-    ./treesitter.nix
-    ./ui/barbar.nix
-    ./ui/lualine.nix
-    ./ui/noice.nix
-  ];
+{pkgs,... }:{
+  programs.neovim = {
+    enable = true;
+    vimAlias = true;
+    extraPackages = with pkgs.vimPlugins; [
+	barbar-nvim
+	lazy-nvim
+	lualine-nvim
+	toggleterm-nvim
+	tokyonight-nvim
+	nvim-ts-autotag
+	]
+	 ++[
+	pkgs.lua-language-server
+	pkgs.rust-analyzer
+	];
+  };
 }
