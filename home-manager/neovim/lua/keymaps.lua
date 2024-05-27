@@ -11,3 +11,4 @@ keymap("n", "]b", "<cmd>BufferNext<CR>", opts)
 keymap("n", "<C-w>w", "<cmd>BufferClose<CR>", opts)
 
 
+vim.api.nvim_set_keymap("n", "<leader>f", ":lua require('conform').format()<CR>", { noremap = true, silent = true })

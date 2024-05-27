@@ -15,7 +15,7 @@
 	pkgs.rust-analyzer
 	pkgs.python311Packages.python-lsp-server
 	pkgs.python311Packages.flake8
-	pkgs.black
+	pkgs.python311Packages.black
 	pkgs.python310Packages.isort
 	pkgs.rustfmt
 	];

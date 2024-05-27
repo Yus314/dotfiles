@@ -17,6 +17,8 @@ vim.keymap.set('n', '<leader>cr', '<cmd>lua vim.lsp.buf.rename()<CR>')
 vim.keymap.set('n', 'gf', '<cmd>lua vim.lsp.buf.format()<CR>')
 
 
+
+
 require("rust-tools").setup({
 	server = {
 		capabilities = capabilities,

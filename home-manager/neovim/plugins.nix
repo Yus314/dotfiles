@@ -38,5 +38,7 @@ markdown-preview-nvim
 rust-tools-nvim
 nvim-lspconfig
 nvim-web-devicons
+null-ls-nvim
+conform-nvim
 ]
 

@@ -4,6 +4,31 @@ return {
 		dir = "@barbar_nvim@",
 	},
 	{
+		-- 自動でフォーマットするためだけに入れているが他に良い方法があるかも
+		name = "conform-nvim",
+		dir = "@conform_nvim@",
+		opts = {
+			format_on_save = {
+				timeout = 500,
+				lsp_fallback = true,
+			},
+		},
+	},
+	{
+		-- 何故か Python はこれがないとformat できない。
+		name = "null-ls.nvim",
+		dir = "@null_ls_nvim@",
+		config = function()
+			local null_ls = require("null-ls")
+			null_ls.setup({
+				sources = {
+					null_ls.builtins.formatting.black,
+					null_ls.builtins.formatting.isort,
+				},
+			})
+		end,
+	},
+	{
 		"epwalsh/obsidian.nvim",
 		opts = {
 			workspaces = {
