@@ -3,31 +3,63 @@ vim.opt.rtp:prepend(lazypath)
 
 require("options")
 require("keymaps")
-require("lazy").setup("plugins")
-vim.cmd [[colorscheme tokyonight]]
-
-require'lspconfig'.lua_ls.setup{}
-
-local cmp = require'cmp'
-require'cmp'.setup {
-  sources = {
-	{ name = 'nvim_lsp' },
-	{ name = 'buffer' },
-  },
-}
-
-local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
-local lsp_attach = function(client, buf)
-	vim.api.nvim_buf_set_option(buf, "formatexpr", "v:lua.vim.lsp.formatexpr()")
-	vim.api.nvim_buf_set_option(buf, "omnifunc", "v:lua.vim.lsp.omnifunc")
-	vim.api.nvim_buf_set_option(buf, "tagfunc", "v:lua.vim.lsp.tagfunc")
-end
-
-require("rust-tools").setup({
-	server = {
-		capabilities = capabilities,
-		on_attach = lsp_attach,
-	},
+require("lazy").setup({
+	spec = {
+		{ import = "plugins.plugins" },
+		{ import = "plugins.gitsign" },
+	}
 })
-require'lspconfig'.lua_ls.setup{}
+require("color")
+require("nvim-cmp")
+require("lsp")
 
+
+                   local Terminal = require('toggleterm.terminal').Terminal
+
+                   local cargo_run = Terminal:new({
+        cmd = "cargo run",
+        hiddcen = true, -- 通常のToggleTermコマンドでは開かれない
+        close_on_exit = false,
+        })
+
+       function _cargo_run_toggle()
+       cargo_run:toggle() -- ターミナルを開く/閉じる
+       end
+
+       vim.api.nvim_set_keymap("n", "<leader>r", "<cmd>lua _cargo_run_toggle()<CR>", {noremap = true, silent = true})
+
+
+      local cargo_test = Terminal:new({
+        cmd = "cargo compete t " .. vim.fn.expand("%:t:r"),
+        hidden = true, -- 通常のToggleTermコマンドでは開かれない
+        close_on_exit = false,
+        })
+
+       function _cargo_test_toggle()
+       cargo_test:toggle() -- ターミナルを開く/閉じる
+       end
+
+       vim.api.nvim_set_keymap("n", "<leader>t", "<cmd>lua _cargo_test_toggle()<CR>", {noremap = true, silent = true})
+
+      local cargo_submit = Terminal:new({
+        cmd = "cargo compete submit " .. vim.fn.expand("%:t:r"),
+        hidden = true, -- 通常のToggleTermコマンドでは開かれない
+        close_on_exit = false,
+        })
+
+       function _cargo_submit_toggle()
+       cargo_submit:toggle() -- ターミナルを開く/閉じる
+       end
+
+       vim.api.nvim_set_keymap("n", "<leader>s", "<cmd>lua _cargo_submit_toggle()<CR>", {noremap = true, silent = true})
+
+       local lazygit = Terminal:new({
+        cmd = "lazygit",
+        hidden = true, -- 通常のToggleTermコマンドでは開かれない
+        })
+
+       function _lazygit_toggle()
+       lazygit:toggle()
+       end
+
+       vim.api.nvim_set_keymap("n", "<leader>g", "<cmd>lua _lazygit_toggle()<CR>", {noremap = true, silent = true})

@@ -36,5 +36,7 @@ telescope-file-browser-nvim
 nvim-ts-autotag
 markdown-preview-nvim
 rust-tools-nvim
+nvim-lspconfig
+nvim-web-devicons
 ]
 

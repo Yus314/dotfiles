@@ -13,15 +13,17 @@
     then "/Users/"
     else "/home/";
     plugins = import ./neovim/plugins.nix { inherit pkgs; };
+
     initLua = pkgs.substituteAll ( {
     	src = ./neovim/init.lua;
-	#barbar_nvim = pkgs.vimPlugins.barbar-nvim;
-
 	} // plugins );
-    pluginsLua = pkgs.substituteAll ( {
-    	src = ./neovim/lua/plugins.lua;
-	#barbar_nvim = pkgs.vimPlugins.barbar-nvim;
 
+    pluginsLua = pkgs.substituteAll ( {
+    	src = ./neovim/lua/plugins/plugins.lua;
+	} // plugins );
+
+    gitsign = pkgs.substituteAll ( {
+    	src = ./neovim/lua/plugins/gitsign.lua;
 	} // plugins );
 
 in {
@@ -36,7 +38,6 @@ in {
       tldr
       alejandra
       nodePackages.prettier
-      obsidian
     ];
   };
   imports = [
@@ -64,9 +65,14 @@ in {
   xdg.configFile= {
   ## "nvim/init.lua".source = ./neovim/init.lua;
   "nvim/init.lua".source = initLua;
-  "nvim/lua/plugins.lua".source = pluginsLua;
+  "nvim/lua/plugins/plugins.lua".source = pluginsLua;
+  "nvim/lua/plugins/gitsign.lua".source = gitsign;
   "nvim/lua/options.lua".source = ./neovim/lua/options.lua;
   "nvim/lua/keymaps.lua".source = ./neovim/lua/keymaps.lua;
+  "nvim/lua/nvim-cmp.lua".source = ./neovim/lua/nvim-cmp.lua;
+  "nvim/lua/lsp.lua".source = ./neovim/lua/lsp.lua;
+  "nvim/lua/color.lua".source = ./neovim/lua/color.lua;
+
   };
 
   #programs.vivaldi = {

@@ -13,6 +13,7 @@
 	 ++[
 	pkgs.lua-language-server
 	pkgs.rust-analyzer
+	pkgs.python311Packages.python-lsp-server
 	];
   };
 }
