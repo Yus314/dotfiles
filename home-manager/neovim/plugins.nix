@@ -1,44 +1,34 @@
 { pkgs }:
 let
   normalizedPluginAttr = p: {
-    "${builtins.replaceStrings
-      [
-        "-"
-        "."
-      ]
-      [
-        "_"
-        "_"
-      ]
-      (pkgs.lib.toLower p.pname)}" = p;
+    "${builtins.replaceStrings [ "-" "." ] [ "_" "_" ]
+    (pkgs.lib.toLower p.pname)}" = p;
   };
   plugins = p: builtins.foldl' (x: y: x // y) { } (map normalizedPluginAttr p);
-in
-with pkgs.vimPlugins;
+in with pkgs.vimPlugins;
 plugins [
-lualine-nvim
-barbar-nvim
-toggleterm-nvim
-tokyonight-nvim
-lazy-nvim
-noice-nvim
-nvim-cmp
-luasnip
-cmp-nvim-lsp
-cmp-path
-cmp-buffer
-copilot-vim
-gitsigns-nvim
-nui-nvim
-telescope-nvim
-plenary-nvim
-telescope-file-browser-nvim
-nvim-ts-autotag
-markdown-preview-nvim
-rust-tools-nvim
-nvim-lspconfig
-nvim-web-devicons
-null-ls-nvim
-conform-nvim
+  barbar-nvim
+  cmp-buffer
+  cmp-nvim-lsp
+  cmp-path
+  conform-nvim
+  copilot-vim
+  gitsigns-nvim
+  lazy-nvim
+  lualine-nvim
+  luasnip
+  markdown-preview-nvim
+  noice-nvim
+  nui-nvim
+  null-ls-nvim
+  nvim-cmp
+  nvim-lspconfig
+  nvim-ts-autotag
+  nvim-web-devicons
+  plenary-nvim
+  rust-tools-nvim
+  telescope-file-browser-nvim
+  telescope-nvim
+  toggleterm-nvim
+  tokyonight-nvim
 ]
-
