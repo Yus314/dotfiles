@@ -38,6 +38,10 @@ in {
       tldr
       alejandra
       nodePackages.prettier
+	  feh
+	  dolphin
+	  xfce.thunar
+	  xfce.tumbler
     ];
   };
   imports = [
@@ -75,8 +79,8 @@ in {
 
   };
 
-  #programs.vivaldi = {
-  #enable = true;
-  #};
+  programs.vivaldi = {
+  enable = true;
+  };
   programs.home-manager.enable = true;
 }

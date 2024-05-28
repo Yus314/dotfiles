@@ -1,0 +1,1 @@
+echo @lualine_nvim@
