@@ -56,3 +56,11 @@ require 'lspconfig'.pylsp.setup({
 		},
 	},
 })
+require 'lspconfig'.nil_ls.setup {
+	autostart = true,
+	capabilities = capabilities,
+	on_attach = lsp_attach,
+	formatting = {
+		command = "nixfmt",
+	},
+}
