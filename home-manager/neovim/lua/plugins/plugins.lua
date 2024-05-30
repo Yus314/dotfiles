@@ -39,14 +39,17 @@ return {
 				},
 			},
 		},
+		ft = { "markdown" },
 	},
 	{
 		name = "rust-tools.nvim",
 		dir = "@rust_tools_nvim@",
+		ft = { "rust" },
 	},
 	{
 		name = "markdown-preview.nvim",
 		dir = "@markdown_preview_nvim@",
+		ft = { "markdown" },
 	},
 	{
 		name = "lualie.nvim",

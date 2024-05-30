@@ -8,9 +8,24 @@ in {
     username = un;
     homeDirectory = hd + un;
     stateVersion = "23.11";
-    packages = with pkgs; [ cowsay bat eza tldr ];
+    packages = with pkgs; [
+      cowsay
+      bat
+      eza
+      tldr
+      xfce.thunar
+      xfce.tumbler
+      gscreenshot
+    ];
   };
-  imports = [ ./zsh.nix ./alacritty.nix ./git.nix ./neovim/neovim.nix ];
+  imports = [
+    ./zsh.nix
+    ./alacritty.nix
+    ./git.nix
+    ./neovim/neovim.nix
+    ./tmux.nix
+    ./i3.nix
+  ];
   programs.gh = { enable = true; };
   programs.lazygit = { enable = true; };
   programs.zoxide = {
@@ -20,8 +35,6 @@ in {
   };
   programs.fzf = { enable = true; };
 
-  programs.vivaldi = {
-  enable = true;
-  };
+  programs.vivaldi = { enable = true; };
   programs.home-manager.enable = true;
 }
