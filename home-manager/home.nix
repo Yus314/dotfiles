@@ -1,6 +1,7 @@
 { config, pkgs, inputs, nur, ... }:
 let
-  un = if pkgs.stdenv.isDarwin then "kakinumayuusuke" else "kaki";
+  #un = if pkgs.stdenv.isDarwin then "kakinumayuusuke" else "kaki";
+  un = "kakinumayuusuke";
   hd = if pkgs.stdenv.isDarwin then "/Users/" else "/home/";
 
 in {
@@ -8,24 +9,15 @@ in {
     username = un;
     homeDirectory = hd + un;
     stateVersion = "23.11";
-    packages = with pkgs; [
-      cowsay
-      bat
-      eza
-      tldr
-      xfce.thunar
-      xfce.tumbler
-      gscreenshot
-    ];
+    packages = with pkgs;
+      [ cowsay bat eza tldr ] ++ (if pkgs.stdenv.isLinux then [
+        xfce.thunar
+        xfce.tumbler
+        gscreenshot
+      ] else
+        [ ]);
   };
-  imports = [
-    ./zsh.nix
-    ./alacritty.nix
-    ./git.nix
-    ./neovim/neovim.nix
-    ./tmux.nix
-    ./i3.nix
-  ];
+  imports = [ ./common ./macOS ];
   programs.gh = { enable = true; };
   programs.lazygit = { enable = true; };
   programs.zoxide = {
@@ -35,6 +27,6 @@ in {
   };
   programs.fzf = { enable = true; };
 
-  programs.vivaldi = { enable = true; };
+  #  programs.vivaldi = { enable = true; };
   programs.home-manager.enable = true;
 }

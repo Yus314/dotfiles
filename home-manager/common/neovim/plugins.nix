@@ -1,4 +1,4 @@
-{ pkgs }:
+{ pkgs, }:
 let
   normalizedPluginAttr = p: {
     "${builtins.replaceStrings [ "-" "." ] [ "_" "_" ]
@@ -31,4 +31,7 @@ plugins [
   telescope-nvim
   toggleterm-nvim
   tokyonight-nvim
+  nvim-treesitter
+  nvim-treesitter.withAllGrammars
+  telescope-file-browser-nvim
 ]

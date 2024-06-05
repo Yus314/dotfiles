@@ -10,5 +10,9 @@ keymap("n", "[b", "<cmd>BufferPrevious<CR>", opts)
 keymap("n", "]b", "<cmd>BufferNext<CR>", opts)
 keymap("n", "<C-w>w", "<cmd>BufferClose<CR>", opts)
 
+-- 挿入モードのマッピング
+vim.api.nvim_set_keymap('i', '<C-j>', '<Plug>(skkeleton-enable)', { noremap = true, silent = true })
 
-vim.api.nvim_set_keymap("n", "<leader>f", ":lua require('conform').format()<CR>", { noremap = true, silent = true })
+
+-- コマンドラインモードのマッピング
+vim.api.nvim_set_keymap('c', '<C-j>', '<Plug>(skkeleton-enable)', { noremap = true, silent = true })

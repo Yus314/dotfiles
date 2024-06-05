@@ -3,16 +3,32 @@ vim.opt.rtp:prepend(lazypath)
 
 require("options")
 require("keymaps")
+
+
+
 require("lazy").setup({
 	spec = {
 		{ import = "plugins.plugins" },
 		{ import = "plugins.gitsign" },
-	}
+		{ import = "plugins.markdown-preview" },
+	},
 })
+
 require("color")
 require("nvim-cmp")
 require("lsp")
 
+
+
+
+vim.cmd(
+	[[
+function OpenMarkdownPreview (url)
+	execute '!open -na "Google Chrome" --args --new-window --app=' . a:url
+endfunction
+]]
+)
+vim.g.mkdp_browserfunc = "OpenMarkdownPreview"
 
 local Terminal = require('toggleterm.terminal').Terminal
 

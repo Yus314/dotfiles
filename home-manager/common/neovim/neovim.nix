@@ -1,4 +1,6 @@
-{ pkgs, ... }:
+{ pkgs,
+#unstablePkgs,
+... }:
 let
 
   plugins = import ./plugins.nix { inherit pkgs; };
@@ -10,10 +12,15 @@ let
 
   gitsign =
     pkgs.substituteAll ({ src = ./lua/plugins/gitsign.lua; } // plugins);
+
+  markdown-preview = pkgs.substituteAll
+    ({ src = ./lua/plugins/markdown-preview.lua; } // plugins);
 in {
   programs.neovim = {
     enable = true;
     vimAlias = true;
+    #plugins = [ unstablePkgs.vimPlugins.denops-vim ];
+
     extraPackages = with pkgs; [
       lua-language-server
       rust-analyzer
@@ -24,18 +31,22 @@ in {
       rustfmt
       nil
       nixfmt
+      nodejs
+      tree-sitter
     ];
+    #++ [ unstablePkgs.deno ];
   };
   xdg.configFile = {
     ## "nvim/init.lua".source = ./neovim/init.lua;
     "nvim/init.lua".source = initLua;
     "nvim/lua/plugins/plugins.lua".source = pluginsLua;
     "nvim/lua/plugins/gitsign.lua".source = gitsign;
+    "nvim/lua/plugins/markdown-preview.lua".source = markdown-preview;
+    "nvim/lua/plugins/func.lua".source = ./lua/plugins/func.lua;
     "nvim/lua/options.lua".source = ./lua/options.lua;
     "nvim/lua/keymaps.lua".source = ./lua/keymaps.lua;
     "nvim/lua/nvim-cmp.lua".source = ./lua/nvim-cmp.lua;
     "nvim/lua/lsp.lua".source = ./lua/lsp.lua;
     "nvim/lua/color.lua".source = ./lua/color.lua;
-
   };
 }

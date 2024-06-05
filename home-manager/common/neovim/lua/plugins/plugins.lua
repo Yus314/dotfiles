@@ -4,6 +4,38 @@ return {
 		dir = "@barbar_nvim@",
 	},
 	{
+		"vim-skk/skkeleton",
+		dependencies = {
+			{
+				name = "denops.vim",
+				dir = "/nix/store/zn4vp6lga0kr7r6nnpl66768i9ajm9wg-vimplugin-denops.vim-2024-04-17",
+				--"vim-denops/denops.vim",
+				config = function()
+					vim.g['denops#deno'] = '/nix/store/ynvsnbjlgikahxlkamqjd1c5vz32xm4x-deno-1.42.3/bin/deno'
+				end
+			},
+		},
+		config = function()
+			vim.cmd([[
+			call skkeleton#config({ 'globalDictionaries': ['~/.skk/SKK-JISYO.L'] })
+			]])
+		end
+	},
+	{
+		name = "nvim-treesitter",
+		dir = "@nvim_treesitter@",
+		build = ":TSUpdate",
+		config = function()
+			require("nvim-treesitter").setup({
+				ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "javascript", "html", "markdown" },
+				sync_install = false,
+				highlight = { enable = true },
+				indent = { enable = true },
+			})
+		end
+	},
+
+	{
 		-- 自動でフォーマットするためだけに入れているが他に良い方法があるかも
 		name = "conform-nvim",
 		dir = "@conform_nvim@",
@@ -47,11 +79,6 @@ return {
 		ft = { "rust" },
 	},
 	{
-		name = "markdown-preview.nvim",
-		dir = "@markdown_preview_nvim@",
-		ft = { "markdown" },
-	},
-	{
 		name = "lualie.nvim",
 		dir = "@lualine_nvim@",
 		dependencies = { {
@@ -88,6 +115,9 @@ return {
 				dir = "@plenary_nvim@",
 			},
 		},
+		config = function()
+			require('telescope').load_extension "file_browser"
+		end
 	},
 	{
 		name = "telescope-file-browser.nvim",
@@ -135,6 +165,9 @@ return {
 			{
 				name = "cmp-buffer",
 				dir = "@cmp_buffer@",
+			},
+			{
+				'rinx/cmp-skkeleton',
 			},
 		},
 	},
