@@ -1,11 +1,21 @@
-{ pkgs, }:
+{ pkgs }:
 let
   normalizedPluginAttr = p: {
-    "${builtins.replaceStrings [ "-" "." ] [ "_" "_" ]
-    (pkgs.lib.toLower p.pname)}" = p;
+    "${builtins.replaceStrings
+      [
+        "-"
+        "."
+      ]
+      [
+        "_"
+        "_"
+      ]
+      (pkgs.lib.toLower p.pname)
+    }" = p;
   };
   plugins = p: builtins.foldl' (x: y: x // y) { } (map normalizedPluginAttr p);
-in with pkgs.vimPlugins;
+in
+with pkgs.vimPlugins;
 plugins [
   barbar-nvim
   cmp-buffer
@@ -18,6 +28,7 @@ plugins [
   lualine-nvim
   luasnip
   markdown-preview-nvim
+  vim-markdown
   noice-nvim
   nui-nvim
   null-ls-nvim
@@ -34,4 +45,5 @@ plugins [
   nvim-treesitter
   nvim-treesitter.withAllGrammars
   telescope-file-browser-nvim
+  denops-vim
 ]

@@ -1,4 +1,19 @@
 {
-  imports =
-    [ ./git.nix ./zsh/zsh.nix ./tmux.nix ./alacritty.nix ./neovim/neovim.nix ];
+  imports = [
+    ./github.nix
+    ./lazygit.nix
+    ./lazygit.nix
+    ./alacritty.nix
+    ./fzf.nix
+    ./git.nix
+    ./neovim/neovim.nix
+    ./tmux.nix
+    ./zsh
+    ./zoxide.nix
+    ./bat.nix
+    ./packages.nix
+    ./fd.nix
+    ./ripgrep.nix
+    ./eza.nix
+  ];
 }

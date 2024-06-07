@@ -4,14 +4,22 @@ return {
 		dir = "@barbar_nvim@",
 	},
 	{
+		name = "vim-markdown",
+		dir = "@vim_markdown@",
+		config = function()
+			vim.g.vim_markdown_folding_disabled = 1
+		end
+	},
+	{
 		"vim-skk/skkeleton",
 		dependencies = {
 			{
 				name = "denops.vim",
-				dir = "/nix/store/zn4vp6lga0kr7r6nnpl66768i9ajm9wg-vimplugin-denops.vim-2024-04-17",
+				--dir = "/nix/store/zn4vp6lga0kr7r6nnpl66768i9ajm9wg-vimplugin-denops.vim-2024-04-17",
+				dir = "@denops_vim@",
 				--"vim-denops/denops.vim",
 				config = function()
-					vim.g['denops#deno'] = '/nix/store/ynvsnbjlgikahxlkamqjd1c5vz32xm4x-deno-1.42.3/bin/deno'
+					vim.g['denops#deno'] = '/nix/store/l3adf02p4xdxlvqy5rl2wzb37965nvml-deno-1.43.6/bin/deno'
 				end
 			},
 		},
@@ -63,7 +71,7 @@ return {
 	},
 	{
 		"epwalsh/obsidian.nvim",
-		opts = {
+		opts   = {
 			workspaces = {
 				{
 					name = "obsidian",
@@ -71,7 +79,10 @@ return {
 				},
 			},
 		},
-		ft = { "markdown" },
+		ft     = { "markdown" },
+		config = function()
+			vim.g.conceallevel = 2
+		end
 	},
 	{
 		name = "rust-tools.nvim",
@@ -123,21 +134,21 @@ return {
 		name = "telescope-file-browser.nvim",
 		dir = "@telescope_file_browser_nvim@",
 	},
-	{
-		name = "noice.nvim",
-		dir = "@noice_nvim@",
-		opts = {
-			cmdline = {
-				enabled = true,
-			},
-		},
-		dependencies = {
-			{
-				name = "nui.nvim",
-				dir = "@nui_nvim@",
-			},
-		},
-	},
+	--	{
+	--		name = "noice.nvim",
+	--		dir = "@noice_nvim@",
+	--		opts = {
+	--			cmdline = {
+	--				enabled = true,
+	--			},
+	--		},
+	--		dependencies = {
+	--			{
+	--				name = "nui.nvim",
+	--				dir = "@nui_nvim@",
+	--			},
+	--		},
+	--	},
 	{
 		name = "copilot.vim",
 		dir = "@copilot_vim@",

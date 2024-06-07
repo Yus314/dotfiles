@@ -1,21 +1,21 @@
-{ pkgs,
-#unstablePkgs,
-... }:
+{
+  pkgs,
+  #unstablePkgs,
+  ...
+}:
 let
 
   plugins = import ./plugins.nix { inherit pkgs; };
 
   initLua = pkgs.substituteAll ({ src = ./init.lua; } // plugins);
 
-  pluginsLua =
-    pkgs.substituteAll ({ src = ./lua/plugins/plugins.lua; } // plugins);
+  pluginsLua = pkgs.substituteAll ({ src = ./lua/plugins/plugins.lua; } // plugins);
 
-  gitsign =
-    pkgs.substituteAll ({ src = ./lua/plugins/gitsign.lua; } // plugins);
+  gitsign = pkgs.substituteAll ({ src = ./lua/plugins/gitsign.lua; } // plugins);
 
-  markdown-preview = pkgs.substituteAll
-    ({ src = ./lua/plugins/markdown-preview.lua; } // plugins);
-in {
+  markdown-preview = pkgs.substituteAll ({ src = ./lua/plugins/markdown-preview.lua; } // plugins);
+in
+{
   programs.neovim = {
     enable = true;
     vimAlias = true;
@@ -24,15 +24,18 @@ in {
     extraPackages = with pkgs; [
       lua-language-server
       rust-analyzer
-      python311Packages.python-lsp-server
-      python311Packages.flake8
-      python311Packages.black
-      python310Packages.isort
+      #python311Packages.python-lsp-server
+      #python311Packages.flake8
+      #python311Packages.black
+      #python310Packages.isort
+      python312Packages.black
+      python312Packages.isort
       rustfmt
       nil
-      nixfmt
+      nixfmt-rfc-style
       nodejs
       tree-sitter
+      deno
     ];
     #++ [ unstablePkgs.deno ];
   };

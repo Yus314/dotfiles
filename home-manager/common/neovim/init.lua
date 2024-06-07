@@ -18,8 +18,19 @@ require("color")
 require("nvim-cmp")
 require("lsp")
 
+vim.api.nvim_exec([[
+  augroup auto_push
+    autocmd!
+    autocmd BufWritePost ~/obsidian/*.md lua AutoPush()
+  augroup END
+]], false)
 
-
+function AutoPush()
+	local project_dir = '/Users/kakinumayuusuke/obsidian'
+	if vim.fn.isdirectory(project_dir) == 1 then
+		vim.cmd('silent !bash ' .. project_dir .. '/auto_push.sh')
+	end
+end
 
 vim.cmd(
 	[[
