@@ -1,8 +1,4 @@
-{
-  pkgs,
-  #unstablePkgs,
-  ...
-}:
+{ pkgs, ... }:
 let
 
   plugins = import ./plugins.nix { inherit pkgs; };
@@ -19,15 +15,12 @@ in
   programs.neovim = {
     enable = true;
     vimAlias = true;
-    #plugins = [ unstablePkgs.vimPlugins.denops-vim ];
 
     extraPackages = with pkgs; [
       lua-language-server
       rust-analyzer
       #python311Packages.python-lsp-server
       #python311Packages.flake8
-      #python311Packages.black
-      #python310Packages.isort
       python312Packages.black
       python312Packages.isort
       rustfmt
@@ -37,7 +30,6 @@ in
       tree-sitter
       deno
     ];
-    #++ [ unstablePkgs.deno ];
   };
   xdg.configFile = {
     ## "nvim/init.lua".source = ./neovim/init.lua;
@@ -51,5 +43,6 @@ in
     "nvim/lua/nvim-cmp.lua".source = ./lua/nvim-cmp.lua;
     "nvim/lua/lsp.lua".source = ./lua/lsp.lua;
     "nvim/lua/color.lua".source = ./lua/color.lua;
+    "~/.skk/SKK-JISYO.L".source = ./SKK-JISYO.L;
   };
 }

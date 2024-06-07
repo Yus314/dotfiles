@@ -2,29 +2,54 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ inputs, config, pkgs, ... }:
+{
+  inputs,
+  config,
+  pkgs,
+  ...
+}:
 
 {
-  imports =
-    [
-      # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
   # Bootloader
   nix = {
     settings = {
-      experimental-features = [ "nix-command" "flakes" ];
-      access-tokens = ;
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
+      #    access-tokens = ;
+    };
+  };
+  home-manager = {
+    users.kaki = {
+      imports = [
+        ./home-manager/NixOS/gui/i3.nix
+        ./home-manager/NixOS/gui/packages.nix
+        #./home-manager/NixOS/cli
+        ./home-manager/common
+      ];
+      home = {
+        username = "kaki";
+        homeDirectory = "/home/kaki";
+        stateVersion = "24.05";
+      };
     };
   };
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowBroken = true;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.extraModulePackages = with config.boot.kernelPackages; [r8125 nvidia_x11];
-  boot.kernelModules = ["r8125"];
-  boot.initrd.kernelModules = ["nvidia"];
-  services.xserver.videoDrivers = ["nvidia"];
+  boot.extraModulePackages = with config.boot.kernelPackages; [
+    r8125
+    nvidia_x11
+  ];
+  boot.kernelModules = [ "r8125" ];
+  boot.initrd.kernelModules = [ "nvidia" ];
+  services.xserver.videoDrivers = [ "nvidia" ];
   hardware.opengl = {
     enable = true;
     driSupport = true;
@@ -70,7 +95,7 @@
   };
   i18n.inputMethod = {
     enabled = "fcitx5";
-    fcitx5.addons = [pkgs.fcitx5-mozc];
+    fcitx5.addons = [ pkgs.fcitx5-mozc ];
   };
   fonts = {
     packages = with pkgs; [
@@ -82,10 +107,19 @@
     fontDir.enable = true;
     fontconfig = {
       defaultFonts = {
-        serif = ["Noto Serif CJK JP" "Noto Color Emoji"];
-        sansSerif = ["Noto Sans CJK JP" "Noto Color Emoji"];
-        monospace = ["JetBrainsMono Nerd Font" "Noto Color Emoji"];
-        emoji = ["Noto Color Emoji"];
+        serif = [
+          "Noto Serif CJK JP"
+          "Noto Color Emoji"
+        ];
+        sansSerif = [
+          "Noto Sans CJK JP"
+          "Noto Color Emoji"
+        ];
+        monospace = [
+          "JetBrainsMono Nerd Font"
+          "Noto Color Emoji"
+        ];
+        emoji = [ "Noto Color Emoji" ];
       };
     };
   };
@@ -110,15 +144,15 @@
     displayManager = {
       defaultSession = "none+i3";
       setupCommands = ''
-        				LEFT='HDMI-0'
-        				CENTER='DP-0'
-        				RIGHT='DP-4'
-        				${pkgs.xorg.xrandr}/bin/xrandr --output $CENTER  --output $LEFT  --left-of $CENTER --output $RIGHT  --right-of $CENTER
-        			'';
+        LEFT='HDMI-0'
+        CENTER='DP-0'
+        RIGHT='DP-4'
+        ${pkgs.xorg.xrandr}/bin/xrandr --output $CENTER  --output $LEFT  --left-of $CENTER --output $RIGHT  --right-of $CENTER
+      '';
     };
     windowManager.i3 = {
       enable = true;
-      extraPackages = with pkgs;[
+      extraPackages = with pkgs; [
         rofi
         i3status
         i3lock
@@ -164,7 +198,10 @@
   users.users.kaki = {
     isNormalUser = true;
     description = "kaki";
-    extraGroups = ["networkmanager" "wheel"];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
     packages = with pkgs; [
       firefox
       gh
@@ -208,5 +245,5 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.11"; # Did you read the comment?
+  system.stateVersion = "24.05"; # Did you read the comment?
 }

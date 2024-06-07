@@ -15,38 +15,35 @@
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
   };
-  outputs =
-    inputs:
-    let
-      system = "aarch64-darwin";
-      unstablePkgs = import inputs.unstable { inherit system; };
-    in
-    {
-      nixosConfigurations = {
-        myNixOS = inputs.nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [ ./configuration.nix ];
-        };
-      };
-      homeConfigurations = {
-        myHome = inputs.home-manager.lib.homeManagerConfiguration {
-          pkgs = import inputs.nixpkgs {
-            #system = "x86_64-linux";
-            system = "aarch64-darwin";
-            config.allowUnfree = true;
-          };
-          extraSpecialArgs = {
-            inherit inputs;
-            inherit unstablePkgs;
-          };
-          modules = [ ./home-manager/home.nix ];
-        };
-      };
-      darwinConfigurations."kakinumayuusukenoMacBook-Air" = inputs.nix-darwin.lib.darwinSystem {
+  outputs = inputs: {
+    nixosConfigurations = {
+      myNixOS = inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
         modules = [
-          ./darwin-configuration.nix
-          inputs.home-manager.darwinModules.home-manager
+          ./configuration.nix
+          inputs.home-manager.nixosModules.home-manager
         ];
       };
     };
+    homeConfigurations = {
+      myHome = inputs.home-manager.lib.homeManagerConfiguration {
+        pkgs = import inputs.nixpkgs {
+          system = "x86_64-linux";
+          #system = "aarch64-darwin";
+          config.allowUnfree = true;
+        };
+        extraSpecialArgs = {
+          inherit inputs;
+        };
+        modules = [ ./home-manager/home-nixos.nix ];
+      };
+    };
+    darwinConfigurations."kakinumayuusukenoMacBook-Air" = inputs.nix-darwin.lib.darwinSystem {
+      system = "aaarch64-darwin";
+      modules = [
+        ./darwin-configuration.nix
+        inputs.home-manager.darwinModules.home-manager
+      ];
+    };
+  };
 }
