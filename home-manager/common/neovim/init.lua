@@ -21,16 +21,32 @@ require("lsp")
 vim.api.nvim_exec([[
   augroup auto_push
     autocmd!
-    autocmd BufWritePost ~/obsidian/*.md lua AutoPush()
+    autocmd VimLeavePre ~/obsidian/*.md lua AutoPush()
   augroup END
 ]], false)
+
+function AutoPull()
+	local project_dir = '/Users/kakinumayuusuke/obsidian'
+	if vim.fn.isdirectory(project_dir) == 1 then
+		--vim.cmd('silent !bash ' .. project_dir .. '/auto_pull.sh')
+		vim.cmd('silent !cd ' .. project_dir .. ' && git pull ')
+	end
+end
 
 function AutoPush()
 	local project_dir = '/Users/kakinumayuusuke/obsidian'
 	if vim.fn.isdirectory(project_dir) == 1 then
-		vim.cmd('silent !bash ' .. project_dir .. '/auto_push.sh')
+		local commit_message = 'Update ' .. os.date('%Y-%m-%d %H: %M: %S')
+		vim.cmd('silent !cd ' .. project_dir .. ' && git add .  && git commit -m "' .. commit_message .. '" && git push')
 	end
 end
+
+vim.api.nvim_exec([[
+  augroup auto_pull
+    autocmd!
+    autocmd BufReadPre ~/obsidian/*.md lua AutoPull()
+  augroup END
+]], false)
 
 vim.cmd(
 	[[

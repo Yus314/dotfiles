@@ -11,6 +11,13 @@ return {
 		end
 	},
 	{
+		name = "vimtex",
+		dir = "@vimtex@",
+		config = function()
+			vim.g.vimtex_view_method = "skim"
+		end
+	},
+	{
 		"vim-skk/skkeleton",
 		dependencies = {
 			{

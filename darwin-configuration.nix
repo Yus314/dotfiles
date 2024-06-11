@@ -19,8 +19,8 @@
   #  noto-fonts-cjk-serif
   #  noto-fonts-cjk-sans
   #  noto-fonts-emoji
-  #   nerdfonts
-  # #  ];
+  #  nerdfonts
+  #];
   #home-manager.users.kakinumayuusuke = import ./home-manager/home.nix;
   home-manager = {
     useGlobalPkgs = true;

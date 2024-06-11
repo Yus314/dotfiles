@@ -19,6 +19,7 @@ in
     extraPackages = with pkgs; [
       lua-language-server
       rust-analyzer
+      texlab
       #python311Packages.python-lsp-server
       #python311Packages.flake8
       python312Packages.black

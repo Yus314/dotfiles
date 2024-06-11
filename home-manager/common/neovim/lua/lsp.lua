@@ -6,6 +6,10 @@ local lsp_attach = function(client, buf)
 end
 
 
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, opts)
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
+
 vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
 vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>')
 vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
@@ -34,6 +38,7 @@ require("rust-tools").setup({
 	},
 })
 require 'lspconfig'.lua_ls.setup {}
+require 'lspconfig'.texlab.setup {}
 require 'lspconfig'.pylsp.setup({
 	capabilities = capabilities,
 	on_attach = lsp_attach,

@@ -46,4 +46,5 @@ plugins [
   nvim-treesitter.withAllGrammars
   telescope-file-browser-nvim
   denops-vim
+  vimtex
 ]
