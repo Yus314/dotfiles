@@ -1,12 +1,16 @@
 { pkgs, ... }:
 {
   home.packages = with pkgs; [
-    cowsay
+    #cowsay
     tldr
     pandoc
     texliveTeTeX
     iconv
     just
+    zathura
+    unzip
     cloudflared
+    onedrive
+    marp-cli
   ];
 }

@@ -14,36 +14,54 @@
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
+    nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
+      flake = false;
+    };
+    homebrew-cask = {
+      url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
   };
-  outputs = inputs: {
-    nixosConfigurations = {
-      myNixOS = inputs.nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+  outputs =
+    inputs:
+    let
+      allowed-unfree-packages = [ "vivaldi" ];
+    in
+    {
+      nixosConfigurations = {
+        myNixOS = inputs.nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./configuration.nix
+            inputs.home-manager.nixosModules.home-manager
+          ];
+          specialArgs = {
+            inherit allowed-unfree-packages;
+          };
+        };
+      };
+      homeConfigurations = {
+        myHome = inputs.home-manager.lib.homeManagerConfiguration {
+          pkgs = import inputs.nixpkgs {
+            system = "x86_64-linux";
+            #system = "aarch64-darwin";
+            config.allowUnfree = true;
+          };
+          extraSpecialArgs = {
+            inherit inputs;
+          };
+          modules = [ ./home-manager/home-nixos.nix ];
+        };
+      };
+      darwinConfigurations."kakinumayuusukenoMacBook-Air" = inputs.nix-darwin.lib.darwinSystem {
+        system = "aaarch64-darwin";
         modules = [
-          ./lab-sub-configuration.nix
-          inputs.home-manager.nixosModules.home-manager
+          ./darwin-configuration.nix
+          inputs.home-manager.darwinModules.home-manager
+          inputs.nix-homebrew.darwinModules.nix-homebrew
         ];
       };
     };
-    homeConfigurations = {
-      myHome = inputs.home-manager.lib.homeManagerConfiguration {
-        pkgs = import inputs.nixpkgs {
-          system = "x86_64-linux";
-          #system = "aarch64-darwin";
-          config.allowUnfree = true;
-        };
-        extraSpecialArgs = {
-          inherit inputs;
-        };
-        modules = [ ./home-manager/home-nixos.nix ];
-      };
-    };
-    darwinConfigurations."kakinumayuusukenoMacBook-Air" = inputs.nix-darwin.lib.darwinSystem {
-      system = "aaarch64-darwin";
-      modules = [
-        ./darwin-configuration.nix
-        inputs.home-manager.darwinModules.home-manager
-      ];
-    };
-  };
 }
