@@ -1,5 +1,6 @@
 {
   imports = [
+    ./direnv.nix
     ./github.nix
     ./lazygit.nix
     ./lazygit.nix

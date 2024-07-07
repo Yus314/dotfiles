@@ -22,6 +22,15 @@
   #  nerdfonts
   #];
   #home-manager.users.kakinumayuusuke = import ./home-manager/home.nix;
+  nix = {
+    settings = {
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
+      #    access-tokens = ;
+    };
+  };
   home-manager = {
     useGlobalPkgs = true;
     users.kakinumayuusuke = {
@@ -43,5 +52,10 @@
         home = "/Users/kakinumayuusuke";
       };
     };
+  };
+  nix-homebrew = {
+    enable = true;
+    enableRosetta = true;
+    user = "kakinumayuusuke";
   };
 }

@@ -14,6 +14,15 @@
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
+    nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
+      flake = false;
+    };
+    homebrew-cask = {
+      url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
   };
   outputs =
     inputs:
@@ -54,4 +63,29 @@
         ];
       };
     };
+<<<<<<< HEAD
+=======
+    homeConfigurations = {
+      myHome = inputs.home-manager.lib.homeManagerConfiguration {
+        pkgs = import inputs.nixpkgs {
+          system = "x86_64-linux";
+          #system = "aarch64-darwin";
+          config.allowUnfree = true;
+        };
+        extraSpecialArgs = {
+          inherit inputs;
+        };
+        modules = [ ./home-manager/home-nixos.nix ];
+      };
+    };
+    darwinConfigurations."kakinumayuusukenoMacBook-Air" = inputs.nix-darwin.lib.darwinSystem {
+      system = "aaarch64-darwin";
+      modules = [
+        ./darwin-configuration.nix
+        inputs.home-manager.darwinModules.home-manager
+        inputs.nix-homebrew.darwinModules.nix-homebrew
+      ];
+    };
+  };
+>>>>>>> 82f945bbc4938953bec7d0b9bb14ebff9025d956
 }

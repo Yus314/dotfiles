@@ -17,3 +17,6 @@ config.keys = {
 	{ key = "UpArrow",   mods = "SHIFT", action = act.ScrollByPage(-1) },
 	{ key = "DownArrow", mods = "SHIFT", action = act.ScrollByPage(1) },
 }
+
+
+return config
