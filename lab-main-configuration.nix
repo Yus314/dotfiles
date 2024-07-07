@@ -12,7 +12,7 @@
 {
   imports = [
     # Include the results of the hardware scan.
-    ./hardware-configuration.nix
+    ./host/lab-main-hardware-configuration.nix
   ];
   console.keyMap = "dvorak";
   users.users.Cloudflared = {

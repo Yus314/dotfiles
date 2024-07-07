@@ -31,10 +31,10 @@
     in
     {
       nixosConfigurations = {
-        myNixOS = inputs.nixpkgs.lib.nixosSystem {
+        lab-main = inputs.nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
-            ./configuration.nix
+            ./lab-main-configuration.nix
             inputs.home-manager.nixosModules.home-manager
           ];
           specialArgs = {
