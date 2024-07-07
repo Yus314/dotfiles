@@ -20,10 +20,8 @@ return {
 		name = "vimtex",
 		dir = "@vimtex@",
 		config = function()
-<<<<<<< HEAD
 			vim.g.vimtex_view_method = "zathura"
-=======
-			vim.g.vimtex_view_method = "skim"
+			--	vim.g.vimtex_view_method = "skim"
 		end,
 		ft = { "tex" },
 	},
@@ -650,7 +648,6 @@ return {
 				\ "pr": ["ぷろ"],
 				\ })
 			]])
->>>>>>> 82f945bbc4938953bec7d0b9bb14ebff9025d956
 		end
 	},
 	--{

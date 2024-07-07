@@ -11,5 +11,6 @@
     unzip
     cloudflared
     onedrive
+    marp-cli
   ];
 }

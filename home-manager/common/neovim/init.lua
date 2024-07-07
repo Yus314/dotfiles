@@ -17,8 +17,6 @@ require("lazy").setup({
 require("color")
 require("nvim-cmp")
 require("lsp")
-<<<<<<< HEAD
-=======
 
 vim.api.nvim_exec([[
   augroup auto_push
@@ -109,4 +107,3 @@ function _lazygit_toggle()
 end
 
 vim.api.nvim_set_keymap("n", "<leader>g", "<cmd>lua _lazygit_toggle()<CR>", { noremap = true, silent = true })
->>>>>>> 82f945bbc4938953bec7d0b9bb14ebff9025d956
