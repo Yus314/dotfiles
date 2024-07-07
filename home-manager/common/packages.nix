@@ -10,7 +10,6 @@
     zathura
     unzip
     cloudflared
-    onedrive
     marp-cli
   ];
 }

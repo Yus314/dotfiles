@@ -7,7 +7,7 @@ if wezterm.config_builder then
 end
 
 -- カラースキームの設定
-config.color_scheme = 'One Dark (base16)'
+config.color_scheme = 'OneDark (base16)'
 config.window_decorations = "RESIZE"
 
 -- スクロールの設定
