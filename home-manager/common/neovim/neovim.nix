@@ -24,6 +24,7 @@ in
       #python311Packages.flake8
       python312Packages.black
       python312Packages.isort
+      python312Packages.python-lsp-server
       rustfmt
       nil
       nixfmt-rfc-style
@@ -43,6 +44,7 @@ in
     "nvim/lua/keymaps.lua".source = ./lua/keymaps.lua;
     "nvim/lua/nvim-cmp.lua".source = ./lua/nvim-cmp.lua;
     "nvim/lua/lsp.lua".source = ./lua/lsp.lua;
+    "nvim/lua/specif.lua".source = ./lua/specif.lua;
     "nvim/lua/color.lua".source = ./lua/color.lua;
     "~/.skk/SKK-JISYO.L".source = ./SKK-JISYO.L;
   };
