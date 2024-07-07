@@ -1,5 +1,6 @@
 {
   imports = [
+    ./direnv.nix
     ./github.nix
     ./lazygit.nix
     ./lazygit.nix
@@ -15,5 +16,6 @@
     ./fd.nix
     ./ripgrep.nix
     ./eza.nix
+    ./wezterm/wezterm.nix
   ];
 }

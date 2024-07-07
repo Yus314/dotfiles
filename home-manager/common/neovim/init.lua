@@ -72,25 +72,26 @@ end
 vim.api.nvim_set_keymap("n", "<leader>r", "<cmd>lua _cargo_run_toggle()<CR>", { noremap = true, silent = true })
 
 
-local cargo_test = Terminal:new({
-	cmd = "cargo compete t " .. vim.fn.expand("%:t:r"),
-	hidden = true, -- 通常のToggleTermコマンドでは開かれない
-	close_on_exit = false,
-})
 
 function _cargo_test_toggle()
+	local cargo_test = Terminal:new({
+		cmd = "cargo compete t " .. vim.fn.expand("%:t:r"),
+		hidden = true, -- 通常のToggleTermコマンドでは開かれない
+		close_on_exit = false,
+	})
 	cargo_test:toggle() -- ターミナルを開く/閉じる
 end
 
 vim.api.nvim_set_keymap("n", "<leader>t", "<cmd>lua _cargo_test_toggle()<CR>", { noremap = true, silent = true })
 
-local cargo_submit = Terminal:new({
-	cmd = "cargo compete submit " .. vim.fn.expand("%:t:r"),
-	hidden = true, -- 通常のToggleTermコマンドでは開かれない
-	close_on_exit = false,
-})
+
 
 function _cargo_submit_toggle()
+	local cargo_submit = Terminal:new({
+		cmd = "cargo compete submit " .. vim.fn.expand("%:t:r"),
+		hidden = true, -- 通常のToggleTermコマンドでは開かれない
+		close_on_exit = false,
+	})
 	cargo_submit:toggle() -- ターミナルを開く/閉じる
 end
 

@@ -16,3 +16,11 @@ vim.api.nvim_set_keymap('i', '<C-j>', '<Plug>(skkeleton-enable)', { noremap = tr
 
 -- コマンドラインモードのマッピング
 vim.api.nvim_set_keymap('c', '<C-j>', '<Plug>(skkeleton-enable)', { noremap = true, silent = true })
+
+-- dvorak のための物理的キーマッピングの変更
+keymap("n", "d", "h", opts)
+keymap("n", "h", "j", opts)
+keymap("n", "t", "k", opts)
+keymap("n", "n", "l", opts)
+keymap("n", "e", "d", opts)
+keymap("n", "ee", "dd", opts)

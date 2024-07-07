@@ -1,9 +1,8 @@
-{pkgs, ...}: let
-  fam =
-    if pkgs.stdenv.isDarwin
-    then "MesloLGS NF"
-    else "Monospace";
-in {
+{ pkgs, ... }:
+let
+  fam = if pkgs.stdenv.isDarwin then "MesloLGS NF" else "Monospace";
+in
+{
   programs.alacritty = {
     enable = true;
     settings = {
@@ -12,7 +11,7 @@ in {
           lines = 30;
           columns = 100;
         };
-        option_as_alt = "Both";
+        option_as_alt = "None";
       };
       font = {
         normal = {

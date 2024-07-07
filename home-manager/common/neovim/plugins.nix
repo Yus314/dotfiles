@@ -23,17 +23,18 @@ plugins [
   cmp-path
   conform-nvim
   copilot-vim
+  denops-vim
   gitsigns-nvim
   lazy-nvim
   lualine-nvim
   luasnip
   markdown-preview-nvim
-  vim-markdown
   noice-nvim
   nui-nvim
   null-ls-nvim
   nvim-cmp
   nvim-lspconfig
+  nvim-treesitter.withAllGrammars
   nvim-ts-autotag
   nvim-web-devicons
   plenary-nvim
@@ -42,9 +43,6 @@ plugins [
   telescope-nvim
   toggleterm-nvim
   tokyonight-nvim
-  nvim-treesitter
-  nvim-treesitter.withAllGrammars
-  telescope-file-browser-nvim
-  denops-vim
+  vim-markdown
   vimtex
 ]

@@ -14,14 +14,18 @@
       enable = true;
     };
     initExtra = ''
-                  	if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
-                  		source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh 
-                  	fi
-            			if [ -f ~/.p10k.zsh ]; then
-                        source ~/.p10k.zsh
-            			fi
-      				  eval "$(zoxide init zsh)"
+                        	if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+                        		source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh 
+                        	fi
+                  			if [ -f ~/.p10k.zsh ]; then
+                              source ~/.p10k.zsh
+                  			fi
+            				  eval "$(zoxide init zsh)"
+      					  EDITOR=nvim
     '';
+    sessionVariables = {
+      EDITOR = "nvim";
+    };
     plugins = [
       {
         name = "powerlevel10k";
