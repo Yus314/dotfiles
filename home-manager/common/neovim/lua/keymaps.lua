@@ -22,5 +22,12 @@ keymap("n", "d", "h", opts)
 keymap("n", "h", "j", opts)
 keymap("n", "t", "k", opts)
 keymap("n", "n", "l", opts)
+
+-- for visual module
+keymap("v", "d", "h", opts)
+keymap("v", "h", "j", opts)
+keymap("v", "t", "k", opts)
+keymap("v", "n", "l", opts)
+-- for d key
 keymap("n", "e", "d", opts)
 keymap("n", "ee", "dd", opts)
