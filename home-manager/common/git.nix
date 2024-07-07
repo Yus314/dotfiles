@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   programs.git = {
     enable = true;
     userName = "Yus314";
@@ -7,6 +8,7 @@
       core = {
         editor = "nvim";
       };
+      pull.rebase = false;
     };
   };
 }

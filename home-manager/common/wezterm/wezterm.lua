@@ -18,5 +18,4 @@ config.keys = {
 	{ key = "DownArrow", mods = "SHIFT", action = act.ScrollByPage(1) },
 }
 
-
 return config
