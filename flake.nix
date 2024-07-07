@@ -41,6 +41,16 @@
             inherit allowed-unfree-packages;
           };
         };
+        lab-sub = inputs.nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./lab-sub-configuration.nix
+            inputs.home-manager.nixosModules.home-manager
+          ];
+          specialArgs = {
+            inherit allowed-unfree-packages;
+          };
+        };
       };
       homeConfigurations = {
         myHome = inputs.home-manager.lib.homeManagerConfiguration {
