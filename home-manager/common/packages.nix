@@ -7,5 +7,6 @@
     texliveTeTeX
     iconv
     just
+    cloudflared
   ];
 }

@@ -15,5 +15,6 @@
     ./fd.nix
     ./ripgrep.nix
     ./eza.nix
+    ./wezterm/wezterm.nix
   ];
 }
