@@ -7,5 +7,9 @@
     texliveTeTeX
     iconv
     just
+    zathura
+    unzip
+    cloudflared
+    onedrive
   ];
 }

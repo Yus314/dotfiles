@@ -14,6 +14,24 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
   ];
+  console.keyMap = "dvorak";
+  users.users.Cloudflared = {
+    group = "wheel";
+    isSystemUser = true;
+  };
+  services.onedrive.enable = true;
+
+  systemd.services.lab2home = {
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel --no-autoupdate run --token=eyJhIjoiZTU4ODdmZDg4NDFmZjRmZDQzZTQ2Y2QxZTAxYjM4MDkiLCJ0IjoiMGMzYzdiNmQtZDY1Yy00MTM0LWJiY2QtMzkzMDM4M2M4OGQ3IiwicyI6IllXTTNaalppTmpFdFpEZzJZUzAwTm1JMExUazJZekV0T0dKbE5HTTBOemRoTVRoaiJ9";
+      Restart = "always";
+      User = "kaki";
+      Group = "wheel";
+    };
+  };
+
   # Bootloader
   nix = {
     settings = {
@@ -24,11 +42,13 @@
       #    access-tokens = ;
     };
   };
+  virtualisation.docker = {
+    enable = true;
+  };
   home-manager = {
     users.kaki = {
       imports = [
-        ./home-manager/NixOS/gui/i3.nix
-        ./home-manager/NixOS/gui/packages.nix
+        ./home-manager/NixOS/gui
         #./home-manager/NixOS/cli
         ./home-manager/common
       ];
@@ -38,6 +58,8 @@
         stateVersion = "24.05";
       };
     };
+    useGlobalPkgs = true;
+    useUserPackages = true;
   };
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowBroken = true;
@@ -49,7 +71,6 @@
   ];
   boot.kernelModules = [ "r8125" ];
   boot.initrd.kernelModules = [ "nvidia" ];
-  services.xserver.videoDrivers = [ "nvidia" ];
   hardware.opengl = {
     enable = true;
     driSupport = true;
@@ -63,7 +84,7 @@
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "lab-main"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -130,13 +151,14 @@
   services.meshcentral.enable = true;
 
   # Enable the X11 windowing system.
-  services.xserver.enable = true;
 
   # Enable the GNOME Desktop Environment.
-  #services.xserver.displayManager.gdm.enable = true;
-  #services.xserver.desktopManager.gnome.enable = true;
   environment.pathsToLink = [ "/libexec" ];
   services.xserver = {
+    enable = true;
+    layout = "us";
+    xkbVariant = "dvorak";
+    videoDrivers = [ "nvidia" ];
     desktopManager = {
       xterm.enable = false;
       runXdgAutostartIfNone = true;
@@ -162,10 +184,6 @@
   };
 
   # Configure keymap in X11
-  services.xserver = {
-    layout = "us";
-    xkbVariant = "";
-  };
   services.mysql = {
     enable = true;
     package = pkgs.mariadb;
@@ -173,6 +191,8 @@
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
+
+  services.openssh.enable = true;
 
   # Enable sound with pipewire.
   sound.enable = true;
@@ -191,9 +211,6 @@
     #media-session.enable = true;
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
-
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.kaki = {
     isNormalUser = true;
@@ -206,6 +223,7 @@
       firefox
       gh
       lshw
+      tldr
     ];
   };
 
@@ -218,6 +236,9 @@
     dig
     git
     meshcentral
+    tigervnc
+    openssl
+    teamviewer
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

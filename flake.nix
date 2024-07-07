@@ -15,35 +15,43 @@
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
   };
-  outputs = inputs: {
-    nixosConfigurations = {
-      myNixOS = inputs.nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+  outputs =
+    inputs:
+    let
+      allowed-unfree-packages = [ "vivaldi" ];
+    in
+    {
+      nixosConfigurations = {
+        myNixOS = inputs.nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./configuration.nix
+            inputs.home-manager.nixosModules.home-manager
+          ];
+          specialArgs = {
+            inherit allowed-unfree-packages;
+          };
+        };
+      };
+      homeConfigurations = {
+        myHome = inputs.home-manager.lib.homeManagerConfiguration {
+          pkgs = import inputs.nixpkgs {
+            system = "x86_64-linux";
+            #system = "aarch64-darwin";
+            config.allowUnfree = true;
+          };
+          extraSpecialArgs = {
+            inherit inputs;
+          };
+          modules = [ ./home-manager/home-nixos.nix ];
+        };
+      };
+      darwinConfigurations."kakinumayuusukenoMacBook-Air" = inputs.nix-darwin.lib.darwinSystem {
+        system = "aaarch64-darwin";
         modules = [
-          ./configuration.nix
-          inputs.home-manager.nixosModules.home-manager
+          ./darwin-configuration.nix
+          inputs.home-manager.darwinModules.home-manager
         ];
       };
     };
-    homeConfigurations = {
-      myHome = inputs.home-manager.lib.homeManagerConfiguration {
-        pkgs = import inputs.nixpkgs {
-          system = "x86_64-linux";
-          #system = "aarch64-darwin";
-          config.allowUnfree = true;
-        };
-        extraSpecialArgs = {
-          inherit inputs;
-        };
-        modules = [ ./home-manager/home-nixos.nix ];
-      };
-    };
-    darwinConfigurations."kakinumayuusukenoMacBook-Air" = inputs.nix-darwin.lib.darwinSystem {
-      system = "aaarch64-darwin";
-      modules = [
-        ./darwin-configuration.nix
-        inputs.home-manager.darwinModules.home-manager
-      ];
-    };
-  };
 }

@@ -14,28 +14,28 @@ return {
 		name = "vimtex",
 		dir = "@vimtex@",
 		config = function()
-			vim.g.vimtex_view_method = "skim"
+			vim.g.vimtex_view_method = "zathura"
 		end
 	},
-	{
-		"vim-skk/skkeleton",
-		dependencies = {
-			{
-				name = "denops.vim",
-				--dir = "/nix/store/zn4vp6lga0kr7r6nnpl66768i9ajm9wg-vimplugin-denops.vim-2024-04-17",
-				dir = "@denops_vim@",
-				--"vim-denops/denops.vim",
-				config = function()
-					vim.g['denops#deno'] = '/nix/store/l3adf02p4xdxlvqy5rl2wzb37965nvml-deno-1.43.6/bin/deno'
-				end
-			},
-		},
-		config = function()
-			vim.cmd([[
-			call skkeleton#config({ 'globalDictionaries': ['~/.skk/SKK-JISYO.L'] })
-			]])
-		end
-	},
+	--{
+	--	"vim-skk/skkeleton",
+	--	dependencies = {
+	--		{
+	--			name = "denops.vim",
+	--			--dir = "/nix/store/zn4vp6lga0kr7r6nnpl66768i9ajm9wg-vimplugin-denops.vim-2024-04-17",
+	--			dir = "@denops_vim@",
+	--			--"vim-denops/denops.vim",
+	--			config = function()
+	--				vim.g['denops#deno'] = '/nix/store/l3adf02p4xdxlvqy5rl2wzb37965nvml-deno-1.43.6/bin/deno'
+	--			end
+	--		},
+	--	},
+	--	config = function()
+	--		vim.cmd([[
+	--		call skkeleton#config({ 'globalDictionaries': ['~/.skk/SKK-JISYO.L'] })
+	--		]])
+	--	end
+	--},
 	{
 		name = "nvim-treesitter",
 		dir = "@nvim_treesitter@",
@@ -184,9 +184,9 @@ return {
 				name = "cmp-buffer",
 				dir = "@cmp_buffer@",
 			},
-			{
-				'rinx/cmp-skkeleton',
-			},
+			--{
+			--		'rinx/cmp-skkeleton',
+			--	},
 		},
 	},
 }
