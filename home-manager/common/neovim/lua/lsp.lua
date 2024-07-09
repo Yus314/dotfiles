@@ -39,37 +39,9 @@ require("rust-tools").setup({
 })
 require 'lspconfig'.lua_ls.setup {}
 require 'lspconfig'.texlab.setup {}
-require 'lspconfig'.pylsp.setup({
+require 'lspconfig'.ruff_lsp.setup {
 	capabilities = capabilities,
-	on_attach = lsp_attach,
-	settings = {
-		pylsp = {
-			plugins = {
-				mccabe = {
-					enabled = false,
-				},
-				pycodestyle = {
-					enabled = false,
-				},
-				pyflakes = {
-					enabled = false,
-				},
-				flake8 = {
-					enabled = true,
-					ignore = { 'E203', },
-					maxLineLength = 119,
-				},
-				black = {
-					enabled = true,
-					lineLength = 119,
-				},
-				isort = {
-					enabled = true,
-				},
-			},
-		},
-	},
-})
+}
 require 'lspconfig'.nil_ls.setup {
 	autostart = true,
 	capabilities = capabilities,

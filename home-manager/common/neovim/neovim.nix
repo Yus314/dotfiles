@@ -24,9 +24,7 @@ in
       lua-language-server
       rust-analyzer
       texlab
-      python312Packages.black
-      python312Packages.isort
-      python312Packages.python-lsp-server
+	  ruff-lsp
       rustfmt
       nil
       nixfmt-rfc-style
