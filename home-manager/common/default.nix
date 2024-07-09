@@ -2,8 +2,7 @@
   imports = [
     ./direnv.nix
     ./github.nix
-    ./lazygit.nix
-    ./lazygit.nix
+    ./lazygit/lazygit.nix
     ./alacritty.nix
     ./fzf.nix
     ./git.nix
@@ -17,5 +16,7 @@
     ./ripgrep.nix
     ./eza.nix
     ./wezterm/wezterm.nix
+    ./fish.nix
+    ./starship.nix
   ];
 }
