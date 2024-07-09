@@ -45,6 +45,15 @@ require 'lspconfig'.pylsp.setup({
 	settings = {
 		pylsp = {
 			plugins = {
+				mccabe = {
+					enabled = false,
+				},
+				pycodestyle = {
+					enabled = false,
+				},
+				pyflakes = {
+					enabled = false,
+				},
 				flake8 = {
 					enabled = true,
 					ignore = { 'E203', },

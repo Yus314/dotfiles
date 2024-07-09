@@ -95,6 +95,11 @@ in
               rust
               query
               vimdoc
+              markdown
+              markdown-inline
+              vim
+              bash
+              regex
             ]
           )).dependencies;
       }

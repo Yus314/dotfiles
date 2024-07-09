@@ -13,6 +13,7 @@ require("lazy").setup({
 		{ import = "plugins.markdown-preview" },
 	},
 })
+vim.lsp.set_log_level("debug")
 
 require("color")
 require("nvim-cmp")
@@ -42,12 +43,11 @@ function AutoPush()
 end
 
 vim.api.nvim_exec([[
-  augroup auto_pull
-    autocmd!
-    autocmd BufReadPre ~/obsidian/*.md lua AutoPull()
-  augroup END
+ augroup auto_pull
+  autocmd!
+  autocmd BufReadPre ~/obsidian/*.md lua AutoPull()
+ augroup END
 ]], false)
-
 vim.cmd(
 	[[
 function OpenMarkdownPreview (url)
