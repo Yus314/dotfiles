@@ -27,6 +27,7 @@ in
       python312Packages.black
       python312Packages.isort
       python312Packages.python-lsp-server
+      python312Packages.flake8
       rustfmt
       nil
       nixfmt-rfc-style
