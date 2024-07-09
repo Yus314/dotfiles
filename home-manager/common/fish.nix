@@ -1,5 +1,5 @@
 {
-  programs.lazygit = {
+  programs.fish = {
     enable = true;
   };
 }
