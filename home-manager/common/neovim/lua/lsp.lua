@@ -39,8 +39,31 @@ require("rust-tools").setup({
 })
 require 'lspconfig'.lua_ls.setup {}
 require 'lspconfig'.texlab.setup {}
-require 'lspconfig'.ruff_lsp.setup {
+require 'lspconfig'.pylsp.setup {
 	capabilities = capabilities,
+	on_attach = lsp_attach,
+	settings = {
+		pylsp = {
+			plugins = {
+				ruff = {
+					enabled = true
+				},
+				pycodestyle = {
+					enabled = false
+				},
+				pyflakes = {
+					enabled = false
+				},
+				mccabe = {
+					enabled = false
+				}
+			}
+		}
+	}
+}
+require 'lspconfig'.ruff.setup {
+	capabilities = capabilities,
+	on_attach = lsp_attach,
 }
 require 'lspconfig'.nil_ls.setup {
 	autostart = true,
