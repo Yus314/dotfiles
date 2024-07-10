@@ -48,6 +48,7 @@ vim.api.nvim_exec([[
   autocmd BufReadPre ~/obsidian/*.md lua AutoPull()
  augroup END
 ]], false)
+
 vim.cmd(
 	[[
 function OpenMarkdownPreview (url)
