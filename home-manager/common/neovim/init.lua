@@ -49,10 +49,11 @@ vim.api.nvim_exec([[
  augroup END
 ]], false)
 
+-- 	execute '!open -na "Google Chrome" --args --new-window --app=' . a:url
 vim.cmd(
 	[[
 function OpenMarkdownPreview (url)
-	execute '!open -na "Google Chrome" --args --new-window --app=' . a:url
+    execute "! vivaldi --args --new-window --app= " . a:url
 endfunction
 ]]
 )

@@ -39,39 +39,6 @@ in
     ];
   };
 
-  # xdg.configFile =
-  # configFiles [
-  #   ./init.lua
-  #   ./lua/plugins/plugins.lua
-  #   ./lua/plugins/gitsign.lua
-  #   ./lua/plugins/markdown-preview.lua
-  #   ./lua/plugins/func.lua
-  #   ./lua/options.lua
-  #   ./lua/keymaps.lua
-  #   ./lua/nvim-cmp.lua
-  # ./lua/lsp.lua
-  #   ./lua/color.lua
-  #   ./SKK-JISYO.L
-  # ]
-  #   configFiles[./init.lua]
-  #  // 
-  # {
-  #  "nvim/parser".source = "${
-  #   pkgs.symlinkJoin {
-  #    name = "treesitter-parsers";
-  #   paths =
-  #    (pkgs.vimPlugins.nvim-treesitter.withPlugins (
-  #     plugins: with plugins; [
-  #      c
-  #     lua
-  #    rust
-  #   query
-  #  vimdoc
-  #     ]
-  #   )).dependencies;
-  #       }
-  #    }/parser";
-  # };
   xdg.configFile = {
     "nvim/init.lua".source = initLua;
     "nvim/lua/plugins/plugins.lua".source = pluginsLua;

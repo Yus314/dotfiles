@@ -1,6 +1,8 @@
 { pkgs, ... }:
-let mod = "MOD1";
-in {
+let
+  mod = "MOD1";
+in
+{
 
   xsession.windowManager.i3 = {
     enable = true;
@@ -15,7 +17,7 @@ in {
         "${mod}+Shift+k" = "move up";
         "${mod}+Shift+j" = "move down";
         "${mod}+f" = "fullscreen";
-        "${mod}+Return" = "exec alacritty";
+        "${mod}+Return" = "exec wezterm";
         "${mod}+Shift+q" = "kill";
         "${mod}+t" = "exec thunar";
         "${mod}+v" = "exec vivaldi";

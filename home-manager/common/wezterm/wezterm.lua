@@ -10,6 +10,7 @@ end
 config.color_scheme = 'OneDark (base16)'
 config.window_decorations = "RESIZE"
 
+config.use_ime = true
 -- スクロールの設定
 local act = wezterm.action
 

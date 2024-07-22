@@ -31,6 +31,16 @@
     in
     {
       nixosConfigurations = {
+        home = inputs.nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./configuration.nix
+            inputs.home-manager.nixosModules.home-manager
+          ];
+          specialArgs = {
+            inherit allowed-unfree-packages;
+          };
+        };
         lab-main = inputs.nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
