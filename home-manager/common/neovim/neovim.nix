@@ -14,6 +14,8 @@ let
   gitsign = pkgs.substituteAll ({ src = ./lua/plugins/gitsign.lua; } // plugins);
 
   markdown-preview = pkgs.substituteAll ({ src = ./lua/plugins/markdown-preview.lua; } // plugins);
+
+  skkeleton = pkgs.substituteAll ({ src = ./lua/plugins/skkeleton.lua; } // plugins);
 in
 {
   programs.neovim = {
@@ -45,6 +47,7 @@ in
     "nvim/lua/plugins/gitsign.lua".source = gitsign;
     "nvim/lua/plugins/markdown-preview.lua".source = markdown-preview;
     "nvim/lua/plugins/func.lua".source = ./lua/plugins/func.lua;
+    "nvim/lua/plugins/skkeleton.lua".source = skkeleton;
     "nvim/lua/options.lua".source = ./lua/options.lua;
     "nvim/lua/keymaps.lua".source = ./lua/keymaps.lua;
     "nvim/lua/nvim-cmp.lua".source = ./lua/nvim-cmp.lua;
