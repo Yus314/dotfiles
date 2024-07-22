@@ -11,6 +11,7 @@ require("lazy").setup({
 		{ import = "plugins.plugins" },
 		{ import = "plugins.gitsign" },
 		{ import = "plugins.markdown-preview" },
+		{ import = "plugins.skkeleton" }
 	},
 })
 vim.lsp.set_log_level("debug")
