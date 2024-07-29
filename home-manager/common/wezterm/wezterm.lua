@@ -9,13 +9,20 @@ end
 -- カラースキームの設定
 config.color_scheme = 'OneDark (base16)'
 
-config.use_ime = true
+-- フォントの設定
+config.font = wezterm.font("Bizin Gothic Discord NF")
+config.font_size = 14.4
 -- スクロールの設定
 local act = wezterm.action
 
 config.keys = {
-	{ key = "UpArrow",   mods = "SHIFT", action = act.ScrollByPage(-1) },
-	{ key = "DownArrow", mods = "SHIFT", action = act.ScrollByPage(1) },
+	{
+		key = 'K',
+		mods = 'CMD',
+		action = act.ClearScrollback 'ScrollbackOnly',
+	},
+	{ key = "T", mods = "SHIFT|CTRL", action = act.ScrollByPage(-1) },
+	{ key = "H", mods = "SHIFT|CTRL", action = act.ScrollByPage(1) },
 }
 
 return config
