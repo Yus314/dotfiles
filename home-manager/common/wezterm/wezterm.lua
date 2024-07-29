@@ -8,7 +8,6 @@ end
 
 -- カラースキームの設定
 config.color_scheme = 'OneDark (base16)'
-config.window_decorations = "RESIZE"
 
 config.use_ime = true
 -- スクロールの設定

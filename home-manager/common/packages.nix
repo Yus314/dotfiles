@@ -11,5 +11,6 @@
     unzip
     cloudflared
     marp-cli
+    zoom
   ];
 }
