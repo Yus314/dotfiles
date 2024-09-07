@@ -16,9 +16,11 @@
   i18n.inputMethod = {
     enabled = "fcitx5";
     fcitx5.addons = [
-      pkgs.fcitx5-mozc
       pkgs.fcitx5-skk
+      pkgs.fcitx5-mozc
+      pkgs.fcitx5-gtk
     ];
+    fcitx5.waylandFrontend = true;
   };
   fonts = {
     packages = with pkgs; [

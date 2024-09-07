@@ -13,5 +13,8 @@
     marp-cli
     vimgolf
     carapace
+    zoom
+    sway
+    waybar
   ];
 }

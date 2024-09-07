@@ -11,6 +11,7 @@ require("lazy").setup({
 		{ import = "plugins.plugins" },
 		{ import = "plugins.gitsign" },
 		{ import = "plugins.markdown-preview" },
+		{ import = "plugins.skkeleton" }
 	},
 })
 vim.lsp.set_log_level("debug")
@@ -49,10 +50,11 @@ vim.api.nvim_exec([[
  augroup END
 ]], false)
 
+-- 	execute '!open -na "Google Chrome" --args --new-window --app=' . a:url
 vim.cmd(
 	[[
 function OpenMarkdownPreview (url)
-	execute '!open -na "Google Chrome" --args --new-window --app=' . a:url
+    execute "! vivaldi --args --new-window --app= " . a:url
 endfunction
 ]]
 )

@@ -14,6 +14,8 @@ let
   gitsign = pkgs.substituteAll ({ src = ./lua/plugins/gitsign.lua; } // plugins);
 
   markdown-preview = pkgs.substituteAll ({ src = ./lua/plugins/markdown-preview.lua; } // plugins);
+
+  skkeleton = pkgs.substituteAll ({ src = ./lua/plugins/skkeleton.lua; } // plugins);
 in
 {
   programs.neovim = {
@@ -39,45 +41,13 @@ in
     ];
   };
 
-  # xdg.configFile =
-  # configFiles [
-  #   ./init.lua
-  #   ./lua/plugins/plugins.lua
-  #   ./lua/plugins/gitsign.lua
-  #   ./lua/plugins/markdown-preview.lua
-  #   ./lua/plugins/func.lua
-  #   ./lua/options.lua
-  #   ./lua/keymaps.lua
-  #   ./lua/nvim-cmp.lua
-  # ./lua/lsp.lua
-  #   ./lua/color.lua
-  #   ./SKK-JISYO.L
-  # ]
-  #   configFiles[./init.lua]
-  #  // 
-  # {
-  #  "nvim/parser".source = "${
-  #   pkgs.symlinkJoin {
-  #    name = "treesitter-parsers";
-  #   paths =
-  #    (pkgs.vimPlugins.nvim-treesitter.withPlugins (
-  #     plugins: with plugins; [
-  #      c
-  #     lua
-  #    rust
-  #   query
-  #  vimdoc
-  #     ]
-  #   )).dependencies;
-  #       }
-  #    }/parser";
-  # };
   xdg.configFile = {
     "nvim/init.lua".source = initLua;
     "nvim/lua/plugins/plugins.lua".source = pluginsLua;
     "nvim/lua/plugins/gitsign.lua".source = gitsign;
     "nvim/lua/plugins/markdown-preview.lua".source = markdown-preview;
     "nvim/lua/plugins/func.lua".source = ./lua/plugins/func.lua;
+    "nvim/lua/plugins/skkeleton.lua".source = skkeleton;
     "nvim/lua/options.lua".source = ./lua/options.lua;
     "nvim/lua/keymaps.lua".source = ./lua/keymaps.lua;
     "nvim/lua/nvim-cmp.lua".source = ./lua/nvim-cmp.lua;
