@@ -101,6 +101,9 @@ in
               vim
               bash
               regex
+              python
+              nix
+              (pkgs.tree-sitter-grammars.tree-sitter-nu)
             ]
           )).dependencies;
       }

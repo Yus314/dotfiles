@@ -45,4 +45,5 @@ plugins [
   tokyonight-nvim
   vim-markdown
   vimtex
+  nvim-nu
 ]

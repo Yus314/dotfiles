@@ -1,4 +1,8 @@
 return {
+	--	{
+	--		name = "nvim-nu",
+	--		dir = "@nvim_nu@",
+	--	},
 	{
 		name = "barbar.nvim",
 		dir = "@barbar_nvim@",
@@ -660,13 +664,20 @@ return {
 		dir = "@nvim_treesitter@",
 		build = ":TSUpdate",
 		config = function()
-			require("nvim-treesitter").setup({
-				ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "javascript", "html", "markdown" },
+			require("nvim-treesitter.configs").setup({
+				--ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "javascript", "html", "markdown", },
 				sync_install = false,
-				highlight = { enable = true },
+				highlight = {
+					enable = true,
+				},
 				indent = { enable = true },
 			})
-		end
+		end,
+		dependencies = {
+			{
+				"nushell/tree-sitter-nu",
+			},
+		},
 	},
 
 	{
@@ -780,6 +791,13 @@ return {
 	{
 		name = "nvim-lspconfig",
 		dir = "@nvim_lspconfig@",
+		init_options = {
+			userLanguages = {
+				eelixir = "html-eex",
+				eruby = "erb",
+				rust = "html",
+			},
+		},
 	},
 	{
 		name = "nvim-cmp",

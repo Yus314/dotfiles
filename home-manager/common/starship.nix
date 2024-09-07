@@ -1,6 +1,9 @@
 {
   programs.starship = {
-    enable = false;
+    enable = true;
     enableZshIntegration = false;
+    enableBashIntegration = false;
+    enableFishIntegration = false;
+    enableNushellIntegration = true;
   };
 }

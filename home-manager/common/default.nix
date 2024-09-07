@@ -8,6 +8,7 @@
     ./git.nix
     ./neovim/neovim.nix
     ./tmux.nix
+    ./nushell
     ./zsh
     ./zoxide.nix
     ./bat.nix

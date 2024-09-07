@@ -11,5 +11,7 @@
     unzip
     cloudflared
     marp-cli
+    vimgolf
+    carapace
   ];
 }

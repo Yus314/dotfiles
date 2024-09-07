@@ -20,6 +20,15 @@
     isSystemUser = true;
   };
   services.onedrive.enable = true;
+  services.postgresql = {
+    enable = true;
+    package = pkgs.postgresql_16;
+    ensureDatabases = [ "diesel_demo" ];
+    authentication = pkgs.lib.mkOverride 10 ''
+            #type database  DBuser  auth-method
+      	  local  all       all   trust
+    '';
+  };
 
   systemd.services.lab2home = {
     wantedBy = [ "multi-user.target" ];
@@ -101,8 +110,8 @@
   time.timeZone = "Asia/Tokyo";
 
   # Select internationalisation properties.
-  programs.zsh.enable = true;
-  users.users.kaki.shell = pkgs.zsh;
+  programs.fish.enable = true;
+  users.users.kaki.shell = pkgs.fish;
   security.polkit.enable = true;
 
   services.meshcentral.enable = true;

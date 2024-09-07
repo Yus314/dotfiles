@@ -38,6 +38,7 @@ require("rust-tools").setup({
 	},
 })
 require 'lspconfig'.lua_ls.setup {}
+require 'lspconfig'.nushell.setup {}
 require 'lspconfig'.texlab.setup {}
 require 'lspconfig'.pylsp.setup {
 	capabilities = capabilities,

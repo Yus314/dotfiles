@@ -14,8 +14,10 @@ config.window_decorations = "RESIZE"
 local act = wezterm.action
 
 config.keys = {
-	{ key = "UpArrow",   mods = "SHIFT", action = act.ScrollByPage(-1) },
-	{ key = "DownArrow", mods = "SHIFT", action = act.ScrollByPage(1) },
+	{ key = "UpArrow",   mods = "SHIFT",     action = act.ScrollByPage(-1) },
+	{ key = "DownArrow", mods = "SHIFT",     action = act.ScrollByPage(1) },
+	{ key = '[',         mods = "SHIFT|ALT", action = act.MoveTabRelative(-1) },
+	{ key = ']',         mods = "SHIFT|ALT", action = act.MoveTabRelative(1) },
 }
 
 return config
