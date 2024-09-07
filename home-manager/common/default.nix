@@ -18,5 +18,9 @@
     ./wezterm/wezterm.nix
     ./fish.nix
     ./starship.nix
+    ./nushell.nix
+    ./sway.nix
+    ./hyprland.nix
+    ./waybar.nix
   ];
 }

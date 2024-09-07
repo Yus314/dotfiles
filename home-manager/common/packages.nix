@@ -12,5 +12,7 @@
     cloudflared
     marp-cli
     zoom
+    sway
+    waybar
   ];
 }
