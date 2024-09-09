@@ -16,5 +16,6 @@
     zoom
     sway
     waybar
+    wl-clipboard
   ];
 }
