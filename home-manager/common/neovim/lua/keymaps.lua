@@ -30,3 +30,5 @@ keymap("v", "n", "l", opts)
 -- for d key
 keymap("n", "e", "d", opts)
 keymap("n", "ee", "dd", opts)
+-- for e key
+keymap("n", "u", "e", opts)

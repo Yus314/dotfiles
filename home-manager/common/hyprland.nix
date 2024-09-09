@@ -3,14 +3,17 @@
     enable = true;
     systemd.variables = [ "--all" ];
     extraConfig = ''
-                  	env = XCURSOR_SIZE,24
-                  	env = LIBVA_DRIVER_NAME,nvidia
-                  	env = XDG_SESSION_TYPE,wayland
-                  	env = GBM_BACKEND,nvidia-drm
-                  	env = __GLX_VENDOR_LIBRARY_NAME,nvidia-drm
-                        monitor=,preferred,auto,auto
-            			exec-once = vivaldi
-      				exec-once = wezterm
+                              	env = XCURSOR_SIZE,24
+                              	env = LIBVA_DRIVER_NAME,nvidia
+                              	env = XDG_SESSION_TYPE,wayland
+                              	env = GBM_BACKEND,nvidia-drm
+                              	env = __GLX_VENDOR_LIBRARY_NAME,nvidia-drm
+      							  monitor=HDMI-A-1,1920x1080@74.97300,-1920x0,1 
+      							  monitor=DVI-D-1,1920x1080@60.00000,0x0,1 
+
+                        			exec-once = vivaldi
+            						exec-once = fcitx5 -d
+                  				exec-once = wezterm
     '';
     # 				env = WLR_DRM_DEVICES,/dev/dri/card0
     #exec-once = waybar
@@ -31,6 +34,8 @@
         "$mainMod, M, exit"
         "$mainMod, RETURN, exec, $terminal"
         "$mainMod, F, exec, vivaldi"
+        "$mainMod, L, exec, swaylock -f -c 000000"
+        "$mainMod, S, exec, wlogout"
         "$mainMod, N, movefocus, r"
         "$mainMod, D, movefocus, l"
         "$mainMod, H, movefocus, d"

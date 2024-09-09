@@ -23,5 +23,6 @@
     ./sway.nix
     ./hyprland.nix
     ./waybar.nix
+    ./browser.nix
   ];
 }

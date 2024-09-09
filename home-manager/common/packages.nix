@@ -16,5 +16,9 @@
     zoom
     sway
     waybar
+    wl-clipboard
+    swaylock
+    swayidle
+    wlogout
   ];
 }

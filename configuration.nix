@@ -85,31 +85,17 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
-  services.xserver = {
-    enable = false;
-    desktopManager = {
-      xterm.enable = false;
-      runXdgAutostartIfNone = true;
-    };
-    windowManager.i3 = {
-      enable = false;
-      extraPackages = with pkgs; [
-        rofi
-        i3status
-        i3lock
-        i3blocks
-      ];
-    };
+  security.pam.services.swaylock = {
+    fprintAuth = false;
   };
   services.greetd = {
-    enable = false;
-    settings = rec {
-      initial_session = {
+    enable = true;
+    settings = {
+      default_session = {
         #command = "${pkgs.sway}/bin/sway";
-        command = "${pkgs.hyprland}/bin/hyprland";
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd hyprland";
         user = "kaki";
       };
-      defualt_session = initial_session;
     };
   };
 
