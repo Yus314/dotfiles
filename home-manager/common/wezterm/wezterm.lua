@@ -19,11 +19,7 @@ config.default_prog = { 'nu' }
 local act = wezterm.action
 
 config.keys = {
-	{
-		key = 'K',
-		mods = 'CMD',
-		action = act.ClearScrollback 'ScrollbackOnly',
-	},
+	{ key = 'K', mods = 'SHIFT|CTRL', action = act.ClearScrollback 'ScrollbackOnly', },
 	{ key = "T", mods = "SHIFT|CTRL", action = act.ScrollByPage(-1) },
 	{ key = "H", mods = "SHIFT|CTRL", action = act.ScrollByPage(1) },
 	{ key = '[', mods = 'CTRL',       action = act.ActivateTabRelative(-1) },
