@@ -46,5 +46,5 @@ plugins [
   vim-markdown
   vimtex
   nvim-nu
-  neorg
+  oil-nvim
 ]
