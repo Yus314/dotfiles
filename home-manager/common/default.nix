@@ -24,5 +24,6 @@
     ./hyprland.nix
     ./waybar.nix
     ./browser.nix
+    ./emacs.nix
   ];
 }
