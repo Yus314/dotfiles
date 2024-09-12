@@ -14,7 +14,16 @@ return {
 		-- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if prefer nvim-web-devicons
 		config = function()
 			vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
-			require("oil").setup()
+			require("oil").setup({
+				keymaps = {
+					["<C-s>"] = function()
+						require("oil").select({ vertical = true, close = true })
+					end,
+					["<C-h>"] = function()
+						require("oil").select({ horizontal = true, close = true })
+					end,
+				},
+			})
 		end
 	},
 	{
@@ -54,7 +63,6 @@ return {
 		build = ":TSUpdate",
 		config = function()
 			require("nvim-treesitter.configs").setup({
-				--ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "javascript", "html", "markdown", },
 				sync_install = false,
 				highlight = {
 					enable = true,
