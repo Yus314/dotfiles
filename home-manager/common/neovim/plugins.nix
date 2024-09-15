@@ -47,4 +47,6 @@ plugins [
   vimtex
   nvim-nu
   oil-nvim
+  dial-nvim
+  comment-nvim
 ]
