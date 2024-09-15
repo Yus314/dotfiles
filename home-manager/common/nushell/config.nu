@@ -14,7 +14,18 @@ let external_completer = {|spans|
 		_ => fish_completer
  	} | do $in $spans
 }
-let fzf_menu =  {
+$env.config = {
+	show_banner: false
+	completions: { 
+		algorithm: "fuzzy"
+		external: {
+			enable: true
+			completer: $fish_completer
+		}
+	}
+	edit_mode: "vi"
+	menus : [
+		{
     name: fzf_menu
     only_buffer_difference: true
     marker: "# "
@@ -30,33 +41,20 @@ let fzf_menu =  {
         description_text: yellow
     }
     source: { |buffer, position|
-        fzf --no-sort --tac  
+		fd -t d
+		| fzf --no-sort --tac  
         | lines
         | each { |v|  { value: ($v | str trim) } }
     }
 }
-$env.config = {
-	show_banner: false
-	completions: { 
-		algorithm: "fuzzy"
-		external: {
-			enable: true
-			completer: $fish_completer
-		}
-	}
-	edit_mode: "vi"
+	]
 	keybindings: [
-		{
-			    {
-      name: fuzzy_history
-      modifier: alt
-      keycode: char_c
-      mode: [vi_insert, vi_normal]
-      event: {
-        send: executehostcommand
-        cmd: "commandline (history | each { |it| $it.command } | uniq | reverse | str collect (char nl) | fzf --layout=reverse --height=40% -q (commandline) | decode utf-8 | str trim)"
-      }
+		    {
+        name: vars_menu
+        modifier: alt
+        keycode: char_c
+        mode: [emacs, vi_normal, vi_insert]
+        event: { send: menu name: fzf_menu }
     }
-		}
 	]
 }
