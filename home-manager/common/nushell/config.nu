@@ -51,7 +51,7 @@ $env.config = {
       name: fuzzy_history
       modifier: alt
       keycode: char_c
-      mode: emacs
+      mode: [vi_insert, vi_normal]
       event: {
         send: executehostcommand
         cmd: "commandline (history | each { |it| $it.command } | uniq | reverse | str collect (char nl) | fzf --layout=reverse --height=40% -q (commandline) | decode utf-8 | str trim)"
