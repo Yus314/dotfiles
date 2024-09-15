@@ -28,6 +28,12 @@ keymap("v", "<Left>", "h", opts)
 keymap("v", "<Down>", "j", opts)
 keymap("v", "<Up>", "k", opts)
 
+-- for move window
+keymap("n", "<C-w><Right>", "<C-w>l", opts)
+keymap("n", "<C-w><Left>", "<C-w>h", opts)
+keymap("n", "<C-w><Down>", "<C-w>j", opts)
+keymap("n", "<C-w><Up>", "<C-w>k", opts)
+
 -- exchange ; and :
 --keymap("n", ";", ":", opts)
 --keymap("n", ":", ";", opts)
