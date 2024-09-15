@@ -20,5 +20,7 @@
     swaylock
     swayidle
     wlogout
+    slack
+    zoom
   ];
 }

@@ -23,4 +23,17 @@ $env.config = {
 			completer: $fish_completer
 		}
 	}
+	edit_mode: "vi"
+	keybindings: [
+		{
+			name: change_dir_with_fzf
+			modifier: alt
+			keycode: char_c
+			mode: vi_insert
+			event: {
+				send: executehostcommand
+				cmd: "cd (ls | where type == dir | each { | row | $row.name} | str join (char nl) | fzf | decode utf-8 | str trim)"
+			}
+		}
+	]
 }
