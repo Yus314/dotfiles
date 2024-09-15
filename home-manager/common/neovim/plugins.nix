@@ -49,4 +49,5 @@ plugins [
   oil-nvim
   dial-nvim
   comment-nvim
+  nvim-nu
 ]

@@ -1,4 +1,8 @@
 return {
+	-- {
+	-- 	name = "nvim-nu",
+	-- 	dir = "@nvim_nu@",
+	-- },
 	{
 		name = "comment-nvim",
 		dir = "@comment_nvim@",

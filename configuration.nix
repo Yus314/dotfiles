@@ -57,6 +57,7 @@
   services.resolved = {
     enable = true;
   };
+  hardware.keyboard.qmk.enable = true;
   home-manager = {
     users.kaki = {
       imports = [

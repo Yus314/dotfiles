@@ -41,20 +41,26 @@ $env.config = {
         description_text: yellow
     }
     source: { |buffer, position|
-		fd -t d
-		| fzf --no-sort --tac  
-        | lines
-        | each { |v|  { value: ($v | str trim) } }
+				fd -t d
+				| fzf --tac  
+				| lines
+				| each { |v|  { value: ($v | str trim) } } 
+		
     }
 }
 	]
 	keybindings: [
 		    {
-        name: vars_menu
+        name: complete_in_cd
         modifier: alt
         keycode: char_c
         mode: [emacs, vi_normal, vi_insert]
-        event: { send: menu name: fzf_menu }
+        event: [
+            { edit: clear }
+            { edit: insertString value: "./" }
+            { send: Menu name: fzf_menu }
+			{ send: Enter }
+        ]
     }
 	]
 }
