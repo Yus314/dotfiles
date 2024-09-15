@@ -24,6 +24,8 @@ config.keys = {
 	{ key = "H", mods = "SHIFT|CTRL", action = act.ScrollByPage(1) },
 	{ key = '[', mods = 'CTRL',       action = act.ActivateTabRelative(-1) },
 	{ key = ']', mods = 'CTRL',       action = act.ActivateTabRelative(1) },
+	{ key = 'w', mods = 'ALT',        action = act.CloseCurrentTab { confirm = true } },
+	{ key = 'a', mods = 'ALT',        action = act.SpawnTab "CurrentPaneDomain" },
 }
 
 return config

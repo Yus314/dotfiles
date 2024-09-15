@@ -70,6 +70,7 @@
         homeDirectory = "/home/kaki";
         stateVersion = "24.05";
       };
+      nixpkgs.config.allowUnfree = true;
     };
   };
   security.polkit.enable = true;
@@ -100,10 +101,7 @@
   };
 
   # Configure keymap in X11
-  services.xserver = {
-    layout = "us";
-    #xkbVariant = "dvp";
-  };
+  services.xserver.xkb.layout = "us";
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.kaki = {

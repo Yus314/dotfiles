@@ -29,5 +29,5 @@ keymap("v", "<Down>", "j", opts)
 keymap("v", "<Up>", "k", opts)
 
 -- exchange ; and :
-keymap("n", ";", ":", opts)
-keymap("n", ":", ";", opts)
+--keymap("n", ";", ":", opts)
+--keymap("n", ":", ";", opts)

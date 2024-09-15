@@ -10,10 +10,9 @@
                               	env = __GLX_VENDOR_LIBRARY_NAME,nvidia-drm
       							  monitor=HDMI-A-1,1920x1080@74.97300,-1920x0,1 
       							  monitor=DVI-D-1,1920x1080@60.00000,0x0,1 
-
-                        			exec-once = vivaldi
+                        			exec-once = [workspace 2]vivaldi --disable-gpu
             						exec-once = fcitx5 -d
-                  				exec-once = wezterm
+                  				exec-once = [workspace 1]wezterm
     '';
     # 				env = WLR_DRM_DEVICES,/dev/dri/card0
     #exec-once = waybar
@@ -31,10 +30,9 @@
       "$mainMod" = "ALT";
       "$terminal" = "wezterm";
       bind = [
-        "$mainMod, M, exit"
         "$mainMod, RETURN, exec, $terminal"
-        "$mainMod, F, exec, vivaldi"
-        "$mainMod, L, exec, swaylock -f -c 000000"
+        "$mainMod, F, exec, vivaldi --disable-gpu"
+        "$mainMod, L, exec, slack"
         "$mainMod, S, exec, wlogout"
         "$mainMod, N, movefocus, r"
         "$mainMod, D, movefocus, l"
@@ -45,6 +43,15 @@
         "$mainMod SHIFT, H, movewindow, d"
         "$mainMod SHIFT, T, movewindow, u"
         "$mainMod SHIFT, Q, killactive"
+        "$mainMod, 1, workspace, 1"
+        "$mainMod, 2, workspace, 2"
+        "$mainMod, 3, workspace, 3"
+        "$mainMod, 4, workspace, 4"
+        "$mainMod, 5, workspace, 5"
+        "$mainMod, 6, workspace, 6"
+        "$mainMod, 7, workspace, 7"
+        "$mainMod, 8, workspace, 8"
+        "$mainMod, 9, workspace, 9"
       ];
     };
   };
