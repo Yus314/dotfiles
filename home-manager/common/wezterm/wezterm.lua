@@ -14,7 +14,7 @@ config.font = wezterm.font("Bizin Gothic Discord NF")
 config.font_size = 14.4
 
 config.enable_wayland = false
-config.default_prog = { 'echo hello' }
+config.default_prog = { 'nu' }
 -- スクロールの設定
 local act = wezterm.action
 
