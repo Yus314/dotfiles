@@ -7,14 +7,35 @@ return {
 		--"vim-denops/denops.vim",
 		config = function()
 			-- vim.g['denops#deno'] = '/nix/store/l3adf02p4xdxlvqy5rl2wzb37965nvml-deno-1.43.6/bin/deno'
-			vim.g['denops#deno'] = 'deno'
+			vim.g['denops#deno'] = '/nix/store/4s9mwxzx1cqm2mv3w7zz43ylcsddavd0-deno-1.44.3/bin/deno'
+			-- vim.g['denops#deno'] = 'deno'
 		end
 	},
+
 	config = function()
+		local augroup = vim.api.nvim_create_augroup("kaki.skkeleton", {})
+		vim.api.nvim_create_autocmd("User", {
+			group = augroup,
+			pattern = "skkeleton-enable-post",
+			callback = function(ctx)
+				-- NOTE: do not call skkeleton#handle directory. Instead, use expr mapping to handle keys in sync
+				local mode = vim.api.nvim_get_mode().mode
+				vim.keymap.set(mode, ":", function()
+					-- NOTE: seems like clean up is done by the time of skkeleton-disable-post
+					local skk_state = vim.g["skkeleton#state"]
+					local skk_mode = vim.fn["skkeleton#mode"]()
+					if skk_mode ~= "abbrev" and skk_state.phase == "input:okurinasi" then
+						return [[<Cmd>call skkeleton#handle('handleKey', {'key': [':', ";"]})<CR>]] -- 「っ」で変換開始
+					end
+					return [[<Cmd>call skkeleton#handle('handleKey', {'key': ':'})<CR>]]
+				end, { buffer = ctx.buf, expr = true })
+			end,
+		})
 		vim.cmd([[
 			call skkeleton#config({ 'globalDictionaries': ['~/.skk/SKK-JISYO.L'] })
 			call skkeleton#register_kanatable('act', {}, 'create')
 			call skkeleton#config({ 'kanaTable': 'act' })
+			call skkeleton#register_keymap("input",":", "henkanPoint")
 			call skkeleton#register_kanatable('act', {
 				\ "\\": "katakana",
 				\ " ": "henkanFirst",
