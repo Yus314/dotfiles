@@ -85,8 +85,15 @@ function _cargo_test_toggle()
 	cargo_test:toggle() -- ターミナルを開く/閉じる
 end
 
-vim.api.nvim_set_keymap("n", "<leader>t", "<cmd>lua _cargo_test_toggle()<CR>", { noremap = true, silent = true })
-
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "*.rs" },
+	callback = function()
+		vim.schedule(function()
+			vim.api.nvim_set_keymap("n", "<leader>t", "<cmd>lua _cargo_test_toggle()<CR>",
+				{ noremap = true, silent = true })
+		end)
+	end,
+})
 
 
 function _cargo_submit_toggle()

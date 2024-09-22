@@ -4,6 +4,10 @@ return {
 	-- 	dir = "@nvim_nu@",
 	-- },
 	{
+		name = "hop-nvim",
+		dir = "@hop_nvim@",
+	},
+	{
 		name = "comment-nvim",
 		dir = "@comment_nvim@",
 		config = function()

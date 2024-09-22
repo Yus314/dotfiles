@@ -50,4 +50,5 @@ plugins [
   dial-nvim
   comment-nvim
   nvim-nu
+  hop-nvim
 ]

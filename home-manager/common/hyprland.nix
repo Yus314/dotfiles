@@ -25,12 +25,13 @@
       input = {
         "kb_layout" = "us";
         "follow_mouse" = 1;
+        "force_no_accel" = 0;
       };
 
       "$mainMod" = "ALT";
       "$terminal" = "wezterm";
       bind = [
-        "$mainMod, RETURN, exec, $terminal"
+        "$mainMod, W, exec, $terminal"
         "$mainMod, F, exec, vivaldi --disable-gpu"
         "$mainMod, L, exec, slack"
         "$mainMod, S, exec, wlogout"

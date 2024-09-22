@@ -12,6 +12,7 @@ config.color_scheme = 'OneDark (base16)'
 -- フォントの設定
 config.font = wezterm.font("Bizin Gothic Discord NF")
 config.font_size = 14.4
+config.use_ime = false
 
 config.enable_wayland = false
 config.default_prog = { 'nu' }
@@ -27,5 +28,6 @@ config.keys = {
 	{ key = 'w', mods = 'ALT',        action = act.CloseCurrentTab { confirm = true } },
 	{ key = 'a', mods = 'ALT',        action = act.SpawnTab "CurrentPaneDomain" },
 }
+config.disable_default_key_bindings = true
 
 return config
