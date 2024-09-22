@@ -51,4 +51,5 @@ plugins [
   comment-nvim
   nvim-nu
   hop-nvim
+  neorg
 ]
