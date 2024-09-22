@@ -1,25 +1,17 @@
-{ pkgs, ... }:
+{ pkgs, unstable, ... }:
 let
 
   plugins = import ./plugins.nix { inherit pkgs; };
 
-  configFile = file: pkgs.substituteAll ({ src = file; } // plugins);
-
+  configFile = file: {
+    "nvim/${file}".source = pkgs.substituteAll ({ src = ./. + "${file}"; } // plugins);
+  };
   configFiles = files: builtins.foldl' (x: y: x // y) { } (map configFile files);
-
-  initLua = pkgs.substituteAll ({ src = ./init.lua; } // plugins);
-
-  pluginsLua = pkgs.substituteAll ({ src = ./lua/plugins/plugins.lua; } // plugins);
-
-  gitsign = pkgs.substituteAll ({ src = ./lua/plugins/gitsign.lua; } // plugins);
-
-  markdown-preview = pkgs.substituteAll ({ src = ./lua/plugins/markdown-preview.lua; } // plugins);
-
-  skkeleton = pkgs.substituteAll ({ src = ./lua/plugins/skkeleton.lua; } // plugins);
 in
 {
   programs.neovim = {
     enable = true;
+    package = unstable.legacyPackages.x86_64-linux.neovim-unwrapped;
     vimAlias = true;
 
     extraPackages = with pkgs; [
@@ -38,45 +30,77 @@ in
       deno
       luajitPackages.jsregexp
       lua54Packages.jsregexp
+      luajitPackages.luarocks
+      luajit_openresty
+      gnumake
+      luajitPackages.lua-utils-nvim
+      luajitPackages.compat53
+      libgccjit
     ];
   };
 
-  xdg.configFile = {
-    "nvim/init.lua".source = initLua;
-    "nvim/lua/plugins/plugins.lua".source = pluginsLua;
-    "nvim/lua/plugins/gitsign.lua".source = gitsign;
-    "nvim/lua/plugins/markdown-preview.lua".source = markdown-preview;
-    "nvim/lua/plugins/func.lua".source = ./lua/plugins/func.lua;
-    "nvim/lua/plugins/skkeleton.lua".source = skkeleton;
-    "nvim/lua/options.lua".source = ./lua/options.lua;
-    "nvim/lua/keymaps.lua".source = ./lua/keymaps.lua;
-    "nvim/lua/nvim-cmp.lua".source = ./lua/nvim-cmp.lua;
-    "nvim/lua/lsp.lua".source = ./lua/lsp.lua;
-    "nvim/lua/specif.lua".source = ./lua/specif.lua;
-    "nvim/lua/color.lua".source = ./lua/color.lua;
-    "~/.skk/SKK-JISYO.L".source = ./SKK-JISYO.L;
-    "nvim/parser".source = "${
-      pkgs.symlinkJoin {
-        name = "treesitter-parsers";
-        paths =
-          (pkgs.vimPlugins.nvim-treesitter.withPlugins (
-            plugins: with plugins; [
-              c
-              lua
-              rust
-              query
-              vimdoc
-              markdown
-              markdown-inline
-              vim
-              bash
-              regex
-              python
-              nix
-              (pkgs.tree-sitter-grammars.tree-sitter-nu)
-            ]
-          )).dependencies;
-      }
-    }/parser";
-  };
+  xdg.configFile =
+    {
+      "~/.skk/SKK-JISYO.L".source = ./SKK-JISYO.L;
+      "nvim/parser".source = "${
+        pkgs.symlinkJoin {
+          name = "treesitter-parsers";
+          paths =
+            (pkgs.vimPlugins.nvim-treesitter.withPlugins (
+              plugins: with plugins; [
+                c
+                lua
+                rust
+                query
+                vimdoc
+                markdown
+                markdown-inline
+                vim
+                bash
+                regex
+                python
+                nix
+                norg
+                (pkgs.tree-sitter-grammars.tree-sitter-norg-meta)
+                (pkgs.tree-sitter-grammars.tree-sitter-nu)
+              ]
+            )).dependencies;
+        }
+      }/parser";
+    }
+    // configFiles [
+      "/init.lua"
+      "/lua/color.lua"
+      "/lua/keymaps.lua"
+      "/lua/lsp.lua"
+      "/lua/nvim-cmp.lua"
+      "/lua/options.lua"
+      "/lua/specif.lua"
+
+      "/lua/plugins/barbar.lua"
+      "/lua/plugins/cmp.lua"
+      "/lua/plugins/comment.lua"
+      "/lua/plugins/conform.lua"
+      "/lua/plugins/copilot.lua"
+      "/lua/plugins/dial.lua"
+      "/lua/plugins/gitsign.lua"
+      "/lua/plugins/hop.lua"
+      "/lua/plugins/lspconfig.lua"
+      "/lua/plugins/lualine.lua"
+      "/lua/plugins/markdown-preview.lua"
+      "/lua/plugins/neorg.lua"
+      "/lua/plugins/noice.lua"
+      "/lua/plugins/nu.lua"
+      "/lua/plugins/null-ls.lua"
+      "/lua/plugins/obsidian.lua"
+      "/lua/plugins/oil.lua"
+      "/lua/plugins/onedark.lua"
+      "/lua/plugins/rust-tools.lua"
+      "/lua/plugins/skkeleton.lua"
+      "/lua/plugins/telescope.lua"
+      "/lua/plugins/toggleterm.lua"
+      "/lua/plugins/tree-sitter.lua"
+      "/lua/plugins/vim-markdown.lua"
+      "/lua/plugins/vimtex.lua"
+    ];
 }

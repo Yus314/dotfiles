@@ -7,12 +7,13 @@ require("keymaps")
 
 
 require("lazy").setup({
-	spec = {
-		{ import = "plugins.plugins" },
-		{ import = "plugins.gitsign" },
-		{ import = "plugins.markdown-preview" },
-		{ import = "plugins.skkeleton" }
-	},
+	spec = "plugins",
+	-- 	{ import = "plugins.plugins" },
+	-- 	{ import = "plugins.gitsign" },
+	-- 	{ import = "plugins.markdown-preview" },
+	-- 	{ import = "plugins.skkeleton" },
+	-- 	{ import = "plugins.neorg" },
+	-- },
 })
 vim.lsp.set_log_level("debug")
 
@@ -85,8 +86,12 @@ function _cargo_test_toggle()
 	cargo_test:toggle() -- ターミナルを開く/閉じる
 end
 
-vim.api.nvim_set_keymap("n", "<leader>t", "<cmd>lua _cargo_test_toggle()<CR>", { noremap = true, silent = true })
-
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "*.rs" },
+	callback = function()
+		vim.api.nvim_set_keymap("n", "<leader>t", "<cmd>lua _cargo_test_toggle()<CR>", { noremap = true, silent = true })
+	end
+})
 
 
 function _cargo_submit_toggle()
