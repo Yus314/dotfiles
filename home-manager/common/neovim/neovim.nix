@@ -1,7 +1,10 @@
 { pkgs, unstable, ... }:
 let
 
-  plugins = import ./plugins.nix { inherit pkgs; };
+  plugins = import ./plugins.nix {
+    inherit pkgs;
+    inherit unstable;
+  };
 
   configFile = file: {
     "nvim/${file}".source = pkgs.substituteAll ({ src = ./. + "${file}"; } // plugins);
@@ -19,7 +22,7 @@ in
       rust-analyzer
       texlab
       ruff-lsp
-      ruff
+      (unstable.legacyPackages.x86_64-linux.ruff)
       python312Packages.python-lsp-ruff
       python312Packages.python-lsp-server
       rustfmt
@@ -36,6 +39,7 @@ in
       luajitPackages.lua-utils-nvim
       luajitPackages.compat53
       libgccjit
+      jdt-language-server
     ];
   };
 
@@ -59,10 +63,13 @@ in
                 bash
                 regex
                 python
+                latex
                 nix
                 norg
+                java
                 (pkgs.tree-sitter-grammars.tree-sitter-norg-meta)
                 (pkgs.tree-sitter-grammars.tree-sitter-nu)
+                org
               ]
             )).dependencies;
         }
@@ -90,9 +97,8 @@ in
       "/lua/plugins/markdown-preview.lua"
       "/lua/plugins/neorg.lua"
       "/lua/plugins/noice.lua"
-      "/lua/plugins/nu.lua"
+      # "/lua/plugins/nu.lua"
       "/lua/plugins/null-ls.lua"
-      "/lua/plugins/obsidian.lua"
       "/lua/plugins/oil.lua"
       "/lua/plugins/onedark.lua"
       "/lua/plugins/rust-tools.lua"
@@ -100,7 +106,13 @@ in
       "/lua/plugins/telescope.lua"
       "/lua/plugins/toggleterm.lua"
       "/lua/plugins/tree-sitter.lua"
-      "/lua/plugins/vim-markdown.lua"
+      # "/lua/plugins/vim-markdown.lua"
       "/lua/plugins/vimtex.lua"
+      "/lua/plugins/orgmode.lua"
+      "/lua/plugins/render-markdown.lua"
+      "/lua/plugins/telekasten.lua"
+      "/lua/plugins/nvim-markdown.lua"
+      "/lua/plugins/yamlmatter.lua"
+
     ];
 }

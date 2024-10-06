@@ -1,7 +1,10 @@
 { config, ... }:
 {
 
-  boot.extraModulePackages = with config.boot.kernelPackages; [ nvidia_x11 ];
+  boot.extraModulePackages = with config.boot.kernelPackages; [
+    r8125
+    nvidia_x11
+  ];
   boot.initrd.kernelModules = [ "nvidia" ];
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.opengl = {

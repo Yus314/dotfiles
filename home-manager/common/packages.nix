@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, unstable, ... }:
 {
   home.packages = with pkgs; [
     #cowsay
@@ -22,5 +22,10 @@
     wlogout
     slack
     zoom
+    kitty
+    gdrive3
+    drive
+    rclone
+    (unstable.legacyPackages.x86_64-linux.zotero-beta)
   ];
 }

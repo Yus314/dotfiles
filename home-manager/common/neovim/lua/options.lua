@@ -4,6 +4,7 @@ local options = {
 	shiftwidth = 4,
 	smartindent = true,
 	termguicolors = true,
+	splitright = true,
 }
 
 for k, v in pairs(options) do

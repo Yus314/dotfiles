@@ -12,10 +12,5 @@ return {
 				indent = { enable = true },
 			})
 		end,
-		dependencies = {
-			{
-				"nushell/tree-sitter-nu",
-			},
-		},
 	},
 }
