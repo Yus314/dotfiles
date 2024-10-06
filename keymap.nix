@@ -1,9 +1,8 @@
 {
-  console.keyMap = "dvorak";
+  console.keyMap = "us";
   services.xserver = {
     xkb = {
-      layout = "us";
-      variant = "dvorak";
+      layout = "dvorak";
     };
   };
 }

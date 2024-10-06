@@ -20,7 +20,20 @@ return
 			require("neorg").setup {
 				load = {
 					["core.defaults"] = {},
-					["core.concealer"] = {},
+					["core.concealer"] = {
+						config = {
+							icons = {
+								todo = {
+									done = {
+										icon = "󰄬",
+									},
+									on_hold = {
+										icon = "",
+									},
+								},
+							},
+						},
+					},
 					["core.dirman"] = {
 						config = {
 							workspaces = {

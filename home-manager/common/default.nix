@@ -25,5 +25,6 @@
     ./browser.nix
     ./emacs.nix
     ./neomutt.nix
+    ./dropbox.nix
   ];
 }

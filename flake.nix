@@ -23,64 +23,64 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
+    wezterm = {
+      url = "github:wez/wezterm?dir=nix";
+    };
   };
   outputs =
-    inputs:
-    let
-      allowed-unfree-packages = [ "vivaldi" ];
-    in
+    {
+      nixpkgs,
+      unstable,
+      nixpkgs-darwin,
+      nixos-hardware,
+      home-manager,
+      nix-darwin,
+      nix-homebrew,
+      homebrew-core,
+      homebrew-cask,
+      wezterm,
+      ...
+    }:
     {
       nixosConfigurations = {
-        home = inputs.nixpkgs.lib.nixosSystem {
+        home = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
             ./configuration.nix
-            inputs.home-manager.nixosModules.home-manager
+            home-manager.nixosModules.home-manager
           ];
-          specialArgs = {
-            inherit allowed-unfree-packages;
-          };
+          # specialArgs = {
+          # inherit allowed-unfree-packages;
+          # };
         };
-        lab-main = inputs.nixpkgs.lib.nixosSystem {
+        lab-main = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
             ./lab-main-configuration.nix
-            inputs.home-manager.nixosModules.home-manager
+            home-manager.nixosModules.home-manager
           ];
           specialArgs = {
-            inherit allowed-unfree-packages;
+            inherit unstable;
+            inherit wezterm;
           };
         };
-        lab-sub = inputs.nixpkgs.lib.nixosSystem {
+        lab-sub = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
             ./lab-sub-configuration.nix
-            inputs.home-manager.nixosModules.home-manager
+            home-manager.nixosModules.home-manager
           ];
-          specialArgs = {
-            inherit allowed-unfree-packages;
-          };
+          # specialArgs = {
+          # inherit allowed-unfree-packages;
+          # };
         };
       };
-      homeConfigurations = {
-        myHome = inputs.home-manager.lib.homeManagerConfiguration {
-          pkgs = import inputs.nixpkgs {
-            system = "x86_64-linux";
-            #system = "aarch64-darwin";
-            config.allowUnfree = true;
-          };
-          extraSpecialArgs = {
-            inherit inputs;
-          };
-          modules = [ ./home-manager/home-nixos.nix ];
-        };
-      };
-      darwinConfigurations."kakinumayuusukenoMacBook-Air" = inputs.nix-darwin.lib.darwinSystem {
+      darwinConfigurations."kakinumayuusukenoMacBook-Air" = nix-darwin.lib.darwinSystem {
         system = "aaarch64-darwin";
         modules = [
           ./darwin-configuration.nix
-          inputs.home-manager.darwinModules.home-manager
-          inputs.nix-homebrew.darwinModules.nix-homebrew
+          home-manager.darwinModules.home-manager
+          nix-homebrew.darwinModules.nix-homebrew
         ];
       };
     };

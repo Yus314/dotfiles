@@ -8,12 +8,6 @@ require("keymaps")
 
 require("lazy").setup({
 	spec = "plugins",
-	-- 	{ import = "plugins.plugins" },
-	-- 	{ import = "plugins.gitsign" },
-	-- 	{ import = "plugins.markdown-preview" },
-	-- 	{ import = "plugins.skkeleton" },
-	-- 	{ import = "plugins.neorg" },
-	-- },
 })
 vim.lsp.set_log_level("debug")
 

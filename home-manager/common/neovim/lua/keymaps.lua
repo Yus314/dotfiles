@@ -1,8 +1,11 @@
 local opts = { noremap = true, silent = true }
 local keymap = vim.api.nvim_set_keymap
-keymap("", "<Space>", "<Nop>", opts)
-vim.g.mapleader = " "
-
+-- keymap("", "<C-h>", "<80>kb", opts)
+--vim.g.mapleader = "\<BS>"
+-- vim.api.nvim_set_var("mapleader", "<80>kb")
+keymap("n", " ", "<NOP>", opts)
+vim.api.nvim_set_var("mapleader", " ")
+vim.api.nvim_set_var("maplocalleader", " ")
 
 keymap("n", "<leader>f", "<cmd>Telescope file_browser<CR>", opts)
 
@@ -12,9 +15,15 @@ keymap("n", "<C-w>w", "<cmd>BufferClose<CR>", opts)
 
 
 
+
 -- コマンドラインモードのマッピング
+vim.api.nvim_set_keymap('i', '<C-j>', '<Plug>(skkeleton-enable)', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-j>', '<Plug>(skkeleton-enable)', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('c', '<C-j>', '<Plug>(skkeleton-enable)', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('i', '<C-l>', '<Plug>(skkeleton-disable)', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-l>', '<Plug>(skkeleton-disable)', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('c', '<C-l>', '<Plug>(skkeleton-disable)', { noremap = true, silent = true })
+
 
 -- dvorak のための物理的キーマッピングの変更
 keymap("n", "<Right>", "l", opts)

@@ -27,9 +27,10 @@ return {
 		config = function()
 			local cmp = require("cmp")
 			cmp.setup({
-				sources = cmp.config.sources({
+				sources = {
 					{ name = 'neorg' },
-				}),
+					{ name = 'orgmode' },
+				},
 			})
 		end
 	},

@@ -1,21 +1,27 @@
 {
   wayland.windowManager.hyprland = {
     enable = true;
+    xwayland.enable = true;
     systemd.variables = [ "--all" ];
     extraConfig = ''
-                              	env = XCURSOR_SIZE,24
-                              	env = LIBVA_DRIVER_NAME,nvidia
-                              	env = XDG_SESSION_TYPE,wayland
-                              	env = GBM_BACKEND,nvidia-drm
-                              	env = __GLX_VENDOR_LIBRARY_NAME,nvidia-drm
-      							  monitor=HDMI-A-1,1920x1080@74.97300,-1920x0,1 
-      							  monitor=DVI-D-1,1920x1080@60.00000,0x0,1 
-                        			exec-once = [workspace 2]vivaldi --disable-gpu
-            						exec-once = fcitx5 -d
-                  				exec-once = [workspace 1]wezterm
+                                                	env = XCURSOR_SIZE,24
+                                                	env = LIBVA_DRIVER_NAME,nvidia
+                                                	env = XDG_SESSION_TYPE,wayland
+                                                	env = GBM_BACKEND,nvidia-drm
+                                                	env = __GLX_VENDOR_LIBRARY_NAME,nvidia-drm
+                  								monitor = , preffered, auto, 1
+            									monitor = HDMI-A-1,1920x1080@60.00000,0x0,1 
+            									monitor = DP-1,1920x1080@60.00000,1920x0,1
+            									monitor = DP-3,1920x1080@60.00000,3840x0,1	
+      										monitor = Unknown-1, disable
+                              						exec-once = fcitx5 -d
     '';
     # 				env = WLR_DRM_DEVICES,/dev/dri/card0
     #exec-once = waybar
+    # monitor=HDMI-A-1,1920x1080@74.97300,-1920x0,1 
+    # monitor=DVI-D-1,1920x1080@60.00000,0x0,1 
+    # exec-once = [workspace 2]vivaldi --disable-gpu
+    # exec-once = [workspace 1]wezterm
     settings = {
       general = {
         "gaps_in" = 5;
@@ -24,14 +30,16 @@
       };
       input = {
         "kb_layout" = "us";
+        "kb_variant" = "dvorak";
         "follow_mouse" = 1;
       };
 
       "$mainMod" = "ALT";
-      "$terminal" = "wezterm";
+      "$terminal" = "kitty";
       bind = [
         "$mainMod, RETURN, exec, $terminal"
-        "$mainMod, F, exec, vivaldi --disable-gpu"
+        "$mainMod, W, exec, wezterm"
+        "$mainMod, V, exec, vivaldi --disable-gpu"
         "$mainMod, L, exec, slack"
         "$mainMod, S, exec, wlogout"
         "$mainMod, N, movefocus, r"

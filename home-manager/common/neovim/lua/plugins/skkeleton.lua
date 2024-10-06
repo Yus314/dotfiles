@@ -12,6 +12,7 @@ return {
 		end
 	},
 
+
 	config = function()
 		local augroup = vim.api.nvim_create_augroup("kaki.skkeleton", {})
 		vim.api.nvim_create_autocmd("User", {
@@ -34,6 +35,9 @@ return {
 		vim.cmd([[
 			call skkeleton#config({ 'globalDictionaries': ['~/.skk/SKK-JISYO.L'] })
 			call skkeleton#register_kanatable('act', {}, 'create')
+			call skkeleton#config({
+			  \ 'eggLikeNewline': v:true
+			  \ })
 			call skkeleton#config({ 'kanaTable': 'act' })
 			call skkeleton#register_keymap("input",":", "henkanPoint")
 			call skkeleton#register_kanatable('act', {
