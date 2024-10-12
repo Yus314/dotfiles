@@ -1,0 +1,56 @@
+#+TITLE: Configurations for GNU Emacs
+#+AUTHOR: minera
+* Header
+#+begin_src emacs-lisp :tangle yes
+  ;; init.el --- My init.el -*- lexical-binding: t -*-
+  ;; Configurations for Emacs
+#+end_src
+* leaf.el
+#+begin_src emacs-lisp :tangle yes
+  ;; <leaf-install-code>
+  (eval-and-compile
+    (customize-set-variable
+     'package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("gnu" . "https://elpa.gnu.org/packages/")))
+
+    (package-initialize)
+    (unless (package-installed-p 'leaf)
+  	(package-refresh-contents)
+  	(package-install 'leaf))
+    (leaf leaf-keywords
+  	:ensure t 
+  	:init
+  	:config 
+  	(leaf-keywords-init)))
+  (leaf leaf-tree :ensure t)
+  (leaf leaf-convert :ensure t)
+#+end_src		            
+* theme			      
+#+begin_src emacs-lisp :tangle yes
+     (leaf atom-one-dark-theme
+       :ensure t
+       :config
+       (load-theme 'atom-one-dark t))
+#+end_src
+* org-babel
+#+begin_src emacs-lisp :tangle yes
+(org-babel-do-load-languages 'org-babel-load-languages
+'((emacs-lisp . t)
+(org . t)))
+#+end_src
+
+* evil-mode
+#+begin_src emacs-lisp :tangle yes
+    (leaf evil
+    :ensure t
+    :config
+    (evil-mode 1))
+#+end_src
+* ddskk
+#+begin_src emacs-lisp :tangle yes
+  (leaf ddskk
+    :ensure t
+    :bind
+    ("C-x C-j" . skk-mode))
+#+end_src
+
