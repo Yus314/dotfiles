@@ -8,9 +8,9 @@ in
     package = pkgs.emacsWithPackagesFromUsePackage {
       config = ./elisp/init.org;
       defaultInitFile = true;
-      package = pkgs.emacs-git;
+      package = pkgs.emacs-pgtk;
       alwaysTangle = true;
-      override = finel: prev: { withXwidgets = true; };
+      override = final: prev: { withXwidgets = true; };
     };
   };
   home = {

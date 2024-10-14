@@ -32,6 +32,10 @@
   (push '(menu-bar-lines . 0) default-frame-alist)
   (push '(tool-bar-lines . 0) default-frame-alist)
 #+end_src
+** 行番号を表示
+#+begin_src emacs-lisp :tangle yes
+  (global-display-line-numbers-mode  t)
+#+end_src
 ** スタートアップメッセージを非表示
 #+begin_src emacs-lisp :tangle yes
   (setq inhibit-startup-message t)
@@ -86,3 +90,4 @@
 #+begin_src emacs-lisp :tangle yes
   (setq byte-compile-warnings '(cl-functions))
 #+end_src
+

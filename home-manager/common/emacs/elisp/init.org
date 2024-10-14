@@ -7,30 +7,42 @@
 #+end_src
 * leaf.el
 #+begin_src emacs-lisp :tangle yes
-  ;; <leaf-install-code>
-  (eval-and-compile
-    (customize-set-variable
-     'package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("gnu" . "https://elpa.gnu.org/packages/")))
-
-    (package-initialize)
-    (unless (package-installed-p 'leaf)
-  	(package-refresh-contents)
-  	(package-install 'leaf))
-    (leaf leaf-keywords
+;;<leaf-install-code>
+(eval-and-compile
+(customize-set-variable
+     'package-archives
+'(("melpa" . "https://melpa.org/packages/")
+("gnu" . "https://elpa.gnu.org/packages/")))
+(package-initialize)
+(unless (package-installed-p 'leaf)
+(package-refresh-contents)
+(package-install 'leaf))
+(leaf leaf-keywords
   	:ensure t 
   	:init
   	:config 
   	(leaf-keywords-init)))
-  (leaf leaf-tree :ensure t)
-  (leaf leaf-convert :ensure t)
+
+(leaf leaf-tree :ensure t)
+
+(leaf leaf-convert :ensure t)
+
 #+end_src		            
+* builtin properties
+#+begin_src emacs-lisp :tangle yes
+(leaf cus-start
+  :tag "builtin" "internal"
+  :custom ((user-full-name . "Yusuke Kakinuma")
+(default-directory . "~/")))
+
+#+end_src
 * theme			      
 #+begin_src emacs-lisp :tangle yes
-     (leaf atom-one-dark-theme
+(leaf atom-one-dark-theme
        :ensure t
        :config
        (load-theme 'atom-one-dark t))
+
 #+end_src
 * org-babel
 #+begin_src emacs-lisp :tangle yes
@@ -41,16 +53,81 @@
 
 * evil-mode
 #+begin_src emacs-lisp :tangle yes
-    (leaf evil
-    :ensure t
-    :config
-    (evil-mode 1))
+(leaf evil
+  :ensure t
+  :config
+  (evil-mode 1))
+
 #+end_src
 * ddskk
 #+begin_src emacs-lisp :tangle yes
-  (leaf ddskk
+(leaf ddskk
     :ensure t
     :bind
     ("C-x C-j" . skk-mode))
+
 #+end_src
 
+* which key
+#+begin_src emacs-lisp :tangle yes
+(leaf which-key
+    :config
+    (which-key-mode)
+    )
+
+#+end_src
+* vercico
+#+begin_src emacs-lisp :tangle yes
+(fido-vertical-mode +1)
+#+end_src
+* marginalia
+#+begin_src emacs-lisp :tangle yes
+(leaf marginalia
+    :ensure t
+    :config
+    (marginalia-mode))
+
+#+end_src
+* orderless
+#+begin_src emacs-lisp :tangle yes
+  (leaf orderless
+    :ensure t
+    :custom(
+  	  (completion-styles . '(orderless basic))
+  	  (completion-category-overrides . '((file
+					     (styles basic partial-completion)))))
+    )
+#+end_src
+* consult
+    #+begin_src emacs-lisp :tangle yes
+      (leaf consult
+            :ensure t
+            :bind
+            ("M-g f" . consult-fd))
+
+#+end_src
+* corfu
+#+begin_src emacs-lisp :tangle yes
+(leaf corfu
+  :ensure t
+  :custom(
+(corfu-auto . t)
+(corfu-auto-delay . 0)
+(corfu-quit-no-match . 'separator)
+(corfu-auto-prefix . 1)
+(corfu-cycle . t)
+(text-mode-ispell-word-completion . nil)
+(tab-awlays-indent . 'complete)
+)
+  :init
+  (global-corfu-mode)
+  )
+
+#+end_src
+* cape
+#+begin_src emacs-lisp :tangle yes
+(leaf cape
+  :ensure t
+  )
+
+#+END_src
