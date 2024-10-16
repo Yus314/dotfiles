@@ -26,6 +26,10 @@
     wezterm = {
       url = "github:wez/wezterm?dir=nix";
     };
+    emacs-overlay = {
+      url = "github:nix-community/emacs-overlay";
+    };
+    org-babel.url = "github:emacs-twist/org-babel";
   };
   outputs =
     {
@@ -39,6 +43,8 @@
       homebrew-core,
       homebrew-cask,
       wezterm,
+      emacs-overlay,
+      org-babel,
       ...
     }:
     {
@@ -49,9 +55,11 @@
             ./configuration.nix
             home-manager.nixosModules.home-manager
           ];
-          # specialArgs = {
-          # inherit allowed-unfree-packages;
-          # };
+          specialArgs = {
+            inherit unstable;
+            inherit emacs-overlay;
+            inherit org-babel;
+          };
         };
         lab-main = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";

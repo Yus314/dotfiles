@@ -1,8 +1,15 @@
-# Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{
+  config,
+  system,
+  pkgs,
+  unstable,
+  emacs-overlay,
+  org-babel,
+  ...
+}:
 
 {
   imports = [
@@ -11,6 +18,8 @@
     ./font.nix
     ./nvidia.nix
   ];
+
+  services.onedrive.enable = true;
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -72,6 +81,11 @@
         stateVersion = "24.05";
       };
       nixpkgs.config.allowUnfree = true;
+      nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
+    };
+    extraSpecialArgs = {
+      inherit unstable;
+      inherit org-babel;
     };
   };
   security.polkit.enable = true;

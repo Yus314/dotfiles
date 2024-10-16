@@ -11,6 +11,19 @@ in
       package = pkgs.emacs-pgtk;
       alwaysTangle = true;
       override = final: prev: { withXwidgets = true; };
+      extraEmacsPackages =
+        epkgs: with epkgs; [
+          (treesit-grammars.with-grammars (
+            p: with p; [
+              tree-sitter-elisp
+              tree-sitter-nix
+              tree-sitter-yaml
+              tree-sitter-rust
+            ]
+          ))
+          (pkgs.texlive.combined.scheme-full)
+          (pkgs.zathura)
+        ];
     };
   };
   home = {
@@ -18,6 +31,11 @@ in
       ".emacs.d/init.el".text = tangle (builtins.readFile ./elisp/init.org);
       ".emacs.d/early-init.el".text = tangle (builtins.readFile ./elisp/early-init.org);
     };
+    packages = with pkgs; [
+      tree-sitter
+      nil
+      rust-analyzer
+    ];
   };
 
 }

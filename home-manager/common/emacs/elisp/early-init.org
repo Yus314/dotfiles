@@ -70,6 +70,17 @@
   (setq initial-scratch-message nil)
   (setq initial-major-mode 'fundamental-mode)
 #+end_src
+** ふぉんと追加
+#+begin_src emacs-lisp :tangle yes
+    ;(when (member "Bizin Gothic Discord NF" (font-family-list))
+    ;(push '(font . "Bizin Gothic Discord NF-16") default-frame-alist)
+  ;(set-fontset-font nil 'japanese-jisx0208
+  ;		  (font-spec  :family "Bizin Gothic Discord NF-16"))
+  (set-language-environment 'Japanese)
+  (prefer-coding-system 'utf-8-unix)
+  (set-face-attribute 'default nil :family "Bizin Gothic Discord NF" :height 160)
+  ;)
+#+end_src
 ** x session resourcesを無視します
 #+begin_src emacs-lisp :tangle yes
   (advice-add 'x-apply-session-resources :override 'ignore)

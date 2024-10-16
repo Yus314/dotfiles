@@ -2,7 +2,7 @@
 {
 
   boot.extraModulePackages = with config.boot.kernelPackages; [
-    r8125
+    # r8125
     nvidia_x11
   ];
   boot.initrd.kernelModules = [ "nvidia" ];
