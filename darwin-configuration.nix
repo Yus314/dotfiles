@@ -1,4 +1,5 @@
 { pkgs, ... }:
+{ pkgs, unstable, ... }:
 {
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
@@ -44,6 +45,9 @@
         stateVersion = "24.05";
       };
     };
+    extraSpecialArgs = {
+      inherit unstable;
+    };
   };
   users = {
     users = {
@@ -58,4 +62,5 @@
     enableRosetta = true;
     user = "kakinumayuusuke";
   };
+  system.stateVersion = 5;
 }
