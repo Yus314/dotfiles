@@ -1,3 +1,4 @@
+
 #+TITLE: Configurations for GNU Emacs
 #+AUTHOR: minera
 * Header
@@ -38,8 +39,13 @@
 (default-directory . "~/")))
 
 #+end_src
-* theme
-** Modus Theme
+* UI
+** theme
+*** Modus Theme
+見やすさにおいて、何らかの認定を受けたという言葉に弱く採用している。
+少し、配色が落ち着きすぎている気もするが、これは元々 one dark  を使っていたこともあり、慣れの問題かもしれない。
+emacs のテーマは色々なモードに対応していたりいなかったりするみたいで、新しく作られたということも安心感につながっている。
+modus のテーマもある。
   #+begin_src emacs-lisp :tangle yes
     (leaf modus-themes
       :ensure t
@@ -57,7 +63,12 @@
       (load-theme 'modus-operandi)
       )
 #+end_src
-* tree-sitter
+** tree-sitter
+世界を色付けてくれる。これがないと完全に真っ黒だったので必須。
+Tree-sitter はモードに依存していて、設定がわかりにくい。
+有効化、無効化をコマンドで行ないたいのだが、よくわかっていない。
+tree-sitter と treesit の役割の違いも理解していない。
+emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf treesit
     :custom(
@@ -78,7 +89,7 @@
   )
 
   #+end_src
-** nix
+*** nix
 #+begin_src emacs-lisp :tangle yes
   (leaf nix-mode
     :ensure t
@@ -93,7 +104,7 @@
      )
   (add-hook 'nix-ts-mode-hook 'eglot-ensure)
 #+end_src
-** yaml
+*** yaml
 #+begin_src emacs-lisp :tangle yes
   (leaf yaml-mode
     :ensure t
@@ -106,7 +117,7 @@
   (add-to-list 'auto-mode-alist '("\\.ya?ml$" . yaml-ts-mode))
   (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
 #+end_src
-** rust
+*** rust
 #+begin_src emacs-lisp :tangle yes
   (leaf rust-mode
      :ensure t
@@ -122,14 +133,68 @@
 
   (add-hook 'rust-mode-hook #'my/rust-mode-hook)
 #+end_src
-* Org-babel
+** perfect-mergin
 #+begin_src emacs-lisp :tangle yes
-(org-babel-do-load-languages 'org-babel-load-languages
-'((emacs-lisp . t)
-(org . t)))
+  (leaf perfect-margin
+    :ensure t
+    :custom
+    (perfect-margin-ignore-filters . nil)
+    :config
+    ;(perfect-margin-mode)
+    )
 #+end_src
-
-* evil-mode
+** icon
+*** nerd-icons
+#+begin_src emacs-lisp :tangle yes
+  (leaf nerd-icons
+    :ensure t
+    )
+   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+  (leaf nerd-icons-corfu
+    :ensure t
+    :after nerd-icons
+    :config
+    )
+#+end_src
+** winnum
+#+begin_src emacs-lisp :tangle yes
+  (leaf winum
+    :ensure t)
+  (leaf ace-window
+     :ensure t
+    :after avy)
+#+end_src
+** tab bar
+バッファをウインドウの管理をうまくできていないので、あまりつかいこなせていない。
+ #+begin_src emacs-lisp :tangle yes
+   ;(tab-bar-mode)
+   (leaf centaur-tabs
+     :ensure t
+     :custom(
+   	  (centaur-tabs-set-icons . t)
+   	  (centaur-tabs-icon-type . 'nerd-icons)
+   	  (centaur-tabs-set-bar . 'under)
+   	  (x-underline-at-descent-line . t)
+   	  (centaur-tabs-mode . t)
+     )
+    )
+    
+ #+end_src
+*** Moody
+#+begin_src emacs-lisp :tangle yes
+  (leaf moody
+    :ensure t
+    :custom
+    (x-underline-at-descent-line . t)
+    (moody-mode-line-height . 26)
+    :config
+     (moody-replace-mode-line-front-space)
+     (moody-replace-mode-line-buffer-identification)
+     (moody-replace-vc-mode)
+    )
+#+end_src
+* 入力支援
+** evil-mode
 #+begin_src emacs-lisp :tangle yes
 ;(leaf evil
  ; :ensure t
@@ -137,24 +202,7 @@
   ;(evil-mode 1))
 
 #+end_src
-* ddskk
-#+begin_src emacs-lisp :tangle yes
-  (leaf ddskk
-      :ensure t
-      :bind
-      ("C-x C-j" . skk-mode)
-      :custom
-      (skk-use-act . t)
-      )
-
-  (leaf ddskk-posframe
-    :ensure t
-    :after posframe ddskk
-    :custom
-    (ddskk-posframe-mode . t)
-    )
-#+end_src
-* meow
+** meow
 #+begin_src emacs-lisp :tangle yes
   (leaf meow
   :ensure
@@ -237,7 +285,7 @@
   '("N" . Meow-Right-expand)
   '("u" . meow-undo)
   '("U" . meow-undo-in-selection)
-  '("v" . meow-visit)
+;  '("v" . meow-visit)
   '("w" . meow-next-word)
   '("W" . meow-next-symbol)
   '("x" . meow-save)
@@ -252,8 +300,32 @@
     (meow-global-mode)
     )
 #+end_src
+** puni
+ #+begin_src emacs-lisp :tangle yes
+   (leaf puni
+       :ensure t)
 
-* which key
+   
+ #+end_src
+
+** ddskk
+#+begin_src emacs-lisp :tangle yes
+  (leaf ddskk
+      :ensure t
+      :bind
+      ("C-x C-j" . skk-mode)
+      :custom
+      (skk-use-act . t)
+      )
+
+  (leaf ddskk-posframe
+    :ensure t
+    :after posframe ddskk
+    :custom
+    (ddskk-posframe-mode . t)
+    )
+#+end_src
+** which key
 #+begin_src emacs-lisp :tangle yes
 (leaf which-key
     :config
@@ -261,11 +333,12 @@
     )
 
 #+end_src
-* vercico
+* ミニバッファ補完
+** vercico
 #+begin_src emacs-lisp :tangle yes
 (fido-vertical-mode +1)
 #+end_src
-* marginalia
+** marginalia
 #+begin_src emacs-lisp :tangle yes
   (leaf marginalia
       :ensure t
@@ -273,7 +346,7 @@
       (marginalia-mode))
   
 #+end_src
-* orderless
+** orderless
 #+begin_src emacs-lisp :tangle yes
   (leaf orderless
     :ensure t
@@ -283,15 +356,19 @@
 					     (styles basic partial-completion)))))
     )
 #+end_src
-* consult
+** consult
     #+begin_src emacs-lisp :tangle yes
       (leaf consult
             :ensure t
             :bind
-            ("M-g f" . consult-fd))
-
+            ("M-g f" . consult-fd)
+         )
 #+end_src
-* corfu
+* Avy
+#+begin_src emacs-lisp :tangle yes
+ #+end_src
+* 入力補完
+** corfu
 #+begin_src emacs-lisp :tangle yes
   (leaf corfu
     :ensure t
@@ -312,41 +389,14 @@
     )
 
 #+end_src
-* icon
-** nerd-icons
-#+begin_src emacs-lisp :tangle yes
-  (leaf nerd-icons
-    :ensure t
-    )
-   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
-  (leaf nerd-icons-corfu
-    :ensure t
-    :after nerd-icons
-    :config
-    )
-#+end_src
-* cape
+** cape
 #+begin_src emacs-lisp :tangle yes
   (leaf cape
     :ensure t
     )
 
+  
 #+END_src
-* tab bar
- #+begin_src emacs-lisp :tangle yes
-   ;(tab-bar-mode)
-   (leaf centaur-tabs
-     :ensure t
-     :custom(
-   	  (centaur-tabs-set-icons . t)
-   	  (centaur-tabs-icon-type . 'nerd-icons)
-   	  (centaur-tabs-set-bar . 'under)
-   	  (x-underline-at-descent-line . t)
-   	  (centaur-tabs-mode . t)
-     )
-    )
-    
- #+end_src
 * org
 ** org-indent
 #+begin_src emacs-lisp :tangle yes
@@ -378,79 +428,13 @@
       )
 #+end_src
 
-* eglot
+** Org-babel
 #+begin_src emacs-lisp :tangle yes
-  (leaf eglot
-  ((add-to-list 'eglot-server-programs
-  	      '((nix-ts-mode  . "nil")
-  		(rust-mode) . "rust-anlyzer")
-  	      )
-   )
-  )
-
+(org-babel-do-load-languages 'org-babel-load-languages
+'((emacs-lisp . t)
+(org . t)))
 #+end_src
 
-* flycheck
-#+begin_src  emacs-lisp :tangle yes
-  (leaf flycheck
-      :ensure t)
-  (leaf flycheck-posframe
-      :ensure t
-      :after flycheck posframe
-      :config(flycheck-posframe-mode)
-      )
-#+end_src
-* Tex
-#+begin_src emacs-lisp :tangle yes
-  (leaf auctex
-    :emacs>= 27.1
-    :ensure t
-    :custom
-    (
-   (TeX-default-mode . 'japanese-latex-mode)
-   (TeX-view-program-selection '((output-pdf "Zathura")))
-   )
-    )
-#+end_src
-
-* PDF
-#+begin_src emacs-lisp :tangle yes
-  ;(leaf pdf-tools
-  ;
-  ;  ensure t
-  ;  :init
-   ; (pdf-tools-install)
-  ;  )
-  ;(add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
-#+end_src
-* Moody
-#+begin_src emacs-lisp :tangle yes
-  (leaf moody
-    :ensure t
-    :custom
-    (x-underline-at-descent-line . t)
-    (moody-mode-line-height . 26)
-    :config
-     (moody-replace-mode-line-front-space)
-     (moody-replace-mode-line-buffer-identification)
-     (moody-replace-vc-mode)
-    )
-#+end_src
-* perfect-mergin
-#+begin_src emacs-lisp :tangle yes
-  (leaf perfect-margin
-    :ensure t
-    :custom
-    (perfect-margin-ignore-filters . nil)
-    :config
-    ;(perfect-margin-mode)
-    )
-#+end_src
-* MisTTY
-#+begin_src emacs-lisp :tangle yes
-  (leaf mistty
-     :ensure t)
-#+end_src
 * Git
 ** diff-hl
 #+begin_src emacs-lisp :tangle yes
@@ -468,4 +452,73 @@
     :bind
     ("C-x g" . magit-status)
     )
+#+end_src
+* flycheck
+#+begin_src  emacs-lisp :tangle yes
+  (leaf flycheck
+    :ensure t)
+  (add-hook 'after-init-hook #'global-flycheck-mode)
+  (leaf flycheck-posframe
+      :ensure t
+      :after flycheck posframe
+      :config(flycheck-posframe-mode)
+      )
+#+end_src
+* PDF
+#+begin_src emacs-lisp :tangle yes
+  ;(leaf pdf-tools
+  ;
+  ;  ensure t
+  ;  :init
+   ; (pdf-tools-install)
+  ;  )
+  ;(add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
+#+end_src
+* MisTTY
+#+begin_src emacs-lisp :tangle yes
+  (leaf mistty
+     :ensure t)
+#+end_src
+* プログラミング支援
+** eglot
+#+begin_src emacs-lisp :tangle yes
+  (leaf eglot
+  ((add-to-list 'eglot-server-programs
+  	      '((nix-ts-mode  . "nil")
+  		(rust-mode) . "rust-anlyzer")
+  	      )
+   )
+  )
+
+#+end_src
+
+** Tex
+#+begin_src emacs-lisp :tangle yes
+  (leaf auctex
+    :ensure t
+    :custom
+    (
+   (TeX-default-mode . 'japanese-latex-mode)
+   (japanese-TeX-engine-default . 'ptex)
+   (TeX-view-program-selection . '((output-pdf "Zathura")))
+   (TeX-PDF-from-DVI . "Dvipdfmx")
+   )
+    )
+  (add-hook 'LaTeX-mode-hook 'japanese-LaTeX-mode)
+  (leaf auctex-latexmk
+     :ensure t
+     :after auctex
+     :config
+     (auctex-latexmk-setup)
+  )
+#+end_src
+
+** direnv
+#+begin_src emacs-lisp :tangle yes
+  (leaf direnv
+    :ensure t
+    :config
+    (direnv-mode)
+    
+  )
 #+end_src
