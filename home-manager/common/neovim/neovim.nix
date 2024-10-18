@@ -14,7 +14,7 @@ in
 {
   programs.neovim = {
     enable = true;
-    package = unstable.legacyPackages.x86_64-linux.neovim-unwrapped;
+    package = unstable.legacyPackages.aarch64-darwin.neovim-unwrapped;
     vimAlias = true;
 
     extraPackages = with pkgs; [
@@ -113,6 +113,5 @@ in
       "/lua/plugins/telekasten.lua"
       "/lua/plugins/nvim-markdown.lua"
       "/lua/plugins/yamlmatter.lua"
-
     ];
 }
