@@ -40,6 +40,11 @@ in
       luajitPackages.compat53
       libgccjit
       jdt-language-server
+      python312 # for zotcite
+      python312Packages.pyyaml # for zotcite
+      python312Packages.pynvim # for zotcite
+      python312Packages.pyqt5 # for zotcite
+      python312Packages.poppler-qt5 # for zotcite
     ];
   };
 
@@ -95,7 +100,6 @@ in
       "/lua/plugins/lspconfig.lua"
       "/lua/plugins/lualine.lua"
       "/lua/plugins/markdown-preview.lua"
-      "/lua/plugins/neorg.lua"
       "/lua/plugins/noice.lua"
       # "/lua/plugins/nu.lua"
       "/lua/plugins/null-ls.lua"
@@ -113,6 +117,7 @@ in
       "/lua/plugins/telekasten.lua"
       "/lua/plugins/nvim-markdown.lua"
       "/lua/plugins/yamlmatter.lua"
+      "/lua/plugins/zotcite.lua"
 
     ];
 }

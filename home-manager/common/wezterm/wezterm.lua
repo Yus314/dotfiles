@@ -10,7 +10,7 @@ end
 config.color_scheme = 'OneDark (base16)'
 
 -- フォントの設定
---config.font = wezterm.font("Bizin Gothic Discord NF")
+config.font = wezterm.font("Bizin Gothic Discord NF")
 config.font_size = 14.4
 config.use_ime = false
 

@@ -30,7 +30,7 @@
       };
       input = {
         "kb_layout" = "us";
-        "kb_variant" = "dvorak";
+        # "kb_variant" = "dvorak";
         "follow_mouse" = 1;
         "force_no_accel" = 0;
       };
@@ -40,7 +40,8 @@
       bind = [
         "$mainMod, RETURN, exec, $terminal"
         "$mainMod, W, exec, wezterm"
-        "$mainMod, V, exec, vivaldi --disable-gpu"
+        "$mainMod, Z, exec, vivaldi --disable-gpu"
+        "$mainMod, E, exec, emacs"
         "$mainMod, L, exec, slack"
         "$mainMod, S, exec, wlogout"
         "$mainMod, N, movefocus, r"
