@@ -13,15 +13,15 @@
     marp-cli
     vimgolf
     carapace
-    zoom
-    sway
-    waybar
-    wl-clipboard
-    swaylock
-    swayidle
-    wlogout
-    slack
-    zoom
+    #zoom
+    #sway
+    #waybar
+    #wl-clipboard
+    #swaylock
+    #swayidle
+    #wlogout
+    #slack
+    #zoom
     kitty
     gdrive3
     drive

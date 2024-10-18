@@ -415,13 +415,13 @@
 
 * PDF
 #+begin_src emacs-lisp :tangle yes
-  (leaf pdf-tools
-
-    ensure t
-    :init
-    (pdf-tools-install)
-    )
-  (add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
+  ;(leaf pdf-tools
+  ;
+  ;  ensure t
+  ;  :init
+   ; (pdf-tools-install)
+  ;  )
+  ;(add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
 #+end_src
 * Moody
 #+begin_src emacs-lisp :tangle yes
@@ -444,5 +444,28 @@
     (perfect-margin-ignore-filters . nil)
     :config
     ;(perfect-margin-mode)
+    )
+#+end_src
+* MisTTY
+#+begin_src emacs-lisp :tangle yes
+  (leaf mistty
+     :ensure t)
+#+end_src
+* Git
+** diff-hl
+#+begin_src emacs-lisp :tangle yes
+  (leaf diff-hl
+    :ensure t
+    :custom
+     (global-diff-hl-mode . t)
+     (diff-hl-flydiff-mode . t)
+     )
+#+end_src
+** magit
+#+begin_src emacs-lisp :tangle yes
+  (leaf magit
+    :ensure t
+    :bind
+    ("C-x g" . magit-status)
     )
 #+end_src
