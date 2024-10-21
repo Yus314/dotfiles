@@ -1,4 +1,3 @@
-
 #+TITLE: Configurations for GNU Emacs
 #+AUTHOR: minera
 * Header
@@ -37,6 +36,13 @@
   :tag "builtin" "internal"
   :custom ((user-full-name . "Yusuke Kakinuma")
 (default-directory . "~/")))
+
+#+end_src
+#+begin_src emacs-lisp :tangle yes
+  (leaf cus-edit
+    :doc "tools for customizing Emacs and Lisp packages"
+    :tag "builtin" "faces" "help"
+    :custom `((custom-file . ,(locate-user-emacs-file "custom.el"))))
 
 #+end_src
 * UI
@@ -135,13 +141,13 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** perfect-mergin
 #+begin_src emacs-lisp :tangle yes
-  (leaf perfect-margin
-    :ensure t
-    :custom
-    (perfect-margin-ignore-filters . nil)
-    :config
-    ;(perfect-margin-mode)
-    )
+    (leaf perfect-margin
+      :ensure t
+      :custom
+      (perfect-margin-ignore-filters . nil)
+      :config
+  ;(perfect-margin-mode)
+      )
 #+end_src
 ** icon
 *** nerd-icons
@@ -149,7 +155,7 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf nerd-icons
     :ensure t
     )
-   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+   ;(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
   (leaf nerd-icons-corfu
     :ensure t
     :after nerd-icons
@@ -180,7 +186,7 @@ emacs lisp はデフォでやってくれているっぽい。
     )
     
  #+end_src
-*** Moody
+** Moody
 #+begin_src emacs-lisp :tangle yes
   (leaf moody
     :ensure t
@@ -194,111 +200,104 @@ emacs lisp はデフォでやってくれているっぽい。
     )
 #+end_src
 * 入力支援
-** evil-mode
-#+begin_src emacs-lisp :tangle yes
-;(leaf evil
- ; :ensure t
-  ;:config
-  ;(evil-mode 1))
-
-#+end_src
 ** meow
 #+begin_src emacs-lisp :tangle yes
   (leaf meow
-  :ensure
-  t
-  :custom
-    (meow-use-clipboard . t)
-    (meow-expand-hint-counts . nil)
-  					;(meow-cheatsheet-layout . meow-cheatsheet-layout-dvp)
+    :ensure t
     :require meow
-    :config
-    
-
-  (defun meow-setup ()
-    (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
-    (meow-leader-define-key
-  '("?" . meow-cheatsheet))
-  (meow-motion-overwrite-define-key
-     ;; custom keybinding for motion state
-  '("<escape>" . ignore))
-  (meow-normal-define-key
-  '("?" . meow-cheatsheet)
-  '("*" . meow-expand-0)
-  '("=" . meow-expand-9)
-  '("!" . meow-expand-8)
-  '("[" . meow-expand-7)
-  '("]" . meow-expand-6)
-  '("{" . meow-expand-5)
-  '("+" . meow-expand-4)
-  '("}" . meow-expand-3)
-  '(")" . meow-expand-2)
-  '("(" . meow-expand-1)
-  '("1" . digit-argument)
-  '("2" . digit-argument)
-  '("3" . digit-argument)
-  '("4" . digit-argument)
-  '("5" . digit-argument)
-  '("6" . digit-argument)
-  '("7" . digit-argument)
-  '("8" . digit-argument)
-  '("9" . digit-argument)
-  '("0" . digit-argument)
-  '("-" . negative-argument)
-  '(";" . meow-reverse)
-  '("," . meow-inner-of-thing)
-  '("." . meow-bounds-of-thing)
-  '("<" . meow-beginning-of-thing)
-  '(">" . meow-end-of-thing)
-  '("a" . meow-append)
-  '("A" . meow-open-below)
-  '("b" . meow-back-word)
-  '("B" . meow-back-symbol)
-  '("c" . meow-change)
-  '("p" . meow-delete)
-  '("P" . meow-backward-delete)
-  '("e" . meow-line)
-  '("E" . meow-goto-line)
-  '("f" . meow-find)
-  '("g" . meow-cancel-selection)
-  '("G" . meow-grab)
-  '("d" . meow-left)
-  '("D" . meow-left-expand)
-  '("i" . meow-insert)
-  '("I" . meow-open-above)
-  '("j" . meow-join)
-  '("k" . meow-kill)
-  '("l" . meow-till)
-  '("m" . meow-mark-word)
-  '("M" . meow-mark-symbol)
-  '("h" . meow-next)
-  '("H" . meow-next-expand)
-  '("o" . meow-block)
-  '("O" . meow-to-block)
-  '("t" . meow-prev)
-  '("T" . meow-prev-expand)
-  '("q" . meow-quit)
-  '("r" . meow-replace)
-  '("R" . meow-swap-grab)
-  '("s" . meow-search)
-  '("n" . meow-right)
-  '("N" . Meow-Right-expand)
-  '("u" . meow-undo)
-  '("U" . meow-undo-in-selection)
-;  '("v" . meow-visit)
-  '("w" . meow-next-word)
-  '("W" . meow-next-symbol)
-  '("x" . meow-save)
-  '("X" . meow-sync-grab)
-  '("y" . meow-yank)
-  '("z" . meow-pop-selection)
-  '("'" . repeat)
-  '("<escape>" . ignore)
-  )
-  )
-    (meow-setup)
-    (meow-global-mode)
+      :custom
+      (meow-use-clipboard . t)
+      (meow-expand-hint-counts . nil)
+      :hook
+      ((meow-insert-exit-hook . (lambda nil
+  				(if skk-mode (skk-latin-mode-on))))
+       )
+     :config
+    (defun meow-setup ()
+      (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
+      (meow-leader-define-key
+    '("?" . meow-cheatsheet))
+    (meow-motion-overwrite-define-key
+       ;; custom keybinding for motion state
+    '("<escape>" . ignore))
+    (meow-normal-define-key
+    '("?" . meow-cheatsheet)
+    '("*" . meow-expand-0)
+    '("=" . meow-expand-9)
+    '("!" . meow-expand-8)
+    '("[" . meow-expand-7)
+    '("]" . meow-expand-6)
+    '("{" . meow-expand-5)
+    '("+" . meow-expand-4)
+    '("}" . meow-expand-3)
+    '(")" . meow-expand-2)
+    '("(" . meow-expand-1)
+    '("1" . digit-argument)
+    '("2" . digit-argument)
+    '("3" . digit-argument)
+    '("4" . digit-argument)
+    '("5" . digit-argument)
+    '("6" . digit-argument)
+    '("7" . digit-argument)
+    '("8" . digit-argument)
+    '("9" . digit-argument)
+    '("0" . digit-argument)
+    '("-" . negative-argument)
+    '(";" . meow-reverse)
+    '("," . meow-inner-of-thing)
+    '("." . meow-bounds-of-thing)
+    '("<" . meow-beginning-of-thing)
+    '(">" . meow-end-of-thing)
+    '("a" . meow-append)
+    '("A" . meow-open-below)
+    '("b" . meow-back-word)
+    '("B" . meow-back-symbol)
+    '("c" . meow-change)
+    '("p" . meow-delete)
+    '("P" . meow-backward-delete)
+    '("e" . meow-line)
+    '("E" . meow-goto-line)
+    '("f" . meow-find)
+    '("<escape>" . meow-cancel-selection)
+    '("G" . meow-grab)
+    '("d" . meow-left)
+    '("D" . meow-left-expand)
+    '("i" . meow-insert)
+    '("I" . meow-open-above)
+    '("j" . meow-join)
+    '("k" . meow-kill)
+    '("l" . meow-till)
+    '("m" . meow-mark-word)
+    '("M" . meow-mark-symbol)
+    '("h" . meow-next)
+    '("H" . meow-next-expand)
+    '("o" . meow-block)
+    '("O" . meow-to-block)
+    '("t" . meow-prev)
+    '("T" . meow-prev-expand)
+    '("q" . meow-quit)
+    '("r" . meow-replace)
+    '("R" . meow-swap-grab)
+    '("s" . meow-search)
+    '("n" . meow-right)
+    '("N" . Meow-Right-expand)
+    '("u" . meow-undo)
+    '("U" . meow-undo-in-selection)
+  ;  '("v" . meow-visit)
+    '("w" . meow-next-word)
+    '("W" . meow-next-symbol)
+    '("x" . meow-save)
+    '("X" . meow-sync-grab)
+    '("y" . meow-yank)
+    '("z" . meow-pop-selection)
+    '("'" . repeat)
+    '("g" . avy-goto-char-timer)
     )
+    )
+      (meow-setup)
+      (meow-global-mode)
+      )
+
 #+end_src
 ** puni
  #+begin_src emacs-lisp :tangle yes
@@ -309,21 +308,110 @@ emacs lisp はデフォでやってくれているっぽい。
  #+end_src
 
 ** ddskk
+何はともあれSKKでの日本語入力が必要。
+キーボード配列に合うようにマップし直している.
 #+begin_src emacs-lisp :tangle yes
   (leaf ddskk
-      :ensure t
+     :ensure t
       :bind
       ("C-x C-j" . skk-mode)
       :custom
       (skk-use-act . t)
-      )
+      (skk-isearch-skk-mode-enable . t)
+      (skk-use-search-web . t)
+      (skk-egg-like-newline . t) ; Enterで改行しない
+      (skk-show-inline . 'vertical)
+      (skk-auto-insert-paren . t) ; 括弧の自動入力
+      (skk-delete-implies-kakutei . nil) ;nil にすると▼モードで <BS> を押した時 に一つ前の候補を表示するようになる
+      (skk-henkan-strict-okuri-precedence . t); 正しい送り仮名の変換が優先的に表示されるようにする設定
+      (skk-show-annotation . t) ; 単語の意味をアノテーションとして表示する設定
+      ;; 動的補完
+      (skk-dcomp-activate . t)
+      (skk-dcomp-multiple-activate . t)
+      ;; 言語
+      (skk-japanese-mesage-and-erreor . t) ; エラーを日本語に
+      (skk-show-japanese-menu . t) ; メニューを日本語に
+      (skk-read-from-minibuffer-function .
+        (lambda ()
+          (car (skk-google-suggest skk-henkan-key))))
+      (skk-rom-kana-rule-list
+       . '(("'" nil ("アン" . "あん"))
+  	 ("c'" nil ("カン" . "かん"))
+  	 ("s'" nil ("サン" . "さん"))
+  	 ("t'" nil ("タン" . "たん"))
+  	 ("n'" nil ("ナン" . "なん"))
+  	 ("h'" nil ("ハン" . "はん"))
+  	 ("m'" nil ("マン" . "まん"))
+  	 ("yz" nil ("ヤン" . "やん"))
+  	 ("r'" nil ("ラン" . "らん"))
+  	 ("w'" nil ("ワン" . "わん"))
+  	 
+  	 ("g'" nil ("ガン" . "がん"))
+  	 ("z'" nil ("ザン" . "ざん"))
+  	 ("d'" nil ("ダン" . "だん"))
+  	 ("b'" nil ("バン" . "ばん"))
+  	 ("pz" nil ("パン" . "ぱん"))
+  	 
+  	 (";" nil ("ッ" . "っ"))
+  	 ("c;" nil ("カイ" . "かい"))
+  	 ("s;" nil ("サイ" . "さい"))
+  	 ("t;" nil ("タイ" . "たい"))
+  	 ("n;" nil ("ナイ" . "ない"))
+  	 ("h;" nil ("ハイ" . "はい"))
+  	 ("m;" nil ("マイ" . "まい"))
+  	 ("yl" nil ("ヤイ" . "やい"))
+  	 ("r;" nil ("ライ" . "らい"))
+  	 ("w;" nil ("ワイ" . "わい"))
+  	 
+  	 ("g;" nil ("ガイ" . "がい"))
+  	 ("z;" nil ("ザイ" . "ざい"))
+  	 ("d;" nil ("ダイ" . "だい"))
+  	 ("b;" nil ("バイ" . "ばい"))
+  	 ("pl" nil ("パイ" . "ぱい"))
 
+  	 ("ys" nil ("ヤ" . "や"))
+  	 ("yd" nil ("イ" . "い"))
+  	 ("yh" nil ("ユ" . "ゆ"))
+  	 ("yt" nil ("イェ" . "いぇ"))
+  	 ("yn" nil ("ヨ" . "よ"))
+  	 ("yl" nil ("ヤイ" . "やい"))
+  	 ("yr" nil ("ヨウ" . "よう"))
+  	 ("yc" nil ("イウ" . "いう"))
+  	 ("yg" nil ("ユウ" . "ゆう"))
+  	 ("yf" nil ("ユイ" . "ゆい"))
+  	 ("yz" nil ("ヤン" . "やん"))
+  	 ("yb" nil ("イン" . "いん"))
+  	 ("ym" nil ("ユン" . "ゆん"))
+  	 ("yw" nil ("エン" . "えん"))
+  	 ("yv" nil ("ヨン" . "よん"))
+
+  	 ("pn" nil ("ポ" . "ぽ")) ; pn~ にマップされていて、有効化されない。
+  	 ("pl" nil ("パイ" . "ぱい"))
+  	 ("pr" nil ("ポウ" . "ぽう"))
+  	 ("pc" nil ("ペイ" . "ぺい"))
+  	 ("pg" nil ("プウ" . "ぷう"))
+  	 ("pf" nil ("プイ" . "ぷい"))
+  	 ("pz" nil ("パン" . "ぱん"))
+  	 ("pb" nil ("ピン" . "ぴん"))
+  	 ("pm" nil ("プン" . "ぷん"))
+  	 ("pw" nil ("ペン" . "ぺん"))
+  	 ("pv" nil ("ポン" . "ぽん"))
+  	 )
+       )
+
+      )
   (leaf ddskk-posframe
+
     :ensure t
     :after posframe ddskk
     :custom
     (ddskk-posframe-mode . t)
     )
+;; ファイルを開くと同時にSKKを有効化する
+  (defun my/always-enable-skk-latin-mode-hook ()
+    (skk-latin-mode 1))
+
+  (add-hook 'find-file-hooks 'my/always-enable-skk-latin-mode-hook)
 #+end_src
 ** which key
 #+begin_src emacs-lisp :tangle yes
@@ -364,9 +452,6 @@ emacs lisp はデフォでやってくれているっぽい。
             ("M-g f" . consult-fd)
          )
 #+end_src
-* Avy
-#+begin_src emacs-lisp :tangle yes
- #+end_src
 * 入力補完
 ** corfu
 #+begin_src emacs-lisp :tangle yes
@@ -387,7 +472,7 @@ emacs lisp はデフォでやってくれているっぽい。
     :config
     (corfu-popupinfo-mode)
     )
-
+(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
@@ -430,9 +515,9 @@ emacs lisp はデフォでやってくれているっぽい。
 
 ** Org-babel
 #+begin_src emacs-lisp :tangle yes
-(org-babel-do-load-languages 'org-babel-load-languages
-'((emacs-lisp . t)
-(org . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages
+  			     '((emacs-lisp . t)
+  			       (org . t)))
 #+end_src
 
 * Git
@@ -454,9 +539,24 @@ emacs lisp はデフォでやってくれているっぽい。
     )
 #+end_src
 * flycheck
-#+begin_src  emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
   (leaf flycheck
-    :ensure t)
+    :ensure t
+    :config
+    (flycheck-define-checker textlint
+    "textlint."
+    :command ("textlint" "--format" "unix"
+              source-inplace)
+    :error-patterns
+    ((warning line-start (file-name) ":" line ":" column ": "
+              (id (one-or-more (not (any " "))))
+              (message (one-or-more not-newline)
+                       (zero-or-more "\n" (any " ") (one-or-more not-newline)))
+              line-end))
+    :modes (text-mode markdown-mode gfm-mode LaTeX-mode japanese-latex-mode))
+  (add-to-list 'flycheck-checkers 'textlint)
+
+    )
   (add-hook 'after-init-hook #'global-flycheck-mode)
   (leaf flycheck-posframe
       :ensure t
@@ -466,18 +566,88 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * PDF
 #+begin_src emacs-lisp :tangle yes
-  ;(leaf pdf-tools
-  ;
-  ;  ensure t
-  ;  :init
-   ; (pdf-tools-install)
-  ;  )
-  ;(add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
-#+end_src
+  (leaf pdf-tools
+
+    ensure t
+    :init
+   (pdf-tools-install)
+    )
+  (add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
+  #+end_src
 * MisTTY
 #+begin_src emacs-lisp :tangle yes
   (leaf mistty
      :ensure t)
+#+end_src
+* helpful
+#+begin_src emacs-lisp :tangle yes
+  (leaf helpful
+      :ensure t
+      )
+#+end_src
+* Avy
+#+begin_src emacs-lisp :tangle yes
+  (leaf avy
+    :ensure t
+    :bind ("M-'" . avy-goto-char-timer)
+    )
+  (defun avy-action-helpful (pt)
+    (save-excursion
+      (goto-char pt)
+      (helpful-at-point))
+    (select-window
+     (cdr (ring-ref avy-ring 0)))
+    t)
+  ;(setf (alist-get ?H avy-dispatch-alist) 'avy-action-helpful)
+  (defun avy-action-embark (pt)
+    (unwind-protect
+        (save-excursion
+  	(goto-char pt)
+  	(embark-act))
+    (select-window
+     (cdr (ring-ref avy-ring 0))))
+    t)
+  ;(setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark)
+    
+#+end_src
+* ace-window
+#+begin_src emacs-lisp :tangle yes
+  (leaf ace-window
+    :ensure t
+    )
+#+end_src
+* embark
+#+begin_src emacs-lisp :tangle yes
+  (leaf embark
+    :ensure t
+    :bind(
+  	("C-." . embark-act)
+  	("C-;" . embark-dwim)
+  	("C-h B" . embark-bindings))
+    :custom
+    (prefix-help-command #'embark-prefix-help-command)
+    )
+  (leaf embark-consult
+    :ensure t
+    :after consult 
+    )
+#+end_src
+* go-translate
+#+begin_src emacs-lisp :tangle yes
+  ;(leaf go-translate
+  ;  :ensure t
+  ;      :config
+  ;  (setq gt-langs '(en ja))
+  ;  (setq gt-default-translator
+  ;	(gt-translator
+  ;	 :taker (gt-taker :text 'buffer :pick 'paragraph)
+  ;	 :engines (list (gt-deepl-engine :key "XXXXXXXXX"))
+  ;	 :Render (gt-buffer-render :then (gt-kill-ring-render))
+  ;	 ))
+  ;  :bind (
+  ;	 ("C-; t" . gt-do-translate)
+  ;	 )
+  ;  )
 #+end_src
 * プログラミング支援
 ** eglot
@@ -494,23 +664,37 @@ emacs lisp はデフォでやってくれているっぽい。
 
 ** Tex
 #+begin_src emacs-lisp :tangle yes
-  (leaf auctex
-    :ensure t
-    :custom
-    (
-   (TeX-default-mode . 'japanese-latex-mode)
-   (japanese-TeX-engine-default . 'ptex)
-   (TeX-view-program-selection . '((output-pdf "Zathura")))
-   (TeX-PDF-from-DVI . "Dvipdfmx")
-   )
-    )
-  (add-hook 'LaTeX-mode-hook 'japanese-LaTeX-mode)
-  (leaf auctex-latexmk
-     :ensure t
-     :after auctex
-     :config
-     (auctex-latexmk-setup)
-  )
+    (leaf auctex
+      :ensure t
+      :custom
+      (
+     (TeX-default-mode . 'japanese-latex-mode)
+     (TeX-auto-save . t)
+     (TeX-parse-self . t)
+     (TeX-master . nil)
+     )
+      
+     ;(TeX-view-program-selection . '((output-pdf "PDF Tools")))
+     (TeX-view-program-selection . '((output-pdf "Zathura")))
+     (japanese-TeX-engine-default . 'platex)
+     ;(TeX-view-program-list . '(("PDF Tools" TeX-pdf-tools-sync-view)))
+     ;; 保存時に自動コンパイル
+  (add-hook 'TeX-after-compilation-finished-functions
+            #'TeX-revert-document-buffer)
+
+  (add-hook 'LaTeX-mode-hook
+            (lambda ()
+              (add-hook 'after-save-hook 'TeX-command-run-all nil t)))
+    
+     ;(TeX-PDF-from-DVI . "Dvipdfmx")
+      )
+  ;  (add-hook 'LaTeX-mode-hook 'japanese-LaTeX-mode)
+   ; (leaf auctex-latexmk
+    ;   :ensure t
+     ;  :after auctex
+      ; :config
+       ;(auctex-latexmk-setup)
+    ;)
 #+end_src
 
 ** direnv
