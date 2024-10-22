@@ -205,98 +205,122 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf meow
     :ensure t
     :require meow
-      :custom
-      (meow-use-clipboard . t)
-      (meow-expand-hint-counts . nil)
-      :hook
-      ((meow-insert-exit-hook . (lambda nil
-  				(if skk-mode (skk-latin-mode-on))))
-       )
-     :config
+    :custom
+    (meow-use-clipboard . t)
+    (meow-expand-hint-counts . nil)
+    :hook
+    ((meow-insert-exit-hook . (lambda nil
+                                (if skk-mode (skk-latin-mode-on))))
+     )
+    :config
     (defun meow-setup ()
       (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
       (meow-leader-define-key
-    '("?" . meow-cheatsheet))
-    (meow-motion-overwrite-define-key
+       '("?" . meow-cheatsheet))
+      (meow-motion-overwrite-define-key
        ;; custom keybinding for motion state
-    '("<escape>" . ignore))
-    (meow-normal-define-key
-    '("?" . meow-cheatsheet)
-    '("*" . meow-expand-0)
-    '("=" . meow-expand-9)
-    '("!" . meow-expand-8)
-    '("[" . meow-expand-7)
-    '("]" . meow-expand-6)
-    '("{" . meow-expand-5)
-    '("+" . meow-expand-4)
-    '("}" . meow-expand-3)
-    '(")" . meow-expand-2)
-    '("(" . meow-expand-1)
-    '("1" . digit-argument)
-    '("2" . digit-argument)
-    '("3" . digit-argument)
-    '("4" . digit-argument)
-    '("5" . digit-argument)
-    '("6" . digit-argument)
-    '("7" . digit-argument)
-    '("8" . digit-argument)
-    '("9" . digit-argument)
-    '("0" . digit-argument)
-    '("-" . negative-argument)
-    '(";" . meow-reverse)
-    '("," . meow-inner-of-thing)
-    '("." . meow-bounds-of-thing)
-    '("<" . meow-beginning-of-thing)
-    '(">" . meow-end-of-thing)
-    '("a" . meow-append)
-    '("A" . meow-open-below)
-    '("b" . meow-back-word)
-    '("B" . meow-back-symbol)
-    '("c" . meow-change)
-    '("p" . meow-delete)
-    '("P" . meow-backward-delete)
-    '("e" . meow-line)
-    '("E" . meow-goto-line)
-    '("f" . meow-find)
-    '("<escape>" . meow-cancel-selection)
-    '("G" . meow-grab)
-    '("d" . meow-left)
-    '("D" . meow-left-expand)
-    '("i" . meow-insert)
-    '("I" . meow-open-above)
-    '("j" . meow-join)
-    '("k" . meow-kill)
-    '("l" . meow-till)
-    '("m" . meow-mark-word)
-    '("M" . meow-mark-symbol)
-    '("h" . meow-next)
-    '("H" . meow-next-expand)
-    '("o" . meow-block)
-    '("O" . meow-to-block)
-    '("t" . meow-prev)
-    '("T" . meow-prev-expand)
-    '("q" . meow-quit)
-    '("r" . meow-replace)
-    '("R" . meow-swap-grab)
-    '("s" . meow-search)
-    '("n" . meow-right)
-    '("N" . Meow-Right-expand)
-    '("u" . meow-undo)
-    '("U" . meow-undo-in-selection)
-  ;  '("v" . meow-visit)
-    '("w" . meow-next-word)
-    '("W" . meow-next-symbol)
-    '("x" . meow-save)
-    '("X" . meow-sync-grab)
-    '("y" . meow-yank)
-    '("z" . meow-pop-selection)
-    '("'" . repeat)
-    '("g" . avy-goto-char-timer)
-    )
-    )
-      (meow-setup)
-      (meow-global-mode)
+       '("<escape>" . ignore))
+      (meow-normal-define-key
+       '("?" . meow-cheatsheet)
+       ;; Ctrl key
+
+
+                                          ;'("*" . meow-expand-0)
+       ;; puni
+       '(", a (" . puni-wrap-round)
+       '(", a [" . puni-wrap-square)
+       '(", a {" . puni-wrap-curly)
+       '(", a <" . puni-wrap-angle)
+       '(", a d" . puni-splice)
+       '(", s l" . puni-slurp-forward)
+       '(", b a" . puni-barf-forward)
+
+       '("=" . meow-expand-9)
+       '("!" . meow-expand-8)
+       '("[" . meow-expand-7)
+       '("]" . meow-expand-6)
+       '("{" . meow-expand-5)
+       '("+" . meow-expand-4)
+       '("}" . meow-expand-3)
+       '(")" . meow-expand-2)
+       '("(" . meow-expand-1)
+       '("1" . digit-argument)
+       '("2" . digit-argument)
+       '("3" . digit-argument)
+       '("4" . digit-argument)
+       '("5" . digit-argument)
+       '("6" . digit-argument)
+       '("7" . digit-argument)
+       '("8" . digit-argument)
+       '("9" . digit-argument)
+       '("0" . digit-argument)
+       '("-" . negativargument)
+       '(";" . meow-reverse)
+       '("*" . meow-inner-of-thing)
+       '("." . meow-bounds-of-thing)
+       '("<" . meow-beginning-of-thing)
+       '(">" . meow-end-of-thing)
+       '("a" . meow-append)
+       '("A" . meow-open-below)
+       '("b" . meow-back-word)
+       '("B" . meow-back-symbol)
+       '("c" . meow-change)
+       '("p" . meow-delete)
+       '("P" . meow-backward-delete)
+       '("e" . meow-line)
+       '("E" . meow-goto-line)
+       '("f" . meow-find)
+       '("<escape>" . meow-cancel-selection)
+       '("G" . meow-grab)
+       '("d" . meow-left)
+       '("D" . meow-left-expand)
+       '("i" . meow-insert)
+       '("I" . meow-open-above)
+       '("j" . meow-join)
+       '("k" . meow-kill)
+       '("l" . meow-till)
+       '("m" . meow-mark-word)
+       '("M" . meow-mark-symbol)
+       '("h" . meow-next)
+       '("H" . meow-next-expand)
+       '("o" . meow-block)
+       '("O" . meow-to-block)
+       '("t" . meow-prev)
+       '("T" . meow-prev-expand)
+       '("q" . meow-quit)
+       '("r" . meow-replace)
+       '("R" . meow-swap-grab)
+       '("s" . meow-search)
+       '("n" . meow-right)
+       '("N" . meow-right-expand)
+       '("u" . meow-undo)
+       '("U" . meow-undo-in-selection)
+       ;'("v" . meow-visit)
+
+       '("v i" . meow-inner-of-thing) ;; Inner
+       '("v a" . meow-bounds-of-thing) ;; Arround
+       '("v b" . meow-block) ;; Block
+       '("v c" . puni-mark-list-around-point) ;; Contents
+       '("v x" . puni-mark-sexp-around-point) ;; eXpression
+       '("v l" . meow-line) ;; Line
+       '("v s" . meow-mark-symbol) ;; Symbol
+       '("v w" . meow-mark-word) ;; Word
+       '("v v" . puni-expand-region) ;; Expand
+       '("v r" . rectangle-mark-mode) ;; Rectangle
+
+       '("w" . meow-next-word)
+       '("W" . meow-next-symbol)
+       '("x" . meow-save)
+       '("X" . meow-sync-grab)
+       '("y" . meow-yank)
+       '("z" . meow-pop-selection)
+       '("'" . repeat)
+       '("g" . avy-goto-char-timer)
+       )
       )
+    (meow-setup)
+    (meow-global-mode)
+    )
 
 #+end_src
 ** puni
@@ -506,6 +530,16 @@ emacs lisp はデフォでやってくれているっぽい。
   
 #+END_src
 * org
+** org-journal
+#+begin_src emacs-lisp :tangle yes
+  (leaf org-journal
+    :ensure t
+    :custom
+    (org-journal-dir . "~/dropbox/journal")
+    (org-journal-date-format . "%Y-%m-%d")
+    (org-journal-file-format . "%Y%m%d.org")
+    )
+#+end_src
 ** org-indent
 #+begin_src emacs-lisp :tangle yes
   (leaf org-indent
