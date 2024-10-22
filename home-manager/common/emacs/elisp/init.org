@@ -311,107 +311,130 @@ emacs lisp はデフォでやってくれているっぽい。
 何はともあれSKKでの日本語入力が必要。
 キーボード配列に合うようにマップし直している.
 #+begin_src emacs-lisp :tangle yes
-  (leaf ddskk
-     :ensure t
-      :bind
-      ("C-x C-j" . skk-mode)
+    (leaf ddskk
+       :ensure t
+        :bind
+        ("C-x C-j" . skk-mode)
+        :custom
+        (skk-use-act . t)
+        (skk-isearch-skk-mode-enable . t)
+        (skk-use-search-web . t)
+        (skk-egg-like-newline . t) ; Enterで改行しない
+        (skk-show-inline . 'vertical)
+        (skk-auto-insert-paren . t) ; 括弧の自動入力
+        (skk-delete-implies-kakutei . nil) ;nil にすると▼モードで <BS> を押した時 に一つ前の候補を表示するようになる
+        (skk-henkan-strict-okuri-precedence . t); 正しい送り仮名の変換が優先的に表示されるようにする設定
+        (skk-show-annotation . t) ; 単語の意味をアノテーションとして表示する設定
+        ;; 動的補完
+        (skk-dcomp-activate . t)
+        (skk-dcomp-multiple-activate . t)
+        (skk-kutouten-type . '("，" . "．"))
+        ;; 言語
+        (skk-japanese-mesage-and-erreor . t) ; エラーを日本語に
+        (skk-show-japanese-menu . t) ; メニューを日本語に
+        (skk-read-from-minibuffer-function .
+          (lambda ()
+            (car (skk-google-suggest skk-henkan-key))))
+        (skk-rom-kana-rule-list
+         . '(("'" nil ("アン" . "あん"))
+           ("c'" nil ("カン" . "かん"))
+           ("s'" nil ("サン" . "さん"))
+           ("t'" nil ("タン" . "たん"))
+           ("n'" nil ("ナン" . "なん"))
+           ("h'" nil ("ハン" . "はん"))
+           ("m'" nil ("マン" . "まん"))
+           ("yz" nil ("ヤン" . "やん"))
+           ("r'" nil ("ラン" . "らん"))
+           ("w'" nil ("ワン" . "わん"))
+
+           ("g'" nil ("ガン" . "がん"))
+           ("z'" nil ("ザン" . "ざん"))
+           ("d'" nil ("ダン" . "だん"))
+           ("b'" nil ("バン" . "ばん"))
+           ("pz" nil ("パン" . "ぱん"))
+
+           (";" nil ("ッ" . "っ"))
+           ("c;" nil ("カイ" . "かい"))
+           ("s;" nil ("サイ" . "さい"))
+           ("t;" nil ("タイ" . "たい"))
+           ("n;" nil ("ナイ" . "ない"))
+           ("h;" nil ("ハイ" . "はい"))
+           ("m;" nil ("マイ" . "まい"))
+           ("yl" nil ("ヤイ" . "やい"))
+           ("r;" nil ("ライ" . "らい"))
+           ("w;" nil ("ワイ" . "わい"))
+
+           ("g;" nil ("ガイ" . "がい"))
+           ("z;" nil ("ザイ" . "ざい"))
+           ("d;" nil ("ダイ" . "だい"))
+           ("b;" nil ("バイ" . "ばい"))
+           ("pl" nil ("パイ" . "ぱい"))
+
+           ("ys" nil ("ヤ" . "や"))
+           ("yd" nil ("イ" . "い"))
+           ("yh" nil ("ユ" . "ゆ"))
+           ("yt" nil ("イェ" . "いぇ"))
+           ("yn" nil ("ヨ" . "よ"))
+           ("yl" nil ("ヤイ" . "やい"))
+           ("yr" nil ("ヨウ" . "よう"))
+           ("yc" nil ("イウ" . "いう"))
+           ("yg" nil ("ユウ" . "ゆう"))
+           ("yf" nil ("ユイ" . "ゆい"))
+           ("yz" nil ("ヤン" . "やん"))
+           ("yb" nil ("イン" . "いん"))
+           ("ym" nil ("ユン" . "ゆん"))
+           ("yw" nil ("エン" . "えん"))
+           ("yv" nil ("ヨン" . "よん"))
+
+
+           ("pna" nil ("" . "")) ;
+           ("pni" nil ("" . "")) ;
+           ("pnu" nil ("" . "")) ;
+           ("pne" nil ("" . "")) ;
+           ("pno" nil ("" . "")) ;
+           ("pns" nil ("" . "")) ;
+
+           ("pn;" nil ("" . "")) ;
+           ("pn," nil ("" . "")) ;
+           ("pn." nil ("" . "")) ;
+           ("pnp" nil ("" . "")) ;
+           ("pny" nil ("" . "")) ;
+
+           ("pn'" nil ("" . "")) ;
+           ("pnq" nil ("" . "")) ;
+           ("pnj" nil ("" . "")) ;
+           ("pnk" nil ("" . "")) ;
+           ("pn<" nil ("" . "")) ;
+           ("pn>" nil ("" . "" ));
+
+           ("pn" nil ("ポ" . "ぽ")) ; pn~ にマップされていて、有効化されない。
+           ("pl" nil ("パイ" . "ぱい"))
+           ("pr" nil ("ポウ" . "ぽう"))
+           ("pc" nil ("ペイ" . "ぺい"))
+           ("pg" nil ("プウ" . "ぷう"))
+           ("pf" nil ("プイ" . "ぷい"))
+           ("pz" nil ("パン" . "ぱん"))
+           ("pb" nil ("ピン" . "ぴん"))
+           ("pm" nil ("プン" . "ぷん"))
+           ("pw" nil ("ペン" . "ぺん"))
+           ("pv" nil ("ポン" . "ぽん"))
+           )
+         )
+
+         )
+
+    (leaf ddskk-posframe
+
+      :ensure t
+      :after posframe ddskk
       :custom
-      (skk-use-act . t)
-      (skk-isearch-skk-mode-enable . t)
-      (skk-use-search-web . t)
-      (skk-egg-like-newline . t) ; Enterで改行しない
-      (skk-show-inline . 'vertical)
-      (skk-auto-insert-paren . t) ; 括弧の自動入力
-      (skk-delete-implies-kakutei . nil) ;nil にすると▼モードで <BS> を押した時 に一つ前の候補を表示するようになる
-      (skk-henkan-strict-okuri-precedence . t); 正しい送り仮名の変換が優先的に表示されるようにする設定
-      (skk-show-annotation . t) ; 単語の意味をアノテーションとして表示する設定
-      ;; 動的補完
-      (skk-dcomp-activate . t)
-      (skk-dcomp-multiple-activate . t)
-      ;; 言語
-      (skk-japanese-mesage-and-erreor . t) ; エラーを日本語に
-      (skk-show-japanese-menu . t) ; メニューを日本語に
-      (skk-read-from-minibuffer-function .
-        (lambda ()
-          (car (skk-google-suggest skk-henkan-key))))
-      (skk-rom-kana-rule-list
-       . '(("'" nil ("アン" . "あん"))
-  	 ("c'" nil ("カン" . "かん"))
-  	 ("s'" nil ("サン" . "さん"))
-  	 ("t'" nil ("タン" . "たん"))
-  	 ("n'" nil ("ナン" . "なん"))
-  	 ("h'" nil ("ハン" . "はん"))
-  	 ("m'" nil ("マン" . "まん"))
-  	 ("yz" nil ("ヤン" . "やん"))
-  	 ("r'" nil ("ラン" . "らん"))
-  	 ("w'" nil ("ワン" . "わん"))
-  	 
-  	 ("g'" nil ("ガン" . "がん"))
-  	 ("z'" nil ("ザン" . "ざん"))
-  	 ("d'" nil ("ダン" . "だん"))
-  	 ("b'" nil ("バン" . "ばん"))
-  	 ("pz" nil ("パン" . "ぱん"))
-  	 
-  	 (";" nil ("ッ" . "っ"))
-  	 ("c;" nil ("カイ" . "かい"))
-  	 ("s;" nil ("サイ" . "さい"))
-  	 ("t;" nil ("タイ" . "たい"))
-  	 ("n;" nil ("ナイ" . "ない"))
-  	 ("h;" nil ("ハイ" . "はい"))
-  	 ("m;" nil ("マイ" . "まい"))
-  	 ("yl" nil ("ヤイ" . "やい"))
-  	 ("r;" nil ("ライ" . "らい"))
-  	 ("w;" nil ("ワイ" . "わい"))
-  	 
-  	 ("g;" nil ("ガイ" . "がい"))
-  	 ("z;" nil ("ザイ" . "ざい"))
-  	 ("d;" nil ("ダイ" . "だい"))
-  	 ("b;" nil ("バイ" . "ばい"))
-  	 ("pl" nil ("パイ" . "ぱい"))
-
-  	 ("ys" nil ("ヤ" . "や"))
-  	 ("yd" nil ("イ" . "い"))
-  	 ("yh" nil ("ユ" . "ゆ"))
-  	 ("yt" nil ("イェ" . "いぇ"))
-  	 ("yn" nil ("ヨ" . "よ"))
-  	 ("yl" nil ("ヤイ" . "やい"))
-  	 ("yr" nil ("ヨウ" . "よう"))
-  	 ("yc" nil ("イウ" . "いう"))
-  	 ("yg" nil ("ユウ" . "ゆう"))
-  	 ("yf" nil ("ユイ" . "ゆい"))
-  	 ("yz" nil ("ヤン" . "やん"))
-  	 ("yb" nil ("イン" . "いん"))
-  	 ("ym" nil ("ユン" . "ゆん"))
-  	 ("yw" nil ("エン" . "えん"))
-  	 ("yv" nil ("ヨン" . "よん"))
-
-  	 ("pn" nil ("ポ" . "ぽ")) ; pn~ にマップされていて、有効化されない。
-  	 ("pl" nil ("パイ" . "ぱい"))
-  	 ("pr" nil ("ポウ" . "ぽう"))
-  	 ("pc" nil ("ペイ" . "ぺい"))
-  	 ("pg" nil ("プウ" . "ぷう"))
-  	 ("pf" nil ("プイ" . "ぷい"))
-  	 ("pz" nil ("パン" . "ぱん"))
-  	 ("pb" nil ("ピン" . "ぴん"))
-  	 ("pm" nil ("プン" . "ぷん"))
-  	 ("pw" nil ("ペン" . "ぺん"))
-  	 ("pv" nil ("ポン" . "ぽん"))
-  	 )
-       )
-
+      (ddskk-posframe-mode . t)
       )
-  (leaf ddskk-posframe
+  ;; ファイルを開くと同時にSKKを有効化する
+    (defun my/always-enable-skk-latin-mode-hook ()
+      (skk-latin-mode 1))
 
-    :ensure t
-    :after posframe ddskk
-    :custom
-    (ddskk-posframe-mode . t)
-    )
-;; ファイルを開くと同時にSKKを有効化する
-  (defun my/always-enable-skk-latin-mode-hook ()
-    (skk-latin-mode 1))
-
-  (add-hook 'find-file-hooks 'my/always-enable-skk-latin-mode-hook)
+    (add-hook 'find-file-hooks 'my/always-enable-skk-latin-mode-hook)
 #+end_src
 ** which key
 #+begin_src emacs-lisp :tangle yes
@@ -648,6 +671,11 @@ emacs lisp はデフォでやってくれているっぽい。
   ;	 ("C-; t" . gt-do-translate)
   ;	 )
   ;  )
+#+end_src
+* reinbow-delimiters
+#+begin_src emacs-lisp :tangle yes
+  (leaf rainbow-delimiters
+    :ensure t)
 #+end_src
 * プログラミング支援
 ** eglot
