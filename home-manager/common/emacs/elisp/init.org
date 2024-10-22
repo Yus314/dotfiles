@@ -327,8 +327,8 @@ emacs lisp はデフォでやってくれているっぽい。
         (skk-show-annotation . t) ; 単語の意味をアノテーションとして表示する設定
         ;; 動的補完
         (skk-dcomp-activate . t)
-        (skk-dcomp-multiple-activate . t)
-        (skk-kutouten-type . '("，" . "．"))
+       (skk-dcomp-multiple-activate . t)
+        (skk-kutouten-type . '("．" . "，"))
         ;; 言語
         (skk-japanese-mesage-and-erreor . t) ; エラーを日本語に
         (skk-show-japanese-menu . t) ; メニューを日本語に
@@ -675,7 +675,16 @@ emacs lisp はデフォでやってくれているっぽい。
 * reinbow-delimiters
 #+begin_src emacs-lisp :tangle yes
   (leaf rainbow-delimiters
-    :ensure t)
+    :ensure t
+    :hook emacs-lisp-mode-hook (rainbow-delimiters-mode)
+    )
+#+end_src
+* aggressive-indent
+#+begin_src emacs-lisp :tangle yes
+  (leaf aggressive-indent
+    :ensure t
+    :hook emacs-lisp-mode-hook (aggressive-indent-mode)
+    )
 #+end_src
 * プログラミング支援
 ** eglot
