@@ -3,13 +3,15 @@
   systemd.user.services.dropbox = {
     Unit = {
       Description = "Dropbox service";
+      After = [ "network-online.target" ];
     };
-    Install = {
-      WantedBy = [ "default.target" ];
+    Service = {
+      Type = "notify";
+      ExecStartPre = "/run/current-system/sw/bin/mkdir -p %h/dropbox";
+      ExecStart = "${pkgs.rclone}/bin/rclone --config=%h/.config/rclone/rclone.conf --vfs-cache-mode writes --ignore-checksum mount \"dropbox:\" \"dropbox\" --allow-other";
+      ExecStop = "/run/wrappers/bin/fusermount -u %h/dropbox/%i";
+      Environment = [ "PATH=/run/wrappers/bin/:$PATH" ];
     };
-    service = {
-      EcecStart = "${pkgs.dropbox}/bin/dropbox";
-      Restart = "on-failure";
-    };
+    Install.WantedBy = [ "default.target" ];
   };
 }
