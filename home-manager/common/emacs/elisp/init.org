@@ -530,13 +530,60 @@ emacs lisp はデフォでやってくれているっぽい。
   
 #+END_src
 * org
+** org
+#+begin_src emacs-lisp :tangle yes
+  (leaf org
+    :ensure t
+    :custom
+    (org-todo-keywords
+     . '((sequence "DIVIDING(v)" "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "|" "DONE(d)" "CANCEL(c)")))
+    (org-startup-folded . t)
+    (org-tag-alist
+     . '(("HOME" . ?h)
+         ("LAB" . ?l)
+         ("Search" . ?s)
+         ("Computer" . ?p)
+         ("Kana" . ?k)
+         ))
+    )
+#+end_src
+** org-super-agenda
+#+begin_src emacs-lisp :tangle yes
+  (leaf org-super-agenda
+    :ensure t
+    :bind
+    ("C-c a" . #'org-agenda)
+    :custom
+    (org-agenda-files . '("~/dropbox/daily" "~/dropbox/inbox/inbox.org"))
+    (org-super-agenda-groups
+     . '(
+         (
+          :name "Today"
+          :scheduled today
+          :deadline today
+          )
+         (
+          :name "Week"
+          :scheduled (today+1w)
+          :deadline (today+1w)
+          )
+         (
+          :name "Un Divided"
+          :todo "DIVIDING"
+          )
+         )
+     )
+    :config
+    (org-super-agenda-mode)
+    )
+#+end_src
 ** org-capture
 #+begin_src emacs-lisp :tangle yes
   (leaf org-roam
     :ensure t
     :bind
     ("C-c n c" . #'org-roam-capture  )
-    ("C-x m" . #'org-roam-dailies-capture-today)
+    ("C-c c" . #'org-roam-dailies-capture-today)
     :custom
     (org-roam-directory .  "~/dropbox/")
     (org-roam-capture-templates
@@ -555,7 +602,7 @@ emacs lisp はデフォでやってくれているっぽい。
           :prepend nil
           :kill-buffer t
           )
-         ("t" "ToDo" entry "* ToDo <%<%Y-%m-%d %H:%M>> %^{title}\n  %?"
+         ("t" "ToDo" entry "* DIVIDING <%<%Y-%m-%d %H:%M>> %^{title}\n  %?"
           :target (file+head "%<%Y-%m-%d>.org"
                              "#+title: %<%Y年%m月%d日(%a)>")
           :prepend nil
@@ -605,7 +652,7 @@ emacs lisp はデフォでやってくれているっぽい。
       )
 #+end_src
 
-** Org-babel
+** org-babel
 #+begin_src emacs-lisp :tangle yes
   (org-babel-do-load-languages 'org-babel-load-languages
   			     '((emacs-lisp . t)
