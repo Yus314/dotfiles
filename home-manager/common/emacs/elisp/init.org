@@ -104,10 +104,10 @@ emacs lisp はデフォでやってくれているっぽい。
     )
   (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
   (leaf nix-ts-mode
-   :ensure t
+    :ensure t
     :mode
     (("\\.nix\\'" . nix-ts-mode))
-     )
+    )
   (add-hook 'nix-ts-mode-hook 'eglot-ensure)
 #+end_src
 *** yaml
@@ -795,6 +795,16 @@ emacs lisp はデフォでやってくれているっぽい。
     :hook emacs-lisp-mode-hook (rainbow-delimiters-mode)
     )
 #+end_src
+* reformatter
+#+begin_src emacs-lisp :tangle yes
+  (leaf reformatter
+    :ensure t
+    )
+  (reformatter-define nixfmt
+    :program "nixfmt"
+    :args '("-")
+    )
+#+end_src
 * aggressive-indent
 #+begin_src emacs-lisp :tangle yes
   (leaf aggressive-indent
@@ -856,6 +866,5 @@ emacs lisp はデフォでやってくれているっぽい。
     :ensure t
     :config
     (direnv-mode)
-    
-  )
+    )
 #+end_src
