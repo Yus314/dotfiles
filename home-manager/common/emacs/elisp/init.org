@@ -505,30 +505,38 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf corfu
     :ensure t
     :custom(
-  (corfu-auto . t)
-  (corfu-auto-delay . 0)
-  (corfu-popupinfo-delay . 0)
-  (corfu-quit-no-match . 'separator)
-  (corfu-auto-prefix . 1)
-  (corfu-cycle . t)
-  (text-mode-ispell-word-completion . nil)
-  (tab-awlays-indent . 'complete)
-  )
+            (corfu-auto . t)
+            (corfu-auto-delay . 0)
+            (corfu-popupinfo-delay . 0)
+            (corfu-quit-no-match . 'separator)
+            (corfu-auto-prefix . 1)
+            (corfu-cycle . t)
+            (text-mode-ispell-word-completion . nil)
+            (tab-awlays-indent . 'complete)
+            )
     :init
     (global-corfu-mode)
     :config
     (corfu-popupinfo-mode)
+    (keymap-unset corfu-map "RET")
+    (keymap-unset corfu-map "<up>")
+    (keymap-unset corfu-map "<remap> <next-line>")
+    (keymap-unset corfu-map "<remap> <previous-line>")
+    (keymap-unset corfu-map "<down>")
     )
-(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
   (leaf cape
     :ensure t
+    :init
+    (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
+    (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev); 現在のバッファを見て，補完
     )
 
-  
-#+END_src
+#+end_src
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
@@ -537,6 +545,14 @@ emacs lisp はデフォでやってくれているっぽい。
     :custom
     (org-todo-keywords
      . '((sequence "DIVIDING(v)" "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "|" "DONE(d)" "CANCEL(c)")))
+    (org-todo-keyword-faces
+     . '(("DIVIDING" . org-warning)
+         ("TODO" . org-warning)
+         ("WAIT" . org-warning)
+         ("SOMEDAY" . (:foreground "lime green" :weight normal))
+         ("DONE" . "yellow")
+         ("CANCEL" . org-warning)
+         ))
     (org-startup-folded . t)
     (org-tag-alist
      . '(("HOME" . ?h)
