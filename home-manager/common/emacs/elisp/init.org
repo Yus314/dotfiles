@@ -107,8 +107,12 @@ emacs lisp はデフォでやってくれているっぽい。
     :ensure t
     :mode
     (("\\.nix\\'" . nix-ts-mode))
+    :hook
+    (nix-ts-mode-hook . eglot-ensure)
+    (nix-ts-mode-hook . nixfmt-on-save-mode)
+
     )
-  (add-hook 'nix-ts-mode-hook 'eglot-ensure)
+    ;(add-hook 'nix-ts-mode-hook 'eglot-ensure)
 #+end_src
 *** yaml
 #+begin_src emacs-lisp :tangle yes
@@ -559,8 +563,11 @@ emacs lisp はデフォでやってくれているっぽい。
     (org-tag-alist
      . '(("HOME" . ?h)
          ("LAB" . ?l)
-         ("Search" . ?s)
-         ("Computer" . ?p)
+         ("PC" . ?p)
+         ("desk" . ?d)
+         ("smartphone" . ?s)
+         ("anywhere" . ?a)
+         ("movie" . ?m)
          ("Kana" . ?k)
          ))
     )
@@ -573,24 +580,46 @@ emacs lisp はデフォでやってくれているっぽい。
     ("C-c a" . #'org-agenda)
     :custom
     (org-agenda-files . '("~/dropbox/daily" "~/dropbox/inbox/inbox.org"))
-    (org-super-agenda-groups
+    (org-agenda-todo-ignore-scheduled . t)
+    (org-agenda-custom-commands
      . '(
-         (
-          :name "Today"
-          :scheduled today
-          :deadline today
+         ("h" "Home"
+          (
+           (agenda "今日のこと"
+                   ((org-agenda-span 'day))
+                   )
+           (todo "DIVIDING")
+           (todo "TODO"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(
+                     (:name "TODO" :tag ("PC" "smartphone" "desk" "HOME" "home" "anywhere"))
+                     (:discard (:anything t))
+                     ))
+                  ))
+           )
+
           )
-         (
-          :name "Week"
-          :scheduled (today+1w)
-          :deadline (today+1w)
-          )
-         (
-          :name "Un Divided"
-          :todo "DIVIDING"
+         ("l" "lab"
+          (
+           (agenda "今日のこと"
+                   ((org-agenda-span 'day))
+                   )
+           (todo "DIVIDING")
+           (todo "TODO"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(
+                     (:name "TODO" :tag ("PC" "smartphone" "desk" "lab" "LAB" "anywhere"))
+                     (:discard (:anything t))
+                     ))
+                  ))
+           )
+
           )
          )
      )
+
     :config
     (org-super-agenda-mode)
     )
