@@ -523,6 +523,8 @@ emacs lisp はデフォでやってくれているっぽい。
     (keymap-unset corfu-map "<remap> <next-line>")
     (keymap-unset corfu-map "<remap> <previous-line>")
     (keymap-unset corfu-map "<down>")
+    (keymap-set corfu-map "C-n" 'corfu-next)
+    (keymap-set corfu-map "C-p" 'corfu-previous)
     )
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
 #+end_src
@@ -549,8 +551,8 @@ emacs lisp はデフォでやってくれているっぽい。
      . '(("DIVIDING" . org-warning)
          ("TODO" . org-warning)
          ("WAIT" . org-warning)
-         ("SOMEDAY" . (:foreground "lime green" :weight normal))
-         ("DONE" . "yellow")
+         ("SOMEDAY(s)" . (:foreground "lime green" :weight normal))
+         ("DONE(d)" . "yellow")
          ("CANCEL" . org-warning)
          ))
     (org-startup-folded . t)
@@ -650,9 +652,13 @@ emacs lisp はデフォでやってくれているっぽい。
     :ensure t
     :custom
     (
-    (org-insert-heading-respect-content . t)
-    (org-modern-star . "◉○●◈◇◆✸✳")
-    )
+     (org-insert-heading-respect-content . t)
+     (org-modern-star . "◉○●◈◇◆✸✳")
+     (org-modern-todo-faces
+      .  (quote (("SOMEDAY" :background "pink" :foreground "white" :weight bold)
+                 ("DIVIDING" :background "blue" :foreground "white" :weight bold)))
+      )
+     )
     :config
     (global-org-modern-mode)
     )
