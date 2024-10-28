@@ -551,14 +551,15 @@ q    :ensure t
     :ensure t
     :custom
     (org-todo-keywords
-     . '((sequence "DIVIDING(v)" "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "|" "DONE(d)" "CANCEL(c)")))
+     . '((sequence "DIVIDING(v)" "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "LEVEL1(1)" "|" "DONE(d)" "CANCEL(c)")))
     (org-todo-keyword-faces
      . '(("DIVIDING" . org-warning)
-         ("TODO" . org-warning)
+         ("TODO" . (:foreground "white" :background "red" :weight bold))
          ("WAIT" . org-warning)
-         ("SOMEDAY(s)" . (:foreground "lime green" :weight normal))
+         ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
          ("DONE(d)" . "yellow")
          ("CANCEL" . org-warning)
+         ("LEVEL1" . (:foreground "white" :background "purple" :weight bold))
          ))
     (org-startup-folded . t)
     (org-tag-alist
@@ -647,7 +648,7 @@ q    :ensure t
          ("t" "ToDo" entry (file taskfile )
           "* DIVIDING %^{title}\n %?")
          ("1" "Level 1" entry (file taskfile )
-          "* LEVEL1 %^{title}[/]\n %?")
+          "* LEVEL1 %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
          )
      )
     )
@@ -674,12 +675,15 @@ q    :ensure t
   (leaf org-modern
     :ensure t
     :custom
-    (
+   ( 
      (org-insert-heading-respect-content . t)
      (org-modern-star . "◉○●◈◇◆✸✳")
      (org-modern-todo-faces
       .  (quote (("SOMEDAY" :background "pink" :foreground "white" :weight bold)
-                 ("DIVIDING" :background "blue" :foreground "white" :weight bold)))
+                 ("DIVIDING" :background "blue" :foreground "white" :weight bold)
+                 ("LEVEL1" :background "purple" :foreground "white" :weight bold)
+                 ))
+
       )
      )
     :config
