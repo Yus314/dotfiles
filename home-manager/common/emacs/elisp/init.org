@@ -339,130 +339,131 @@ emacs lisp はデフォでやってくれているっぽい。
 何はともあれSKKでの日本語入力が必要。
 キーボード配列に合うようにマップし直している.
 #+begin_src emacs-lisp :tangle yes
-    (leaf ddskk
-       :ensure t
-        :bind
-        ("C-x C-j" . skk-mode)
-        :custom
-        (skk-use-act . t)
-        (skk-isearch-skk-mode-enable . t)
-        (skk-use-search-web . t)
-        (skk-egg-like-newline . t) ; Enterで改行しない
-        (skk-show-inline . 'vertical)
-        (skk-auto-insert-paren . t) ; 括弧の自動入力
-        (skk-delete-implies-kakutei . nil) ;nil にすると▼モードで <BS> を押した時 に一つ前の候補を表示するようになる
-        (skk-henkan-strict-okuri-precedence . t); 正しい送り仮名の変換が優先的に表示されるようにする設定
-        (skk-show-annotation . t) ; 単語の意味をアノテーションとして表示する設定
-        ;; 動的補完
-        (skk-dcomp-activate . t)
-       (skk-dcomp-multiple-activate . t)
-        (skk-kutouten-type . '("．" . "，"))
-        ;; 言語
-        (skk-japanese-mesage-and-erreor . t) ; エラーを日本語に
-        (skk-show-japanese-menu . t) ; メニューを日本語に
-        (skk-read-from-minibuffer-function .
-          (lambda ()
-            (car (skk-google-suggest skk-henkan-key))))
-        (skk-rom-kana-rule-list
-         . '(("'" nil ("アン" . "あん"))
-           ("c'" nil ("カン" . "かん"))
-           ("s'" nil ("サン" . "さん"))
-           ("t'" nil ("タン" . "たん"))
-           ("n'" nil ("ナン" . "なん"))
-           ("h'" nil ("ハン" . "はん"))
-           ("m'" nil ("マン" . "まん"))
-           ("yz" nil ("ヤン" . "やん"))
-           ("r'" nil ("ラン" . "らん"))
-           ("w'" nil ("ワン" . "わん"))
+  (leaf ddskk
+    :ensure t
+    :bind
+    ("C-x C-j" . skk-mode)
+    :custom
+    (skk-use-act . t)
+    (skk-isearch-skk-mode-enable . t)
+    (skk-use-search-web . t)
+    (skk-egg-like-newline . t) ; Enterで改行しない
+    (skk-show-inline . 'vertical)
+    (skk-auto-insert-paren . t) ; 括弧の自動入力
+    (skk-delete-implies-kakutei . nil) ;nil にすると▼モードで <BS> を押した時 に一つ前の候補を表示するようになる
+    (skk-henkan-strict-okuri-precedence . t); 正しい送り仮名の変換が優先的に表示されるようにする設定
+    (skk-show-annotation . t) ; 単語の意味をアノテーションとして表示する設定
+    ;; 動的補完
+    (skk-dcomp-activate . t)
+    (skk-dcomp-multiple-activate . t)
+    (skk-kutouten-type . '("．" . "，"))
+    ;; 言語
+    (skk-japanese-mesage-and-erreor . t) ; エラーを日本語に
+    (skk-show-japanese-menu . t) ; メニューを日本語に
+    (skk-read-from-minibuffer-function .
+                                       (lambda ()
+                                         (car (skk-google-suggest skk-henkan-key))))
+    (skk-rom-kana-rule-list
+     . '(("'" nil ("アン" . "あん"))
+         ("c'" nil ("カン" . "かん"))
+         ("s'" nil ("サン" . "さん"))
+         ("t'" nil ("タン" . "たん"))
+         ("n'" nil ("ナン" . "なん"))
+         ("h'" nil ("ハン" . "はん"))
+         ("m'" nil ("マン" . "まん"))
+         ("yz" nil ("ヤン" . "やん"))
+         ("r'" nil ("ラン" . "らん"))
+         ("w'" nil ("ワン" . "わん"))
 
-           ("g'" nil ("ガン" . "がん"))
-           ("z'" nil ("ザン" . "ざん"))
-           ("d'" nil ("ダン" . "だん"))
-           ("b'" nil ("バン" . "ばん"))
-           ("pz" nil ("パン" . "ぱん"))
+         ("g'" nil ("ガン" . "がん"))
+         ("z'" nil ("ザン" . "ざん"))
+         ("d'" nil ("ダン" . "だん"))
+         ("b'" nil ("バン" . "ばん"))
+         ("pz" nil ("パン" . "ぱん"))
 
-           (";" nil ("ッ" . "っ"))
-           ("c;" nil ("カイ" . "かい"))
-           ("s;" nil ("サイ" . "さい"))
-           ("t;" nil ("タイ" . "たい"))
-           ("n;" nil ("ナイ" . "ない"))
-           ("h;" nil ("ハイ" . "はい"))
-           ("m;" nil ("マイ" . "まい"))
-           ("yl" nil ("ヤイ" . "やい"))
-           ("r;" nil ("ライ" . "らい"))
-           ("w;" nil ("ワイ" . "わい"))
+         (";" nil ("ッ" . "っ"))
+         ("c;" nil ("カイ" . "かい"))
+         ("s;" nil ("サイ" . "さい"))
+         ("t;" nil ("タイ" . "たい"))
+         ("n;" nil ("ナイ" . "ない"))
+         ("h;" nil ("ハイ" . "はい"))
+         ("m;" nil ("マイ" . "まい"))
+         ("yl" nil ("ヤイ" . "やい"))
+         ("r;" nil ("ライ" . "らい"))
+         ("w;" nil ("ワイ" . "わい"))
 
-           ("g;" nil ("ガイ" . "がい"))
-           ("z;" nil ("ザイ" . "ざい"))
-           ("d;" nil ("ダイ" . "だい"))
-           ("b;" nil ("バイ" . "ばい"))
-           ("pl" nil ("パイ" . "ぱい"))
+         ("g;" nil ("ガイ" . "がい"))
+         ("z;" nil ("ザイ" . "ざい"))
+         ("d;" nil ("ダイ" . "だい"))
+         ("b;" nil ("バイ" . "ばい"))
+         ("pl" nil ("パイ" . "ぱい"))
 
-           ("ys" nil ("ヤ" . "や"))
-           ("yd" nil ("イ" . "い"))
-           ("yh" nil ("ユ" . "ゆ"))
-           ("yt" nil ("イェ" . "いぇ"))
-           ("yn" nil ("ヨ" . "よ"))
-           ("yl" nil ("ヤイ" . "やい"))
-           ("yr" nil ("ヨウ" . "よう"))
-           ("yc" nil ("イウ" . "いう"))
-           ("yg" nil ("ユウ" . "ゆう"))
-           ("yf" nil ("ユイ" . "ゆい"))
-           ("yz" nil ("ヤン" . "やん"))
-           ("yb" nil ("イン" . "いん"))
-           ("ym" nil ("ユン" . "ゆん"))
-           ("yw" nil ("エン" . "えん"))
-           ("yv" nil ("ヨン" . "よん"))
+         ("ys" nil ("ヤ" . "や"))
+         ("yd" nil ("イ" . "い"))
+         ("yh" nil ("ユ" . "ゆ"))
+         ("yt" nil ("イェ" . "いぇ"))
+         ("yn" nil ("ヨ" . "よ"))
+         ("yl" nil ("ヤイ" . "やい"))
+         ("yr" nil ("ヨウ" . "よう"))
+         ("yc" nil ("イウ" . "いう"))
+         ("yg" nil ("ユウ" . "ゆう"))
+         ("yf" nil ("ユイ" . "ゆい"))
+         ("yz" nil ("ヤン" . "やん"))
+         ("yb" nil ("イン" . "いん"))
+         ("ym" nil ("ユン" . "ゆん"))
+         ("yw" nil ("エン" . "えん"))
+         ("yv" nil ("ヨン" . "よん"))
 
 
-           ("pna" nil ("" . "")) ;
-           ("pni" nil ("" . "")) ;
-           ("pnu" nil ("" . "")) ;
-           ("pne" nil ("" . "")) ;
-           ("pno" nil ("" . "")) ;
-           ("pns" nil ("" . "")) ;
+         ("pna" nil ("" . "")) ;
+         ("pni" nil ("" . "")) ;
+         ("pnu" nil ("" . "")) ;
+         ("pne" nil ("" . "")) ;
+         ("pno" nil ("" . "")) ;
+         ("pns" nil ("" . "")) ;
 
-           ("pn;" nil ("" . "")) ;
-           ("pn," nil ("" . "")) ;
-           ("pn." nil ("" . "")) ;
-           ("pnp" nil ("" . "")) ;
-           ("pny" nil ("" . "")) ;
+         ("pn;" nil ("" . "")) ;
+         ("pn," nil ("" . "")) ;
+         ("pn." nil ("" . "")) ;
+         ("pnp" nil ("" . "")) ;
+         ("pny" nil ("" . "")) ;
 
-           ("pn'" nil ("" . "")) ;
-           ("pnq" nil ("" . "")) ;
-           ("pnj" nil ("" . "")) ;
-           ("pnk" nil ("" . "")) ;
-           ("pn<" nil ("" . "")) ;
-           ("pn>" nil ("" . "" ));
+         ("pn'" nil ("" . "")) ;
+         ("pnq" nil ("" . "")) ;
+         ("pnj" nil ("" . "")) ;
+         ("pnk" nil ("" . "")) ;
+         ("pn<" nil ("" . "")) ;
+         ("pn>" nil ("" . "" ));
 
-           ("pn" nil ("ポ" . "ぽ")) ; pn~ にマップされていて、有効化されない。
-           ("pl" nil ("パイ" . "ぱい"))
-           ("pr" nil ("ポウ" . "ぽう"))
-           ("pc" nil ("ペイ" . "ぺい"))
-           ("pg" nil ("プウ" . "ぷう"))
-           ("pf" nil ("プイ" . "ぷい"))
-           ("pz" nil ("パン" . "ぱん"))
-           ("pb" nil ("ピン" . "ぴん"))
-           ("pm" nil ("プン" . "ぷん"))
-           ("pw" nil ("ペン" . "ぺん"))
-           ("pv" nil ("ポン" . "ぽん"))
-           )
+         ("pn" nil ("ポ" . "ぽ")) ; pn~ にマップされていて、有効化されない。
+         ("pl" nil ("パイ" . "ぱい"))
+         ("pr" nil ("ポウ" . "ぽう"))
+         ("pc" nil ("ペイ" . "ぺい"))
+         ("pg" nil ("プウ" . "ぷう"))
+         ("pf" nil ("プイ" . "ぷい"))
+         ("pz" nil ("パン" . "ぱん"))
+         ("pb" nil ("ピン" . "ぴん"))
+         ("pm" nil ("プン" . "ぷん"))
+         ("pw" nil ("ペン" . "ぺん"))
+         ("pv" nil ("ポン" . "ぽん"))
          )
+     )
 
-         )
+    )
 
-    (leaf ddskk-posframe
+  (leaf ddskk-posframe
 
-      :ensure t
-      :after posframe ddskk
-      :custom
-      (ddskk-posframe-mode . t)
-      )
+    :ensure t
+    :after posframe ddskk
+    :custom
+    (ddskk-posframe-mode . t)
+    )
   ;; ファイルを開くと同時にSKKを有効化する
-    (defun my/always-enable-skk-latin-mode-hook ()
-      (skk-latin-mode 1))
+  (defun my/always-enable-skk-latin-mode-hook ()
+    (skk-latin-mode 1))
 
-    (add-hook 'find-file-hooks 'my/always-enable-skk-latin-mode-hook)
+  (add-hook 'find-file-hooks 'my/always-enable-skk-latin-mode-hook)
+  (define-key minibuffer-local-map (kbd "C-t") 'skk-kakutei)
 #+end_src
 ** which key
 #+begin_src emacs-lisp :tangle yes
@@ -493,7 +494,7 @@ emacs lisp はデフォでやってくれているっぽい。
   	  (completion-styles . '(orderless basic))
   	  (completion-category-overrides . '((file
 					     (styles basic partial-completion)))))
-    )
+x    )
 #+end_src
 ** consult
     #+begin_src emacs-lisp :tangle yes
@@ -507,7 +508,7 @@ emacs lisp はデフォでやってくれているっぽい。
 ** corfu
 #+begin_src emacs-lisp :tangle yes
   (leaf corfu
-    :ensure t
+q    :ensure t
     :custom(
             (corfu-auto . t)
             (corfu-auto-delay . 0)
@@ -571,6 +572,16 @@ emacs lisp はデフォでやってくれているっぽい。
          ("Kana" . ?k)
          ))
     )
+  (regexp-opt '("Tasks" "Notes"))
+#+end_src
+** org-clock
+#+begin_src emacs-lisp :tangle yes
+  (setq org-clock-clocktable-default-properties
+        '(:maxlevel 10
+                    :lang "ja"
+                    :scope agenda-with-archives
+                    :block today
+                    :level 4))
 #+end_src
 ** org-super-agenda
 #+begin_src emacs-lisp :tangle yes
@@ -579,7 +590,7 @@ emacs lisp はデフォでやってくれているっぽい。
     :bind
     ("C-c a" . #'org-agenda)
     :custom
-    (org-agenda-files . '("~/dropbox/daily" "~/dropbox/inbox/inbox.org"))
+    (org-agenda-files . '("~/dropbox/inbox/inbox.org"))
     (org-agenda-todo-ignore-scheduled . t)
     (org-agenda-custom-commands
      . '(
@@ -626,38 +637,21 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** org-capture
 #+begin_src emacs-lisp :tangle yes
-  (leaf org-roam
-    :ensure t
+  (leaf org-capture
     :bind
-    ("C-c n c" . #'org-roam-capture  )
-    ("C-c c" . #'org-roam-dailies-capture-today)
+    ("C-c c" . org-capture)
     :custom
-    (org-roam-directory .  "~/dropbox/")
-    (org-roam-capture-templates
-     .
-     '(("f" "Fleeting(一時メモ)" plain "%?"
-        :target (file+head "org/fleeting/%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
-        :unnarrowed t)
-       ("l" "Literature(文献)" plain "%?"
-        :target (file+head "org/literature/%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
-        :unnarrowed t)))
-    (org-roam-dailies-capture-templates
+    (taskfile . "~/dropbox/inbox/inbox.org")
+    (org-capture-templates
      . '(
-         ("m" "memo" entry "* MEMO <%<%Y-%m-%d %H:%M>> %^{title}\n  %?"
-          :target (file+head "%<%Y-%m-%d>.org"
-                             "#+title: %<%Y年%m月%d日(%a)>")
-          :prepend nil
-          :kill-buffer t
-          )
-         ("t" "ToDo" entry "* DIVIDING <%<%Y-%m-%d %H:%M>> %^{title}\n  %?"
-          :target (file+head "%<%Y-%m-%d>.org"
-                             "#+title: %<%Y年%m月%d日(%a)>")
-          :prepend nil
-          :kill-buffer t
-          )
+         ("t" "ToDo" entry (file taskfile )
+          "* DIVIDING %^{title}\n %?")
+         ("1" "Level 1" entry (file taskfile )
+          "* LEVEL1 %^{title}[/]\n %?")
          )
      )
     )
+
 #+end_src
 ** org-journal
 #+begin_src emacs-lisp :tangle yes
