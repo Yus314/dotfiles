@@ -209,7 +209,7 @@ emacs lisp はデフォでやってくれているっぽい。
     )
 #+end_src
 ** spacious-padding
-#+begin_src emacs-lisp :tangle
+#+begin_src emacs-lisp :tangle yes
   (leaf spacious-padding
     :ensure t
     :custom
@@ -220,6 +220,8 @@ emacs lisp はデフォでやってくれているっぽい。
          :mode-line-width 0
          :left-fringe-width 5
          ))
+    :config
+    (spacious-padding-mode)
     )
  #+end_src
 * 入力支援
@@ -510,24 +512,24 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf orderless
     :ensure t
     :custom(
-  	  (completion-styles . '(orderless basic))
-  	  (completion-category-overrides . '((file
-					     (styles basic partial-completion)))))
-x    )
+            (completion-styles . '(orderless basic))
+            (completion-category-overrides . '((file
+                                                (styles basic partial-completion)))))
+    )
 #+end_src
 ** consult
-    #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
       (leaf consult
             :ensure t
             :bind
             ("M-g f" . consult-fd)
          )
-#+end_src
+         #+end_src
 * 入力補完
 ** corfu
 #+begin_src emacs-lisp :tangle yes
   (leaf corfu
-q    :ensure t
+    :ensure t
     :custom(
             (corfu-auto . t)
             (corfu-auto-delay . 0)
@@ -550,7 +552,7 @@ q    :ensure t
     (keymap-set corfu-map "C-n" 'corfu-next)
     (keymap-set corfu-map "C-p" 'corfu-previous)
     )
-  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
@@ -885,14 +887,11 @@ q    :ensure t
 ** eglot
 #+begin_src emacs-lisp :tangle yes
   (leaf eglot
-    )
-  (add-to-list 'eglot-server-programs
-               '(
-                 (nix-ts-mode  . "nil")
-                 (python-ts-mode . "pyright")
-                 (rust-mode . "rust-anlyzer")
+    :defer-config
+    (add-to-list 'eglot-server-programs
+                 '(nix-ts-mode  . ("nil"))
                  )
-               )
+    )
 
 
 #+end_src
