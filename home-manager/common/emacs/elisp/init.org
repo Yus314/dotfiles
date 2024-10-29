@@ -208,6 +208,20 @@ emacs lisp はデフォでやってくれているっぽい。
      (moody-replace-vc-mode)
     )
 #+end_src
+** spacious-padding
+#+begin_src emacs-lisp :tangle
+  (leaf spacious-padding
+    :ensure t
+    :custom
+    (spacious-padding-widths
+     . '(
+         :internal-border-width 5
+         :right-divider-width 0
+         :mode-line-width 0
+         :left-fringe-width 5
+         ))
+    )
+ #+end_src
 * 入力支援
 ** meow
 #+begin_src emacs-lisp :tangle yes
@@ -719,9 +733,10 @@ q    :ensure t
   (leaf diff-hl
     :ensure t
     :custom
-     (global-diff-hl-mode . t)
-     (diff-hl-flydiff-mode . t)
-     )
+    (global-diff-hl-mode . t)
+    (diff-hl-flydiff-mode . t)
+    (diff-hl-draw-borders . nil)
+    )
 #+end_src
 ** magit
 #+begin_src emacs-lisp :tangle yes
@@ -924,10 +939,4 @@ q    :ensure t
     :config
     (direnv-mode)
     )
-#+end_src
-* 言語固有
-** Python
-#+begin_src emacs-lisp :tangle yes
-  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
-  (add-hook 'python-mode-hook #'elgot-ensure)
 #+end_src
