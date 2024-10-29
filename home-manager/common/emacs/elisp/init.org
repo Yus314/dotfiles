@@ -865,12 +865,15 @@ q    :ensure t
 ** eglot
 #+begin_src emacs-lisp :tangle yes
   (leaf eglot
-  ((add-to-list 'eglot-server-programs
-  	      '((nix-ts-mode  . "nil")
-  		(rust-mode) . "rust-anlyzer")
-  	      )
-   )
-  )
+    )
+  (add-to-list 'eglot-server-programs
+               '(
+                 (nix-ts-mode  . "nil")
+                 (python-ts-mode . "pyright")
+                 (rust-mode . "rust-anlyzer")
+                 )
+               )
+
 
 #+end_src
 
@@ -916,4 +919,10 @@ q    :ensure t
     :config
     (direnv-mode)
     )
+#+end_src
+* 言語固有
+** Python
+#+begin_src emacs-lisp :tangle yes
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+  (add-hook 'python-mode-hook #'elgot-ensure)
 #+end_src
