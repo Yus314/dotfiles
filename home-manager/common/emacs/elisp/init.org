@@ -78,16 +78,17 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf treesit
     :custom(
-  	  (treesit-font-lock-level . 4)
-  	  (major-mode-remap-alist .
-  				  '(
-  				   (nix-mode . nix-ts-mode)
-  				    ;  (emacs-lisp-mode . emacs-lisp-ts-mode)
-  				      (yaml-mode . yaml-ts-mode)
-  				      )
-  )				  
-  )				       
-        )
+            (treesit-font-lock-level . 4)
+            (major-mode-remap-alist .
+                                    '(
+                                      (nix-mode . nix-ts-mode)
+                                          ;  (emacs-lisp-mode . emacs-lisp-ts-mode)
+                                      (yaml-mode . yaml-ts-mode)
+                                      (python-mode . python-ts-mode)
+                                      )
+                                    )
+            )				       
+    )
   (leaf tree-sitter
     :ensure t
     :config
@@ -142,6 +143,10 @@ emacs lisp はデフォでやってくれているっぽい。
     (setq-local project-find-functions (list #'my/find-rust-project-root)))
 
   (add-hook 'rust-mode-hook #'my/rust-mode-hook)
+#+end_src
+*** Python
+#+begin_src emacs-lisp :tangle yes
+  (add-hook 'python-ts-mode-hook #'eglot-ensure)
 #+end_src
 ** perfect-mergin
 #+begin_src emacs-lisp :tangle yes

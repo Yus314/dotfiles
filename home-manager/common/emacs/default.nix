@@ -19,6 +19,7 @@ in
               tree-sitter-nix
               tree-sitter-yaml
               tree-sitter-rust
+	      tree-sitter-python
             ]
           ))
           (pkgs.texlive.combined.scheme-full)
@@ -35,6 +36,7 @@ in
       tree-sitter
       nil
       rust-analyzer
+      pyright
     ];
   };
 
