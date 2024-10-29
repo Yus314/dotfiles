@@ -19,6 +19,7 @@ in
               tree-sitter-nix
               tree-sitter-yaml
               tree-sitter-rust
+              tree-sitter-python
             ]
           ))
           (pkgs.texlive.combined.scheme-full)
@@ -34,7 +35,9 @@ in
     packages = with pkgs; [
       tree-sitter
       nil
+      nixfmt-rfc-style
       rust-analyzer
+      pyright
     ];
   };
 
