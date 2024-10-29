@@ -98,22 +98,15 @@ emacs lisp はデフォでやってくれているっぽい。
   #+end_src
 *** nix
 #+begin_src emacs-lisp :tangle yes
-  (leaf nix-mode
-    :ensure t
-    :mode
-    (("\\.nix\\'"))
-    )
-  (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
   (leaf nix-ts-mode
     :ensure t
     :mode
     (("\\.nix\\'" . nix-ts-mode))
     :hook
-    (nix-ts-mode-hook . eglot-ensure)
+                                          ; (nix-ts-mode-hook . eglot-ensure)
     (nix-ts-mode-hook . nixfmt-on-save-mode)
-
     )
-    ;(add-hook 'nix-ts-mode-hook 'eglot-ensure)
+  (add-hook 'nix-ts-mode-hook 'eglot-ensure)
 #+end_src
 *** yaml
 #+begin_src emacs-lisp :tangle yes
@@ -287,7 +280,7 @@ emacs lisp はデフォでやってくれているっぽい。
        '(">" . meow-end-of-thing)
        '("a" . meow-append)
        '("A" . meow-open-below)
-       '("b" . meow-back-word)
+       '("b" . consult-buffer) ;元はmeow-back-word     
        '("B" . meow-back-symbol)
        '("c" . meow-change)
        '("p" . meow-delete)
@@ -318,9 +311,9 @@ emacs lisp はデフォでやってくれているっぽい。
        '("s" . meow-search)
        '("n" . meow-right)
        '("N" . meow-right-expand)
-       '("u" . meow-undo)
+       '("u" . vundo)
        '("U" . meow-undo-in-selection)
-       ;'("v" . meow-visit)
+                                          ;'("v" . meow-visit)
 
        '("v i" . meow-inner-of-thing) ;; Inner
        '("v a" . meow-bounds-of-thing) ;; Arround
@@ -493,6 +486,11 @@ emacs lisp はデフォでやってくれているっぽい。
     (which-key-mode)
     )
 
+#+end_src
+** vundo
+#+begin_src emacs-lisp :tangle yes
+  (leaf vundo
+    :ensure t)
 #+end_src
 * ミニバッファ補完
 ** vercico
@@ -892,8 +890,6 @@ emacs lisp はデフォでやってくれているっぽい。
                  '(nix-ts-mode  . ("nil"))
                  )
     )
-
-
 #+end_src
 
 ** Tex
