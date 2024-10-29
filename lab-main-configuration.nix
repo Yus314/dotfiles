@@ -6,6 +6,10 @@
   inputs,
   config,
   pkgs,
+  unstable,
+  emacs-overlay,
+  org-babel,
+  bizin-gothic-discord,
   ...
 }:
 
@@ -14,6 +18,9 @@
     # Include the results of the hardware scan.
     ./host/lab-main-hardware-configuration.nix
   ];
+  fonts.fonts = [ bizin-gothic-discord ];
+  fonts.fontDir.enable = true;
+
   console.keyMap = "dvorak";
   users.users.Cloudflared = {
     group = "wheel";
@@ -66,9 +73,16 @@
         homeDirectory = "/home/kaki";
         stateVersion = "24.05";
       };
+      nixpkgs.config.allowUnfree = true;
+      nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
     };
-    useGlobalPkgs = true;
-    useUserPackages = true;
+    backupFileExtension = "buckup";
+    # useGlobalPkgs = true;
+    # useUserPackages = true;
+    extraSpecialArgs = {
+      inherit unstable;
+      inherit org-babel;
+    };
   };
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowBroken = true;
@@ -111,7 +125,8 @@
 
   # Select internationalisation properties.
   programs.fish.enable = true;
-  users.users.kaki.shell = pkgs.fish;
+  programs.zsh.enable = true;
+  users.users.kaki.shell = pkgs.bash;
   security.polkit.enable = true;
 
   services.meshcentral.enable = true;
@@ -121,7 +136,7 @@
   # Enable the GNOME Desktop Environment.
   environment.pathsToLink = [ "/libexec" ];
   services.xserver = {
-    enable = true;
+    enable = false;
     layout = "us";
     xkbVariant = "dvorak";
     videoDrivers = [ "nvidia" ];
@@ -139,7 +154,7 @@
       '';
     };
     windowManager.i3 = {
-      enable = true;
+      enable = false;
       extraPackages = with pkgs; [
         rofi
         i3status
@@ -192,7 +207,16 @@
       tldr
     ];
   };
-
+  services.greetd = {
+    enable = true;
+    settings = {
+      defaultSession = {
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd hyprland";
+        user = "kaki";
+      };
+    };
+  };
+  services.xserver.xkb.layout = "us";
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
