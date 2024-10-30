@@ -140,6 +140,10 @@ emacs lisp はデフォでやってくれているっぽい。
 *** Python
 #+begin_src emacs-lisp :tangle yes
   (add-hook 'python-ts-mode-hook #'eglot-ensure)
+  (add-hook 'python-ts-mode-hook 'ruff-format-on-save-mode)
+  (leaf ruff-format
+    :ensure t
+    )
 #+end_src
 ** perfect-mergin
 #+begin_src emacs-lisp :tangle yes

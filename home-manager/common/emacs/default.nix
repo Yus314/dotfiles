@@ -38,6 +38,7 @@ in
       nixfmt-rfc-style
       rust-analyzer
       pyright
+      ruff
     ];
   };
 
