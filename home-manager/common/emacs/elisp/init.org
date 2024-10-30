@@ -574,7 +574,19 @@ emacs lisp はデフォでやってくれているっぽい。
     :ensure t
     :custom
     (org-todo-keywords
-     . '((sequence "DIVIDING(v)" "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "LEVEL1(1)" "|" "DONE(d)" "CANCEL(c)")))
+     . '((sequence "DIVIDING(v)" "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "LEVEL1(1)" "|" "DONE(d)" "CANCEL(c)")
+         (sequence "INBOX(i)"
+                   "PROCESSING(p)"
+                   "URGENT(u)"
+                   "LOW-PRIORITY(l)"
+                   "WAIT(w)"
+                   "TO-READ(r)"
+                   "|"
+                   "DONE(d)"
+                   )
+         )
+     )
+
     (org-todo-keyword-faces
      . '(("DIVIDING" . org-warning)
          ("TODO" . (:foreground "white" :background "red" :weight bold))
@@ -730,7 +742,17 @@ emacs lisp はデフォでやってくれているっぽい。
   			     '((emacs-lisp . t)
   			       (org . t)))
 #+end_src
-
+** org-roam
+#+begin_src emacs-lisp :tangle yes
+  (leaf org-roam
+    :ensure t
+    :custom
+    (org-roam-directory . "~/dropbox/zk")
+    (find-file-visit-truename .  t)
+    :config
+    (org-roam-db-autosync-mode)
+    )
+#+end_src
 * Git
 ** diff-hl
 #+begin_src emacs-lisp :tangle yes
@@ -789,7 +811,10 @@ emacs lisp はデフォでやってくれているっぽい。
 * MisTTY
 #+begin_src emacs-lisp :tangle yes
   (leaf mistty
-     :ensure t)
+    :ensure t
+    :custom
+    (explicit-shell-file-name . "/home/kaki/.nix-profile/bin/fish")
+    )
 #+end_src
 * helpful
 #+begin_src emacs-lisp :tangle yes
@@ -894,6 +919,10 @@ emacs lisp はデフォでやってくれているっぽい。
                  '(nix-ts-mode  . ("nil"))
                  )
     )
+  (leaf eglot-booster
+    :when (executable-find "emacs-lsp-booster")
+    :vc ( :url "https://github.com/jdtsmith/eglot-booster")
+    :global-minor-mode t)
 #+end_src
 
 ** Tex
@@ -907,7 +936,7 @@ emacs lisp はデフォでやってくれているっぽい。
      (TeX-parse-self . t)
      (TeX-master . nil)
      )
-      
+
      ;(TeX-view-program-selection . '((output-pdf "PDF Tools")))
      (TeX-view-program-selection . '((output-pdf "Zathura")))
      (japanese-TeX-engine-default . 'platex)
@@ -919,7 +948,7 @@ emacs lisp はデフォでやってくれているっぽい。
   (add-hook 'LaTeX-mode-hook
             (lambda ()
               (add-hook 'after-save-hook 'TeX-command-run-all nil t)))
-    
+
      ;(TeX-PDF-from-DVI . "Dvipdfmx")
       )
   ;  (add-hook 'LaTeX-mode-hook 'japanese-LaTeX-mode)
@@ -937,5 +966,11 @@ emacs lisp はデフォでやってくれているっぽい。
     :ensure t
     :config
     (direnv-mode)
+    )
+#+end_src
+** tramp
+#+begin_src emacs-lisp :tangle yes
+  (with-eval-after-load "tramp"
+    (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
     )
 #+end_src

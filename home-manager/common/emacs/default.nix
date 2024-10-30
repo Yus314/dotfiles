@@ -34,6 +34,7 @@ in
     };
     packages = with pkgs; [
       tree-sitter
+      emacs-lsp-booster
       nil
       nixfmt-rfc-style
       rust-analyzer
