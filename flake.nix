@@ -92,6 +92,8 @@
         ];
         specialArgs = {
           inherit unstable;
+          inherit emacs-overlay;
+          inherit org-babel;
         };
       };
     };

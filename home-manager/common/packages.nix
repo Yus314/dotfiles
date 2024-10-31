@@ -13,6 +13,7 @@
     marp-cli
     vimgolf
     carapace
+    #dropbox
     #zoom
     #sway
     #waybar
@@ -26,6 +27,5 @@
     gdrive3
     drive
     rclone
-    (unstable.legacyPackages.x86_64-linux.zotero-beta)
   ];
 }

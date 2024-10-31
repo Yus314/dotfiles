@@ -1,5 +1,10 @@
-{ pkgs, ... }:
-{ pkgs, unstable, ... }:
+{
+  pkgs,
+  unstable,
+  emacs-overlay,
+  org-babel,
+  ...
+}:
 {
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
@@ -33,7 +38,7 @@
     };
   };
   home-manager = {
-    useGlobalPkgs = true;
+    #useGlobalPkgs = true;
     users.kakinumayuusuke = {
       imports = [
         ./home-manager/common
@@ -44,9 +49,12 @@
         homeDirectory = "/Users/kakinumayuusuke";
         stateVersion = "24.05";
       };
+      nixpkgs.config.allowUnfree = true;
+      nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
     };
     extraSpecialArgs = {
       inherit unstable;
+      inherit org-babel;
     };
   };
   users = {
