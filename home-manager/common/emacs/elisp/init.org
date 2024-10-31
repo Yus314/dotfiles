@@ -78,21 +78,21 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf treesit
     :custom(
-  	  (treesit-font-lock-level . 4)
-  	  (major-mode-remap-alist .
-  				  '(
-  				   (nix-mode . nix-ts-mode)
-  				    ;  (emacs-lisp-mode . emacs-lisp-ts-mode)
-  				      (yaml-mode . yaml-ts-mode)
-  				      )
-  )				  
-  )				       
-        )
+            (treesit-font-lock-level . 4)
+            (major-mode-remap-alist .
+                                    '(
+                                      (nix-mode . nix-ts-mode)
+                                          ;  (emacs-lisp-mode . emacs-lisp-ts-mode)
+                                      (yaml-mode . yaml-ts-mode)
+                                      (python-mode . python-ts-mode)  				    )
+                                    )
+            )
+    )
   (leaf tree-sitter
     :ensure t
     :config
     (global-tree-sitter-mode)
-  )
+    )
 
   #+end_src
 *** nix
@@ -142,6 +142,13 @@ emacs lisp はデフォでやってくれているっぽい。
     (setq-local project-find-functions (list #'my/find-rust-project-root)))
 
   (add-hook 'rust-mode-hook #'my/rust-mode-hook)
+#+end_src
+*** Python
+#+begin_src emacs-lisp :tangle yes
+  (add-hook 'python-mode-hook #'eglot-ensure)
+  ;(add-hook 'python-mode-ts-hook #'eglot-ensure)
+  ;(add-hook 'python-mode-hook 'ruff-format-on-save-mode)
+  ;(add-hook 'python-ts-mode-hook 'ruff-format-on-save-mode)
 #+end_src
 ** perfect-mergin
 #+begin_src emacs-lisp :tangle yes
@@ -854,13 +861,7 @@ q    :ensure t
     :args '("-")
     )
 #+end_src
-* aggressive-indent
-#+begin_src emacs-lisp :tangle yes
-  (leaf aggressive-indent
-    :ensure t
-    :hook emacs-lisp-mode-hook (aggressive-indent-mode)
-    )
-#+end_src
+* aggressive-inden
 * プログラミング支援
 ** eglot
 #+begin_src emacs-lisp :tangle yes
