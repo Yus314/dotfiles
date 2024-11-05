@@ -179,30 +179,39 @@ emacs lisp はデフォでやってくれているっぽい。
 ** tab bar
 バッファをウインドウの管理をうまくできていないので、あまりつかいこなせていない。
  #+begin_src emacs-lisp :tangle yes
-   ;(tab-bar-mode)
    (leaf centaur-tabs
      :ensure t
-     :custom(
-   	  (centaur-tabs-set-icons . t)
-   	  (centaur-tabs-icon-type . 'nerd-icons)
-   	  (centaur-tabs-set-bar . 'under)
-   	  (x-underline-at-descent-line . t)
-   	  (centaur-tabs-mode . t)
+     :custom
+     (centaur-tabs-style . "alternate")
+     (centaur-tabs-set-icons . t)
+     (centaur-tabs-icon-type . 'nerd-icons)
+     ;(centaur-tabs-set-bar . 'under)
+     ;(x-underline-at-descent-line . t)
+     (centaur-tabs-mode . t)
+     :config
+     (centaur-tabs-headline-match)
+     (setq centaur-tabs-set-bar 'under)
+     (setq x-underline-at-descent-line t)
      )
-    )
-    
  #+end_src
 ** Moody
 #+begin_src emacs-lisp :tangle yes
-  (leaf moody
-    :ensure t
-    :custom
-    (x-underline-at-descent-line . t)
-    (moody-mode-line-height . 26)
+                                          ;(leaf moody
+                                          ;  :ensure t
+                                          ;                                        ; :custom
+                                          ;                                        ;  (x-underline-at-descent-line . t)
+                                          ;                                        ;  (moody-mode-line-height . 26)
+                                          ;  :config
+                                          ;  (moody-replace-mode-line-front-space)
+                                          ;  (moody-replace-mode-line-buffer-identification)
+                                          ;  (moody-replace-vc-mode)
+                                          ;  )
+  (use-package moody
     :config
-     (moody-replace-mode-line-front-space)
-     (moody-replace-mode-line-buffer-identification)
-     (moody-replace-vc-mode)
+    (setq moody-mode-line-height 26)
+    (moody-replace-mode-line-front-space)
+    (moody-replace-mode-line-buffer-identification)
+    (moody-replace-vc-mode)
     )
 #+end_src
 ** spacious-padding
@@ -575,11 +584,6 @@ emacs lisp はデフォでやってくれているっぽい。
     :custom
     (org-todo-keywords
      . '((sequence "DIVIDING(v)" "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "LEVEL1(1)" "|" "DONE(d)" "CANCEL(c)")
-         (sequence "MEMO(i)"
-                   "TWEET(x)"
-                   "|"
-                   "DONE(d)"
-                   )
          )
      )
 
@@ -742,12 +746,56 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf org-roam
     :ensure t
+    :bind
+    ("C-c n l" . org-roam-buffer-toggle)
+    ("C-c n f" . org-roam-node-find)
+    ("C-c n i" . org-roam-node-insert)
     :custom
     (org-roam-directory . "~/dropbox/zk")
     (find-file-visit-truename .  t)
+    (org-roam-capture-templates
+     . '(("d" "default" plain "%?" :if-new
+          (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+    - index ::  
+    - tags :: ")
+          :unnarrowed t
+          :jump-to-captured t)
+
+         ("o" "outline" plain "%?" :if-new
+          (file+head "outlines/${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+    ,#+filetags: outline")
+          :unnarrowed t
+          :jump-to-captured t)
+
+         )
+     )
     :config
     (org-roam-db-autosync-mode)
     )
+#+end_src
+** org-roam-review
+#+begin_src emacs-lisp :tangle yes
+  (leaf org-roam-review
+    :commands (org-roam-review
+               org-roam-review-list-by-maturity
+               org-roam-review-list-recently-added)
+    :hook (org-roam-capture-new-node-hook . org-roam-review-set-seedling)
+    :bind (:org-mode-map
+           ("C-c r r" . org-roam-review-accept )
+           ("C-c r f" . org-roam-review-forgot)
+           ("C-c r u" . org-roam-review-bury)
+           ("C-c r m" . org-roam-review-set-memorise)
+           ("C-c r x" . org-roam-review-set-excluded)
+           ("C-c r b" . org-roam-review-set-budding)
+           ("C-c r s" . org-roam-review-set-seedling)
+           ("C-c r e" . org-roam-review-set-evergreen)
+           )
+    )
+  ;; Check and install dependencies listed in nursery-pkg.el
+  (let ((dependencies '(org-drill)))
+    (dolist (pkg dependencies)
+      (unless (package-installed-p pkg)
+        (package-install pkg))))
 #+end_src
 * Git
 ** diff-hl

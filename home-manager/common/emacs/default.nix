@@ -1,4 +1,9 @@
-{ pkgs, org-babel, ... }:
+{
+  pkgs,
+  org-babel,
+  unstable,
+  ...
+}:
 let
   tangle = org-babel.lib.tangleOrgBabel { languages = [ "emacs-lisp" ]; };
 in
@@ -8,7 +13,8 @@ in
     package = pkgs.emacsWithPackagesFromUsePackage {
       config = ./elisp/init.org;
       defaultInitFile = true;
-      package = pkgs.emacs-pgtk;
+      # package = pkgs.emacs-pgtk;
+      package = unstable.legacyPackages.x86_64-linux.emacs30-pgtk;
       alwaysTangle = true;
       override = final: prev: { withXwidgets = true; };
       extraEmacsPackages =
@@ -40,6 +46,7 @@ in
       rust-analyzer
       pyright
       ruff
+      (unstable.legacyPackages.x86_64-linux.adwaita-icon-theme)
     ];
   };
 
