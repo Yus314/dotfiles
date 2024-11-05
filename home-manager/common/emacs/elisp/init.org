@@ -76,43 +76,37 @@ Tree-sitter はモードに依存していて、設定がわかりにくい。
 tree-sitter と treesit の役割の違いも理解していない。
 emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
-  (leaf treesit
-    :custom(
-            (treesit-font-lock-level . 4)
-            (major-mode-remap-alist .
-                                    '(
-                                      (nix-mode . nix-ts-mode)
-                                          ;  (emacs-lisp-mode . emacs-lisp-ts-mode)
-                                      (yaml-mode . yaml-ts-mode)
-                                      (python-mode . python-ts-mode)  				    )
-                                    )
-            )
-    )
-  (leaf tree-sitter
-    :ensure t
-    :config
-    (global-tree-sitter-mode)
-    )
+    (leaf treesit
+      :custom(
+              (treesit-font-lock-level . 4)
+              (major-mode-remap-alist .
+                                      '(
+                                        (nix-mode . nix-ts-mode)
+                                            ;  (emacs-lisp-mode . emacs-lisp-ts-mode)
+                                        (yaml-mode . yaml-ts-mode)
+                                        (python-mode . python-ts-mode)
+                                        )
+                                      )
+              )				       
+     )
+    (leaf tree-sitter
+      :ensure t
+      :config
+      (global-tree-sitter-mode)
+      )
 
   #+end_src
 *** nix
 #+begin_src emacs-lisp :tangle yes
-  (leaf nix-mode
-    :ensure t
-    :mode
-    (("\\.nix\\'"))
-    )
-  (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
   (leaf nix-ts-mode
     :ensure t
     :mode
     (("\\.nix\\'" . nix-ts-mode))
     :hook
-    (nix-ts-mode-hook . eglot-ensure)
+                                          ; (nix-ts-mode-hook . eglot-ensure)
     (nix-ts-mode-hook . nixfmt-on-save-mode)
-
     )
-    ;(add-hook 'nix-ts-mode-hook 'eglot-ensure)
+  (add-hook 'nix-ts-mode-hook 'eglot-ensure)
 #+end_src
 *** yaml
 #+begin_src emacs-lisp :tangle yes
@@ -145,10 +139,11 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 *** Python
 #+begin_src emacs-lisp :tangle yes
-  (add-hook 'python-mode-hook #'eglot-ensure)
-  ;(add-hook 'python-mode-ts-hook #'eglot-ensure)
-  ;(add-hook 'python-mode-hook 'ruff-format-on-save-mode)
-  ;(add-hook 'python-ts-mode-hook 'ruff-format-on-save-mode)
+    (add-hook 'python-ts-mode-hook #'eglot-ensure)
+    (add-hook 'python-ts-mode-hook 'ruff-format-on-save-mode)
+    (leaf ruff-format
+      :ensure t
+      )
 #+end_src
 ** perfect-mergin
 #+begin_src emacs-lisp :tangle yes
@@ -210,6 +205,22 @@ emacs lisp はデフォでやってくれているっぽい。
      (moody-replace-vc-mode)
     )
 #+end_src
+** spacious-padding
+#+begin_src emacs-lisp :tangle yes
+  (leaf spacious-padding
+    :ensure t
+    :custom
+    (spacious-padding-widths
+     . '(
+         :internal-border-width 5
+         :right-divider-width 0
+         :mode-line-width 0
+         :left-fringe-width 5
+         ))
+    :config
+    (spacious-padding-mode)
+    )
+ #+end_src
 * 入力支援
 ** meow
 #+begin_src emacs-lisp :tangle yes
@@ -273,7 +284,7 @@ emacs lisp はデフォでやってくれているっぽい。
        '(">" . meow-end-of-thing)
        '("a" . meow-append)
        '("A" . meow-open-below)
-       '("b" . meow-back-word)
+       '("b" . consult-buffer) ;元はmeow-back-word     
        '("B" . meow-back-symbol)
        '("c" . meow-change)
        '("p" . meow-delete)
@@ -304,9 +315,9 @@ emacs lisp はデフォでやってくれているっぽい。
        '("s" . meow-search)
        '("n" . meow-right)
        '("N" . meow-right-expand)
-       '("u" . meow-undo)
+       '("u" . vundo)
        '("U" . meow-undo-in-selection)
-       ;'("v" . meow-visit)
+                                          ;'("v" . meow-visit)
 
        '("v i" . meow-inner-of-thing) ;; Inner
        '("v a" . meow-bounds-of-thing) ;; Arround
@@ -480,6 +491,11 @@ emacs lisp はデフォでやってくれているっぽい。
     )
 
 #+end_src
+** vundo
+#+begin_src emacs-lisp :tangle yes
+  (leaf vundo
+    :ensure t)
+#+end_src
 * ミニバッファ補完
 ** vercico
 #+begin_src emacs-lisp :tangle yes
@@ -498,24 +514,24 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf orderless
     :ensure t
     :custom(
-  	  (completion-styles . '(orderless basic))
-  	  (completion-category-overrides . '((file
-					     (styles basic partial-completion)))))
-x    )
+            (completion-styles . '(orderless basic))
+            (completion-category-overrides . '((file
+                                                (styles basic partial-completion)))))
+    )
 #+end_src
 ** consult
-    #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
       (leaf consult
             :ensure t
             :bind
             ("M-g f" . consult-fd)
          )
-#+end_src
+         #+end_src
 * 入力補完
 ** corfu
 #+begin_src emacs-lisp :tangle yes
   (leaf corfu
-q    :ensure t
+    :ensure t
     :custom(
             (corfu-auto . t)
             (corfu-auto-delay . 0)
@@ -538,7 +554,7 @@ q    :ensure t
     (keymap-set corfu-map "C-n" 'corfu-next)
     (keymap-set corfu-map "C-p" 'corfu-previous)
     )
-  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
@@ -558,7 +574,15 @@ q    :ensure t
     :ensure t
     :custom
     (org-todo-keywords
-     . '((sequence "DIVIDING(v)" "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "LEVEL1(1)" "|" "DONE(d)" "CANCEL(c)")))
+     . '((sequence "DIVIDING(v)" "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "LEVEL1(1)" "|" "DONE(d)" "CANCEL(c)")
+         (sequence "MEMO(i)"
+                   "TWEET(x)"
+                   "|"
+                   "DONE(d)"
+                   )
+         )
+     )
+
     (org-todo-keyword-faces
      . '(("DIVIDING" . org-warning)
          ("TODO" . (:foreground "white" :background "red" :weight bold))
@@ -714,16 +738,27 @@ q    :ensure t
   			     '((emacs-lisp . t)
   			       (org . t)))
 #+end_src
-
+** org-roam
+#+begin_src emacs-lisp :tangle yes
+  (leaf org-roam
+    :ensure t
+    :custom
+    (org-roam-directory . "~/dropbox/zk")
+    (find-file-visit-truename .  t)
+    :config
+    (org-roam-db-autosync-mode)
+    )
+#+end_src
 * Git
 ** diff-hl
 #+begin_src emacs-lisp :tangle yes
   (leaf diff-hl
     :ensure t
     :custom
-     (global-diff-hl-mode . t)
-     (diff-hl-flydiff-mode . t)
-     )
+    (global-diff-hl-mode . t)
+    (diff-hl-flydiff-mode . t)
+    (diff-hl-draw-borders . nil)
+    )
 #+end_src
 ** magit
 #+begin_src emacs-lisp :tangle yes
@@ -772,7 +807,10 @@ q    :ensure t
 * MisTTY
 #+begin_src emacs-lisp :tangle yes
   (leaf mistty
-     :ensure t)
+    :ensure t
+    :custom
+    (explicit-shell-file-name . "/home/kaki/.nix-profile/bin/fish")
+    )
 #+end_src
 * helpful
 #+begin_src emacs-lisp :tangle yes
@@ -866,13 +904,15 @@ q    :ensure t
 ** eglot
 #+begin_src emacs-lisp :tangle yes
   (leaf eglot
-  ((add-to-list 'eglot-server-programs
-  	      '((nix-ts-mode  . "nil")
-  		(rust-mode) . "rust-anlyzer")
-  	      )
-   )
-  )
-
+    :defer-config
+    (add-to-list 'eglot-server-programs
+                 '(nix-ts-mode  . ("nil"))
+                 )
+    )
+  (leaf eglot-booster
+    :when (executable-find "emacs-lsp-booster")
+    :vc ( :url "https://github.com/jdtsmith/eglot-booster")
+    :global-minor-mode t)
 #+end_src
 
 ** Tex
@@ -886,7 +926,7 @@ q    :ensure t
      (TeX-parse-self . t)
      (TeX-master . nil)
      )
-      
+
      ;(TeX-view-program-selection . '((output-pdf "PDF Tools")))
      (TeX-view-program-selection . '((output-pdf "Zathura")))
      (japanese-TeX-engine-default . 'platex)
@@ -898,7 +938,7 @@ q    :ensure t
   (add-hook 'LaTeX-mode-hook
             (lambda ()
               (add-hook 'after-save-hook 'TeX-command-run-all nil t)))
-    
+
      ;(TeX-PDF-from-DVI . "Dvipdfmx")
       )
   ;  (add-hook 'LaTeX-mode-hook 'japanese-LaTeX-mode)
@@ -916,5 +956,11 @@ q    :ensure t
     :ensure t
     :config
     (direnv-mode)
+    )
+#+end_src
+** tramp
+#+begin_src emacs-lisp :tangle yes
+  (with-eval-after-load "tramp"
+    (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
     )
 #+end_src

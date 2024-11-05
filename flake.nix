@@ -47,7 +47,12 @@
       org-babel,
       ...
     }:
+    let
+      tmp_pkgs = import nixpkgs { system = "x86_64-linux"; };
+      bizin-gothic-discord = tmp_pkgs.callPackage ./bizin.nix { };
+    in
     {
+      packages.x86_64-linux.default = tmp_pkgs.callPackage ./bizin.nix { };
       nixosConfigurations = {
         home = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
@@ -70,6 +75,9 @@
           specialArgs = {
             inherit unstable;
             inherit wezterm;
+            inherit emacs-overlay;
+            inherit org-babel;
+            inherit bizin-gothic-discord;
           };
         };
         lab-sub = nixpkgs.lib.nixosSystem {
