@@ -61,7 +61,10 @@
             home-manager.nixosModules.home-manager
           ];
           specialArgs = {
-            inherit unstable;
+            unstable = import unstable {
+              system = "x86_64-linux";
+              config.allowUnfree = true;
+            };
             inherit emacs-overlay;
             inherit org-babel;
           };

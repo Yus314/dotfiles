@@ -14,18 +14,23 @@
     vimgolf
     carapace
     #zoom
-    #sway
-    #waybar
-    #wl-clipboard
+    #swayn
+    waybar
+    wl-clipboard
     #swaylock
     #swayidle
-    #wlogout
+    wlogout
     #slack
     #zoom
     kitty
     gdrive3
     drive
+    dropbox
     rclone
-    (unstable.legacyPackages.x86_64-linux.zotero-beta)
+    (unstable.zotero-beta)
+    # adobe-reader
+    foot
+    pinta
+    nvitop
   ];
 }

@@ -60,9 +60,11 @@
       ];
     };
   };
+  #for dropbox
+  programs.fuse.userAllowOther = true;
 
-  programs.zsh.enable = true;
-  users.users.kaki.shell = pkgs.zsh;
+  programs.fish.enable = true;
+  users.users.kaki.shell = pkgs.fish;
   services.resolved = {
     enable = true;
   };
@@ -70,7 +72,6 @@
   home-manager = {
     users.kaki = {
       imports = [
-        #./home-manager/NixOS/gui/i3.nix
         ./home-manager/NixOS/gui/packages.nix
         #./home-manager/NixOS/cli
         ./home-manager/common
@@ -81,6 +82,7 @@
         stateVersion = "24.05";
       };
       nixpkgs.config.allowUnfree = true;
+      nixpkgs.config.permittedInsecurePacakges = [ "adobe-reader-9.5.5" ];
       nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
     };
     extraSpecialArgs = {
@@ -138,7 +140,6 @@
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     git
     firefox
-    vivaldi
   ];
 
   system.stateVersion = "24.05"; # Did you read the comment?
