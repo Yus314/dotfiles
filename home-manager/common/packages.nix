@@ -13,6 +13,7 @@
     marp-cli
     vimgolf
     carapace
+    #dropbox
     #zoom
     #swayn
     waybar
