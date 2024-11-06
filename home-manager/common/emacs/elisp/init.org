@@ -45,6 +45,21 @@
     :custom `((custom-file . ,(locate-user-emacs-file "custom.el"))))
 
 #+end_src
+* 一般設定
+#+begin_src emacs-lisp :tangle yes
+  (leaf smooth-scroll
+    :ensure t
+    :require t
+    :config
+    (smooth-scroll-mode)
+    )
+  (setq scroll-conservatively 35)
+  (setq scroll-step 1)
+  (setq scroll-margin 5)
+  (setq scroll-preserve-screen-position t)
+
+#+end_src
+ 
 * UI
 ** theme
 *** Modus Theme
@@ -607,8 +622,13 @@ emacs lisp はデフォでやってくれているっぽい。
          ("movie" . ?m)
          ("Kana" . ?k)
          ))
+    (org-directory . "~/dropbox")
+    :config
+    (setq org-archive-location (concat "~/dropbox/archive/archive_"
+                                       (format-time-string "%Y%m%d.org::datetree"))
+          )
     )
-  (regexp-opt '("Tasks" "Notes"))
+    (regexp-opt '("Tasks" "Notes"))
 #+end_src
 ** org-clock
 #+begin_src emacs-lisp :tangle yes
