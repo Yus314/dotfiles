@@ -1042,3 +1042,15 @@ emacs lisp はデフォでやってくれているっぽい。
     (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
     )
 #+end_src
+* Dired
+** dired-narrow
+#+begin_src emacs-lisp :tangle yes
+  (leaf dired-narrow
+    :ensure t
+    :after dired-hacks-utils
+    :bind
+    (dired-mode-map
+     ("," . dired-narrow-fuzzy)
+     )
+    )
+#+end_src
