@@ -554,6 +554,26 @@ emacs lisp はデフォでやってくれているっぽい。
     (org-agenda-todo-ignore-scheduled . t)
     (org-agenda-custom-commands
      . '(
+         (
+          "w" "review"
+          (
+           (agenda "週の振り返り"
+                   (
+                    (org-agenda-span 'week)
+                    (org-agenda-overriding-header "来週の予定")
+                     )
+                   )
+           (todo "TODO"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(
+                     (:name "やること" :todo "TODO")
+                   (:discard (:anything t))
+                 ))
+           ))
+           )
+          )
+
          ("h" "Home"
           (
            (agenda "今日のこと"
