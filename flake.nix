@@ -50,6 +50,7 @@
     let
       tmp_pkgs = import nixpkgs { system = "x86_64-linux"; };
       bizin-gothic-discord = tmp_pkgs.callPackage ./bizin.nix { };
+      xremap = tmp_pkgs.callPackage ./xremap.nix { };
     in
     {
       packages.x86_64-linux.default = tmp_pkgs.callPackage ./bizin.nix { };
@@ -67,6 +68,7 @@
             };
             inherit emacs-overlay;
             inherit org-babel;
+            inherit xremap;
           };
         };
         lab-main = nixpkgs.lib.nixosSystem {

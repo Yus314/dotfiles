@@ -4,20 +4,20 @@
     xwayland.enable = true;
     systemd.variables = [ "--all" ];
     extraConfig = ''
-                                                      	env = XCURSOR_SIZE,24
-                                                      	env = LIBVA_DRIVER_NAME,nvidia
-                                                      	env = XDG_SESSION_TYPE,wayland
-                                                      	env = GBM_BACKEND,nvidia-drm
-                                                      	env = __GLX_VENDOR_LIBRARY_NAME,nvidia-drm
-                        								monitor = , preffered, auto, 1
-                  									monitor = HDMI-A-1,1920x1080@60.00000,0x0,1 
-                  									monitor = DP-1,1920x1080@60.00000,1920x0,1
-                  									monitor = DP-3,1920x1080@60.00000,3840x0,1	
-            										monitor = Unknown-1, disable
-                                    						exec-once = fcitx5 -d
-      													
-          exec-once = waybar
+                                                       	env = XCURSOR_SIZE,24
+                                                       	env = LIBVA_DRIVER_NAME,nvidia
+                                                       	env = XDG_SESSION_TYPE,wayland
+                                                       	env = GBM_BACKEND,nvidia-drm
+                                                       	env = __GLX_VENDOR_LIBRARY_NAME,nvidia-drm
+                         								monitor = , preffered, auto, 1
+                   									monitor = HDMI-A-1,1920x1080@60.00000,0x0,1 
+                   									monitor = DP-1,1920x1080@60.00000,1920x0,1
+                   									monitor = DP-3,1920x1080@60.00000,3840x0,1	
+             										monitor = Unknown-1, disable
+      exec-once = chmod 777 ~/dotfiles/shingeta.sh && echo "OK2" >> ~/shingetalog.txt &&  bash ~/dotfiles/shingeta.sh
+           exec-once = waybar
     '';
+
     # 				env = WLR_DRM_DEVICES,/dev/dri/card0
     # monitor=HDMI-A-1,1920x1080@74.97300,-1920x0,1 
     # monitor=DVI-D-1,1920x1080@60.00000,0x0,1 

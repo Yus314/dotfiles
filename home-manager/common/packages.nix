@@ -1,4 +1,9 @@
-{ pkgs, unstable, ... }:
+{
+  pkgs,
+  unstable,
+  xremap,
+  ...
+}:
 {
   home.packages = with pkgs; [
     #cowsay
@@ -33,5 +38,6 @@
     foot
     pinta
     nvitop
+    (xremap)
   ];
 }

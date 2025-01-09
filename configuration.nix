@@ -8,6 +8,7 @@
   unstable,
   emacs-overlay,
   org-babel,
+  xremap,
   ...
 }:
 
@@ -20,7 +21,10 @@
   ];
 
   services.onedrive.enable = true;
-
+  boot.kernelModules = [ "uinput" ];
+  services.udev.extraRules = ''
+    KERNEL=="uinput", GROUP="input", TAG+="uaccess"
+  '';
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -87,6 +91,7 @@
     };
     extraSpecialArgs = {
       inherit unstable;
+      inherit xremap;
       inherit org-babel;
     };
   };
@@ -127,8 +132,8 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "input"
     ];
-    packages = with pkgs; [ ];
   };
 
   # Allow unfree packages
