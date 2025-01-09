@@ -560,7 +560,19 @@ emacs lisp はデフォでやってくれているっぽい。
             :bind
             ("M-g f" . consult-fd)
          )
-         #+end_src
+        #+end_src
+** affe
+#+begin_src emacs-lisp :tangle yes
+  (leaf affe
+    :ensure t
+    :after consult
+    :bind
+    ("M-g f" . affe-find)
+    :custom
+    (affe-highlight-function . 'orderless-highlight-matches)
+    (affe-find-command . "fd --color=never --full-path")
+    )
+#+end_src
 * 入力補完
 ** corfu
 #+begin_src emacs-lisp :tangle yes
