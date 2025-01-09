@@ -333,8 +333,8 @@ emacs lisp はデフォでやってくれているっぽい。
        '("l" . meow-till)
        '("m" . meow-mark-word)
        '("M" . meow-mark-symbol)
-       '("h" . meow-next)
-       '("H" . meow-next-expand)
+       '("s" . meow-next)
+       '("S" . meow-next-expand)
        '("o" . meow-block)
        '("O" . meow-to-block)
        '("t" . meow-prev)
@@ -342,7 +342,7 @@ emacs lisp はデフォでやってくれているっぽい。
        '("q" . meow-quit)
        '("r" . meow-replace)
        '("R" . meow-swap-grab)
-       '("s" . meow-search)
+       '("h" . meow-search)
        '("n" . meow-right)
        '("N" . meow-right-expand)
        '("u" . vundo)
@@ -526,6 +526,22 @@ emacs lisp はデフォでやってくれているっぽい。
                     :scope agenda-with-archives
                     :block today
                     :level 4))
+#+end_src
+** org-agenda
+#+begin_src emacs-lisp :tangle yes
+  (leaf org-agenda
+    :bind
+    (
+     (org-agenda-mode-map
+      ("t" . org-agenda-previous-line)
+      ("s" . org-agenda-next-line)
+      ("e" . org-agenda-todo)
+      ;以下の関数は割り当てていない
+      ;org-agenda-set-effort
+      ;org-save-all-org-buffers
+      )
+     )
+    )
 #+end_src
 ** org-super-agenda
 #+begin_src emacs-lisp :tangle yes
