@@ -264,10 +264,6 @@ emacs lisp はデフォでやってくれているっぽい。
     :custom
     (meow-use-clipboard . t)
     (meow-expand-hint-counts . nil)
-    :hook
-    ((meow-insert-exit-hook . (lambda nil
-                                (if skk-mode (skk-latin-mode-on))))
-     )
     :config
     (defun meow-setup ()
       (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
