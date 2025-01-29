@@ -432,11 +432,19 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf affe
     :ensure t
     :after consult
+    :preface
+    (defun affe-find-home ()
+      "Affeをホームルートから実行する"
+      (interactive)
+      (affe-find "~")
+      )
     :bind
     ("M-g f" . affe-find)
+    ("M-g h" . affe-find-home)
     :custom
     (affe-highlight-function . 'orderless-highlight-matches)
     (affe-find-command . "fd --color=never --full-path")
+
     )
 #+end_src
 * 入力補完
