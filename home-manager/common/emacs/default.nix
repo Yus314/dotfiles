@@ -28,8 +28,10 @@ in
               tree-sitter-python
             ]
           ))
+          mu4e
           (pkgs.texlive.combined.scheme-full)
           (pkgs.zathura)
+          vterm
         ];
     };
   };
@@ -46,6 +48,10 @@ in
       rust-analyzer
       pyright
       ruff
+      # mu4eのためのパッケッージ
+      mu
+      xapian
+      gmime
       (unstable.adwaita-icon-theme)
     ];
   };

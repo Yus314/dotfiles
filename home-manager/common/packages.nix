@@ -39,5 +39,7 @@
     pinta
     nvitop
     (xremap)
+    qutebrowser
+    kakoune
   ];
 }
