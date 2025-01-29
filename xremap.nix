@@ -14,7 +14,8 @@ rustPlatform.buildRustPackage rec {
     sha256 = "1gcp4gbmf1v2xjx00j6b19jl2alk2v9s5v97qi240gm8k274kr9w";
 
   };
-  cargoSha256 = "sha256-XXWfHIQr9V+yPW12w37CYJ3PymMtshLwN9fO+hcEnkI=";
+  #cargoSha256 = "sha256-XXWfHIQr9V+yPW12w37CYJ3PymMtshLwN9fO+hcEnkI=";
+  cargoHash = "sha256-XXWfHIQr9V+yPW12w37CYJ3PymMtshLwN9fO+hcEnkI=";
 
   buildNoDefualtFeatures = true;
   buildFeatures = [ "wlroots" ];

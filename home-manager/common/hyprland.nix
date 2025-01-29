@@ -2,7 +2,8 @@
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
-    systemd.variables = [ "--all" ];
+    systemd.enable = false;
+    #systemd.variables = [ "--all" ];
     extraConfig = ''
                                                        	env = XCURSOR_SIZE,24
                                                        	env = LIBVA_DRIVER_NAME,nvidia
@@ -19,8 +20,8 @@
     '';
 
     # 				env = WLR_DRM_DEVICES,/dev/dri/card0
-    # monitor=HDMI-A-1,1920x1080@74.97300,-1920x0,1 
-    # monitor=DVI-D-1,1920x1080@60.00000,0x0,1 
+    # monitor=HDMI-A-1,1920x1080@74.97300,-1920x0,1
+    # monitor=DVI-D-1,1920x1080@60.00000,0x0,1
     # exec-once = [workspace 2]vivaldi --disable-gpu
     # exec-once = [workspace 1]wezterm
     settings = {
@@ -42,6 +43,7 @@
         "$mainMod, RETURN, exec, $terminal"
         "$mainMod, W, exec, wezterm"
         "$mainMod, Z, exec, vivaldi --disable-gpu"
+        "$mainMod, Q, exec, qutebrowser"
         "$mainMod, E, exec, emacs"
         "$mainMod, L, exec, slack"
         "$mainMod, S, exec, wlogout"
@@ -64,6 +66,9 @@
         "$mainMod, 8, workspace, 8"
         "$mainMod, 9, workspace, 9"
       ];
+      debug = {
+        disable_logs = false;
+      };
     };
   };
 }
