@@ -2,12 +2,12 @@
   description = "A simple NixOS flakes";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-24.05-darwin";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     home-manager = {
-      url = "github:nix-community/home-manager/release-24.05";
+      url = "github:nix-community/home-manager/release-24.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-darwin = {
@@ -30,6 +30,8 @@
       url = "github:nix-community/emacs-overlay";
     };
     org-babel.url = "github:emacs-twist/org-babel";
+    sops-nix.url = "github:Mic92/sops-nix";
+    impermanence.url = "github:nix-community/impermanence";
   };
   outputs =
     {
@@ -45,6 +47,7 @@
       wezterm,
       emacs-overlay,
       org-babel,
+      sops-nix,
       ...
     }:
     let
@@ -60,6 +63,7 @@
           modules = [
             ./configuration.nix
             home-manager.nixosModules.home-manager
+            sops-nix.nixosModules.sops
           ];
           specialArgs = {
             unstable = import unstable {
