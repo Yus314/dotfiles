@@ -8,6 +8,7 @@
   unstable,
   emacs-overlay,
   org-babel,
+  xremap,
   ...
 }:
 
@@ -17,13 +18,78 @@
     ./hardware-configuration.nix
     ./font.nix
     ./nvidia.nix
+    #    ./home-manager/common/dropbox.nix
   ];
+  sops = {
+    defaultSopsFile = ./secrets/default.yaml;
+    age = {
+      keyFile = "/home/kaki/.config/sops/age/keys.txt";
+      generateKey = true;
+    };
+    secrets = {
+      gh-token = { };
+      "dropbox/token/access_token" = { };
+      "dropbox/token/token_type" = { };
+      "dropbox/token/refresh_token" = { };
+      "dropbox/token/expiry" = { };
+    };
+    templates = {
+      "gh-token".content = ''
+        access-tokens = github.com=${config.sops.placeholder."gh-token"}
+      '';
+      "dropbox.conf" = {
+        owner = "kaki";
+        group = "users";
+        mode = "0440";
+        content = ''
+          [dropbox]
+          type = dropbox
+          token = {"access_token":"${config.sops.placeholder."dropbox/token/access_token"}","token_type":"${
+            config.sops.placeholder."dropbox/token/token_type"
+          }","refresh_token":"${config.sops.placeholder."dropbox/token/refresh_token"}","expiry":"${
+            config.sops.placeholder."dropbox/token/expiry"
+          }"}
+        '';
+      };
+    };
 
+  };
+  nix = {
+    extraOptions = ''
+      !include ${config.sops.templates."gh-token".path}
+    '';
+  };
+
+  systemd.user.services.dropbox = {
+    description = "Dropbox service";
+    after = [ "network-online.target" ];
+    serviceConfig = {
+      Type = "notify";
+      ExecStartPre = "/run/current-system/sw/bin/mkdir -p %h/dropbox";
+      ExecStart = "${pkgs.rclone}/bin/rclone --config=${
+        config.sops.templates."dropbox.conf".path
+      } --vfs-cache-mode writes --ignore-checksum mount \"dropbox:\" \"dropbox\" --allow-other";
+      ExecStop = "/run/wrappers/bin/fusermount -u %h/dropbox/%i";
+      Environment = [ "PATH=/run/wrappers/bin/:$PATH" ];
+    };
+    wantedBy = [ "default.target" ];
+
+  };
+
+  services.offlineimap = {
+    enable = true;
+    path = [ pkgs.mu ];
+  };
   services.onedrive.enable = true;
-
+  boot.kernelModules = [ "uinput" ];
+  services.udev.extraRules = ''
+    KERNEL=="uinput", GROUP="input", TAG+="uaccess"
+  '';
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  # /boot がいっぱいになったので保存する履歴を制限
+  boot.loader.systemd-boot.configurationLimit = 32;
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -60,9 +126,11 @@
       ];
     };
   };
+  #for dropbox
+  programs.fuse.userAllowOther = true;
 
-  programs.zsh.enable = true;
-  users.users.kaki.shell = pkgs.zsh;
+  programs.fish.enable = true;
+  users.users.kaki.shell = pkgs.fish;
   services.resolved = {
     enable = true;
   };
@@ -70,7 +138,6 @@
   home-manager = {
     users.kaki = {
       imports = [
-        #./home-manager/NixOS/gui/i3.nix
         ./home-manager/NixOS/gui/packages.nix
         #./home-manager/NixOS/cli
         ./home-manager/common
@@ -78,13 +145,15 @@
       home = {
         username = "kaki";
         homeDirectory = "/home/kaki";
-        stateVersion = "24.05";
+        stateVersion = "24.11";
       };
       nixpkgs.config.allowUnfree = true;
+      nixpkgs.config.permittedInsecurePacakges = [ "adobe-reader-9.5.5" ];
       nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
     };
     extraSpecialArgs = {
       inherit unstable;
+      inherit xremap;
       inherit org-babel;
     };
   };
@@ -93,6 +162,7 @@
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
+    withUWSM = true;
   };
   # for use waybar
   services.pipewire = {
@@ -109,7 +179,7 @@
     settings = {
       default_session = {
         #command = "${pkgs.sway}/bin/sway";
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd hyprland";
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
         user = "kaki";
       };
     };
@@ -125,8 +195,8 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "input"
     ];
-    packages = with pkgs; [ ];
   };
 
   # Allow unfree packages
@@ -138,8 +208,14 @@
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     git
     firefox
-    vivaldi
+    mu
+    sops
+    age
   ];
-
-  system.stateVersion = "24.05"; # Did you read the comment?
+  programs.gnupg.agent = {
+    enable = true;
+    pinentryPackage = pkgs.pinentry-emacs;
+  };
+  services.pcscd.enable = true;
+  system.stateVersion = "24.11"; # Did you read the comment?
 }
