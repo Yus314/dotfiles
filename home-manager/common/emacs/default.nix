@@ -14,7 +14,7 @@ in
       config = ./elisp/init.org;
       defaultInitFile = true;
       # package = pkgs.emacs-pgtk;
-      package = unstable.legacyPackages.x86_64-linux.emacs30-pgtk;
+      package = unstable.emacs30-pgtk;
       alwaysTangle = true;
       override = final: prev: { withXwidgets = true; };
       extraEmacsPackages =
@@ -28,8 +28,10 @@ in
               tree-sitter-python
             ]
           ))
+          mu4e
           (pkgs.texlive.combined.scheme-full)
           (pkgs.zathura)
+          vterm
         ];
     };
   };
@@ -46,7 +48,11 @@ in
       rust-analyzer
       pyright
       ruff
-      (unstable.legacyPackages.x86_64-linux.adwaita-icon-theme)
+      # mu4eのためのパッケッージ
+      mu
+      xapian
+      gmime
+      (unstable.adwaita-icon-theme)
     ];
   };
 
