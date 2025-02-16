@@ -9,10 +9,10 @@
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = [ pkgs.vim ];
+  ids.gids.nixbld = 30000;
 
   # Auto upgrade nix package and the daemon service.
   nix.package = pkgs.nix;
-  ids.gids.nixbld = 30000;
   nixpkgs.hostPlatform = "aarch64-darwin";
   security.pam.enableSudoTouchIdAuth = true;
 
@@ -28,14 +28,11 @@
   #  nerdfonts
   #];
   #home-manager.users.kakinumayuusuke = import ./home-manager/home.nix;
-  nix = {
-    settings = {
-      experimental-features = [
-        "nix-command"
-        "flakes"
-      ];
-      #    access-tokens = ;
-    };
+  nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
   };
   home-manager = {
     #useGlobalPkgs = true;
@@ -47,7 +44,7 @@
       home = {
         username = "kakinumayuusuke";
         homeDirectory = "/Users/kakinumayuusuke";
-        stateVersion = "24.11";
+        stateVersion = "25.05";
       };
       nixpkgs.config.allowUnfree = true;
       nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
@@ -58,6 +55,7 @@
     };
   };
   users = {
+
     users = {
       kakinumayuusuke = {
         shell = pkgs.zsh;

@@ -14,7 +14,7 @@ in
       config = ./elisp/init.org;
       defaultInitFile = true;
       # package = pkgs.emacs-pgtk;
-      package = unstable.emacs30-pgtk;
+      package = unstable.emacs30;
       alwaysTangle = true;
       override = final: prev: { withXwidgets = false; };
       extraEmacsPackages =
