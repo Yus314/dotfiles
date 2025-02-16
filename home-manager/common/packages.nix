@@ -27,5 +27,8 @@
     gdrive3
     drive
     rclone
+    kakoune
+    #(unstable.qutebrowser)
+    zotero
   ];
 }

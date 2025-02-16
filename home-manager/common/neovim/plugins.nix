@@ -17,7 +17,7 @@ let
 in
 with pkgs.vimPlugins;
 plugins [
-  (unstable.legacyPackages.x86_64-linux.vimPlugins.barbar-nvim)
+  #(unstable.vimPlugins.barbar-nvim)
   cmp-buffer
   cmp-nvim-lsp
   cmp-path

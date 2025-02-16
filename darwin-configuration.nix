@@ -11,8 +11,8 @@
   environment.systemPackages = [ pkgs.vim ];
 
   # Auto upgrade nix package and the daemon service.
-  services.nix-daemon.enable = true;
   nix.package = pkgs.nix;
+  ids.gids.nixbld = 30000;
   nixpkgs.hostPlatform = "aarch64-darwin";
   security.pam.enableSudoTouchIdAuth = true;
 
@@ -47,7 +47,7 @@
       home = {
         username = "kakinumayuusuke";
         homeDirectory = "/Users/kakinumayuusuke";
-        stateVersion = "24.05";
+        stateVersion = "24.11";
       };
       nixpkgs.config.allowUnfree = true;
       nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];

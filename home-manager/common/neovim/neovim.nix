@@ -13,7 +13,7 @@ let
 in
 {
   programs.neovim = {
-    enable = true;
+    enable = false;
     package = unstable.legacyPackages.aarch64-darwin.neovim-unwrapped;
     vimAlias = true;
 

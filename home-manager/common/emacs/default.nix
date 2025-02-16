@@ -14,9 +14,9 @@ in
       config = ./elisp/init.org;
       defaultInitFile = true;
       # package = pkgs.emacs-pgtk;
-      package = unstable.legacyPackages.x86_64-linux.emacs30-pgtk;
+      package = pkgs.emacs30;
       alwaysTangle = true;
-      override = final: prev: { withXwidgets = true; };
+      override = final: prev: { withXwidgets = false; };
       extraEmacsPackages =
         epkgs: with epkgs; [
           (treesit-grammars.with-grammars (
@@ -30,6 +30,10 @@ in
           ))
           (pkgs.texlive.combined.scheme-full)
           (pkgs.zathura)
+          (pkgs.nil)
+          (pkgs.imagemagick)
+          (pkgs.ghq)
+          vterm
         ];
     };
   };
@@ -46,7 +50,8 @@ in
       rust-analyzer
       pyright
       ruff
-      (unstable.legacyPackages.x86_64-linux.adwaita-icon-theme)
+      (unstable.legacyPackages.aarch64-darwin.adwaita-icon-theme)
+      fd
     ];
   };
 
