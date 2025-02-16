@@ -13,8 +13,8 @@ let
 in
 {
   programs.neovim = {
-    enable = false;
-    package = unstable.legacyPackages.aarch64-darwin.neovim-unwrapped;
+    enable = true;
+    package = unstable.neovim-unwrapped;
     vimAlias = true;
 
     extraPackages = with pkgs; [
@@ -22,7 +22,7 @@ in
       rust-analyzer
       texlab
       ruff-lsp
-      (unstable.legacyPackages.x86_64-linux.ruff)
+      (unstable.ruff)
       python312Packages.python-lsp-ruff
       python312Packages.python-lsp-server
       rustfmt

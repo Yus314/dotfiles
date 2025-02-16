@@ -45,6 +45,31 @@
     :custom `((custom-file . ,(locate-user-emacs-file "custom.el"))))
 
 #+end_src
+* 一般設定
+#+begin_src emacs-lisp :tangle yes
+  (leaf smooth-scroll
+    :ensure t
+    :require t
+    :config
+    (smooth-scroll-mode)
+    )
+  (setq scroll-conservatively 35)
+  (setq scroll-step 1)
+  (setq scroll-margin 5)
+  (setq scroll-preserve-screen-position t)
+
+#+end_src
+** Clip board
+Waylandでペーストできるようにする設定
+#+begin_src emacs-lisp :tangle yes
+  (setq wl-copy-process nil)
+  (defun wl-paste ()
+    (if (and wl-copy-process (process-live-p wl-copy-process))
+        nil
+      (shell-command-to-string "wl-paste -n")))
+  (setq interprogram-paste-function 'wl-paste)
+
+#+end_src
 * UI
 ** theme
 *** Modus Theme
@@ -239,10 +264,6 @@ emacs lisp はデフォでやってくれているっぽい。
     :custom
     (meow-use-clipboard . t)
     (meow-expand-hint-counts . nil)
-    :hook
-    ((meow-insert-exit-hook . (lambda nil
-                                (if skk-mode (skk-latin-mode-on))))
-     )
     :config
     (defun meow-setup ()
       (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
@@ -313,7 +334,7 @@ emacs lisp はデフォでやってくれているっぽい。
        '("m" . meow-mark-word)
        '("M" . meow-mark-symbol)
        '("s" . meow-next)
-       '("H" . meow-next-expand)
+       '("S" . meow-next-expand)
        '("o" . meow-block)
        '("O" . meow-to-block)
        '("t" . meow-prev)
@@ -321,7 +342,7 @@ emacs lisp はデフォでやってくれているっぽい。
        '("q" . meow-quit)
        '("r" . meow-replace)
        '("R" . meow-swap-grab)
-       '("h" . dmacro-exec);h" . meow-search)
+       '("h" . meow-search)
        '("n" . meow-right)
        '("N" . meow-right-expand)
        '("u" . vundo)
@@ -362,136 +383,6 @@ emacs lisp はデフォでやってくれているっぽい。
    
  #+end_src
 
-** ddskk
-何はともあれSKKでの日本語入力が必要。
-キーボード配列に合うようにマップし直している.
-#+begin_src emacs-lisp :tangle yes
-  (leaf ddskk
-    :ensure t
-    :bind
-    ("C-x C-j" . skk-mode)
-    :custom
-    (skk-use-act . t)
-    (skk-isearch-skk-mode-enable . t)
-    (skk-use-search-web . t)
-    (skk-egg-like-newline . t) ; Enterで改行しない
-    (skk-show-inline . 'vertical)
-    (skk-auto-insert-paren . t) ; 括弧の自動入力
-    (skk-delete-implies-kakutei . nil) ;nil にすると▼モードで <BS> を押した時 に一つ前の候補を表示するようになる
-    (skk-henkan-strict-okuri-precedence . t); 正しい送り仮名の変換が優先的に表示されるようにする設定
-    (skk-show-annotation . t) ; 単語の意味をアノテーションとして表示する設定
-    ;; 動的補完
-    (skk-dcomp-activate . t)
-    (skk-dcomp-multiple-activate . t)
-    (skk-kutouten-type . '("．" . "，"))
-    ;; 言語
-    (skk-japanese-mesage-and-erreor . t) ; エラーを日本語に
-    (skk-show-japanese-menu . t) ; メニューを日本語に
-    (skk-read-from-minibuffer-function .
-                                       (lambda ()
-                                         (car (skk-google-suggest skk-henkan-key))))
-    (skk-rom-kana-rule-list
-     . '(("'" nil ("アン" . "あん"))
-         ("c'" nil ("カン" . "かん"))
-         ("s'" nil ("サン" . "さん"))
-         ("t'" nil ("タン" . "たん"))
-         ("n'" nil ("ナン" . "なん"))
-         ("h'" nil ("ハン" . "はん"))
-         ("m'" nil ("マン" . "まん"))
-         ("yz" nil ("ヤン" . "やん"))
-         ("r'" nil ("ラン" . "らん"))
-         ("w'" nil ("ワン" . "わん"))
-
-         ("g'" nil ("ガン" . "がん"))
-         ("z'" nil ("ザン" . "ざん"))
-         ("d'" nil ("ダン" . "だん"))
-         ("b'" nil ("バン" . "ばん"))
-         ("pz" nil ("パン" . "ぱん"))
-
-         (";" nil ("ッ" . "っ"))
-         ("c;" nil ("カイ" . "かい"))
-         ("s;" nil ("サイ" . "さい"))
-         ("t;" nil ("タイ" . "たい"))
-         ("n;" nil ("ナイ" . "ない"))
-         ("h;" nil ("ハイ" . "はい"))
-         ("m;" nil ("マイ" . "まい"))
-         ("yl" nil ("ヤイ" . "やい"))
-         ("r;" nil ("ライ" . "らい"))
-         ("w;" nil ("ワイ" . "わい"))
-
-         ("g;" nil ("ガイ" . "がい"))
-         ("z;" nil ("ザイ" . "ざい"))
-         ("d;" nil ("ダイ" . "だい"))
-         ("b;" nil ("バイ" . "ばい"))
-         ("pl" nil ("パイ" . "ぱい"))
-
-         ("ys" nil ("ヤ" . "や"))
-         ("yd" nil ("イ" . "い"))
-         ("yh" nil ("ユ" . "ゆ"))
-         ("yt" nil ("イェ" . "いぇ"))
-         ("yn" nil ("ヨ" . "よ"))
-         ("yl" nil ("ヤイ" . "やい"))
-         ("yr" nil ("ヨウ" . "よう"))
-         ("yc" nil ("イウ" . "いう"))
-         ("yg" nil ("ユウ" . "ゆう"))
-         ("yf" nil ("ユイ" . "ゆい"))
-         ("yz" nil ("ヤン" . "やん"))
-         ("yb" nil ("イン" . "いん"))
-         ("ym" nil ("ユン" . "ゆん"))
-         ("yw" nil ("エン" . "えん"))
-         ("yv" nil ("ヨン" . "よん"))
-
-
-         ("pna" nil ("" . "")) ;
-         ("pni" nil ("" . "")) ;
-         ("pnu" nil ("" . "")) ;
-         ("pne" nil ("" . "")) ;
-         ("pno" nil ("" . "")) ;
-         ("pns" nil ("" . "")) ;
-
-         ("pn;" nil ("" . "")) ;
-         ("pn," nil ("" . "")) ;
-         ("pn." nil ("" . "")) ;
-         ("pnp" nil ("" . "")) ;
-         ("pny" nil ("" . "")) ;
-
-         ("pn'" nil ("" . "")) ;
-         ("pnq" nil ("" . "")) ;
-         ("pnj" nil ("" . "")) ;
-         ("pnk" nil ("" . "")) ;
-         ("pn<" nil ("" . "")) ;
-         ("pn>" nil ("" . "" ));
-
-         ("pn" nil ("ポ" . "ぽ")) ; pn~ にマップされていて、有効化されない。
-         ("pl" nil ("パイ" . "ぱい"))
-         ("pr" nil ("ポウ" . "ぽう"))
-         ("pc" nil ("ペイ" . "ぺい"))
-         ("pg" nil ("プウ" . "ぷう"))
-         ("pf" nil ("プイ" . "ぷい"))
-         ("pz" nil ("パン" . "ぱん"))
-         ("pb" nil ("ピン" . "ぴん"))
-         ("pm" nil ("プン" . "ぷん"))
-         ("pw" nil ("ペン" . "ぺん"))
-         ("pv" nil ("ポン" . "ぽん"))
-         )
-     )
-
-    )
-
-  (leaf ddskk-posframe
-
-    :ensure t
-    :after posframe ddskk
-    :custom
-    (ddskk-posframe-mode . t)
-    )
-  ;; ファイルを開くと同時にSKKを有効化する
-  (defun my/always-enable-skk-latin-mode-hook ()
-    (skk-latin-mode 1))
-
-  (add-hook 'find-file-hooks 'my/always-enable-skk-latin-mode-hook)
-  (define-key minibuffer-local-map (kbd "C-t") 'skk-kakutei)
-#+end_src
 ** which key
 #+begin_src emacs-lisp :tangle yes
 (leaf which-key
@@ -552,13 +443,25 @@ emacs lisp はデフォでやってくれているっぽい。
       (leaf consult
             :ensure t
          )
-         #+end_src
-*** affe
+        #+end_src
+** affe
 #+begin_src emacs-lisp :tangle yes
   (leaf affe
     :ensure t
+    :after consult
+    :preface
+    (defun affe-find-home ()
+      "Affeをホームルートから実行する"
+      (interactive)
+      (affe-find "~")
+      )
     :bind
     ("M-g f" . affe-find)
+    ("M-g h" . affe-find-home)
+    :custom
+    (affe-highlight-function . 'orderless-highlight-matches)
+    (affe-find-command . "fd --color=never --full-path")
+
     )
 #+end_src
 * 入力補完
@@ -632,8 +535,11 @@ emacs lisp はデフォでやってくれているっぽい。
          ("movie" . ?m)
          ("Kana" . ?k)
          ))
+    (org-directory . "~/dropbox")
+    (org-return-follows-link . t)
+    :config
     )
-  (regexp-opt '("Tasks" "Notes"))
+    (regexp-opt '("Tasks" "Notes"))
 #+end_src
 ** org-clock
 #+begin_src emacs-lisp :tangle yes
@@ -643,6 +549,26 @@ emacs lisp はデフォでやってくれているっぽい。
                     :scope agenda-with-archives
                     :block today
                     :level 4))
+#+end_src
+** org-agenda
+#+begin_src emacs-lisp :tangle yes
+  (leaf org-agenda
+    :bind
+    (
+     (org-agenda-mode-map
+      ("t" . org-agenda-previous-line)
+      ("s" . org-agenda-next-line)
+      ("e" . org-agenda-todo)
+      ;以下の関数は割り当てていない
+      ;org-agenda-set-effort
+      ;org-save-all-org-buffers
+      )
+     )
+    :custom
+    (org-agenda-start-on-weekday . nil); agendaの日々の始まりを今日に
+    (org-agenda-start-day . "today")
+    (org-agenda-skip-scheduled-if-done . '("DONE" "CANCEL"));スケジュールでDONEとCANCELを無視するようにする
+    )
 #+end_src
 ** org-super-agenda
 #+begin_src emacs-lisp :tangle yes
@@ -655,6 +581,38 @@ emacs lisp はデフォでやってくれているっぽい。
     (org-agenda-todo-ignore-scheduled . t)
     (org-agenda-custom-commands
      . '(
+         (
+          "w" "review"
+          (
+           (agenda "週の振り返り"
+                   (
+                    (org-agenda-span 'week)
+                    (org-agenda-overriding-header "来週の予定")
+                     )
+                   )
+           (todo "TODO"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(
+                     (:name "やること" :todo "TODO")
+                   (:discard (:anything t))
+                 ))
+           ))
+           )
+          )
+         (
+          "d" "TODO"
+          (
+           (todo "TODO"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(
+                     (:name "やること" :todo "TODO")
+                   (:discard (:anything t))
+                 ))
+           ))
+           )
+          )
 
          ("h" "Home"
           (
@@ -721,7 +679,29 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf org-capture
     :bind
     ("C-c c" . org-capture)
-    :custom
+    :config
+      (let* ((current-time (current-time))
+             ;; 現在の日付から土曜日までの日数を計算
+             (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
+             ;; 今週の土曜日を計算
+             (start-of-week (time-add
+                             (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
+             ;; 翌週の金曜日を計算
+             (end-of-week (time-add start-of-week (days-to-time 6)))
+             ;; フォーマットされた日付
+             (start-day (format-time-string "%m%d" start-of-week))
+             (end-day (format-time-string "%m%d" end-of-week))
+             ;; 年を取得
+             (year (format-time-string "%Y" start-of-week))
+             ;; アーカイブディレクトリとファイル名
+             (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
+             (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
+
+        (setq weekly-dir   archive-file)
+        (setq org-archive-location (format "%s::** やったこと" archive-file))
+  )
+      :custom
+
     (taskfile . "~/dropbox/inbox/inbox.org")
     (org-capture-templates
      . '(
@@ -729,19 +709,133 @@ emacs lisp はデフォでやってくれているっぽい。
           "* DIVIDING %^{title}\n %?")
          ("1" "Level 1" entry (file taskfile )
           "* LEVEL1 %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
-         )
-     )
-    )
+         ("w" "Weekly Report" entry (file weekly-dir)
+           "* 今週のこと
+  ,** やったこと
+  ,** 時間計測
+  ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
+  ,#+END:
+  ,** 考えたこと
+  %?
+  ,* 来週のこと
+  ,** 予定
+  %(my/org-agenda-to-string \"a\")
+  ,** TODOリスト
+  %(my/org-agenda-to-string \"d\")
+  ,** 考えていること
+  ")))
+  )(leaf org-capture
+    :bind
+    ("C-c c" . org-capture)
+    :config
+    (let* ((current-time (current-time))
+           ;; 現在の日付から土曜日までの日数を計算
+           (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
+           ;; 今週の土曜日を計算
+           (start-of-week (time-add
+                           (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
+           ;; 翌週の金曜日を計算
+           (end-of-week (time-add start-of-week (days-to-time 6)))
+           ;; フォーマットされた日付
+           (start-day (format-time-string "%m%d" start-of-week))
+           (end-day (format-time-string "%m%d" end-of-week))
+           ;; 年を取得
+           (year (format-time-string "%Y" start-of-week))
+           ;; アーカイブディレクトリとファイル名
+           (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
+           (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
 
+      ;; 必要ならアーカイブディレクトリを作成
+      (unless (file-exists-p archive-dir)
+        (make-directory archive-dir t))
+
+      ;; org-archive-location を設定
+      (setq org-archive-location
+            (format "%s::** やったこと" archive-file))
+
+      ;; 他の設定用変数を定義
+      (setq weekly-dir archive-file))
+
+    :custom
+    (taskfile . "~/dropbox/inbox/inbox.org")
+    (org-capture-templates
+     . '(
+         ("t" "ToDo" entry (file taskfile)
+          "* DIVIDING %^{title}\n %?")
+         ("1" "Level 1" entry (file taskfile)
+          "* LEVEL1 %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
+         ("w" "Weekly Report" entry (file+headline weekly-dir "今週のこと")
+          "* 今週のこと
+  ,** やったこと
+  ,** 時間計測
+  ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
+  ,#+END:
+  ,** 考えたこと
+  %?
+  ,* 来週のこと
+  ,** 予定
+  %(my/org-agenda-to-string \"a\")
+  ,** TODOリスト
+  %(my/org-agenda-to-string \"d\")
+  ,** 考えていること
+  "))))
+
+    (defun my/org-agenda-to-string (agenda-type)
+      "Generate agenda string for the current week using a temporary file."
+      (let ((temp-agenda-file (make-temp-file "org-agenda-"))
+            (org-agenda-buffer nil)) ; 読み取り専用バッファを使わないようにする
+        (save-window-excursion
+          (org-agenda nil agenda-type) ; Agenda ビューを生成
+          (org-agenda-write temp-agenda-file)) ; 一時ファイルに書き出し
+        (with-temp-buffer
+          (insert-file-contents temp-agenda-file) ; 一時ファイルの内容を読み込む
+          (goto-char (point-min))
+          ;; 不要な部分を整形 (例: ヘッダー削除)
+          (kill-whole-line)
+          (buffer-string)))) ; 最終的な文字列として返す
 #+end_src
 ** org-journal
 #+begin_src emacs-lisp :tangle yes
   (leaf org-journal
     :ensure t
     :custom
-    (org-journal-dir . "~/dropbox/journal")
     (org-journal-date-format . "%Y-%m-%d")
-    (org-journal-file-format . "%Y%m%d.org")
+    (org-journal-file-tipe . 'weekly)
+    (org-journal-file-header .
+                             "#TITLE: Weekly Report
+  ,#+STARTUP: overview
+  ,* 今週のこと
+  ,** やったこと
+  ,** 時間測定
+  ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
+  ,#+END:
+  ,** 考えたこと
+  ,* 来週のこと
+  ,** 予定
+  ,** TODOリスト
+  ,** 考えたこと
+  ")
+    )
+
+  (let* ((current-time (current-time))
+           ;; 現在の日付から土曜日までの日数を計算
+           (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
+           ;; 今週の土曜日を計算
+           (start-of-week (time-add
+                           (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
+           ;; 翌週の金曜日を計算
+           (end-of-week (time-add start-of-week (days-to-time 6)))
+           ;; フォーマットされた日付
+           (start-day (format-time-string "%m%d" start-of-week))
+           (end-day (format-time-string "%m%d" end-of-week))
+           ;; 年を取得
+           (year (format-time-string "%Y" start-of-week))
+           ;; アーカイブディレクトリとファイル名
+           (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
+           (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
+    (setq org-journal-dir  archive-dir)
+    (setq org-journal-file-format  archive-file)
+
     )
 #+end_src
 ** org-indent
@@ -926,7 +1020,8 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf mistty
     :ensure t
     :custom
-    (explicit-shell-file-name . "/home/kaki/.nix-profile/bin/fish")
+    ;(explicit-shell-file-name . "/home/kaki/.nix-profile/bin/fish")
+    (mistty-shell-command . "/bin/bash")
     )
 #+end_src
 * helpful
@@ -1081,8 +1176,65 @@ emacs lisp はデフォでやってくれているっぽい。
     (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
     )
 #+end_src
+* Dired
+** dired-narrow
+#+begin_src emacs-lisp :tangle yes
+  (leaf dired-narrow
+    :ensure t
+    :after dired-hacks-utils
+    :bind
+    (dired-mode-map
+     ("," . dired-narrow-fuzzy)
+     )
+    )
+#+end_src
+* mu4e
+#+begin_src emacs-lisp :tangle yes
+  (add-to-list 'load-path "/nix/store/1jg084yny96rx858vsmayjpc3flrjqni-emacs-mu4e-1.12.5/share/emacs/site-lisp/elpa/mu4e-1.12.5")
+  (require 'mu4e)
+  (setq mail-user-agent 'mu4e-user-agent)
+#+end_src
 * vterm
 #+begin_src emacs-lisp :tangle yes
   (leaf vterm
-    :ensure t)
+    :ensure t
+    :custom
+    (vterm-keymap-exceptions
+     . '("C-c" "C-y" "M-v" "M-x"))
+    :bind
+    ("M-v" . vterm-toggle)
+    (vterm-mode-map
+     ("C-c C-c" . 'vterm--self-insert)
+     )
+    )
+#+end_src
+** vterm-toggle
+#+begin_src emacs-lisp :tangle yes
+  (leaf vterm-toggle
+    :ensure t
+    :custom
+    (vterm-toggle-scope . 'project)
+    )
+#+end_src
+* Slack
+#+begin_src emacs-lisp :tangle yes
+  ;(leaf slack
+  ;  :ensure t
+  ; :config
+  ; (slack-register-team
+  ;   :name "mdip"
+  ;  :token "xoxc-14011030212-3874022267665-7457834306050-c11c89ae65f84a20d838527b17e004f9164a04139ba7f3f765040503139c761a"
+  ;   :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
+  ;   :default t
+  ;   )
+  ;  )
+#+end_src
+** slack-org
+org-store-linkでリンクをコピーすることができる。
+TODOに貼っておくことで、作業の際に確認することができるようになる。
+#+begin_src emacs-lisp :tangle yes
+  (leaf ol-emacs-slack
+    :el-get ag91/ol-emacs-slack
+    :require t
+    )
 #+end_src
