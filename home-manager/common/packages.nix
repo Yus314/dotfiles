@@ -1,4 +1,9 @@
-{ pkgs, unstable, ... }:
+{
+  pkgs,
+  unstable,
+  xremap,
+  ...
+}:
 {
   home.packages = with pkgs; [
     #cowsay
@@ -15,18 +20,26 @@
     carapace
     #dropbox
     #zoom
-    #sway
-    #waybar
-    #wl-clipboard
+    #swayn
+    waybar
+    wl-clipboard
     #swaylock
     #swayidle
-    #wlogout
+    wlogout
     #slack
     #zoom
     kitty
     gdrive3
     drive
+    dropbox
     rclone
+    (unstable.zotero-beta)
+    # adobe-reader
+    foot
+    pinta
+    nvitop
+    (xremap)
+    qutebrowser
     kakoune
     #(unstable.qutebrowser)
     zotero

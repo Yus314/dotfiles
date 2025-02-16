@@ -11,13 +11,14 @@ let
         "_"
       ]
       (pkgs.lib.toLower p.pname)
-    }" = p;
+    }" =
+      p;
   };
   plugins = p: builtins.foldl' (x: y: x // y) { } (map normalizedPluginAttr p);
 in
 with pkgs.vimPlugins;
 plugins [
-  #(unstable.vimPlugins.barbar-nvim)
+  (unstable.vimPlugins.barbar-nvim)
   cmp-buffer
   cmp-nvim-lsp
   cmp-path

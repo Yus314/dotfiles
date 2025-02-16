@@ -14,7 +14,8 @@
     LC_TIME = "ja_JP.UTF-8";
   };
   i18n.inputMethod = {
-    enabled = "fcitx5";
+    type = "fcitx5";
+    enable = true;
     fcitx5.addons = [
       pkgs.fcitx5-skk
       pkgs.fcitx5-mozc

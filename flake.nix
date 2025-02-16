@@ -30,6 +30,8 @@
       url = "github:nix-community/emacs-overlay";
     };
     org-babel.url = "github:emacs-twist/org-babel";
+    sops-nix.url = "github:Mic92/sops-nix";
+    impermanence.url = "github:nix-community/impermanence";
   };
   outputs =
     {
@@ -45,11 +47,13 @@
       wezterm,
       emacs-overlay,
       org-babel,
+      sops-nix,
       ...
     }:
     let
       tmp_pkgs = import nixpkgs { system = "x86_64-linux"; };
       bizin-gothic-discord = tmp_pkgs.callPackage ./bizin.nix { };
+      xremap = tmp_pkgs.callPackage ./xremap.nix { };
     in
     {
       packages.x86_64-linux.default = tmp_pkgs.callPackage ./bizin.nix { };
@@ -59,11 +63,16 @@
           modules = [
             ./configuration.nix
             home-manager.nixosModules.home-manager
+            sops-nix.nixosModules.sops
           ];
           specialArgs = {
-            inherit unstable;
+            unstable = import unstable {
+              system = "x86_64-linux";
+              config.allowUnfree = true;
+            };
             inherit emacs-overlay;
             inherit org-babel;
+            inherit xremap;
           };
         };
         lab-main = nixpkgs.lib.nixosSystem {
