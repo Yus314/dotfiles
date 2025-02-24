@@ -10,5 +10,6 @@
       };
       pull.rebase = false;
     };
+    signing.format = "ssh";
   };
 }

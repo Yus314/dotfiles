@@ -274,7 +274,7 @@ emacs lisp はデフォでやってくれているっぽい。
     )
  #+end_src
 * 入力支援
-** meow
+** mewo
 #+begin_src emacs-lisp :tangle yes
   (leaf meow
     :ensure t
@@ -385,7 +385,7 @@ emacs lisp はデフォでやってくれているっぽい。
        '("y" . meow-yank)
        '("z" . meow-pop-selection)
        '("'" . repeat)
-       '("g" . avy-goto-char-timer)
+       ;'("g" . avy-goto-char-timer)
        )
       )
     (meow-setup)
@@ -414,6 +414,25 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf vundo
     :ensure t)
 #+end_src
+** dmacro
+#+begin_src emacs-lisp :tangle yes
+  (leaf dmacro
+    :ensure t
+    :global-minor-mode global-dmacro-mode)
+  (defun my-indent-rigidly-right-to-tab-stop (beg end)
+    "Indent all lines between BEG and END rightward to a tab stop and keep the region active."
+    (interactive "r")
+    (let ((deactivate-mark nil))  ; 選択範囲を解除しない
+      (indent-rigidly-right-to-tab-stop beg end)))
+
+  (global-set-key (kbd "C->") 'my-indent-rigidly-right-to-tab-stop)
+  (defun select-to-end-of-buffer ()
+    "Select from the current point to the end of the buffer."
+    (interactive)
+    (set-mark (point)) ;; 現在のポイントをマークに設定
+    (goto-char (point-max))) ;; バッファ末尾に移動
+  (global-set-key (kbd "M->") 'select-to-end-of-buffer)
+#+end_src
 * ミニバッファ補完
 ** vercico
 #+begin_src emacs-lisp :tangle yes
@@ -441,8 +460,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
       (leaf consult
             :ensure t
-            :bind
-            ("M-g f" . consult-fd)
          )
         #+end_src
 ** affe
@@ -623,7 +640,7 @@ emacs lisp はデフォでやってくれているっぽい。
            (todo "TODO"
                  ((org-agenda-prefix-format " ")
                   (org-super-agenda-groups
-                   '(
+                   '(．
                      (:name "TODO" :tag ("PC" "smartphone" "desk" "HOME" "home" "anywhere"))
                      (:discard (:anything t))
                      ))
@@ -631,6 +648,25 @@ emacs lisp はデフォでやってくれているっぽい。
            )
 
           )
+                ("w" "review"
+          (
+           (agenda "週の振り返り"
+                   ((org-agenda-span 'week)
+                    (org-agenda-overriding-header "来週の予定")
+                    )
+                   )
+           (todo "TODO"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(．
+                     (:name "TODO" :todo "TODO")
+                     (:discard (:anything t))
+                     ))
+                  ))
+           )
+
+          )
+
          ("l" "lab"
           (
            (agenda "今日のこと"
@@ -799,9 +835,25 @@ emacs lisp はデフォでやってくれているっぽい。
     (org-roam-db-autosync-mode)
     )
 #+end_src
+** org-roam-ui
+#+begin_src emacs-lisp :tangle yes
+  (leaf org-roam-ui
+    :ensure t
+    :custom
+    (org-roam-ui-sync-theme . t)
+    (org-roam-ui-follow  . t)
+    (org-roam-ui-update-on-save . t)
+    (org-roam-ui-open-on-start . t)
+  )
+#+end_src
 ** org-roam-review
 #+begin_src emacs-lisp :tangle yes
   (leaf org-roam-review
+      :init
+    (let ((repo-path (expand-file-name "~/.emacs.d/nursery")))
+      (unless (file-exists-p repo-path)
+        (shell-command (format "git clone https://github.com/chrisbarrett/nursery.git %s" repo-path)))
+      (add-to-list 'load-path (concat repo-path "/lisp")))
     :commands (org-roam-review
                org-roam-review-list-by-maturity
                org-roam-review-list-recently-added)
@@ -822,6 +874,14 @@ emacs lisp はデフォでやってくれているっぽい。
     (dolist (pkg dependencies)
       (unless (package-installed-p pkg)
         (package-install pkg))))
+#+end_src
+** citer
+#+begin_src emacs-lisp :tangle yes
+  (leaf citar
+    :ensure t
+    :custom
+    (citar-bibliography . '("~/Documents/Zotero-test.bib"))
+    )
 #+end_src
 * Git
 ** diff-hl
@@ -872,7 +932,7 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf pdf-tools
 
-    ensure t
+    :ensure t
     :init
    (pdf-tools-install)
     )
