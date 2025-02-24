@@ -40,6 +40,7 @@
     nvitop
     (xremap)
     qutebrowser
+    nyxt
     kakoune
   ];
 }
