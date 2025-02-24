@@ -29,6 +29,7 @@
       noto-fonts-cjk-sans
       noto-fonts-emoji
       nerdfonts
+      arkpandora_ttf
     ];
     fontDir.enable = true;
     fontconfig = {

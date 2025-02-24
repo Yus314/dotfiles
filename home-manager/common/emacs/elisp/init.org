@@ -63,10 +63,19 @@
 Waylandでペーストできるようにする設定
 #+begin_src emacs-lisp :tangle yes
   (setq wl-copy-process nil)
+    (defun wl-copy (text)
+      (setq wl-copy-process (make-process :name "wl-copy"
+                                          :buffer nil
+                                          :command '("wl-copy" "-f" "-n")
+                                          :connection-type 'pipe
+                                          :noquery t))
+      (process-send-string wl-copy-process text)
+      (process-send-eof wl-copy-process))
   (defun wl-paste ()
     (if (and wl-copy-process (process-live-p wl-copy-process))
         nil
       (shell-command-to-string "wl-paste -n")))
+  (setq interprogram-cut-function 'wl-copy)
   (setq interprogram-paste-function 'wl-paste)
 
 #+end_src
@@ -101,24 +110,24 @@ Tree-sitter はモードに依存していて、設定がわかりにくい。
 tree-sitter と treesit の役割の違いも理解していない。
 emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
-    (leaf treesit
-      :custom(
-              (treesit-font-lock-level . 4)
-              (major-mode-remap-alist .
-                                      '(
-                                        (nix-mode . nix-ts-mode)
-                                            ;  (emacs-lisp-mode . emacs-lisp-ts-mode)
-                                        (yaml-mode . yaml-ts-mode)
-                                        (python-mode . python-ts-mode)
-                                        )
+  (leaf treesit
+    :custom(
+            (treesit-font-lock-level . 4)
+            (major-mode-remap-alist .
+                                    '(
+                                      (nix-mode . nix-ts-mode)
+                                          ;  (emacs-lisp-mode . emacs-lisp-ts-mode)
+                                      (yaml-mode . yaml-ts-mode)
+                                      (python-mode . python-ts-mode)
                                       )
-              )				       
-     )
-    (leaf tree-sitter
-      :ensure t
-      :config
-      (global-tree-sitter-mode)
-      )
+                                    )
+            )				       
+   )
+  (leaf tree-sitter
+    :ensure t
+    :config
+    (global-tree-sitter-mode)
+    )
 
   #+end_src
 *** nix
@@ -169,6 +178,15 @@ emacs lisp はデフォでやってくれているっぽい。
     (leaf ruff-format
       :ensure t
       )
+#+end_src
+*** typst
+#+begin_src emacs-lisp :tangle yes
+  (leaf typst-ts-mode
+    :el-get kaction-emacs/typst-ts-mode
+    :custom
+    (typst-ts-mode-watch-option . "--open")
+    )
+    (add-hook 'typst-ts-mode-hook 'eglot-ensure)
 #+end_src
 ** perfect-mergin
 #+begin_src emacs-lisp :tangle yes
@@ -483,7 +501,6 @@ emacs lisp はデフォでやってくれているっぽい。
     :init
     (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
     (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
-    (add-to-list 'completion-at-point-functions #'cape-dabbrev); 現在のバッファを見て，補完
     )
 
 #+end_src
@@ -670,7 +687,7 @@ emacs lisp はデフォでやってくれているっぽい。
     (org-capture-templates
      . '(
          ("t" "ToDo" entry (file taskfile )
-          "* DIVIDING %^{title}\n %?")
+          "* TODO %^{title}\n %?")
          ("1" "Level 1" entry (file taskfile )
           "* LEVEL1 %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
          ("w" "Weekly Report" entry (file weekly-dir)
@@ -688,61 +705,7 @@ emacs lisp はデフォでやってくれているっぽい。
   %(my/org-agenda-to-string \"d\")
   ,** 考えていること
   ")))
-  )(leaf org-capture
-    :bind
-    ("C-c c" . org-capture)
-    :config
-    (let* ((current-time (current-time))
-           ;; 現在の日付から土曜日までの日数を計算
-           (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
-           ;; 今週の土曜日を計算
-           (start-of-week (time-add
-                           (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
-           ;; 翌週の金曜日を計算
-           (end-of-week (time-add start-of-week (days-to-time 6)))
-           ;; フォーマットされた日付
-           (start-day (format-time-string "%m%d" start-of-week))
-           (end-day (format-time-string "%m%d" end-of-week))
-           ;; 年を取得
-           (year (format-time-string "%Y" start-of-week))
-           ;; アーカイブディレクトリとファイル名
-           (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
-           (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
-
-      ;; 必要ならアーカイブディレクトリを作成
-      (unless (file-exists-p archive-dir)
-        (make-directory archive-dir t))
-
-      ;; org-archive-location を設定
-      (setq org-archive-location
-            (format "%s::** やったこと" archive-file))
-
-      ;; 他の設定用変数を定義
-      (setq weekly-dir archive-file))
-
-    :custom
-    (taskfile . "~/dropbox/inbox/inbox.org")
-    (org-capture-templates
-     . '(
-         ("t" "ToDo" entry (file taskfile)
-          "* DIVIDING %^{title}\n %?")
-         ("1" "Level 1" entry (file taskfile)
-          "* LEVEL1 %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
-         ("w" "Weekly Report" entry (file+headline weekly-dir "今週のこと")
-          "* 今週のこと
-  ,** やったこと
-  ,** 時間計測
-  ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
-  ,#+END:
-  ,** 考えたこと
-  %?
-  ,* 来週のこと
-  ,** 予定
-  %(my/org-agenda-to-string \"a\")
-  ,** TODOリスト
-  %(my/org-agenda-to-string \"d\")
-  ,** 考えていること
-  "))))
+    )
 
     (defun my/org-agenda-to-string (agenda-type)
       "Generate agenda string for the current week using a temporary file."
@@ -760,47 +723,7 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** org-journal
 #+begin_src emacs-lisp :tangle yes
-  (leaf org-journal
-    :ensure t
-    :custom
-    (org-journal-date-format . "%Y-%m-%d")
-    (org-journal-file-tipe . 'weekly)
-    (org-journal-file-header .
-                             "#TITLE: Weekly Report
-  ,#+STARTUP: overview
-  ,* 今週のこと
-  ,** やったこと
-  ,** 時間測定
-  ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
-  ,#+END:
-  ,** 考えたこと
-  ,* 来週のこと
-  ,** 予定
-  ,** TODOリスト
-  ,** 考えたこと
-  ")
-    )
-
-  (let* ((current-time (current-time))
-           ;; 現在の日付から土曜日までの日数を計算
-           (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
-           ;; 今週の土曜日を計算
-           (start-of-week (time-add
-                           (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
-           ;; 翌週の金曜日を計算
-           (end-of-week (time-add start-of-week (days-to-time 6)))
-           ;; フォーマットされた日付
-           (start-day (format-time-string "%m%d" start-of-week))
-           (end-day (format-time-string "%m%d" end-of-week))
-           ;; 年を取得
-           (year (format-time-string "%Y" start-of-week))
-           ;; アーカイブディレクトリとファイル名
-           (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
-           (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
-    (setq org-journal-dir  archive-dir)
-    (setq org-journal-file-format  archive-file)
-
-    )
+  ;
 #+end_src
 ** org-indent
 #+begin_src emacs-lisp :tangle yes
@@ -1058,9 +981,18 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf eglot
     :defer-config
     (add-to-list 'eglot-server-programs
-                 '(nix-ts-mode  . ("nil"))
+  ;	       '((nix-ts-mode . ("nil"))
+  					;	       (typst-ts-mode . ("tinymist")))
+  	       '(nix-ts-mode . ("nil"))
                  )
+    (add-to-list 'eglot-server-programs
+  	       '(typst-ts-mode . ("tinymist")))
     )
+  (leaf typst-preview
+     :el-get havarddj/typst-preview.el
+     :require t
+     :custom
+     (typst-preview-browser . "qutebrowser"))
   (leaf eglot-booster
     :when (executable-find "emacs-lsp-booster")
     :vc ( :url "https://github.com/jdtsmith/eglot-booster")
@@ -1177,4 +1109,12 @@ TODOに貼っておくことで、作業の際に確認することができる�
     :el-get ag91/ol-emacs-slack
     :require t
     )
+#+end_src
+* 履歴保存
+bufferが溜ったり、設定が更新されなかったり、ssh先が保存されなかったり、いまいちなことが多いので一旦無効化する。
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf desktop
+  ;  :custom
+  ;  (desktop-save-mode . 1)
+  ;  )
 #+end_src
