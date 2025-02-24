@@ -1,4 +1,7 @@
 { pkgs, ... }:
 {
-  home.packages = with pkgs; [ onedrive ];
+  home.packages = with pkgs; [
+    onedrive
+    nvitop
+  ];
 }

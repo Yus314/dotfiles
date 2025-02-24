@@ -14,9 +14,9 @@ in
       config = ./elisp/init.org;
       defaultInitFile = true;
       # package = pkgs.emacs-pgtk;
-      package = unstable.emacs30-pgtk;
+      package = unstable.emacs30;
       alwaysTangle = true;
-      override = final: prev: { withXwidgets = true; };
+      override = final: prev: { withXwidgets = false; };
       extraEmacsPackages =
         epkgs: with epkgs; [
           (treesit-grammars.with-grammars (
@@ -32,6 +32,9 @@ in
           mu4e
           (pkgs.texlive.combined.scheme-full)
           (pkgs.zathura)
+          (pkgs.nil)
+          (pkgs.imagemagick)
+          (pkgs.ghq)
           vterm
         ];
     };
