@@ -1094,12 +1094,14 @@ emacs lisp はデフォでやってくれているっぽい。
     ;)
 #+end_src
 
-** direnv
+** envrc
 #+begin_src emacs-lisp :tangle yes
-  (leaf direnv
+  (leaf envrc
     :ensure t
+    :custom
+    (envrc-remote . t)
     :config
-    (direnv-mode)
+    (envrc-global-mode)
     )
 #+end_src
 ** tramp
