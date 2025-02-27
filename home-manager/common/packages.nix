@@ -30,6 +30,7 @@
     # adobe-reader
     #(xremap)
     qutebrowser
+    nyxt
     kakoune
     #(unstable.qutebrowser)
     zotero

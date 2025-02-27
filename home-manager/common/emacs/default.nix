@@ -26,6 +26,7 @@ in
               tree-sitter-yaml
               tree-sitter-rust
               tree-sitter-python
+              tree-sitter-typst
             ]
           ))
           mu4e
@@ -56,6 +57,7 @@ in
       xapian
       gmime
       (unstable.adwaita-icon-theme)
+      (unstable.tinymist) # typstのlsp
     ];
   };
 
