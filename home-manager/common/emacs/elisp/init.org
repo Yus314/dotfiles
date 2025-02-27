@@ -725,7 +725,7 @@ emacs lisp はデフォでやってくれているっぽい。
      . '(
          ("t" "ToDo" entry (file taskfile )
           "* TODO %^{title}\n %?")
-         ("1" "Level 1" entry (file taskfile )
+         ("1" "Level 1" entry (file+headline taskfile "プロジェクト" )
           "* LEVEL1 %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
          ("w" "Weekly Report" entry (file weekly-dir)
            "* 今週のこと
@@ -757,6 +757,17 @@ emacs lisp はデフォでやってくれているっぽい。
           ;; 不要な部分を整形 (例: ヘッダー削除)
           (kill-whole-line)
           (buffer-string)))) ; 最終的な文字列として返す
+#+end_src
+** org-refile
+#+begin_src emacs-lisp :tangle yes
+  (defun my-org-refile-verify-target ()
+    "プロジェクト見出しの下にある全ての見出しを検証します。"
+    (let ((path (org-get-outline-path)))
+      (or (string= (car path) "プロジェクト")
+          (member "プロジェクト" path))))
+
+  (setq org-refile-target-verify-function 'my-org-refile-verify-target)
+  (setq org-refile-targets '((nil . (:maxlevel . 9))))
 #+end_src
 ** org-journal
 #+begin_src emacs-lisp :tangle yes
@@ -1049,11 +1060,11 @@ emacs lisp はデフォでやってくれているっぽい。
     (add-to-list 'eglot-server-programs
   	       '(typst-ts-mode . ("tinymist")))
     )
-  (leaf typst-preview
-     :el-get havarddj/typst-preview.el
-     :require t
-     :custom
-     (typst-preview-browser . "qutebrowser"))
+ ; (leaf typst-preview
+  ;   :el-get havarddj/typst-preview.el
+   ;  :require t
+    ; :custom
+     ;(typst-preview-browser . "qutebrowser"))
   (leaf eglot-booster
     :when (executable-find "emacs-lsp-booster")
     :vc ( :url "https://github.com/jdtsmith/eglot-booster")
