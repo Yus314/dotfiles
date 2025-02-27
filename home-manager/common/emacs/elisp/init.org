@@ -62,13 +62,14 @@
 ** Clip board
 Waylandでペーストできるようにする設定
 #+begin_src emacs-lisp :tangle yes
+  (when (equal system-type 'gnu/linux)
   (setq wl-copy-process nil)
   (defun wl-paste ()
     (if (and wl-copy-process (process-live-p wl-copy-process))
         nil
       (shell-command-to-string "wl-paste -n")))
   (setq interprogram-paste-function 'wl-paste)
-
+  )
 #+end_src
 * UI
 ** theme
