@@ -34,9 +34,15 @@
       "dropbox/token/expiry" = { };
     };
     templates = {
-      "gh-token".content = ''
-        access-tokens = github.com=${config.sops.placeholder."gh-token"}
-      '';
+
+      "gh-token" = {
+        owner = "kaki";
+        group = "users";
+        mode = "0440";
+        content = ''
+          	  access-tokens = github.com=${config.sops.placeholder."gh-token"}
+          	'';
+      };
       "dropbox.conf" = {
         owner = "kaki";
         group = "users";
