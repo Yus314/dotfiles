@@ -1,3 +1,4 @@
+
 #+TITLE: Configurations for GNU Emacs
 #+AUTHOR: minera
 * Header
@@ -162,7 +163,7 @@ emacs lisp はデフォでやってくれているっぽい。
      :ensure t
      :custom
      (rust-mode-treesitter-derive . t))
-  (add-hook 'rust-mode 'elgot-ensure)
+  (add-hook 'rust-mode-hook 'eglot-ensure)
   (defun my/find-rust-project-root (dir)                                                                           
      (when-let ((root (locate-dominating-file dir "Cargo.toml")))                                                         
        (list 'vc 'Git root)))
@@ -567,6 +568,8 @@ emacs lisp はデフォでやってくれているっぽい。
                     :scope agenda-with-archives
                     :block today
                     :level 4))
+  (keymap-global-set "C-c C-x C-j" 'org-clock-goto)
+  (keymap-global-set "C-c C-x C-o" 'org-clock-out)
 #+end_src
 ** org-agenda
 #+begin_src emacs-lisp :tangle yes
@@ -631,6 +634,18 @@ emacs lisp はデフォでやってくれているっぽい。
            ))
            )
           )
+                  (
+          "g" "TRASH"
+          (
+           (todo "DONE"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(
+                     (:name "やること" :todo ("DONE" "CANCEL")  :deadline t :date t :scheduled t)
+                 ))
+           ))
+           )
+          )
 
          ("h" "Home"
           (
@@ -691,6 +706,15 @@ emacs lisp はデフォでやってくれているっぽい。
     :config
     (org-super-agenda-mode)
     )
+#+end_src
+** org-archive
+#+begin_src emacs-lisp :tangle yes
+  (defun my/org-archive-to-trash ()
+    "Move the current subtree to ~/dropbox/trash.org instead of the default archive location"
+    (interactive)
+    (let ((org-archive-location "~/dropbox/trash.org::"))
+      (org-agenda-archive)))
+  (define-key org-agenda-mode-map (kbd "#") 'my/org-archive-to-trash)
 #+end_src
 ** org-capture
 #+begin_src emacs-lisp :tangle yes
@@ -809,7 +833,28 @@ emacs lisp はデフォでやってくれているっぽい。
       :config (add-hook 'org-mode-hook #'org-modern-indent-mode 90)
       )
 #+end_src
-
+** gcal
+#+begin_src emacs-lisp :tangle yes
+  (leaf gcal
+    :el-get misohena/gcal
+    :require t
+    :custom
+    (gcal-client-id . "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
+    (gcal-client-secret . "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")
+    )
+#+end_src
+** gcal-org
+#+begin_src emacs-lisp :tangle yes
+  (require 'gcal-org)
+  (gcal-org-push-file
+   "shizhaoyoujie@gmail.com"
+   "~/dropbox/inbox/inbox.org")
+  (gcal-org-pull-to-file
+   "shizhaoyoujie@gmail.com"
+   "~/dropbox/inbox/inbox.org"
+   "FROM_GCAL"
+    "~/dropbox/my-schedule.gcal-cache")
+#+end_src
 ** org-babel
 #+begin_src emacs-lisp :tangle yes
   (org-babel-do-load-languages 'org-babel-load-languages
@@ -830,6 +875,15 @@ emacs lisp はデフォでやってくれているっぽい。
     (org-roam-capture-templates
      . '(("d" "default" plain "%?" :if-new
           (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+    - index ::  
+    - tags :: ")
+          :unnarrowed t
+          :jump-to-captured t)
+
+           ("r" "reference" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+bibliography: ~/dropbox/ref.bib
+
     - index ::  
     - tags :: ")
           :unnarrowed t
@@ -1164,16 +1218,16 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * Slack
 #+begin_src emacs-lisp :tangle yes
-  ;(leaf slack
-  ;  :ensure t
-  ; :config
-  ; (slack-register-team
-  ;   :name "mdip"
-  ;  :token "xoxc-14011030212-3874022267665-7457834306050-c11c89ae65f84a20d838527b17e004f9164a04139ba7f3f765040503139c761a"
-  ;   :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
-  ;   :default t
-  ;   )
-  ;  )
+  (leaf slack
+    ;:ensure t
+   :config
+   (slack-register-team
+     :name "mdip"
+    :token "xoxc-14011030212-3874022267665-7457834306050-c11c89ae65f84a20d838527b17e004f9164a04139ba7f3f765040503139c761a"
+     :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
+     :default t
+     )
+    )
 #+end_src
 ** slack-org
 org-store-linkでリンクをコピーすることができる。
