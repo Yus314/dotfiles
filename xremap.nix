@@ -17,7 +17,7 @@ rustPlatform.buildRustPackage rec {
   #cargoSha256 = "sha256-XXWfHIQr9V+yPW12w37CYJ3PymMtshLwN9fO+hcEnkI=";
   cargoHash = "sha256-XXWfHIQr9V+yPW12w37CYJ3PymMtshLwN9fO+hcEnkI=";
 
-  buildNoDefualtFeatures = true;
+  buildNoDefaultFeatures = true;
   buildFeatures = [ "wlroots" ];
 
   meta = with lib; {
@@ -25,7 +25,7 @@ rustPlatform.buildRustPackage rec {
     longDescription = ''
       xremap is a key remapper for Linux. Unlike xmodmap, it supports app-specific remapping and Wayland.
     '';
-    changlog = "https://githubocom/k0kubun/xremap/releasen/tag/v${version}";
+    changlog = "https://github.com/k0kubun/xremap/releasen/tag/v${version}";
     license = licenses.mit;
   };
 }
