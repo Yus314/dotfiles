@@ -1,4 +1,3 @@
-
 #+TITLE: Configurations for GNU Emacs
 #+AUTHOR: minera
 * Header
@@ -837,23 +836,21 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf gcal
     :el-get misohena/gcal
-    :require t
+    :require t gcal-org
+    :load-path "~/.emacs.d/el-get/gcal/"
     :custom
     (gcal-client-id . "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
     (gcal-client-secret . "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")
+    :config
+      (gcal-org-push-file
+     "shizhaoyoujie@gmail.com"
+     "~/dropbox/inbox/inbox.org")
+    (gcal-org-pull-to-file
+     "shizhaoyoujie@gmail.com"
+     "~/dropbox/inbox/inbox.org"
+     "FROM_GCAL"
+      "~/dropbox/my-schedule.gcal-cache")
     )
-#+end_src
-** gcal-org
-#+begin_src emacs-lisp :tangle yes
-  (require 'gcal-org)
-  (gcal-org-push-file
-   "shizhaoyoujie@gmail.com"
-   "~/dropbox/inbox/inbox.org")
-  (gcal-org-pull-to-file
-   "shizhaoyoujie@gmail.com"
-   "~/dropbox/inbox/inbox.org"
-   "FROM_GCAL"
-    "~/dropbox/my-schedule.gcal-cache")
 #+end_src
 ** org-babel
 #+begin_src emacs-lisp :tangle yes
