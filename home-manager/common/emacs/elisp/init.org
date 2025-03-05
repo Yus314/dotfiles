@@ -597,7 +597,7 @@ emacs lisp はデフォでやってくれているっぽい。
     :bind
     ("C-c a" . #'org-agenda)
     :custom
-    (org-agenda-files . '("~/dropbox/inbox/inbox.org"))
+    (org-agenda-files . '("~/dropbox/inbox/inbox.org" "~/dropbox/habit.org"))
     (org-agenda-todo-ignore-scheduled . t)
     (org-agenda-custom-commands
      . '(
@@ -748,6 +748,8 @@ emacs lisp はデフォでやってくれているっぽい。
      . '(
          ("t" "ToDo" entry (file taskfile )
           "* TODO %^{title}\n %?")
+         ("h" "Habit" entry (file "~/dropbox/habit.org")
+  	  "* TODO %^{title}\n:PROPERTIES:\n:STYLE: habit\n:END:\n%?")
          ("1" "Level 1" entry (file+headline taskfile "プロジェクト" )
           "* LEVEL1 %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
          ("w" "Weekly Report" entry (file weekly-dir)
@@ -836,7 +838,7 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf gcal
     :el-get misohena/gcal
-    :require t gcal-org
+    :require t gcal gcal-org
     :load-path "~/.emacs.d/el-get/gcal/"
     :custom
     (gcal-client-id . "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
