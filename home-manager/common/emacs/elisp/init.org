@@ -536,13 +536,12 @@ emacs lisp はデフォでやってくれているっぽい。
     :ensure t
     :custom
     (org-todo-keywords
-     . '((sequence "DIVIDING(v)" "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "LEVEL1(1)" "|" "DONE(d)" "CANCEL(c)")
+     . '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "LEVEL1(1)" "|" "DONE(d)" "CANCEL(c)")
          )
      )
 
     (org-todo-keyword-faces
-     . '(("DIVIDING" . org-warning)
-         ("TODO" . (:foreground "white" :background "red" :weight bold))
+     . '(("TODO" . (:foreground "white" :background "red" :weight bold))
          ("WAIT" . org-warning)
          ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
          ("DONE(d)" . "yellow")
@@ -651,7 +650,6 @@ emacs lisp はデフォでやってくれているっぽい。
            (agenda "今日のこと"
                    ((org-agenda-span 'day))
                    )
-           (todo "DIVIDING")
            (todo "TODO"
                  ((org-agenda-prefix-format " ")
                   (org-super-agenda-groups
@@ -687,7 +685,6 @@ emacs lisp はデフォでやってくれているっぽい。
            (agenda "今日のこと"
                    ((org-agenda-span 'day))
                    )
-           (todo "DIVIDING")
            (todo "TODO"
                  ((org-agenda-prefix-format " ")
                   (org-super-agenda-groups
@@ -814,7 +811,6 @@ emacs lisp はデフォでやってくれているっぽい。
      (org-modern-star . "◉○●◈◇◆✸✳")
      (org-modern-todo-faces
       .  (quote (("SOMEDAY" :background "pink" :foreground "white" :weight bold)
-                 ("DIVIDING" :background "blue" :foreground "white" :weight bold)
                  ("LEVEL1" :background "purple" :foreground "white" :weight bold)
                  ))
 
@@ -918,6 +914,8 @@ emacs lisp はデフォでやってくれているっぽい。
     (org-roam-ui-follow  . t)
     (org-roam-ui-update-on-save . t)
     (org-roam-ui-open-on-start . t)
+    :bind
+    ("C-c n u" . org-roam-ui-open)
   )
 #+end_src
 ** org-roam-review
