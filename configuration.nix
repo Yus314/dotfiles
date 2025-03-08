@@ -34,9 +34,15 @@
       "dropbox/token/expiry" = { };
     };
     templates = {
-      "gh-token".content = ''
-        access-tokens = github.com=${config.sops.placeholder."gh-token"}
-      '';
+
+      "gh-token" = {
+        owner = "kaki";
+        group = "users";
+        mode = "0440";
+        content = ''
+          	  access-tokens = github.com=${config.sops.placeholder."gh-token"}
+          	'';
+      };
       "dropbox.conf" = {
         owner = "kaki";
         group = "users";
@@ -138,9 +144,11 @@
   home-manager = {
     users.kaki = {
       imports = [
-        ./home-manager/NixOS/gui/packages.nix
-        #./home-manager/NixOS/cli
+        #   ./home-manager/NixOS/gui/packages.nix
+        #  ./home-manager/NixOS/cli
         ./home-manager/common
+        ./home-manager/NixOS/gui
+        ./home-manager/NixOS/cli
       ];
       home = {
         username = "kaki";
@@ -151,6 +159,7 @@
       nixpkgs.config.permittedInsecurePacakges = [ "adobe-reader-9.5.5" ];
       nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
     };
+    backupFileExtension = "hm-backup";
     extraSpecialArgs = {
       inherit unstable;
       inherit xremap;

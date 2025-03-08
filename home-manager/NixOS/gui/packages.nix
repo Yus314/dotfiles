@@ -5,5 +5,12 @@
     xfce.tumbler
     gscreenshot
     guacamole-server
+    waybar
+    wl-clipboard
+    #swaylock
+    #swayidle
+    wlogout
+    pinta
+    nyxt
   ];
 }

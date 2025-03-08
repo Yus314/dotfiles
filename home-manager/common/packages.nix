@@ -17,27 +17,30 @@
     marp-cli
     vimgolf
     carapace
-    #dropbox
     #zoom
     #swayn
-    waybar
-    wl-clipboard
-    #swaylock
-    #swayidle
-    wlogout
     #slack
     #zoom
     kitty
     gdrive3
     drive
-    dropbox
+    #dropbox
     rclone
+<<<<<<< HEAD
     zotero-beta
     # adobe-reader
     foot
     pinta
     nvitop
+=======
+    # adobe-reader
+    #(xremap)
+>>>>>>> 6971f88731a88dbeae23c3a7526a3203563003fc
     qutebrowser
+
+    #nyxt
     kakoune
+    #(unstable.qutebrowser)
+    zotero
   ];
 }

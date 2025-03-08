@@ -19,10 +19,6 @@
     ./wezterm/wezterm.nix
     ./fish.nix
     ./starship.nix
-    ./sway.nix
-    ./hyprland.nix
-    ./waybar.nix
-    ./browser.nix
     ./emacs
     ./neomutt.nix
     ./offlineimap.nix

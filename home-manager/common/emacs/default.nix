@@ -6,6 +6,8 @@
 }:
 let
   tangle = org-babel.lib.tangleOrgBabel { languages = [ "emacs-lisp" ]; };
+  system = pkgs.stdenv.hostPlatform.system;
+  emacs-packages = if system == "x86_64-linux" then pkgs.emacs-pgtk else unstable.emacs30;
 in
 {
   programs.emacs = {
@@ -14,9 +16,9 @@ in
       config = ./elisp/init.org;
       defaultInitFile = true;
       # package = pkgs.emacs-pgtk;
-      package = unstable.emacs30-pgtk;
+      package = emacs-packages;
       alwaysTangle = true;
-      override = final: prev: { withXwidgets = true; };
+      override = final: prev: { withXwidgets = false; };
       extraEmacsPackages =
         epkgs: with epkgs; [
           (treesit-grammars.with-grammars (
@@ -26,11 +28,16 @@ in
               tree-sitter-yaml
               tree-sitter-rust
               tree-sitter-python
+              tree-sitter-typst
             ]
           ))
           mu4e
+          (unstable.emacsPackages.slack) # stableのバージョンがかなり古いのでunstableを使う
           (pkgs.texlive.combined.scheme-full)
           (pkgs.zathura)
+          (pkgs.nil)
+          (pkgs.imagemagick)
+          (pkgs.ghq)
           vterm
         ];
     };
@@ -52,7 +59,12 @@ in
       mu
       xapian
       gmime
+<<<<<<< HEAD
       adwaita-icon-theme
+=======
+      (unstable.adwaita-icon-theme)
+      (unstable.tinymist) # typstのlsp
+>>>>>>> 6971f88731a88dbeae23c3a7526a3203563003fc
     ];
   };
 
