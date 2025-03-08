@@ -1,7 +1,6 @@
 {
   pkgs,
   unstable,
-  xremap,
   ...
 }:
 {
@@ -33,12 +32,11 @@
     drive
     dropbox
     rclone
-    (unstable.zotero-beta)
+    zotero-beta
     # adobe-reader
     foot
     pinta
     nvitop
-    (xremap)
     qutebrowser
     kakoune
   ];

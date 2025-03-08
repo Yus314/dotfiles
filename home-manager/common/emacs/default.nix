@@ -52,7 +52,7 @@ in
       mu
       xapian
       gmime
-      (unstable.adwaita-icon-theme)
+      adwaita-icon-theme
     ];
   };
 
