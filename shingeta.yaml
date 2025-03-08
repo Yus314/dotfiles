@@ -34,14 +34,14 @@ keymap:
          c: [b, y, a]
          l: [s, y, o]
          p: [j, y, o]
-         q: [b, y, a]
+         q: [p, y, a]
          d: [m, y, u]
          s: [b, y, u]
          t: [h, u]
          n: [k, e]
-         r: [b, y, u]
+         r: [p, y, u]
          w: [m, y, o]
-         g: [p, y, o]
+         g: [b, y, o]
          # m: []
          # b: []
          x: [p, y, o]
@@ -284,7 +284,7 @@ keymap:
       KEY_SEMICOLON:
         remap:
           t: [z, o]
-          n: [z, a]
+          n: [z, e]
         timeout_millis: 50
         timeout_key: [m, a]
       KEY_COMMA:
@@ -323,7 +323,7 @@ keymap:
         remap:
           e: [n, e]
           i: [d, a]
-          o: [p, y, o]
+          o: [b, y, o]
           y: [x, i]
         timeout_millis: 50
         timeout_key: [t, a]
@@ -343,7 +343,7 @@ keymap:
         remap:
           e: [v, u]
           i: [t, y, e]
-          o: [b, y, o]
+          o: [p, y, o]
           y: [x, w, a]
         timeout_millis: 50
         timeout_key: [b, u]

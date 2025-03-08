@@ -62,13 +62,23 @@
 ** Clip board
 Waylandでペーストできるようにする設定
 #+begin_src emacs-lisp :tangle yes
+  (when (equal system-type 'gnu/linux)
   (setq wl-copy-process nil)
+    (defun wl-copy (text)
+      (setq wl-copy-process (make-process :name "wl-copy"
+                                          :buffer nil
+                                          :command '("wl-copy" "-f" "-n")
+                                          :connection-type 'pipe
+                                          :noquery t))
+      (process-send-string wl-copy-process text)
+      (process-send-eof wl-copy-process))
   (defun wl-paste ()
     (if (and wl-copy-process (process-live-p wl-copy-process))
         nil
       (shell-command-to-string "wl-paste -n")))
+  (setq interprogram-cut-function 'wl-copy)
   (setq interprogram-paste-function 'wl-paste)
-
+  )
 #+end_src
 * UI
 ** theme
@@ -101,24 +111,24 @@ Tree-sitter はモードに依存していて、設定がわかりにくい。
 tree-sitter と treesit の役割の違いも理解していない。
 emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
-    (leaf treesit
-      :custom(
-              (treesit-font-lock-level . 4)
-              (major-mode-remap-alist .
-                                      '(
-                                        (nix-mode . nix-ts-mode)
-                                            ;  (emacs-lisp-mode . emacs-lisp-ts-mode)
-                                        (yaml-mode . yaml-ts-mode)
-                                        (python-mode . python-ts-mode)
-                                        )
+  (leaf treesit
+    :custom(
+            (treesit-font-lock-level . 4)
+            (major-mode-remap-alist .
+                                    '(
+                                      (nix-mode . nix-ts-mode)
+                                          ;  (emacs-lisp-mode . emacs-lisp-ts-mode)
+                                      (yaml-mode . yaml-ts-mode)
+                                      (python-mode . python-ts-mode)
                                       )
-              )				       
-     )
-    (leaf tree-sitter
-      :ensure t
-      :config
-      (global-tree-sitter-mode)
-      )
+                                    )
+            )				       
+   )
+  (leaf tree-sitter
+    :ensure t
+    :config
+    (global-tree-sitter-mode)
+    )
 
   #+end_src
 *** nix
@@ -152,7 +162,7 @@ emacs lisp はデフォでやってくれているっぽい。
      :ensure t
      :custom
      (rust-mode-treesitter-derive . t))
-  (add-hook 'rust-mode 'elgot-ensure)
+  (add-hook 'rust-mode-hook 'eglot-ensure)
   (defun my/find-rust-project-root (dir)                                                                           
      (when-let ((root (locate-dominating-file dir "Cargo.toml")))                                                         
        (list 'vc 'Git root)))
@@ -169,6 +179,15 @@ emacs lisp はデフォでやってくれているっぽい。
     (leaf ruff-format
       :ensure t
       )
+#+end_src
+*** typst
+#+begin_src emacs-lisp :tangle yes
+  (leaf typst-ts-mode
+    :el-get kaction-emacs/typst-ts-mode
+    :custom
+    (typst-ts-mode-watch-option . "--open")
+    )
+    (add-hook 'typst-ts-mode-hook 'eglot-ensure)
 #+end_src
 ** perfect-mergin
 #+begin_src emacs-lisp :tangle yes
@@ -256,7 +275,7 @@ emacs lisp はデフォでやってくれているっぽい。
     )
  #+end_src
 * 入力支援
-** meow
+** mewo
 #+begin_src emacs-lisp :tangle yes
   (leaf meow
     :ensure t
@@ -367,7 +386,7 @@ emacs lisp はデフォでやってくれているっぽい。
        '("y" . meow-yank)
        '("z" . meow-pop-selection)
        '("'" . repeat)
-       '("g" . avy-goto-char-timer)
+       ;'("g" . avy-goto-char-timer)
        )
       )
     (meow-setup)
@@ -396,6 +415,25 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf vundo
     :ensure t)
 #+end_src
+** dmacro
+#+begin_src emacs-lisp :tangle yes
+  (leaf dmacro
+    :ensure t
+    :global-minor-mode global-dmacro-mode)
+  (defun my-indent-rigidly-right-to-tab-stop (beg end)
+    "Indent all lines between BEG and END rightward to a tab stop and keep the region active."
+    (interactive "r")
+    (let ((deactivate-mark nil))  ; 選択範囲を解除しない
+      (indent-rigidly-right-to-tab-stop beg end)))
+
+  (global-set-key (kbd "C->") 'my-indent-rigidly-right-to-tab-stop)
+  (defun select-to-end-of-buffer ()
+    "Select from the current point to the end of the buffer."
+    (interactive)
+    (set-mark (point)) ;; 現在のポイントをマークに設定
+    (goto-char (point-max))) ;; バッファ末尾に移動
+  (global-set-key (kbd "M->") 'select-to-end-of-buffer)
+#+end_src
 * ミニバッファ補完
 ** vercico
 #+begin_src emacs-lisp :tangle yes
@@ -423,8 +461,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
       (leaf consult
             :ensure t
-            :bind
-            ("M-g f" . consult-fd)
          )
         #+end_src
 ** affe
@@ -483,9 +519,15 @@ emacs lisp はデフォでやってくれているっぽい。
     :init
     (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
     (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
-    (add-to-list 'completion-at-point-functions #'cape-dabbrev); 現在のバッファを見て，補完
     )
 
+#+end_src
+* キーバインディング
+#+begin_src emacs-lisp :tangle yes
+  (leaf keymap
+    :bind
+    ("C-q" . scroll-down-command) ;元々M-vだったが、入力しにくいので、そっちをvterm-toggleにした
+    )
 #+end_src
 * org
 ** org
@@ -494,13 +536,12 @@ emacs lisp はデフォでやってくれているっぽい。
     :ensure t
     :custom
     (org-todo-keywords
-     . '((sequence "DIVIDING(v)" "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "LEVEL1(1)" "|" "DONE(d)" "CANCEL(c)")
+     . '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "LEVEL1(1)" "|" "DONE(d)" "CANCEL(c)")
          )
      )
 
     (org-todo-keyword-faces
-     . '(("DIVIDING" . org-warning)
-         ("TODO" . (:foreground "white" :background "red" :weight bold))
+     . '(("TODO" . (:foreground "white" :background "red" :weight bold))
          ("WAIT" . org-warning)
          ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
          ("DONE(d)" . "yellow")
@@ -532,6 +573,8 @@ emacs lisp はデフォでやってくれているっぽい。
                     :scope agenda-with-archives
                     :block today
                     :level 4))
+  (keymap-global-set "C-c C-x C-j" 'org-clock-goto)
+  (keymap-global-set "C-c C-x C-o" 'org-clock-out)
 #+end_src
 ** org-agenda
 #+begin_src emacs-lisp :tangle yes
@@ -560,7 +603,7 @@ emacs lisp はデフォでやってくれているっぽい。
     :bind
     ("C-c a" . #'org-agenda)
     :custom
-    (org-agenda-files . '("~/dropbox/inbox/inbox.org"))
+    (org-agenda-files . '("~/dropbox/inbox/inbox.org" "~/dropbox/habit.org"))
     (org-agenda-todo-ignore-scheduled . t)
     (org-agenda-custom-commands
      . '(
@@ -583,6 +626,12 @@ emacs lisp はデフォでやってくれているっぽい。
            ))
            )
           )
+         ("g" "Garbage Tasks List"
+         ((alltodo ""
+                ((org-super-agenda-groups
+                  '((:name "Completed Tasks"
+                     :todo ("DONE" "CANCEL")
+                     :or (:scheduled t :deadline t))))))))
          (
           "d" "TODO"
           (
@@ -596,17 +645,15 @@ emacs lisp はデフォでやってくれているっぽい。
            ))
            )
           )
-
          ("h" "Home"
           (
            (agenda "今日のこと"
                    ((org-agenda-span 'day))
                    )
-           (todo "DIVIDING")
            (todo "TODO"
                  ((org-agenda-prefix-format " ")
                   (org-super-agenda-groups
-                   '(
+                   '(．
                      (:name "TODO" :tag ("PC" "smartphone" "desk" "HOME" "home" "anywhere"))
                      (:discard (:anything t))
                      ))
@@ -614,12 +661,30 @@ emacs lisp はデフォでやってくれているっぽい。
            )
 
           )
+                ("w" "review"
+          (
+           (agenda "週の振り返り"
+                   ((org-agenda-span 'week)
+                    (org-agenda-overriding-header "来週の予定")
+                    )
+                   )
+           (todo "TODO"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(．
+                     (:name "TODO" :todo "TODO")
+                     (:discard (:anything t))
+                     ))
+                  ))
+           )
+
+          )
+
          ("l" "lab"
           (
            (agenda "今日のこと"
                    ((org-agenda-span 'day))
                    )
-           (todo "DIVIDING")
            (todo "TODO"
                  ((org-agenda-prefix-format " ")
                   (org-super-agenda-groups
@@ -637,6 +702,15 @@ emacs lisp はデフォでやってくれているっぽい。
     :config
     (org-super-agenda-mode)
     )
+#+end_src
+** org-archive
+#+begin_src emacs-lisp :tangle yes
+  (defun my/org-archive-to-trash ()
+    "Move the current subtree to ~/dropbox/trash.org instead of the default archive location"
+    (interactive)
+    (let ((org-archive-location "~/dropbox/trash.org::"))
+      (org-agenda-archive)))
+  (define-key org-agenda-mode-map (kbd "#") 'my/org-archive-to-trash)
 #+end_src
 ** org-capture
 #+begin_src emacs-lisp :tangle yes
@@ -670,8 +744,10 @@ emacs lisp はデフォでやってくれているっぽい。
     (org-capture-templates
      . '(
          ("t" "ToDo" entry (file taskfile )
-          "* DIVIDING %^{title}\n %?")
-         ("1" "Level 1" entry (file taskfile )
+          "* TODO %^{title}\n %?")
+         ("h" "Habit" entry (file "~/dropbox/habit.org")
+  	  "* TODO %^{title}\n:PROPERTIES:\n:STYLE: habit\n:END:\n%?")
+         ("1" "Level 1" entry (file+headline taskfile "プロジェクト" )
           "* LEVEL1 %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
          ("w" "Weekly Report" entry (file weekly-dir)
            "* 今週のこと
@@ -688,61 +764,7 @@ emacs lisp はデフォでやってくれているっぽい。
   %(my/org-agenda-to-string \"d\")
   ,** 考えていること
   ")))
-  )(leaf org-capture
-    :bind
-    ("C-c c" . org-capture)
-    :config
-    (let* ((current-time (current-time))
-           ;; 現在の日付から土曜日までの日数を計算
-           (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
-           ;; 今週の土曜日を計算
-           (start-of-week (time-add
-                           (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
-           ;; 翌週の金曜日を計算
-           (end-of-week (time-add start-of-week (days-to-time 6)))
-           ;; フォーマットされた日付
-           (start-day (format-time-string "%m%d" start-of-week))
-           (end-day (format-time-string "%m%d" end-of-week))
-           ;; 年を取得
-           (year (format-time-string "%Y" start-of-week))
-           ;; アーカイブディレクトリとファイル名
-           (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
-           (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
-
-      ;; 必要ならアーカイブディレクトリを作成
-      (unless (file-exists-p archive-dir)
-        (make-directory archive-dir t))
-
-      ;; org-archive-location を設定
-      (setq org-archive-location
-            (format "%s::** やったこと" archive-file))
-
-      ;; 他の設定用変数を定義
-      (setq weekly-dir archive-file))
-
-    :custom
-    (taskfile . "~/dropbox/inbox/inbox.org")
-    (org-capture-templates
-     . '(
-         ("t" "ToDo" entry (file taskfile)
-          "* DIVIDING %^{title}\n %?")
-         ("1" "Level 1" entry (file taskfile)
-          "* LEVEL1 %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
-         ("w" "Weekly Report" entry (file+headline weekly-dir "今週のこと")
-          "* 今週のこと
-  ,** やったこと
-  ,** 時間計測
-  ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
-  ,#+END:
-  ,** 考えたこと
-  %?
-  ,* 来週のこと
-  ,** 予定
-  %(my/org-agenda-to-string \"a\")
-  ,** TODOリスト
-  %(my/org-agenda-to-string \"d\")
-  ,** 考えていること
-  "))))
+    )
 
     (defun my/org-agenda-to-string (agenda-type)
       "Generate agenda string for the current week using a temporary file."
@@ -758,49 +780,20 @@ emacs lisp はデフォでやってくれているっぽい。
           (kill-whole-line)
           (buffer-string)))) ; 最終的な文字列として返す
 #+end_src
+** org-refile
+#+begin_src emacs-lisp :tangle yes
+  (defun my-org-refile-verify-target ()
+    "プロジェクト見出しの下にある全ての見出しを検証します。"
+    (let ((path (org-get-outline-path)))
+      (or (string= (car path) "プロジェクト")
+          (member "プロジェクト" path))))
+
+  (setq org-refile-target-verify-function 'my-org-refile-verify-target)
+  (setq org-refile-targets '((nil . (:maxlevel . 9))))
+#+end_src
 ** org-journal
 #+begin_src emacs-lisp :tangle yes
-  (leaf org-journal
-    :ensure t
-    :custom
-    (org-journal-date-format . "%Y-%m-%d")
-    (org-journal-file-tipe . 'weekly)
-    (org-journal-file-header .
-                             "#TITLE: Weekly Report
-  ,#+STARTUP: overview
-  ,* 今週のこと
-  ,** やったこと
-  ,** 時間測定
-  ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
-  ,#+END:
-  ,** 考えたこと
-  ,* 来週のこと
-  ,** 予定
-  ,** TODOリスト
-  ,** 考えたこと
-  ")
-    )
-
-  (let* ((current-time (current-time))
-           ;; 現在の日付から土曜日までの日数を計算
-           (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
-           ;; 今週の土曜日を計算
-           (start-of-week (time-add
-                           (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
-           ;; 翌週の金曜日を計算
-           (end-of-week (time-add start-of-week (days-to-time 6)))
-           ;; フォーマットされた日付
-           (start-day (format-time-string "%m%d" start-of-week))
-           (end-day (format-time-string "%m%d" end-of-week))
-           ;; 年を取得
-           (year (format-time-string "%Y" start-of-week))
-           ;; アーカイブディレクトリとファイル名
-           (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
-           (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
-    (setq org-journal-dir  archive-dir)
-    (setq org-journal-file-format  archive-file)
-
-    )
+  ;
 #+end_src
 ** org-indent
 #+begin_src emacs-lisp :tangle yes
@@ -818,7 +811,6 @@ emacs lisp はデフォでやってくれているっぽい。
      (org-modern-star . "◉○●◈◇◆✸✳")
      (org-modern-todo-faces
       .  (quote (("SOMEDAY" :background "pink" :foreground "white" :weight bold)
-                 ("DIVIDING" :background "blue" :foreground "white" :weight bold)
                  ("LEVEL1" :background "purple" :foreground "white" :weight bold)
                  ))
 
@@ -838,7 +830,35 @@ emacs lisp はデフォでやってくれているっぽい。
       :config (add-hook 'org-mode-hook #'org-modern-indent-mode 90)
       )
 #+end_src
-
+** org-habit
+#+begin_src emacs-lisp :tangle yes
+  (leaf org-habit
+    :custom
+    (org-habit-show-habits-only-for-today . t)
+    :config
+    (add-to-list 'org-modules 'org-habit t)
+    )
+#+end_src
+** gcal
+#+begin_src emacs-lisp :tangle yes
+  (leaf gcal
+    :el-get misohena/gcal
+    :require t gcal gcal-org
+    :load-path "~/.emacs.d/el-get/gcal/"
+    :custom
+    (gcal-client-id . "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
+    (gcal-client-secret . "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")
+    :config
+      (gcal-org-push-file
+     "shizhaoyoujie@gmail.com"
+     "~/dropbox/inbox/inbox.org")
+    (gcal-org-pull-to-file
+     "shizhaoyoujie@gmail.com"
+     "~/dropbox/inbox/inbox.org"
+     "FROM_GCAL"
+      "~/dropbox/my-schedule.gcal-cache")
+    )
+#+end_src
 ** org-babel
 #+begin_src emacs-lisp :tangle yes
   (org-babel-do-load-languages 'org-babel-load-languages
@@ -864,6 +884,15 @@ emacs lisp はデフォでやってくれているっぽい。
           :unnarrowed t
           :jump-to-captured t)
 
+           ("r" "reference" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+bibliography: ~/dropbox/ref.bib
+
+    - index ::  
+    - tags :: ")
+          :unnarrowed t
+          :jump-to-captured t)
+
          ("o" "outline" plain "%?" :if-new
           (file+head "outlines/${slug}-%<%d-%m-%y>.org" "#+title: ${title}
     ,#+filetags: outline")
@@ -876,9 +905,27 @@ emacs lisp はデフォでやってくれているっぽい。
     (org-roam-db-autosync-mode)
     )
 #+end_src
+** org-roam-ui
+#+begin_src emacs-lisp :tangle yes
+  (leaf org-roam-ui
+    :ensure t
+    :custom
+    (org-roam-ui-sync-theme . t)
+    (org-roam-ui-follow  . t)
+    (org-roam-ui-update-on-save . t)
+    (org-roam-ui-open-on-start . t)
+    :bind
+    ("C-c n u" . org-roam-ui-open)
+  )
+#+end_src
 ** org-roam-review
 #+begin_src emacs-lisp :tangle yes
   (leaf org-roam-review
+      :init
+    (let ((repo-path (expand-file-name "~/.emacs.d/nursery")))
+      (unless (file-exists-p repo-path)
+        (shell-command (format "git clone https://github.com/chrisbarrett/nursery.git %s" repo-path)))
+      (add-to-list 'load-path (concat repo-path "/lisp")))
     :commands (org-roam-review
                org-roam-review-list-by-maturity
                org-roam-review-list-recently-added)
@@ -893,12 +940,22 @@ emacs lisp はデフォでやってくれているっぽい。
            ("C-c r s" . org-roam-review-set-seedling)
            ("C-c r e" . org-roam-review-set-evergreen)
            )
+    (  	 ("C-c n r" . org-roam-review)
+)
     )
   ;; Check and install dependencies listed in nursery-pkg.el
   (let ((dependencies '(org-drill)))
     (dolist (pkg dependencies)
       (unless (package-installed-p pkg)
         (package-install pkg))))
+#+end_src
+** citer
+#+begin_src emacs-lisp :tangle yes
+  (leaf citar
+    :ensure t
+    :custom
+    (citar-bibliography . '("~/Documents/Zotero-test.bib"))
+    )
 #+end_src
 * Git
 ** diff-hl
@@ -949,7 +1006,7 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf pdf-tools
 
-    ensure t
+    :ensure t
     :init
    (pdf-tools-install)
     )
@@ -1058,9 +1115,18 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf eglot
     :defer-config
     (add-to-list 'eglot-server-programs
-                 '(nix-ts-mode  . ("nil"))
+  ;	       '((nix-ts-mode . ("nil"))
+  					;	       (typst-ts-mode . ("tinymist")))
+  	       '(nix-ts-mode . ("nil"))
                  )
+    (add-to-list 'eglot-server-programs
+  	       '(typst-ts-mode . ("tinymist")))
     )
+ ; (leaf typst-preview
+  ;   :el-get havarddj/typst-preview.el
+   ;  :require t
+    ; :custom
+     ;(typst-preview-browser . "qutebrowser"))
   (leaf eglot-booster
     :when (executable-find "emacs-lsp-booster")
     :vc ( :url "https://github.com/jdtsmith/eglot-booster")
@@ -1102,12 +1168,14 @@ emacs lisp はデフォでやってくれているっぽい。
     ;)
 #+end_src
 
-** direnv
+** envrc
 #+begin_src emacs-lisp :tangle yes
-  (leaf direnv
+  (leaf envrc
     :ensure t
+    :custom
+    (envrc-remote . t)
     :config
-    (direnv-mode)
+    (envrc-global-mode)
     )
 #+end_src
 ** tramp
@@ -1158,16 +1226,16 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * Slack
 #+begin_src emacs-lisp :tangle yes
-  ;(leaf slack
-  ;  :ensure t
-  ; :config
-  ; (slack-register-team
-  ;   :name "mdip"
-  ;  :token "xoxc-14011030212-3874022267665-7457834306050-c11c89ae65f84a20d838527b17e004f9164a04139ba7f3f765040503139c761a"
-  ;   :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
-  ;   :default t
-  ;   )
-  ;  )
+  (leaf slack
+    ;:ensure t
+   :config
+   (slack-register-team
+     :name "mdip"
+    :token "xoxc-14011030212-3874022267665-7457834306050-c11c89ae65f84a20d838527b17e004f9164a04139ba7f3f765040503139c761a"
+     :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
+     :default t
+     )
+    )
 #+end_src
 ** slack-org
 org-store-linkでリンクをコピーすることができる。
@@ -1177,4 +1245,12 @@ TODOに貼っておくことで、作業の際に確認することができる�
     :el-get ag91/ol-emacs-slack
     :require t
     )
+#+end_src
+* 履歴保存
+bufferが溜ったり、設定が更新されなかったり、ssh先が保存されなかったり、いまいちなことが多いので一旦無効化する。
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf desktop
+  ;  :custom
+  ;  (desktop-save-mode . 1)
+  ;  )
 #+end_src
