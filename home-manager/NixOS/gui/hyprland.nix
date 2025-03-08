@@ -40,7 +40,7 @@
       "$mainMod" = "ALT";
       "$terminal" = "kitty";
       bind = [
-        "$mainMod, RETURN, exec, $terminal"
+        "$mainMod SHIFT Control_R, RETURN, exec, foot"
         "$mainMod, W, exec, wezterm"
         "$mainMod, Z, exec, vivaldi --disable-gpu"
         "$mainMod, Q, exec, qutebrowser"
