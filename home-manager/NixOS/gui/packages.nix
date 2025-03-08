@@ -10,7 +10,7 @@
     #swaylock
     #swayidle
     wlogout
-    foot
     pinta
+    nyxt
   ];
 }

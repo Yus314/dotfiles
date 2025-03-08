@@ -6,6 +6,8 @@
 }:
 let
   tangle = org-babel.lib.tangleOrgBabel { languages = [ "emacs-lisp" ]; };
+  system = pkgs.stdenv.hostPlatform.system;
+  emacs-packages = if system == "x86_64-linux" then pkgs.emacs-pgtk else unstable.emacs30;
 in
 {
   programs.emacs = {
@@ -14,7 +16,7 @@ in
       config = ./elisp/init.org;
       defaultInitFile = true;
       # package = pkgs.emacs-pgtk;
-      package = unstable.emacs30;
+      package = emacs-packages;
       alwaysTangle = true;
       override = final: prev: { withXwidgets = false; };
       extraEmacsPackages =
@@ -30,6 +32,7 @@ in
             ]
           ))
           mu4e
+          (unstable.emacsPackages.slack) # stableのバージョンがかなり古いのでunstableを使う
           (pkgs.texlive.combined.scheme-full)
           (pkgs.zathura)
           (pkgs.nil)
