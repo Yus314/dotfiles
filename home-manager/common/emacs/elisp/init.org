@@ -967,7 +967,9 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf citar
     :ensure t
     :custom
-    (citar-bibliography . '("~/Documents/Zotero-test.bib"))
+    (citar-bibliography . '("~/dropbox/ref.bib"))
+    :config
+    (define-key minibuffer-local-map (kbd "s-j") 'icomplete-fido-exit)
     )
 #+end_src
 * Git
