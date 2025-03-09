@@ -859,6 +859,11 @@ emacs lisp はデフォでやってくれているっぽい。
      "~/dropbox/inbox/inbox.org"
      "FROM_GCAL"
      "~/dropbox/my-schedule.gcal-cache")
+      (gcal-org-push-file
+     "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+     "~/dropbox/kana.org"
+     )
+
     (gcal-org-pull-to-file
      "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
      "~/dropbox/kana.org"
