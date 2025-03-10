@@ -161,7 +161,9 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf rust-mode
      :ensure t
      :custom
-     (rust-mode-treesitter-derive . t))
+     (rust-mode-treesitter-derive . t)
+     (rust-format-on-save . t)
+     )
   (add-hook 'rust-mode-hook 'eglot-ensure)
   (defun my/find-rust-project-root (dir)                                                                           
      (when-let ((root (locate-dominating-file dir "Cargo.toml")))                                                         
@@ -536,7 +538,7 @@ emacs lisp はデフォでやってくれているっぽい。
     :ensure t
     :custom
     (org-todo-keywords
-     . '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "LEVEL1(1)" "|" "DONE(d)" "CANCEL(c)")
+     . '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)")
          )
      )
 
@@ -546,7 +548,7 @@ emacs lisp はデフォでやってくれているっぽい。
          ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
          ("DONE(d)" . "yellow")
          ("CANCEL" . org-warning)
-         ("LEVEL1" . (:foreground "white" :background "purple" :weight bold))
+         ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
          ))
     (org-startup-folded . t)
     (org-tag-alist
@@ -587,7 +589,7 @@ emacs lisp はデフォでやってくれているっぽい。
       ("e" . org-agenda-todo)
       ;以下の関数は割り当てていない
       ;org-agenda-set-effort
-      ;org-save-all-org-buffers
+  					;org-save-all-org-buffers
       )
      )
     :custom
@@ -603,7 +605,7 @@ emacs lisp はデフォでやってくれているっぽい。
     :bind
     ("C-c a" . #'org-agenda)
     :custom
-    (org-agenda-files . '("~/dropbox/inbox/inbox.org" "~/dropbox/habit.org"))
+    (org-agenda-files . '("~/dropbox/inbox/inbox.org" "~/dropbox/habit.org" "~/dropbox/kana.org"))
     (org-agenda-todo-ignore-scheduled . t)
     (org-agenda-custom-commands
      . '(
@@ -747,8 +749,8 @@ emacs lisp はデフォでやってくれているっぽい。
           "* TODO %^{title}\n %?")
          ("h" "Habit" entry (file "~/dropbox/habit.org")
   	  "* TODO %^{title}\n:PROPERTIES:\n:STYLE: habit\n:END:\n%?")
-         ("1" "Level 1" entry (file+headline taskfile "プロジェクト" )
-          "* LEVEL1 %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
+         ("p" "Project" entry (file+headline taskfile "プロジェクト" )
+          "* PROJECT %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
          ("w" "Weekly Report" entry (file weekly-dir)
            "* 今週のこと
   ,** やったこと
@@ -811,7 +813,7 @@ emacs lisp はデフォでやってくれているっぽい。
      (org-modern-star . "◉○●◈◇◆✸✳")
      (org-modern-todo-faces
       .  (quote (("SOMEDAY" :background "pink" :foreground "white" :weight bold)
-                 ("LEVEL1" :background "purple" :foreground "white" :weight bold)
+                 ("PROJECT" :background "purple" :foreground "white" :weight bold)
                  ))
 
       )
@@ -856,12 +858,27 @@ emacs lisp はデフォでやってくれているっぽい。
      "shizhaoyoujie@gmail.com"
      "~/dropbox/inbox/inbox.org"
      "FROM_GCAL"
+<<<<<<< HEAD
       "~/dropbox/my-schedule.gcal-cache)"
       )
     (gcal-org-push-oevents
      "shizhaoyoujie@gmail.com"
     nil
     (gcal-org-parse-file  "~/dropbox/inbox/inbox.org"))
+=======
+     "~/dropbox/my-schedule.gcal-cache")
+      (gcal-org-push-file
+     "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+     "~/dropbox/kana.org"
+     )
+
+    (gcal-org-pull-to-file
+     "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+     "~/dropbox/kana.org"
+     "FROM_GCAL"
+     "~/dropbox/my-schedule.gcal-cache"
+     )
+>>>>>>> 839194a8aa89cf4ee4719eca080dbfb1861485f4
     )
 #+end_src
 ** org-babel
