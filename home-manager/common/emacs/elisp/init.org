@@ -853,12 +853,15 @@ emacs lisp はデフォでやってくれているっぽい。
     :config
       (gcal-org-push-file
      "shizhaoyoujie@gmail.com"
-     "~/dropbox/inbox/inbox.org")
+     "~/dropbox/inbox/inbox.org"
+     "~/dropbox/my-schedule.gcal-cache"
+     )
     (gcal-org-pull-to-file
      "shizhaoyoujie@gmail.com"
      "~/dropbox/inbox/inbox.org"
      "FROM_GCAL"
      "~/dropbox/my-schedule.gcal-cache")
+    
       (gcal-org-push-file
      "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
      "~/dropbox/kana.org"
@@ -1224,6 +1227,7 @@ emacs lisp はデフォでやってくれているっぽい。
     :custom
     (vterm-keymap-exceptions
      . '("C-c" "C-y" "M-v" "M-x"))
+    (vterm-tramp-shells . '(("ssh" "'fish'") ("scp" login-shell) ("docker" "/bin/sh")))
     :bind
     ("M-v" . vterm-toggle)
     (vterm-mode-map
