@@ -894,30 +894,40 @@ emacs lisp はデフォでやってくれているっぽい。
     (find-file-visit-truename .  t)
     (org-roam-capture-templates
      . '(("d" "default" plain "%?" :if-new
-          (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
-    - index ::  
-    - tags :: ")
+          (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}")
           :unnarrowed t
           :jump-to-captured t)
 
-           ("r" "reference" plain "%?" :if-new
+           ("p" "paper" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
-  ,#+bibliography: ~/dropbox/ref.bib
-
-    - index ::  
-    - tags :: ")
+  ,#+filetags: :reference:paper:
+  ,#+bibliography: ~/dropbox/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
-
-         ("o" "outline" plain "%?" :if-new
-          (file+head "outlines/${slug}-%<%d-%m-%y>.org" "#+title: ${title}
-    ,#+filetags: outline")
+           ("b" "book" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+filetags: :reference:book:
+  ,#+bibliography: ~/dropbox/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
-
+           ("a" "anime" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+filetags: :reference:anime:
+  ,#+bibliography: ~/dropbox/ref.bib")
+          :unnarrowed t
+          :jump-to-captured t)
+           ("m" "movie" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+filetags: :reference:movie:
+  ,#+bibliography: ~/dropbox/ref.bib")
+          :unnarrowed t
+          :jump-to-captured t)
          )
      )
     :config
+    (setq org-roam-node-display-template
+  	(concat "${title:*} "
+  		(propertize "${tags:10}" 'face 'org-tag)))
     (org-roam-db-autosync-mode)
     )
 #+end_src
