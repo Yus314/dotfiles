@@ -58,6 +58,11 @@
   (setq scroll-margin 5)
   (setq scroll-preserve-screen-position t)
 
+  (setq blink-cursor-idle-time 60)  ;; 入力停止から点滅開始までの秒数
+  (setq blink-cursor-interval 0.3)  ;; 点滅の間隔（秒）
+  (setq blink-cursor-blinks 0)      ;; 0は無限に点滅を続けることを意味する
+  (blink-cursor-mode 1)             ;; カーソル点滅モードを有効化
+
 #+end_src
 ** Clip board
 Waylandでペーストできるようにする設定
@@ -193,16 +198,16 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** perfect-mergin
 #+begin_src emacs-lisp :tangle yes
-    (leaf perfect-margin
-      :ensure t
-      :custom
-      (perfect-margin-ignore-filters . nil)
-            (perfect-margin-ignore-regexps . nil)
-  	  (perfect-margin-visible-width . 128)
-  	  (split-width-threshold . 127)
-      :config
-      (perfect-margin-mode)
-      )
+  (leaf perfect-margin
+    :ensure t
+    :custom
+    (perfect-margin-ignore-filters . nil)
+          (perfect-margin-ignore-regexps . nil)
+  	  (perfect-margin-visible-width . 108)
+  	  (split-width-threshold . 107)
+    :config
+    (perfect-margin-mode)
+    )
 #+end_src
 ** icon
 *** nerd-icons
