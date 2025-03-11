@@ -534,37 +534,41 @@ emacs lisp はデフォでやってくれているっぽい。
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
-  (leaf org
-    :ensure t
-    :custom
-    (org-hide-emphasis-markers . t);boldなどの*を隠す
-    (org-emphasis-regexp-components . '("[:alnum:][:nonascii:][:punct:]" "[:alnum:][:nonascii:][:punct:]" "[:space:]" "." 1));*の前後にspaceが要らないように
+    (leaf org
+      :ensure t
+      :custom
+      (org-todo-keywords
+       . '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)")
+           )
+       )
+      (org-hide-emphasis-markers . t);boldなどの*を隠す
+      (org-emphasis-regexp-components . '("[:alnum:][:nonascii:][:punct:]" "[:alnum:][:nonascii:][:punct:]" "[:space:]" "." 1));*の前後にspaceが要らないように
 
 
-    (org-todo-keyword-faces
-     . '(("TODO" . (:foreground "white" :background "red" :weight bold))
-         ("WAIT" . org-warning)
-         ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
-         ("DONE(d)" . "yellow")
-         ("CANCEL" . org-warning)
-         ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
-         ))
-    (org-startup-folded . t)
-    (org-tag-alist
-     . '(("HOME" . ?h)
-         ("LAB" . ?l)
-         ("PC" . ?p)
-         ("desk" . ?d)
-         ("smartphone" . ?s)
-         ("anywhere" . ?a)
-         ("movie" . ?m)
-         ("Kana" . ?k)
-         ))
-    (org-directory . "~/dropbox")
-    (org-return-follows-link . t)
-    :config
-    )
-    (regexp-opt '("Tasks" "Notes"))
+      (org-todo-keyword-faces
+       . '(("TODO" . (:foreground "white" :background "red" :weight bold))
+           ("WAIT" . org-warning)
+           ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
+           ("DONE(d)" . "yellow")
+           ("CANCEL" . org-warning)
+           ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
+           ))
+      (org-startup-folded . t)
+      (org-tag-alist
+       . '(("HOME" . ?h)
+           ("LAB" . ?l)
+           ("PC" . ?p)
+           ("desk" . ?d)
+           ("smartphone" . ?s)
+           ("anywhere" . ?a)
+           ("movie" . ?m)
+           ("Kana" . ?k)
+           ))
+      (org-directory . "~/dropbox")
+      (org-return-follows-link . t)
+      :config
+      )
+      (regexp-opt '("Tasks" "Notes"))
 #+end_src
 ** org-clock
 #+begin_src emacs-lisp :tangle yes
