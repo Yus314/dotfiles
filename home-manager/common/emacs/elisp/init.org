@@ -1116,20 +1116,20 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * go-translate
 #+begin_src emacs-lisp :tangle yes
-  ;(leaf go-translate
-  ;  :ensure t
-  ;      :config
-  ;  (setq gt-langs '(en ja))
-  ;  (setq gt-default-translator
-  ;	(gt-translator
-  ;	 :taker (gt-taker :text 'buffer :pick 'paragraph)
-  ;	 :engines (list (gt-deepl-engine :key "XXXXXXXXX"))
-  ;	 :Render (gt-buffer-render :then (gt-kill-ring-render))
-  ;	 ))
-  ;  :bind (
-  ;	 ("C-; t" . gt-do-translate)
-  ;	 )
-  ;  )
+  (leaf go-translate
+    :ensure t
+        :config
+    (setq gt-langs '(en ja))
+    (setq gt-default-translator
+  	(gt-translator
+  	 :taker (gt-taker :text 'buffer :pick 'paragraph)
+  	 :engines (list (gt-deepl-engine :key "b432a243-b42a-420b-97a1-43e1e54ae3be:fx"))
+  	 :render (gt-buffer-render :then (gt-kill-ring-render))
+  	 ))
+    :bind (
+  	 ("C-t" . gt-do-translate)
+  	 )
+    );
 #+end_src
 * reinbow-delimiters
 #+begin_src emacs-lisp :tangle yes
