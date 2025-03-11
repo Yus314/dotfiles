@@ -228,7 +228,10 @@ emacs lisp はデフォでやってくれているっぽい。
     :ensure t)
   (leaf ace-window
      :ensure t
-    :after avy)
+    :after avy
+    :bind
+    ("C-x o" . ace-window)
+    )
 #+end_src
 ** tab bar
 バッファをウインドウの管理をうまくできていないので、あまりつかいこなせていない。
