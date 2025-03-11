@@ -537,38 +537,41 @@ emacs lisp はデフォでやってくれているっぽい。
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
-  (leaf org
-    :ensure t
-    :custom
-    (org-todo-keywords
-     . '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)")
-         )
-     )
+    (leaf org
+      :ensure t
+      :custom
+      (org-todo-keywords
+       . '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)")
+           )
+       )
+      (org-hide-emphasis-markers . t);boldなどの*を隠す
+      (org-emphasis-regexp-components . '("[:alnum:][:nonascii:][:punct:]" "[:alnum:][:nonascii:][:punct:]" "[:space:]" "." 1));*の前後にspaceが要らないように
 
-    (org-todo-keyword-faces
-     . '(("TODO" . (:foreground "white" :background "red" :weight bold))
-         ("WAIT" . org-warning)
-         ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
-         ("DONE(d)" . "yellow")
-         ("CANCEL" . org-warning)
-         ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
-         ))
-    (org-startup-folded . t)
-    (org-tag-alist
-     . '(("HOME" . ?h)
-         ("LAB" . ?l)
-         ("PC" . ?p)
-         ("desk" . ?d)
-         ("smartphone" . ?s)
-         ("anywhere" . ?a)
-         ("movie" . ?m)
-         ("Kana" . ?k)
-         ))
-    (org-directory . "~/dropbox")
-    (org-return-follows-link . t)
-    :config
-    )
-    (regexp-opt '("Tasks" "Notes"))
+
+      (org-todo-keyword-faces
+       . '(("TODO" . (:foreground "white" :background "red" :weight bold))
+           ("WAIT" . org-warning)
+           ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
+           ("DONE(d)" . "yellow")
+           ("CANCEL" . org-warning)
+           ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
+           ))
+      (org-startup-folded . t)
+      (org-tag-alist
+       . '(("HOME" . ?h)
+           ("LAB" . ?l)
+           ("PC" . ?p)
+           ("desk" . ?d)
+           ("smartphone" . ?s)
+           ("anywhere" . ?a)
+           ("movie" . ?m)
+           ("Kana" . ?k)
+           ))
+      (org-directory . "~/dropbox")
+      (org-return-follows-link . t)
+      :config
+      )
+      (regexp-opt '("Tasks" "Notes"))
 #+end_src
 ** org-clock
 #+begin_src emacs-lisp :tangle yes
@@ -846,37 +849,38 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** gcal
 #+begin_src emacs-lisp :tangle yes
-  (leaf gcal
-    :el-get misohena/gcal
-    :require t gcal gcal-org
-    :load-path "~/.emacs.d/el-get/gcal/"
-    :custom
-    (gcal-client-id . "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
-    (gcal-client-secret . "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")
-    :config
-      (gcal-org-push-file
-     "shizhaoyoujie@gmail.com"
-     "~/dropbox/inbox/inbox.org"
-     "~/dropbox/my-schedule.gcal-cache"
-     )
-    (gcal-org-pull-to-file
-     "shizhaoyoujie@gmail.com"
-     "~/dropbox/inbox/inbox.org"
-     "FROM_GCAL"
-     "~/dropbox/my-schedule.gcal-cache")
-    
-      (gcal-org-push-file
-     "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
-     "~/dropbox/kana.org"
-     )
+    (leaf gcal
+      :el-get misohena/gcal
+      :require t gcal gcal-org
+      :load-path "~/.emacs.d/el-get/gcal/"
+      :custom
+      (gcal-client-id . "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
+      (gcal-client-secret . "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")
+      :config
+        (gcal-org-push-file
+       "shizhaoyoujie@gmail.com"
+       "~/dropbox/inbox/inbox.org"
+       "~/dropbox/my-schedule.gcal-cache"
+       )
+      (gcal-org-pull-to-file
+       "shizhaoyoujie@gmail.com"
+       "~/dropbox/inbox/inbox.org"
+       "FROM_GCAL"
+       "~/dropbox/my-schedule.gcal-cache")
 
-    (gcal-org-pull-to-file
-     "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
-     "~/dropbox/kana.org"
-     "FROM_GCAL"
-     "~/dropbox/my-schedule.gcal-cache"
-     )
-    )
+  ; かなとの予定
+        (gcal-org-push-file
+       "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+       "~/dropbox/kana.org"
+       )
+
+      (gcal-org-pull-to-file
+       "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+       "~/dropbox/kana.org"
+       "FROM_GCAL"
+       "~/dropbox/my-schedule.gcal-cache"
+       )
+      )
 #+end_src
 ** org-babel
 #+begin_src emacs-lisp :tangle yes
@@ -897,30 +901,40 @@ emacs lisp はデフォでやってくれているっぽい。
     (find-file-visit-truename .  t)
     (org-roam-capture-templates
      . '(("d" "default" plain "%?" :if-new
-          (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
-    - index ::  
-    - tags :: ")
+          (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}")
           :unnarrowed t
           :jump-to-captured t)
 
-           ("r" "reference" plain "%?" :if-new
+           ("p" "paper" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
-  ,#+bibliography: ~/dropbox/ref.bib
-
-    - index ::  
-    - tags :: ")
+  ,#+filetags: :reference:paper:
+  ,#+bibliography: ~/dropbox/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
-
-         ("o" "outline" plain "%?" :if-new
-          (file+head "outlines/${slug}-%<%d-%m-%y>.org" "#+title: ${title}
-    ,#+filetags: outline")
+           ("b" "book" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+filetags: :reference:book:
+  ,#+bibliography: ~/dropbox/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
-
+           ("a" "anime" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+filetags: :reference:anime:
+  ,#+bibliography: ~/dropbox/ref.bib")
+          :unnarrowed t
+          :jump-to-captured t)
+           ("m" "movie" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+filetags: :reference:movie:
+  ,#+bibliography: ~/dropbox/ref.bib")
+          :unnarrowed t
+          :jump-to-captured t)
          )
      )
     :config
+    (setq org-roam-node-display-template
+  	(concat "${title:*} "
+  		(propertize "${tags:10}" 'face 'org-tag)))
     (org-roam-db-autosync-mode)
     )
 #+end_src
