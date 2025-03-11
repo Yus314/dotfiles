@@ -201,7 +201,7 @@ emacs lisp はデフォでやってくれているっぽい。
   	  (perfect-margin-visible-width . 128)
   	  (split-width-threshold . 127)
       :config
-  ;(perfect-margin-mode)
+      (perfect-margin-mode)
       )
 #+end_src
 ** icon
