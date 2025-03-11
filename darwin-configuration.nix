@@ -14,7 +14,7 @@
   # Auto upgrade nix package and the daemon service.
   nix.package = pkgs.nix;
   nixpkgs.hostPlatform = "aarch64-darwin";
-  security.pam.enableSudoTouchIdAuth = true;
+  security.pam.services.sudo_local.touchIdAuth = true;
 
   imports = [
     ./home-manager/macOS/yabai.nix

@@ -860,6 +860,14 @@ emacs lisp はデフォでやってくれているっぽい。
      "shizhaoyoujie@gmail.com"
      "~/dropbox/inbox/inbox.org"
      "FROM_GCAL"
+<<<<<<< HEAD
+      "~/dropbox/my-schedule.gcal-cache)"
+      )
+    (gcal-org-push-oevents
+     "shizhaoyoujie@gmail.com"
+    nil
+    (gcal-org-parse-file  "~/dropbox/inbox/inbox.org"))
+=======
      "~/dropbox/my-schedule.gcal-cache")
     
       (gcal-org-push-file
@@ -873,6 +881,7 @@ emacs lisp はデフォでやってくれているっぽい。
      "FROM_GCAL"
      "~/dropbox/my-schedule.gcal-cache"
      )
+>>>>>>> 839194a8aa89cf4ee4719eca080dbfb1861485f4
     )
 #+end_src
 ** org-babel
