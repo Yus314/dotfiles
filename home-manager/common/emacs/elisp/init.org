@@ -226,12 +226,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf winum
     :ensure t)
-  (leaf ace-window
-     :ensure t
-    :after avy
-    :bind
-    ("C-x o" . ace-window)
-    )
 #+end_src
 ** tab bar
 バッファをウインドウの管理をうまくできていないので、あまりつかいこなせていない。
@@ -1097,9 +1091,13 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * ace-window
 #+begin_src emacs-lisp :tangle yes
-  (leaf ace-window
-    :ensure t
+    (leaf ace-window
+     :ensure t
+    :after avy
+    :bind
+    ("C-x o" . ace-window)
     )
+
 #+end_src
 * embark
 #+begin_src emacs-lisp :tangle yes
