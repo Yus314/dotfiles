@@ -197,6 +197,9 @@ emacs lisp はデフォでやってくれているっぽい。
       :ensure t
       :custom
       (perfect-margin-ignore-filters . nil)
+            (perfect-margin-ignore-regexps . nil)
+  	  (perfect-margin-visible-width . 128)
+  	  (split-width-threshold . 127)
       :config
   ;(perfect-margin-mode)
       )
@@ -860,14 +863,6 @@ emacs lisp はデフォでやってくれているっぽい。
      "shizhaoyoujie@gmail.com"
      "~/dropbox/inbox/inbox.org"
      "FROM_GCAL"
-<<<<<<< HEAD
-      "~/dropbox/my-schedule.gcal-cache)"
-      )
-    (gcal-org-push-oevents
-     "shizhaoyoujie@gmail.com"
-    nil
-    (gcal-org-parse-file  "~/dropbox/inbox/inbox.org"))
-=======
      "~/dropbox/my-schedule.gcal-cache")
     
       (gcal-org-push-file
@@ -881,7 +876,6 @@ emacs lisp はデフォでやってくれているっぽい。
      "FROM_GCAL"
      "~/dropbox/my-schedule.gcal-cache"
      )
->>>>>>> 839194a8aa89cf4ee4719eca080dbfb1861485f4
     )
 #+end_src
 ** org-babel
