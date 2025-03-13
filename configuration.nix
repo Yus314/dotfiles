@@ -18,6 +18,8 @@
     ./hardware-configuration.nix
     ./font.nix
     ./nvidia.nix
+    ./greetd.nix
+    ./user.nix
     #    ./home-manager/common/dropbox.nix
   ];
   sops = {
@@ -61,6 +63,12 @@
 
   };
   nix = {
+    settings = {
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
+    };
     extraOptions = ''
       !include ${config.sops.templates."gh-token".path}
     '';
@@ -124,14 +132,6 @@
     LC_TELEPHONE = "ja_JP.UTF-8";
     LC_TIME = "ja_JP.UTF-8";
   };
-  nix = {
-    settings = {
-      experimental-features = [
-        "nix-command"
-        "flakes"
-      ];
-    };
-  };
   #for dropbox
   programs.fuse.userAllowOther = true;
 
@@ -183,30 +183,8 @@
   security.pam.services.swaylock = {
     fprintAuth = false;
   };
-  services.greetd = {
-    enable = true;
-    settings = {
-      default_session = {
-        #command = "${pkgs.sway}/bin/sway";
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
-        user = "kaki";
-      };
-    };
-  };
-
   # Configure keymap in X11
   services.xserver.xkb.layout = "us";
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.kaki = {
-    isNormalUser = true;
-    description = "kaki";
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-      "input"
-    ];
-  };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
