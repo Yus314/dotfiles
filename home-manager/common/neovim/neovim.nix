@@ -14,7 +14,6 @@ in
 {
   programs.neovim = {
     enable = true;
-    package = unstable.neovim-unwrapped;
     vimAlias = true;
 
     extraPackages = with pkgs; [
@@ -22,7 +21,7 @@ in
       rust-analyzer
       texlab
       ruff-lsp
-      (unstable.ruff)
+      ruff
       python312Packages.python-lsp-ruff
       python312Packages.python-lsp-server
       rustfmt
@@ -72,8 +71,8 @@ in
                 nix
                 norg
                 java
-                (pkgs.tree-sitter-grammars.tree-sitter-norg-meta)
-                (pkgs.tree-sitter-grammars.tree-sitter-nu)
+                (unstable.tree-sitter-grammars.tree-sitter-norg-meta)
+                (unstable.tree-sitter-grammars.tree-sitter-nu)
                 org
               ]
             )).dependencies;
