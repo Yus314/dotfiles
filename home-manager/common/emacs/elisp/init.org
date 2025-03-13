@@ -482,6 +482,7 @@ emacs lisp はデフォでやってくれているっぽい。
     :bind
     ("M-g f" . affe-find)
     ("M-g h" . affe-find-home)
+    ("M-g g" . affe-grep)
     :custom
     (affe-highlight-function . 'orderless-highlight-matches)
     (affe-find-command . "fd --color=never --full-path")
