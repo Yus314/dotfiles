@@ -86,7 +86,6 @@
               system = "x86_64-linux";
               config.allowUnfree = true;
             };
-            inherit wezterm;
             inherit emacs-overlay;
             inherit org-babel;
             inherit bizin-gothic-discord;
