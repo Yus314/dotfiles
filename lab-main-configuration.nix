@@ -65,7 +65,7 @@
     users.kaki = {
       imports = [
         ./home-manager/NixOS/gui
-        #./home-manager/NixOS/cli
+        ./home-manager/NixOS/cli
         ./home-manager/common
       ];
       home = {
