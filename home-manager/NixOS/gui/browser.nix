@@ -1,7 +1,8 @@
 { unstable, ... }:
 {
   programs.vivaldi = {
-    enable = true;
+    enable = false;
+
     package = unstable.vivaldi;
     commandLineArgs = [
       "--enable-features=UseOzonePlatfor"

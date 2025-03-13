@@ -63,8 +63,12 @@ in
       mu
       xapian
       gmime
+<<<<<<< HEAD
+      adwaita-icon-theme
+=======
       (unstable.adwaita-icon-theme)
       (unstable.tinymist) # typstのlsp
+>>>>>>> 6971f88731a88dbeae23c3a7526a3203563003fc
     ];
   };
 
