@@ -15,10 +15,12 @@ in
     package = pkgs.emacsWithPackagesFromUsePackage {
       config = ./elisp/init.org;
       defaultInitFile = true;
-      # package = pkgs.emacs-pgtk;
       package = emacs-packages;
       alwaysTangle = true;
-      override = final: prev: { withXwidgets = false; };
+      override = final: prev: {
+        withXwidgets = true;
+        withNativeComplation = false;
+      };
       extraEmacsPackages =
         epkgs: with epkgs; [
           (treesit-grammars.with-grammars (
@@ -33,12 +35,14 @@ in
           ))
           mu4e
           (unstable.emacsPackages.slack) # stableのバージョンがかなり古いのでunstableを使う
+          (unstable.emacsPackages.lsp-bridge)
           (pkgs.texlive.combined.scheme-full)
           (pkgs.zathura)
           (pkgs.nil)
           (pkgs.imagemagick)
           (pkgs.ghq)
           vterm
+          (unstable.basedpyright)
         ];
     };
   };
