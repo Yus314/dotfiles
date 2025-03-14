@@ -88,6 +88,7 @@
             };
             inherit emacs-overlay;
             inherit org-babel;
+            inherit xremap;
             inherit bizin-gothic-discord;
           };
         };
