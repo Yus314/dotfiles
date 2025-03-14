@@ -10,6 +10,7 @@
   emacs-overlay,
   org-babel,
   bizin-gothic-discord,
+  xremap,
   ...
 }:
 
@@ -82,6 +83,7 @@
     extraSpecialArgs = {
       inherit unstable;
       inherit org-babel;
+      inherit xremap;
     };
   };
   nixpkgs.config.allowUnfree = true;
@@ -228,7 +230,6 @@
     meshcentral
     tigervnc
     openssl
-    teamviewer
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
