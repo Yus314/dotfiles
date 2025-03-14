@@ -276,7 +276,7 @@ keymap:
       j:
         remap:
           t: [d, u]
-          n: [s, e]
+          n: [z, e]
           l: [h, y, a]
           p: [r, y, a]
         timeout_millis: 50
@@ -284,7 +284,7 @@ keymap:
       KEY_SEMICOLON:
         remap:
           t: [z, o]
-          n: [z, e]
+          n: [z, a]
         timeout_millis: 50
         timeout_key: [m, a]
       KEY_COMMA:
