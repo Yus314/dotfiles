@@ -74,7 +74,6 @@ in
                 java
                 (pkgs.tree-sitter-grammars.tree-sitter-norg-meta)
                 (pkgs.tree-sitter-grammars.tree-sitter-nu)
-                org
               ]
             )).dependencies;
         }
