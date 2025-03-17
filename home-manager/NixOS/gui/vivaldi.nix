@@ -1,6 +1,6 @@
 { unstable, ... }:
 {
   programs.vivaldi = {
-    enable = true;
+    enable = false;
   };
 }

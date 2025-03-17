@@ -58,6 +58,10 @@
   (setq scroll-margin 5)
   (setq scroll-preserve-screen-position t)
 
+  (setq blink-cursor-idle-time 1)  ;; 入力停止から点滅開始までの秒数
+  (setq blink-cursor-interval 0.3)  ;; 点滅の間隔（秒）
+  (setq blink-cursor-blinks 0)      ;; 0は無限に点滅を続けることを意味する
+  (blink-cursor-mode 1)             ;; カーソル点滅モードを有効化
 #+end_src
 ** Clip board
 Waylandでペーストできるようにする設定
@@ -79,6 +83,46 @@ Waylandでペーストできるようにする設定
   (setq interprogram-cut-function 'wl-copy)
   (setq interprogram-paste-function 'wl-paste)
   )
+#+end_src
+** 起動時間測定
+#+begin_src emacs-lisp :tangle yes
+  (defconst my/before-load-init-time (current-time))
+
+  ;;;###autoload
+  (defun my/load-init-time ()
+    "Loading time of user init files including time for `after-init-hook'."
+    (let ((time1 (float-time
+                  (time-subtract after-init-time my/before-load-init-time)))
+          (time2 (float-time
+                  (time-subtract (current-time) my/before-load-init-time))))
+      (message (concat "Loading init files: %.0f [msec], "
+                       "of which %.f [msec] for `after-init-hook'.")
+               (* 1000 time1) (* 1000 (- time2 time1)))))
+  (add-hook 'after-init-hook #'my/load-init-time t)
+
+  (defvar my/tick-previous-time my/before-load-init-time)
+
+  ;;;###autoload
+  (defun my/tick-init-time (msg)
+    "Tick boot sequence at loading MSG."
+    (when my/loading-profile-p
+      (let ((ctime (current-time)))
+        (message "---- %5.2f[ms] %s"
+                 (* 1000 (float-time
+                          (time-subtract ctime my/tick-previous-time)))
+                 msg)
+        (setq my/tick-previous-time ctime))))
+
+  (defun my/emacs-init-time ()
+    "Emacs booting time in msec."
+    (interactive)
+    (message "Emacs booting time: %.0f [msec] = `emacs-init-time'."
+             (* 1000
+                (float-time (time-subtract
+                             after-init-time
+                             before-init-time)))))
+
+  (add-hook 'after-init-hook #'my/emacs-init-time)
 #+end_src
 * UI
 ** theme
@@ -131,78 +175,18 @@ emacs lisp はデフォでやってくれているっぽい。
     )
 
   #+end_src
-*** nix
-#+begin_src emacs-lisp :tangle yes
-  (leaf nix-ts-mode
-    :ensure t
-    :mode
-    (("\\.nix\\'" . nix-ts-mode))
-    :hook
-                                          ; (nix-ts-mode-hook . eglot-ensure)
-    (nix-ts-mode-hook . nixfmt-on-save-mode)
-    )
-  (add-hook 'nix-ts-mode-hook 'eglot-ensure)
-#+end_src
-*** yaml
-#+begin_src emacs-lisp :tangle yes
-  (leaf yaml-mode
-    :ensure t
-    )
-  (add-to-list 'auto-mode-alist '("\\.ya?ml$" . yaml-mode))
-  (leaf yaml-ts-mode
-    :mode
-    ("\\.ya?ml\\'")
-    )
-  (add-to-list 'auto-mode-alist '("\\.ya?ml$" . yaml-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
-#+end_src
-*** rust
-#+begin_src emacs-lisp :tangle yes
-  (leaf rust-mode
-     :ensure t
-     :custom
-     (rust-mode-treesitter-derive . t)
-     (rust-format-on-save . t)
-     )
-  (add-hook 'rust-mode-hook 'eglot-ensure)
-  (defun my/find-rust-project-root (dir)                                                                           
-     (when-let ((root (locate-dominating-file dir "Cargo.toml")))                                                         
-       (list 'vc 'Git root)))
-
-  (defun my/rust-mode-hook ()
-    (setq-local project-find-functions (list #'my/find-rust-project-root)))
-
-  (add-hook 'rust-mode-hook #'my/rust-mode-hook)
-#+end_src
-*** Python
-#+begin_src emacs-lisp :tangle yes
-    (add-hook 'python-ts-mode-hook #'eglot-ensure)
-    (add-hook 'python-ts-mode-hook 'ruff-format-on-save-mode)
-    (leaf ruff-format
-      :ensure t
-      )
-#+end_src
-*** typst
-#+begin_src emacs-lisp :tangle yes
-  (leaf typst-ts-mode
-    :el-get kaction-emacs/typst-ts-mode
-    :custom
-    (typst-ts-mode-watch-option . "--open")
-    )
-    (add-hook 'typst-ts-mode-hook 'eglot-ensure)
-#+end_src
 ** perfect-mergin
 #+begin_src emacs-lisp :tangle yes
-    (leaf perfect-margin
-      :ensure t
-      :custom
-      (perfect-margin-ignore-filters . nil)
-            (perfect-margin-ignore-regexps . nil)
-  	  (perfect-margin-visible-width . 128)
-  	  (split-width-threshold . 127)
-      :config
-  ;(perfect-margin-mode)
-      )
+  (leaf perfect-margin
+    :ensure t
+    :custom
+    (perfect-margin-ignore-filters . nil)
+          (perfect-margin-ignore-regexps . nil)
+  	  (perfect-margin-visible-width . 108)
+  	  (split-width-threshold . 107)
+    :config
+    (perfect-margin-mode)
+    )
 #+end_src
 ** icon
 *** nerd-icons
@@ -221,9 +205,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf winum
     :ensure t)
-  (leaf ace-window
-     :ensure t
-    :after avy)
 #+end_src
 ** tab bar
 バッファをウインドウの管理をうまくできていないので、あまりつかいこなせていない。
@@ -439,6 +420,25 @@ emacs lisp はデフォでやってくれているっぽい。
     (goto-char (point-max))) ;; バッファ末尾に移動
   (global-set-key (kbd "M->") 'select-to-end-of-buffer)
 #+end_src
+* タイマーを利用した疑似非同期
+#+begin_src  emacs-lisp :tangle yes
+  (defvar my-delayed-configurations nil)
+
+  ;; 0.1 秒ずつ間隔を開けながら消化
+  (defvar my-delayed-configuration-timer nil)
+  (add-hook 'after-init-hook
+            (lambda ()
+              (setq my-delayed-configuration-timer
+                    (run-with-timer
+                      0.1 0.1 ; 0.1 秒ごとに
+                      (lambda ()
+                        (if my-delayed-configurations ; まだやることがあれば
+                            (eval (pop my-delayed-configurations)) ; 一個やる
+                          (cancel-timer my-delayed-configuration-timer)))))))
+  (defmacro with-delayed-execution (&rest body)
+    (declare (indent 0))
+    `(push ',(cons 'progn body) my-delayed-configurations))
+#+end_src
 * ミニバッファ補完
 ** vercico
 #+begin_src emacs-lisp :tangle yes
@@ -482,6 +482,7 @@ emacs lisp はデフォでやってくれているっぽい。
     :bind
     ("M-g f" . affe-find)
     ("M-g h" . affe-find-home)
+    ("M-g g" . affe-grep)
     :custom
     (affe-highlight-function . 'orderless-highlight-matches)
     (affe-find-command . "fd --color=never --full-path")
@@ -504,7 +505,7 @@ emacs lisp はデフォでやってくれているっぽい。
             (tab-awlays-indent . 'complete)
             )
     :init
-    (global-corfu-mode)
+    ;(global-corfu-mode)
     :config
     (corfu-popupinfo-mode)
     (keymap-unset corfu-map "RET")
@@ -550,7 +551,71 @@ emacs lisp はデフォでやってくれているっぽい。
                              :chat-model "phi4"
                              :embedding-model "phi4"))
     )
+    #+end_src
+* lsp-bridge
+#+begin_src emacs-lisp :tangle yes
+  (require 'yasnippet)
+  (yas-global-mode 1)
+  (require 'lsp-bridge)
+  (global-lsp-bridge-mode)
+  (setq lsp-bridge-nix-lsp-server "nil")
+  (setq lsp-bridge-enable-with-tramp t)
+  (setq lsp-bridge-remote-start-automatically t)
+#+end_src
 
+* 言語固有の設定
+** nix
+#+begin_src emacs-lisp :tangle yes
+  (leaf nix-ts-mode
+    :ensure t
+    :mode
+    (("\\.nix\\'" . nix-ts-mode))
+    :hook
+    (nix-ts-mode-hook . nixfmt-on-save-mode)
+    )
+#+end_src
+** yaml
+#+begin_src emacs-lisp :tangle yes
+  (leaf yaml-mode
+    :ensure t
+    )
+
+    )
+  (add-to-list 'auto-mode-alist '("\\.ya?ml$" . yaml-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
+#+end_src
+** rust
+#+begin_src emacs-lisp :tangle yes
+  (leaf rust-mode
+     :ensure t
+     :custom
+     (rust-mode-treesitter-derive . t)
+     (rust-format-on-save . t)
+     )
+  (add-hook 'rust-mode-hook 'eglot-ensure)
+  (defun my/find-rust-project-root (dir)                                                                           
+     (when-let ((root (locate-dominating-file dir "Cargo.toml")))                                                         
+       (list 'vc 'Git root)))
+
+  (defun my/rust-mode-hook ()
+    (setq-local project-find-functions (list #'my/find-rust-project-root)))
+
+  (add-hook 'rust-mode-hook #'my/rust-mode-hook)
+#+end_src
+** Python
+#+begin_src emacs-lisp :tangle yes
+    ;(add-hook 'python-ts-mode-hook 'ruff-format-on-save-mode)
+    ;(leaf ruff-format
+    ;  :ensure t
+    ;  )
+#+end_src
+** typst
+#+begin_src emacs-lisp :tangle yes
+  (leaf typst-ts-mode
+    :el-get kaction-emacs/typst-ts-mode
+    :custom
+    (typst-ts-mode-watch-option . "--open")
+    )
 #+end_src
 * org
 ** org
@@ -867,38 +932,25 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** gcal
 #+begin_src emacs-lisp :tangle yes
-    (leaf gcal
-      :el-get misohena/gcal
-      :require t gcal gcal-org
-      :load-path "~/.emacs.d/el-get/gcal/"
-      :custom
-      (gcal-client-id . "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
-      (gcal-client-secret . "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")
-      :config
-        (gcal-org-push-file
-       "shizhaoyoujie@gmail.com"
-       "~/dropbox/inbox/inbox.org"
-       "~/dropbox/my-schedule.gcal-cache"
-       )
-      (gcal-org-pull-to-file
-       "shizhaoyoujie@gmail.com"
-       "~/dropbox/inbox/inbox.org"
-       "FROM_GCAL"
-       "~/dropbox/my-schedule.gcal-cache")
-
-  ; かなとの予定
-        (gcal-org-push-file
-       "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
-       "~/dropbox/kana.org"
-       )
-
-      (gcal-org-pull-to-file
-       "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
-       "~/dropbox/kana.org"
-       "FROM_GCAL"
-       "~/dropbox/my-schedule.gcal-cache"
-       )
-      )
+  (with-delayed-execution
+    (add-to-list 'load-path (locate-user-emacs-file "el-get/gcal/"))
+    (require 'gcal )(require'gcal-org)
+    (setq gcal-client-id  "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
+    (setq gcal-client-secret  "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")
+    (gcal-org-push-file
+     "shizhaoyoujie@gmail.com"
+     "~/dropbox/inbox/inbox.org"
+     "~/dropbox/my-schedule.gcal-cache"
+     )
+    (gcal-org-pull-to-file
+     "shizhaoyoujie@gmail.com"
+     "~/dropbox/inbox/inbox.org"
+     "FROM_GCAL"
+     "~/dropbox/my-schedule.gcal-cache")
+  					; かなとの予定
+    (gcal-org-push-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com" "~/dropbox/kana.org")
+    (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com" "~/dropbox/kana.org" "FROM_GCAL" "~/dropbox/my-schedule.gcal-cache")
+    )
 #+end_src
 ** org-babel
 #+begin_src emacs-lisp :tangle yes
@@ -1067,11 +1119,13 @@ emacs lisp はデフォでやってくれているっぽい。
   #+end_src
 * MisTTY
 #+begin_src emacs-lisp :tangle yes
-  (leaf mistty
-    :ensure t
-    :custom
-    ;(explicit-shell-file-name . "/home/kaki/.nix-profile/bin/fish")
-    (mistty-shell-command . "/bin/bash")
+  (with-delayed-execution
+    (leaf mistty
+      :ensure t
+      :custom
+  					;(explicit-shell-file-name . "/home/kaki/.nix-profile/bin/fish")
+      (mistty-shell-command . "/bin/bash")
+      )
     )
 #+end_src
 * helpful
@@ -1109,7 +1163,10 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf ace-window
     :ensure t
-    )
+    :bind
+    ("C-x o" . ace-window)
+  )
+
 #+end_src
 * embark
 #+begin_src emacs-lisp :tangle yes
@@ -1129,20 +1186,22 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * go-translate
 #+begin_src emacs-lisp :tangle yes
-  ;(leaf go-translate
-  ;  :ensure t
-  ;      :config
-  ;  (setq gt-langs '(en ja))
-  ;  (setq gt-default-translator
-  ;	(gt-translator
-  ;	 :taker (gt-taker :text 'buffer :pick 'paragraph)
-  ;	 :engines (list (gt-deepl-engine :key "XXXXXXXXX"))
-  ;	 :Render (gt-buffer-render :then (gt-kill-ring-render))
-  ;	 ))
-  ;  :bind (
-  ;	 ("C-; t" . gt-do-translate)
-  ;	 )
-  ;  )
+  (with-delayed-execution
+  (leaf go-translate
+    :ensure t
+        :config
+    (setq gt-langs '(en ja))
+    (setq gt-default-translator
+  	(gt-translator
+  	 :taker (gt-taker :text 'buffer :pick 'paragraph)
+  	 :engines (list (gt-deepl-engine :key "b432a243-b42a-420b-97a1-43e1e54ae3be:fx"))
+  	 :render (gt-buffer-render :then (gt-kill-ring-render))
+  	 ))
+    :bind (
+  	 ("C-t" . gt-do-translate)
+  	 )
+    );
+  )
 #+end_src
 * reinbow-delimiters
 #+begin_src emacs-lisp :tangle yes
@@ -1153,13 +1212,15 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * reformatter
 #+begin_src emacs-lisp :tangle yes
-  (leaf reformatter
-    :ensure t
-    )
-  (reformatter-define nixfmt
-    :program "nixfmt"
-    :args '("-")
-    )
+  (with-delayed-execution
+    (leaf reformatter
+        :ensure t
+        )
+      (reformatter-define nixfmt
+        :program "nixfmt"
+        :args '("-")
+        )
+      )
 #+end_src
 * aggressive-inden
 * プログラミング支援
@@ -1188,6 +1249,7 @@ emacs lisp はデフォでやってくれているっぽい。
 
 ** Tex
 #+begin_src emacs-lisp :tangle yes
+  (with-delayed-execution
     (leaf auctex
       :ensure t
       :custom
@@ -1212,6 +1274,7 @@ emacs lisp はデフォでやってくれているっぽい。
 
      ;(TeX-PDF-from-DVI . "Dvipdfmx")
       )
+    )
   ;  (add-hook 'LaTeX-mode-hook 'japanese-LaTeX-mode)
    ; (leaf auctex-latexmk
     ;   :ensure t
@@ -1240,6 +1303,7 @@ emacs lisp はデフォでやってくれているっぽい。
 * Dired
 ** dired-narrow
 #+begin_src emacs-lisp :tangle yes
+  (with-delayed-execution
   (leaf dired-narrow
     :ensure t
     :after dired-hacks-utils
@@ -1248,12 +1312,15 @@ emacs lisp はデフォでやってくれているっぽい。
      ("," . dired-narrow-fuzzy)
      )
     )
+  )
 #+end_src
 * mu4e
 #+begin_src emacs-lisp :tangle yes
-  (add-to-list 'load-path "/nix/store/1jg084yny96rx858vsmayjpc3flrjqni-emacs-mu4e-1.12.5/share/emacs/site-lisp/elpa/mu4e-1.12.5")
-  (require 'mu4e)
-  (setq mail-user-agent 'mu4e-user-agent)
+  (with-delayed-execution
+    (add-to-list 'load-path "/nix/store/1jg084yny96rx858vsmayjpc3flrjqni-emacs-mu4e-1.12.5/share/emacs/site-lisp/elpa/mu4e-1.12.5")
+    (require 'mu4e)
+    (setq mail-user-agent 'mu4e-user-agent)
+    )
 #+end_src
 * vterm
 #+begin_src emacs-lisp :tangle yes
@@ -1280,24 +1347,22 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * Slack
 #+begin_src emacs-lisp :tangle yes
-  (leaf slack
-    ;:ensure t
-   :config
-   (slack-register-team
+  (with-delayed-execution
+    (slack-register-team
      :name "mdip"
-    :token "xoxc-14011030212-3874022267665-7457834306050-c11c89ae65f84a20d838527b17e004f9164a04139ba7f3f765040503139c761a"
+     :token "xoxc-14011030212-3874022267665-7457834306050-c11c89ae65f84a20d838527b17e004f9164a04139ba7f3f765040503139c761a"
      :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
      :default t
      )
-    )
+  )
 #+end_src
 ** slack-org
 org-store-linkでリンクをコピーすることができる。
 TODOに貼っておくことで、作業の際に確認することができるようになる。
 #+begin_src emacs-lisp :tangle yes
-  (leaf ol-emacs-slack
-    :el-get ag91/ol-emacs-slack
-    :require t
+  (with-delayed-execution
+    (el-get-bundle ag91/ol-emacs-slack)
+    (require 'ol-emacs-slack)
     )
 #+end_src
 * 履歴保存

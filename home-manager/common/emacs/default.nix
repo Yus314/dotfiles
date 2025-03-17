@@ -7,7 +7,7 @@
 let
   tangle = org-babel.lib.tangleOrgBabel { languages = [ "emacs-lisp" ]; };
   system = pkgs.stdenv.hostPlatform.system;
-  emacs-packages = if system == "x86_64-linux" then pkgs.emacs-pgtk else unstable.emacs30;
+  emacs-packages = if system == "x86_64-linux" then pkgs.emacs-unstable-pgtk else unstable.emacs30;
 in
 {
   programs.emacs = {
@@ -15,10 +15,12 @@ in
     package = pkgs.emacsWithPackagesFromUsePackage {
       config = ./elisp/init.org;
       defaultInitFile = true;
-      # package = pkgs.emacs-pgtk;
       package = emacs-packages;
       alwaysTangle = true;
-      override = final: prev: { withXwidgets = false; };
+      override = final: prev: {
+        withXwidgets = true;
+        withNativeComplation = false;
+      };
       extraEmacsPackages =
         epkgs: with epkgs; [
           (treesit-grammars.with-grammars (
@@ -33,12 +35,14 @@ in
           ))
           mu4e
           (unstable.emacsPackages.slack) # stableのバージョンがかなり古いのでunstableを使う
+          (unstable.emacsPackages.lsp-bridge)
           (pkgs.texlive.combined.scheme-full)
           (pkgs.zathura)
           (pkgs.nil)
           (pkgs.imagemagick)
           (pkgs.ghq)
           vterm
+          (unstable.basedpyright)
         ];
     };
   };
@@ -59,8 +63,8 @@ in
       mu
       xapian
       gmime
-      (unstable.adwaita-icon-theme)
-      (unstable.tinymist) # typstのlsp
+      adwaita-icon-theme
+      tinymist # typstのlsp
     ];
   };
 
