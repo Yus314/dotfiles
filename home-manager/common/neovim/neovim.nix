@@ -71,9 +71,8 @@ in
                 nix
                 norg
                 java
-                (unstable.tree-sitter-grammars.tree-sitter-norg-meta)
-                (unstable.tree-sitter-grammars.tree-sitter-nu)
-                org
+                (pkgs.tree-sitter-grammars.tree-sitter-norg-meta)
+                (pkgs.tree-sitter-grammars.tree-sitter-nu)
               ]
             )).dependencies;
         }
