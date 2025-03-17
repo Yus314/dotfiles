@@ -1,4 +1,4 @@
-# Edit this configuration file to define what should be installed on
+#  Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
@@ -61,7 +61,13 @@
   };
   virtualisation.docker = {
     enable = true;
+	rootless.enable = true;
   };
+  hardware.nvidia-container-toolkit = {
+	enable = true;
+  };
+  virtualisation.docker.daemon.settings.features.cdi = true;
+  virtualisation.docker.rootless.daemon.settings.features.cdi = true;
   home-manager = {
     users.kaki = {
       imports = [
@@ -96,6 +102,7 @@
   ];
   boot.kernelModules = [ "r8125" ];
   boot.initrd.kernelModules = [ "nvidia" ];
+  boot.loader.systemd-boot.configurationLimit = 12;
   hardware.opengl = {
     enable = true;
 
