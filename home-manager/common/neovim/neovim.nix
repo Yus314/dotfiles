@@ -14,7 +14,6 @@ in
 {
   programs.neovim = {
     enable = true;
-    package = unstable.neovim-unwrapped;
     vimAlias = true;
 
     extraPackages = with pkgs; [
@@ -22,7 +21,7 @@ in
       rust-analyzer
       texlab
       ruff-lsp
-      (unstable.ruff)
+      ruff
       python312Packages.python-lsp-ruff
       python312Packages.python-lsp-server
       rustfmt

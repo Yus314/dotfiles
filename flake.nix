@@ -82,10 +82,13 @@
             home-manager.nixosModules.home-manager
           ];
           specialArgs = {
-            inherit unstable;
-            inherit wezterm;
+            unstable = import unstable {
+              system = "x86_64-linux";
+              config.allowUnfree = true;
+            };
             inherit emacs-overlay;
             inherit org-babel;
+            inherit xremap;
             inherit bizin-gothic-discord;
           };
         };

@@ -10,6 +10,7 @@
   emacs-overlay,
   org-babel,
   bizin-gothic-discord,
+  xremap,
   ...
 }:
 
@@ -65,13 +66,13 @@
     users.kaki = {
       imports = [
         ./home-manager/NixOS/gui
-        #./home-manager/NixOS/cli
+        ./home-manager/NixOS/cli
         ./home-manager/common
       ];
       home = {
         username = "kaki";
         homeDirectory = "/home/kaki";
-        stateVersion = "24.05";
+        stateVersion = "24.11";
       };
       nixpkgs.config.allowUnfree = true;
       nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
@@ -82,6 +83,7 @@
     extraSpecialArgs = {
       inherit unstable;
       inherit org-babel;
+      inherit xremap;
     };
   };
   nixpkgs.config.allowUnfree = true;
@@ -96,7 +98,7 @@
   boot.initrd.kernelModules = [ "nvidia" ];
   hardware.opengl = {
     enable = true;
-    driSupport = true;
+
     driSupport32Bit = true;
   };
   hardware.nvidia = {
@@ -176,7 +178,6 @@
   services.openssh.enable = true;
 
   # Enable sound with pipewire.
-  sound.enable = true;
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -209,9 +210,10 @@
   };
   services.greetd = {
     enable = true;
+
     settings = {
       defaultSession = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd hyprland";
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
         user = "kaki";
       };
     };
@@ -228,7 +230,6 @@
     meshcentral
     tigervnc
     openssl
-    teamviewer
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -256,5 +257,5 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "24.05"; # Did you read the comment?
+  system.stateVersion = "24.11"; # Did you read the comment?
 }
