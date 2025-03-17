@@ -534,6 +534,24 @@ emacs lisp はデフォでやってくれているっぽい。
     ("C-q" . scroll-down-command) ;元々M-vだったが、入力しにくいので、そっちをvterm-toggleにした
     )
 #+end_src
+* ellama
+#+begin_src emacs-lisp :tangle yes
+  (require 'llm)
+  (require 'llm-ollama)
+  (leaf ellama
+    :ensure t
+    :require t  
+    :bind ("C-c e" . ellama-transient-main-menu)
+    :init
+    (setopt ellama-provider (make-llm-ollama
+  			   :scheme "http"
+                             :host "ollama.mdip2home.com"
+  			   :port 80
+                             :chat-model "phi4"
+                             :embedding-model "phi4"))
+    )
+
+#+end_src
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
