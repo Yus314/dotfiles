@@ -35,14 +35,22 @@ in
           ))
           mu4e
           (unstable.emacsPackages.slack) # stableのバージョンがかなり古いのでunstableを使う
-          (unstable.emacsPackages.lsp-bridge)
           (pkgs.texlive.combined.scheme-full)
           (pkgs.zathura)
-          (pkgs.nil)
           (pkgs.imagemagick)
           (pkgs.ghq)
           vterm
-          (unstable.basedpyright)
+          (unstable.emacsPackages.lsp-bridge)
+          (pkgs.tinymist)
+
+	        (pkgs.tree-sitter)
+      (pkgs.emacs-lsp-booster)
+      # mu4eのためのパッケッージ
+      (pkgs.mu)
+      (pkgs.xapian)
+      (pkgs.gmime)
+      (pkgs.adwaita-icon-theme)
+
         ];
     };
   };
@@ -52,19 +60,11 @@ in
       ".emacs.d/early-init.el".text = tangle (builtins.readFile ./elisp/early-init.org);
     };
     packages = with pkgs; [
-      tree-sitter
-      emacs-lsp-booster
       nil
-      nixfmt-rfc-style
-      rust-analyzer
-      pyright
-      ruff
-      # mu4eのためのパッケッージ
-      mu
-      xapian
-      gmime
-      adwaita-icon-theme
-      tinymist # typstのlsp
+      (unstable.rust-analyzer)
+      (unstable.basedpyright)
+      (unstable.ruff)
+      (unstable.ruff-lsp)
     ];
   };
 
