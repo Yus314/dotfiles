@@ -180,7 +180,7 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf perfect-margin
     :ensure t
     :custom
-    (perfect-margin-ignore-filters . nil)
+        (perfect-margin-ignore-filters .nil)
           (perfect-margin-ignore-regexps . nil)
   	  (perfect-margin-visible-width . 108)
   	  (split-width-threshold . 107)
@@ -224,6 +224,14 @@ emacs lisp はデフォでやってくれているっぽい。
      (setq x-underline-at-descent-line t)
      )
  #+end_src
+** minus
+#+begin_src emacs-lisp :tangle yes
+  (leaf minions
+    :ensure t
+    :config
+    (minions-mode 1)
+    )
+#+end_src
 ** Moody
 #+begin_src emacs-lisp :tangle yes
                                           ;(leaf moody
@@ -437,68 +445,68 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** shift-selection-mode
 #+begin_src emacs-lisp :tangle yes
-  ;(defun handle-shift-selection ()
-  ;  "Activate/deactivate mark depending on invocation thru shift translation.
-  ;This function behaves opposite to the original: it activates the
-  ;mark when Shift is NOT pressed, and deactivates it when Shift is
-  ;pressed."
-  ;  (cond ((and (eq shift-select-mode 'permanent)
-  ;              (not this-command-keys-shift-translated))
-  ;         (unless mark-active
-  ;           (push-mark nil nil t)))
-  ;        ((and shift-select-mode
-  ;              (not this-command-keys-shift-translated))
-  ;         (unless (and mark-active
-  ;		      (eq (car-safe transient-mark-mode) 'only))
-  ;	   (setq-local transient-mark-mode
-  ;                       (cons 'only
-  ;                             (unless (eq transient-mark-mode 'lambda)
-  ;                               transient-mark-mode))) 
-  ;           (push-mark nil nil t)))
-  ;        ((eq (car-safe transient-mark-mode) 'only)
-  ;         (setq transient-mark-mode (cdr transient-mark-mode))
-  ;         (if (eq transient-mark-mode (default-value 'transient-mark-mode))
-  ;             (kill-local-variable 'transient-mark-mode))
-  ;         (deactivate-mark))))
-  ;(defun open-below()
-  ;  "Open a newline and move cursor"
-  ;  (interactive)
-  ;  (goto-char (line-end-position))
-  ;  (newline-and-indent)
-  ;  )
-  ;(defun select-current-line ()
-  ;"Select the current line."
-  ;(interactive)
-  ;(let ((start (line-beginning-position))
-  ;      (end (line-end-position)))
-  ;  (set-mark start)
-  ;  (goto-char (min (point-max) (+ 1 end)))))
-  ;(defun quit-and-back ()
-  ;  "Quit current buffer and back prev buffer"
-  ;  (interactive)
-  ;  (if (> (seq-length (window-list (selected-frame)))1)
-  ;      (previous-buffer
-  ;       ))
-  ;  )
-  ;(defun quit-and-back ()
-  ;  "Quit current buffer and go back to previous buffer."
-  ;  (interactive)
-  ;  (if (> (length (window-list)) 1)
-  ;      (progn
-  ;        (bury-buffer)
-  ;        (previous-buffer))
-  ;    (kill-buffer (current-buffer))))
-  ;(set-frame-parameter (window-frame) 'cursor-type 'bar)
-  ;(define-key input-decode-map (kbd "C-i") [contorol-i])
-  ;(keymap-global-set "C-d" 'backward-char)
-  ;(keymap-global-set "C-f" 'isearch-forward)
-  ;(global-set-key [contorol-i]  'avy-goto-char-timer)
-  ;(keymap-global-set "C-k" 'select-current-line)
-  ;(keymap-global-set "C-n" 'forward-char)
-  ;(keymap-global-set "C-o" 'open-below)
-  ;(keymap-global-set "C-t" 'previous-line)
-  ;(keymap-global-set "C-s" 'next-line)
-  ;
+  (defun handle-shift-selection ()
+    "Activate/deactivate mark depending on invocation thru shift translation.
+  This function behaves opposite to the original: it activates the
+  mark when Shift is NOT pressed, and deactivates it when Shift is
+  pressed."
+    (cond ((and (eq shift-select-mode 'permanent)
+                (not this-command-keys-shift-translated))
+           (unless mark-active
+             (push-mark nil nil t)))
+          ((and shift-select-mode
+                (not this-command-keys-shift-translated))
+           (unless (and mark-active
+  		      (eq (car-safe transient-mark-mode) 'only))
+  	   (setq-local transient-mark-mode
+                         (cons 'only
+                               (unless (eq transient-mark-mode 'lambda)
+                                 transient-mark-mode))) 
+             (push-mark nil nil t)))
+          ((eq (car-safe transient-mark-mode) 'only)
+           (setq transient-mark-mode (cdr transient-mark-mode))
+           (if (eq transient-mark-mode (default-value 'transient-mark-mode))
+               (kill-local-variable 'transient-mark-mode))
+           (deactivate-mark))))
+  (defun open-below()
+    "Open a newline and move cursor"
+    (interactive)
+    (goto-char (line-end-position))
+    (newline-and-indent)
+    )
+  (defun select-current-line ()
+  "Select the current line."
+  (interactive)
+  (let ((start (line-beginning-position))
+        (end (line-end-position)))
+    (set-mark start)
+    (goto-char (min (point-max) (+ 1 end)))))
+  (defun quit-and-back ()
+    "Quit current buffer and back prev buffer"
+    (interactive)
+    (if (> (seq-length (window-list (selected-frame)))1)
+        (previous-buffer
+         ))
+    )
+  (defun quit-and-back ()
+    "Quit current buffer and go back to previous buffer."
+    (interactive)
+    (if (> (length (window-list)) 1)
+        (progn
+          (bury-buffer)
+          (previous-buffer))
+      (kill-buffer (current-buffer))))
+  (set-frame-parameter (window-frame) 'cursor-type 'bar)
+  (define-key input-decode-map (kbd "C-i") [contorol-i])
+  (keymap-global-set "C-d" 'backward-char)
+  (keymap-global-set "C-f" 'isearch-forward)
+  (global-set-key [contorol-i]  'avy-goto-char-timer)
+  (keymap-global-set "C-k" 'select-current-line)
+  (keymap-global-set "C-n" 'forward-char)
+  (keymap-global-set "C-o" 'open-below)
+  (keymap-global-set "C-t" 'previous-line)
+  (keymap-global-set "C-s" 'next-line)
+  
 #+end_src
 * タイマーを利用した疑似非同期
 #+begin_src  emacs-lisp :tangle yes
@@ -662,8 +670,7 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf yaml-mode
     :ensure t
     )
-
-    )
+  
   (add-to-list 'auto-mode-alist '("\\.ya?ml$" . yaml-ts-mode))
   (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
 #+end_src
