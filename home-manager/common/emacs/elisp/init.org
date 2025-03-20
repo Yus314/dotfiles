@@ -180,7 +180,7 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf perfect-margin
     :ensure t
     :custom
-        (perfect-margin-ignore-filters .nil)
+    (perfect-margin-ignore-filters . nil)
           (perfect-margin-ignore-regexps . nil)
   	  (perfect-margin-visible-width . 108)
   	  (split-width-threshold . 107)
@@ -224,14 +224,6 @@ emacs lisp はデフォでやってくれているっぽい。
      (setq x-underline-at-descent-line t)
      )
  #+end_src
-** minus
-#+begin_src emacs-lisp :tangle yes
-  (leaf minions
-    :ensure t
-    :config
-    (minions-mode 1)
-    )
-#+end_src
 ** Moody
 #+begin_src emacs-lisp :tangle yes
                                           ;(leaf moody
@@ -279,12 +271,12 @@ emacs lisp はデフォでやってくれているっぽい。
     (meow-expand-hint-counts . nil)
     :config
     (defun meow-setup ()
-      ;(setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
-      ;(meow-leader-define-key
-       ;'("?" . meow-cheatsheet))
-      ;(meow-motion-overwrite-define-key
+      (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
+      (meow-leader-define-key
+       '("?" . meow-cheatsheet))
+      (meow-motion-overwrite-define-key
        ;; custom keybinding for motion state
-       ;'("<escape>" . ignore))
+       '("<escape>" . ignore))
       (meow-normal-define-key
        '("?" . meow-cheatsheet)
        ;; Ctrl key
@@ -383,21 +375,17 @@ emacs lisp はデフォでやってくれているっぽい。
        ;'("g" . avy-goto-char-timer)
        )
       )
-    ;(meow-setup)
-    ;(meow-global-mode)
+    (meow-setup)
+    (meow-global-mode)
     )
 
 #+end_src
 ** puni
  #+begin_src emacs-lisp :tangle yes
-   (keymap-global-unset "C-j")
    (leaf puni
-       :ensure t
-       :bind
-       ("C-j i" . puni-mark-list-around-point)
-       ("C-j a" . puni-mark-sexp-around-point)
-       ("C-j e" . puni-expand-region)
-       )
+       :ensure t)
+
+   
  #+end_src
 
 ** which key
@@ -411,23 +399,12 @@ emacs lisp はデフォでやってくれているっぽい。
 ** vundo
 #+begin_src emacs-lisp :tangle yes
   (leaf vundo
-    :ensure t
-    :bind
-    ("C-r" . vundo)
-    (:vundo-mode-map
-     ("d" . vundo-backward)
-     ("n" . vundo-forward)
-     ("s" . vundo-next)
-     ("t" . vundo-previous)
-     ("b" . vundo-diff)
-     )
-    )
+    :ensure t)
 #+end_src
 ** dmacro
 #+begin_src emacs-lisp :tangle yes
   (leaf dmacro
     :ensure t
-    :custom `((dmacro-key . ,(kbd "C-b")))  ;; C-b を dmacro のキーにする
     :global-minor-mode global-dmacro-mode)
   (defun my-indent-rigidly-right-to-tab-stop (beg end)
     "Indent all lines between BEG and END rightward to a tab stop and keep the region active."
@@ -442,71 +419,6 @@ emacs lisp はデフォでやってくれているっぽい。
     (set-mark (point)) ;; 現在のポイントをマークに設定
     (goto-char (point-max))) ;; バッファ末尾に移動
   (global-set-key (kbd "M->") 'select-to-end-of-buffer)
-#+end_src
-** shift-selection-mode
-#+begin_src emacs-lisp :tangle yes
-  (defun handle-shift-selection ()
-    "Activate/deactivate mark depending on invocation thru shift translation.
-  This function behaves opposite to the original: it activates the
-  mark when Shift is NOT pressed, and deactivates it when Shift is
-  pressed."
-    (cond ((and (eq shift-select-mode 'permanent)
-                (not this-command-keys-shift-translated))
-           (unless mark-active
-             (push-mark nil nil t)))
-          ((and shift-select-mode
-                (not this-command-keys-shift-translated))
-           (unless (and mark-active
-  		      (eq (car-safe transient-mark-mode) 'only))
-  	   (setq-local transient-mark-mode
-                         (cons 'only
-                               (unless (eq transient-mark-mode 'lambda)
-                                 transient-mark-mode))) 
-             (push-mark nil nil t)))
-          ((eq (car-safe transient-mark-mode) 'only)
-           (setq transient-mark-mode (cdr transient-mark-mode))
-           (if (eq transient-mark-mode (default-value 'transient-mark-mode))
-               (kill-local-variable 'transient-mark-mode))
-           (deactivate-mark))))
-  (defun open-below()
-    "Open a newline and move cursor"
-    (interactive)
-    (goto-char (line-end-position))
-    (newline-and-indent)
-    )
-  (defun select-current-line ()
-  "Select the current line."
-  (interactive)
-  (let ((start (line-beginning-position))
-        (end (line-end-position)))
-    (set-mark start)
-    (goto-char (min (point-max) (+ 1 end)))))
-  (defun quit-and-back ()
-    "Quit current buffer and back prev buffer"
-    (interactive)
-    (if (> (seq-length (window-list (selected-frame)))1)
-        (previous-buffer
-         ))
-    )
-  (defun quit-and-back ()
-    "Quit current buffer and go back to previous buffer."
-    (interactive)
-    (if (> (length (window-list)) 1)
-        (progn
-          (bury-buffer)
-          (previous-buffer))
-      (kill-buffer (current-buffer))))
-  (set-frame-parameter (window-frame) 'cursor-type 'bar)
-  (define-key input-decode-map (kbd "C-i") [contorol-i])
-  (keymap-global-set "C-d" 'backward-char)
-  (keymap-global-set "C-f" 'isearch-forward)
-  (global-set-key [contorol-i]  'avy-goto-char-timer)
-  (keymap-global-set "C-k" 'select-current-line)
-  (keymap-global-set "C-n" 'forward-char)
-  (keymap-global-set "C-o" 'open-below)
-  (keymap-global-set "C-t" 'previous-line)
-  (keymap-global-set "C-s" 'next-line)
-  
 #+end_src
 * タイマーを利用した疑似非同期
 #+begin_src  emacs-lisp :tangle yes
@@ -552,11 +464,9 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** consult
 #+begin_src emacs-lisp :tangle yes
-  (leaf consult
-        :ensure t
-        :bind
-        ("C-x b" . consult-buffer)
-     )
+      (leaf consult
+            :ensure t
+         )
         #+end_src
 ** affe
 #+begin_src emacs-lisp :tangle yes
@@ -572,7 +482,6 @@ emacs lisp はデフォでやってくれているっぽい。
     :bind
     ("M-g f" . affe-find)
     ("M-g h" . affe-find-home)
-    ("M-g g" . affe-grep)
     :custom
     (affe-highlight-function . 'orderless-highlight-matches)
     (affe-find-command . "fd --color=never --full-path")
@@ -582,31 +491,31 @@ emacs lisp はデフォでやってくれているっぽい。
 * 入力補完
 ** corfu
 #+begin_src emacs-lisp :tangle yes
-;  (leaf corfu
-;    :ensure t
-;    :custom(
-;            (corfu-auto . t)
-;            (corfu-auto-delay . 0)
-;            (corfu-popupinfo-delay . 0)
-;            (corfu-quit-no-match . 'separator)
-;            (corfu-auto-prefix . 1)
-;            (corfu-cycle . t)
-;            (text-mode-ispell-word-completion . nil)
-;            (tab-awlays-indent . 'complete)
-;            )
- ;   :init
+  (leaf corfu
+    :ensure t
+    :custom(
+            (corfu-auto . t)
+            (corfu-auto-delay . 0)
+            (corfu-popupinfo-delay . 0)
+            (corfu-quit-no-match . 'separator)
+            (corfu-auto-prefix . 1)
+            (corfu-cycle . t)
+            (text-mode-ispell-word-completion . nil)
+            (tab-awlays-indent . 'complete)
+            )
+    :init
     ;(global-corfu-mode)
- ;   :config
-   ; (corfu-popupinfo-mode)
-;    (keymap-unset corfu-map "RET")
-;    (keymap-unset corfu-map "<up>")
-;    (keymap-unset corfu-map "<remap> <next-line>")
-;    (keymap-unset corfu-map "<remap> <previous-line>")
-;    (keymap-unset corfu-map "<down>")
-;    (keymap-set corfu-map "C-n" 'corfu-next)
-;    (keymap-set corfu-map "C-p" 'corfu-previous)
-;    )
-;    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+    :config
+    (corfu-popupinfo-mode)
+    (keymap-unset corfu-map "RET")
+    (keymap-unset corfu-map "<up>")
+    (keymap-unset corfu-map "<remap> <next-line>")
+    (keymap-unset corfu-map "<remap> <previous-line>")
+    (keymap-unset corfu-map "<down>")
+    (keymap-set corfu-map "C-n" 'corfu-next)
+    (keymap-set corfu-map "C-p" 'corfu-previous)
+    )
+    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
@@ -625,23 +534,6 @@ emacs lisp はデフォでやってくれているっぽい。
     ("C-q" . scroll-down-command) ;元々M-vだったが、入力しにくいので、そっちをvterm-toggleにした
     )
 #+end_src
-* ellama
-#+begin_src emacs-lisp :tangle yes
-  (require 'llm)
-  (require 'llm-ollama)
-  (leaf ellama
-    :ensure t
-    :require t  
-    :bind ("C-c e" . ellama-transient-main-menu)
-    :init
-    (setopt ellama-provider (make-llm-ollama
-  			   :scheme "http"
-                             :host "ollama.mdip2home.com"
-  			   :port 80
-                             :chat-model "phi4"
-                             :embedding-model "phi4"))
-    )
-    #+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes
   (require 'yasnippet)
@@ -651,9 +543,7 @@ emacs lisp はデフォでやってくれているっぽい。
   (setq lsp-bridge-nix-lsp-server "nil")
   (setq lsp-bridge-enable-with-tramp t)
   (setq lsp-bridge-remote-start-automatically t)
-  (setq lsp-bridge-enable-search-words t)
 #+end_src
-
 * 言語固有の設定
 ** nix
 #+begin_src emacs-lisp :tangle yes
@@ -670,7 +560,11 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf yaml-mode
     :ensure t
     )
-  
+  (add-to-list 'auto-mode-alist '("\\.ya?ml$" . yaml-mode))
+  (leaf yaml-ts-mode
+    :mode
+    ("\\.ya?ml\\'")
+    )
   (add-to-list 'auto-mode-alist '("\\.ya?ml$" . yaml-ts-mode))
   (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
 #+end_src
@@ -682,15 +576,15 @@ emacs lisp はデフォでやってくれているっぽい。
      (rust-mode-treesitter-derive . t)
      (rust-format-on-save . t)
      )
- ; (add-hook 'rust-mode-hook 'eglot-ensure)
- ; (defun my/find-rust-project-root (dir)                                                                           
- ;    (when-let ((root (locate-dominating-file dir "Cargo.toml")))                                                         
- ;      (list 'vc 'Git root)))
+  (add-hook 'rust-mode-hook 'eglot-ensure)
+  (defun my/find-rust-project-root (dir)                                                                           
+     (when-let ((root (locate-dominating-file dir "Cargo.toml")))                                                         
+       (list 'vc 'Git root)))
 
- ; (defun my/rust-mode-hook ()
- ;   (setq-local project-find-functions (list #'my/find-rust-project-root)))
+  (defun my/rust-mode-hook ()
+    (setq-local project-find-functions (list #'my/find-rust-project-root)))
 
- ; (add-hook 'rust-mode-hook #'my/rust-mode-hook)
+  (add-hook 'rust-mode-hook #'my/rust-mode-hook)
 #+end_src
 ** Python
 #+begin_src emacs-lisp :tangle yes
@@ -707,6 +601,7 @@ emacs lisp はデフォでやってくれているっぽい。
     (typst-ts-mode-watch-option . "--open")
     )
 #+end_src
+
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
@@ -763,8 +658,8 @@ emacs lisp はデフォでやってくれているっぽい。
     :bind
     (
      (org-agenda-mode-map
-      ("t" . org-agenda-previous-item)
-      ("s" . org-agenda-next-item)
+      ("t" . org-agenda-previous-line)
+      ("s" . org-agenda-next-line)
       ("e" . org-agenda-todo)
       ;以下の関数は割り当てていない
       ;org-agenda-set-effort
@@ -1262,10 +1157,10 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf embark
     :ensure t
-  ;  :bind(
-  ; 	("C-." . embark-act)
-  ;	("C-;" . embark-dwim)
-  ;	("C-h B" . embark-bindings))
+    :bind(
+  	("C-." . embark-act)
+  	("C-;" . embark-dwim)
+  	("C-h B" . embark-bindings))
     :custom
     (prefix-help-command #'embark-prefix-help-command)
     )
@@ -1277,22 +1172,21 @@ emacs lisp はデフォでやってくれているっぽい。
 * go-translate
 #+begin_src emacs-lisp :tangle yes
   (with-delayed-execution
-    (leaf go-translate
-      :ensure t
-      :require t
-      :config
-      (setq gt-langs '(en ja))
-      (setq gt-default-translator
-  	  (gt-translator
-  	   :taker (gt-taker :text 'buffer :pick 'paragraph)
-  	   :engines (list (gt-deepl-engine :key "b432a243-b42a-420b-97a1-43e1e54ae3be:fx"))
-  	   :render (gt-buffer-render :then (gt-kill-ring-render))
-  	   ))
-  					; :bind (
-  					;	 ("C-t" . gt-do-translate)
-  					;	 )
-      )
-    )
+  (leaf go-translate
+    :ensure t
+        :config
+    (setq gt-langs '(en ja))
+    (setq gt-default-translator
+  	(gt-translator
+  	 :taker (gt-taker :text 'buffer :pick 'paragraph)
+  	 :engines (list (gt-deepl-engine :key "b432a243-b42a-420b-97a1-43e1e54ae3be:fx"))
+  	 :render (gt-buffer-render :then (gt-kill-ring-render))
+  	 ))
+    :bind (
+  	 ("C-t" . gt-do-translate)
+  	 )
+    );
+  )
 #+end_src
 * reinbow-delimiters
 #+begin_src emacs-lisp :tangle yes
@@ -1317,26 +1211,25 @@ emacs lisp はデフォでやってくれているっぽい。
 * プログラミング支援
 ** eglot
 #+begin_src emacs-lisp :tangle yes
-   (leaf eglot
-     :defer-config
-     (add-to-list 'eglot-server-programs
-   ;	       '((nix-ts-mode . ("nil"))
-   					;	       (typst-ts-mode . ("tinymist")))
-   	       '(nix-ts-mode . ("nil"))
-                  )
-     (add-to-list 'eglot-server-programs
-   	       '(typst-ts-mode . ("tinymist")))
-     )
-  ; (leaf typst-preview
-   ;   :el-get havarddj/typst-preview.el
-    ;  :require t
-     ; :custom
-      ;(typst-preview-browser . "qutebrowser"))
-   (leaf eglot-booster
-     :when (executable-find "emacs-lsp-booster")
-     :vc ( :url "https://github.com/jdtsmith/eglot-booster")
-     ;:global-minor-mode t
-     )
+  (leaf eglot
+    :defer-config
+    (add-to-list 'eglot-server-programs
+  ;	       '((nix-ts-mode . ("nil"))
+  					;	       (typst-ts-mode . ("tinymist")))
+  	       '(nix-ts-mode . ("nil"))
+                 )
+    (add-to-list 'eglot-server-programs
+  	       '(typst-ts-mode . ("tinymist")))
+    )
+ ; (leaf typst-preview
+  ;   :el-get havarddj/typst-preview.el
+   ;  :require t
+    ; :custom
+     ;(typst-preview-browser . "qutebrowser"))
+  (leaf eglot-booster
+    :when (executable-find "emacs-lsp-booster")
+    :vc ( :url "https://github.com/jdtsmith/eglot-booster")
+    :global-minor-mode t)
 #+end_src
 
 ** Tex
