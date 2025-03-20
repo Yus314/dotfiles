@@ -617,6 +617,23 @@ emacs lisp はデフォでやってくれているっぽい。
     ("C-q" . scroll-down-command) ;元々M-vだったが、入力しにくいので、そっちをvterm-toggleにした
     )
 #+end_src
+* ellama
+#+begin_src emacs-lisp :tangle yes
+  (require 'llm)
+  (require 'llm-ollama)
+  (leaf ellama
+    :ensure t
+    :require t  
+    :bind ("C-c e" . ellama-transient-main-menu)
+    :init
+    (setopt ellama-provider (make-llm-ollama
+  			   :scheme "http"
+                             :host "ollama.mdip2home.com"
+  			   :port 80
+                             :chat-model "phi4"
+                             :embedding-model "phi4"))
+    )
+    #+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes
   (require 'yasnippet)
@@ -628,6 +645,7 @@ emacs lisp はデフォでやってくれているっぽい。
   (setq lsp-bridge-remote-start-automatically t)
   (setq lsp-bridge-enable-search-words t)
 #+end_src
+
 * 言語固有の設定
 ** nix
 #+begin_src emacs-lisp :tangle yes
@@ -644,10 +662,7 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf yaml-mode
     :ensure t
     )
-  (add-to-list 'auto-mode-alist '("\\.ya?ml$" . yaml-mode))
-  (leaf yaml-ts-mode
-    :mode
-    ("\\.ya?ml\\'")
+
     )
   (add-to-list 'auto-mode-alist '("\\.ya?ml$" . yaml-ts-mode))
   (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
@@ -685,7 +700,6 @@ emacs lisp はデフォでやってくれているっぽい。
     (typst-ts-mode-watch-option . "--open")
     )
 #+end_src
-
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
