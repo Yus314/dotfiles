@@ -563,7 +563,7 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf affe
     :ensure t
     :after consult
-    :preface
+    :init
     (defun affe-find-home ()
       "Affeをホームルートから実行する"
       (interactive)
@@ -576,46 +576,45 @@ emacs lisp はデフォでやってくれているっぽい。
     :custom
     (affe-highlight-function . 'orderless-highlight-matches)
     (affe-find-command . "fd --color=never --full-path")
-
     )
 #+end_src
 * 入力補完
 ** corfu
 #+begin_src emacs-lisp :tangle yes
-;  (leaf corfu
-;    :ensure t
-;    :custom(
-;            (corfu-auto . t)
-;            (corfu-auto-delay . 0)
-;            (corfu-popupinfo-delay . 0)
-;            (corfu-quit-no-match . 'separator)
-;            (corfu-auto-prefix . 1)
-;            (corfu-cycle . t)
-;            (text-mode-ispell-word-completion . nil)
-;            (tab-awlays-indent . 'complete)
-;            )
- ;   :init
-    ;(global-corfu-mode)
- ;   :config
-   ; (corfu-popupinfo-mode)
-;    (keymap-unset corfu-map "RET")
-;    (keymap-unset corfu-map "<up>")
-;    (keymap-unset corfu-map "<remap> <next-line>")
-;    (keymap-unset corfu-map "<remap> <previous-line>")
-;    (keymap-unset corfu-map "<down>")
-;    (keymap-set corfu-map "C-n" 'corfu-next)
-;    (keymap-set corfu-map "C-p" 'corfu-previous)
-;    )
-;    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+  ;  (leaf corfu
+  ;    :ensure t
+  ;    :custom(
+  ;            (corfu-auto . t)
+  ;            (corfu-auto-delay . 0)
+  ;            (corfu-popupinfo-delay . 0)
+  ;            (corfu-quit-no-match . 'separator)
+  ;            (corfu-auto-prefix . 1)
+  ;            (corfu-cycle . t)
+  ;            (text-mode-ispell-word-completion . nil)
+  ;            (tab-awlays-indent . 'complete)
+  ;            )
+   ;   :init
+      ;(global-corfu-mode)
+   ;   :config
+     ; (corfu-popupinfo-mode)
+  ;    (keymap-unset corfu-map "RET")
+  ;    (keymap-unset corfu-map "<up>")
+  ;    (keymap-unset corfu-map "<remap> <next-line>")
+  ;    (keymap-unset corfu-map "<remap> <previous-line>")
+  ;    (keymap-unset corfu-map "<down>")
+  ;    (keymap-set corfu-map "C-n" 'corfu-next)
+  ;    (keymap-set corfu-map "C-p" 'corfu-previous)
+  ;    )
+  ;    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
-  (leaf cape
-    :ensure t
-    :init
-    (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
-    (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
-    )
+  ;(leaf cape
+   ; :ensure t
+   ; :init
+   ; (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
+   ; (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
+   ; )
 
 #+end_src
 * キーバインディング
@@ -627,20 +626,49 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * ellama
 #+begin_src emacs-lisp :tangle yes
-  (require 'llm)
-  (require 'llm-ollama)
-  (leaf ellama
-    :ensure t
-    :require t  
-    :bind ("C-c e" . ellama-transient-main-menu)
-    :init
-    (setopt ellama-provider (make-llm-ollama
-  			   :scheme "http"
-                             :host "ollama.mdip2home.com"
-  			   :port 80
-                             :chat-model "phi4"
-                             :embedding-model "phi4"))
-    )
+               (require 'llm)
+               (require 'llm-ollama)
+               (leaf ellama
+                 :ensure t
+                 :require t  
+                 :bind ("C-c e" . ellama-transient-main-menu)
+                 :init
+                 (setopt ellama-provider (make-llm-ollama
+               			   :scheme "http"
+                                          :host "ollama.mdip2home.com"
+               			   :port 80
+                                          :chat-model "Qwen2.5:14b"
+                                          :embedding-model "Qwen2.5:14b"
+     					:default-chat-non-standard-params '(("num_ctx" . 32768))))
+                 :config
+                 (defcustom ellama-japanese-correction-prompt-template
+    	       "文:\n%s\n
+以下はユーザーが作成したメモです。  
+このメモは、以下の点を満たすように整理してください。  
+1. 明確なタイトルを持つこと、
+2. 単一の明確なアイデアが簡潔に記述されていること、
+3. 関連するアイデアへのリンクが適切に含まれていること、
+
+添削を行い、簡潔に改善点を提案してください。  
+ユーザーの書き方のスタイルを維持してください。  
+
+修正例を示す場合は、次のように * 修正例 として示してくださいし。  
+また、複数のメモに分割する場合は、それぞれを別の 見出しで示してください。  
+
+       "
+                   "Prompt template for `ellama-summarize'."
+                   :group 'ellama
+                   :type 'string)
+                 (defun ellama-japanese-correction ()
+                   "Summarize selected region or current buffer."
+                   (interactive)
+                   (let ((text (if (region-active-p)
+               		    (buffer-substring-no-properties (region-beginning) (region-end))
+               		  (buffer-substring-no-properties (point-min) (point-max)))))
+                     (ellama-instant (format ellama-japanese-correction-prompt-template
+     					 text))))
+
+     )
     #+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes
@@ -652,6 +680,23 @@ emacs lisp はデフォでやってくれているっぽい。
   (setq lsp-bridge-enable-with-tramp t)
   (setq lsp-bridge-remote-start-automatically t)
   (setq lsp-bridge-enable-search-words nil)
+  (setq lsp-bridge-auto-format-code t)
+  (setq lsp-bridge-auto-format-code-idle 10)
+  (setq lsp-bridge-enable-org-babel t)
+  (setq lsp-bridge-enable-hover-diagnostic t)
+  (setq acm-enable-tabnine nil)
+  (setq acm-enable-search-file-words nil)
+  (setq acm-enable-ctag nil)
+  (setq acm-enable-telega nil)
+#+end_src
+* tmampのread-only問題への対処
+#+begin_src emacs-lisp :tangle yes
+  (add-hook 'find-file-hook
+            (lambda ()
+              (when (file-remote-p (buffer-file-name))
+                (set (make-local-variable 'inhibit-read-only) t)
+                (fset (make-local-variable 'file-writable-p) (lambda (filename) t))
+                (set (make-local-variable 'buffer-read-only) nil))))
 #+end_src
 * 言語固有の設定
 ** nix
