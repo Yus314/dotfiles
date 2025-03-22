@@ -10,7 +10,7 @@ let
   emacs-packages = if system == "x86_64-linux" then pkgs.emacs-unstable-pgtk else unstable.emacs30;
 in
 {
-  programs.emacs = {
+  programs.emacs ={
     enable = true;
     package = pkgs.emacsWithPackagesFromUsePackage {
       config = ./elisp/init.org;
