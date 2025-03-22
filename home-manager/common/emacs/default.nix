@@ -49,8 +49,8 @@ in
       (pkgs.mu)
       (pkgs.xapian)
       (pkgs.gmime)
-      (pkgs.adwaita-icon-theme)
-
+	  (pkgs.adwaita-icon-theme)
+	  
         ];
     };
   };
