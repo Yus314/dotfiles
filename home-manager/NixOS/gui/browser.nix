@@ -1,7 +1,7 @@
 { unstable, ... }:
 {
   programs.vivaldi = {
-    enable = false;
+    enable = true;
 
     package = unstable.vivaldi;
     commandLineArgs = [
