@@ -40,10 +40,6 @@ in
           (pkgs.imagemagick)
           (pkgs.ghq)
           vterm
-          (unstable.emacsPackages.lsp-bridge.overrideAttrs (oldAttrs: {
-            src = builtins.path { path = "/home/kaki/lsp-bridge2"; };
-          }))
-          #(unstable.emacsPackages.lsp-bridge)
           (pkgs.tinymist)
 
           (pkgs.tree-sitter)
