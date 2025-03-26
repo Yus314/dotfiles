@@ -626,49 +626,39 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * ellama
 #+begin_src emacs-lisp :tangle yes
-               (require 'llm)
-               (require 'llm-ollama)
-               (leaf ellama
-                 :ensure t
-                 :require t  
-                 :bind ("C-c e" . ellama-transient-main-menu)
-                 :init
-                 (setopt ellama-provider (make-llm-ollama
-               			   :scheme "http"
-                                          :host "ollama.mdip2home.com"
-               			   :port 80
-                                          :chat-model "Qwen2.5:14b"
-                                          :embedding-model "Qwen2.5:14b"
-     					:default-chat-non-standard-params '(("num_ctx" . 32768))))
-                 :config
-                 (defcustom ellama-japanese-correction-prompt-template
-    	       "文:\n%s\n
-以下はユーザーが作成したメモです。  
-このメモは、以下の点を満たすように整理してください。  
-1. 明確なタイトルを持つこと、
-2. 単一の明確なアイデアが簡潔に記述されていること、
-3. 関連するアイデアへのリンクが適切に含まれていること、
+                 (require 'llm)
+                 (require 'llm-ollama)
+                 (leaf ellama
+                   :ensure t
+                   :require t  
+                   :bind ("C-c e" . ellama-transient-main-menu)
+                   :init
+                   (setopt ellama-provider (make-llm-ollama
+                 			   :scheme "http"
+                                            :host "ollama.mdip2home.com"
+                 			   :port 80
+                                            :chat-model "Qwen2.5:14b"
+                                            :embedding-model "Qwen2.5:14b"
+       					:default-chat-non-standard-params '(("num_ctx" . 32768))))
+                   :config
+                   (defcustom ellama-japanese-correction-prompt-template
+      	       "文:\n%s\n
+  あなたは論理的な思考を重視する編集者です。
+          上記のメモを添削し、論理的なメモに適した形にしてください。
+         "
+                     "Prompt template for `ellama-summarize'."
+                     :group 'ellama
+                     :type 'string)
+                   (defun ellama-japanese-correction ()
+                     "Summarize selected region or current buffer."
+                     (interactive)
+                     (let ((text (if (region-active-p)
+                 		    (buffer-substring-no-properties (region-beginning) (region-end))
+                 		  (buffer-substring-no-properties (point-min) (point-max)))))
+                       (ellama-instant (format ellama-japanese-correction-prompt-template
+       					 text))))
 
-添削を行い、簡潔に改善点を提案してください。  
-ユーザーの書き方のスタイルを維持してください。  
-
-修正例を示す場合は、次のように * 修正例 として示してくださいし。  
-また、複数のメモに分割する場合は、それぞれを別の 見出しで示してください。  
-
-       "
-                   "Prompt template for `ellama-summarize'."
-                   :group 'ellama
-                   :type 'string)
-                 (defun ellama-japanese-correction ()
-                   "Summarize selected region or current buffer."
-                   (interactive)
-                   (let ((text (if (region-active-p)
-               		    (buffer-substring-no-properties (region-beginning) (region-end))
-               		  (buffer-substring-no-properties (point-min) (point-max)))))
-                     (ellama-instant (format ellama-japanese-correction-prompt-template
-     					 text))))
-
-     )
+       )
     #+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes
