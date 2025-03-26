@@ -1,4 +1,4 @@
-# Edit this configuration file to define what should be installed on
+#  Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
@@ -18,8 +18,9 @@
   imports = [
     # Include the results of the hardware scan.
     ./host/lab-main-hardware-configuration.nix
+	./greetd.nix
   ];
-  fonts.fonts = [ bizin-gothic-discord ];
+  fonts.packages = [ bizin-gothic-discord ];
   fonts.fontDir.enable = true;
 
   console.keyMap = "dvorak";
@@ -61,7 +62,17 @@
   };
   virtualisation.docker = {
     enable = true;
+    enableNvidia = true;
+    rootless = {
+      enable = true;
+      setSocketVariable = true;
+      };
   };
+hardware.nvidia-container-toolkit = {
+	enable = true;
+  };
+  virtualisation.docker.daemon.settings.features.cdi = true;
+ virtualisation.docker.rootless.daemon.settings.features.cdi = true;
   home-manager = {
     users.kaki = {
       imports = [
@@ -96,15 +107,16 @@
   ];
   boot.kernelModules = [ "r8125" ];
   boot.initrd.kernelModules = [ "nvidia" ];
-  hardware.opengl = {
-    enable = true;
-
-    driSupport32Bit = true;
+  boot.loader.systemd-boot.configurationLimit = 14;
+  hardware.graphics = {
+	enable = true;
+	enable32Bit = true;
   };
   hardware.nvidia = {
     modesetting.enable = true;
     powerManagement.enable = false;
     powerManagement.finegrained = false;
+#	datacenter.enable = true;
     open = false;
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
@@ -137,35 +149,8 @@
 
   # Enable the GNOME Desktop Environment.
   environment.pathsToLink = [ "/libexec" ];
-  services.xserver = {
-    enable = false;
-    layout = "us";
-    xkbVariant = "dvorak";
-    videoDrivers = [ "nvidia" ];
-    desktopManager = {
-      xterm.enable = false;
-      runXdgAutostartIfNone = true;
-    };
-    displayManager = {
-      defaultSession = "none+i3";
-      setupCommands = ''
-        LEFT='HDMI-0'
-        CENTER='DP-0'
-        RIGHT='DP-4'
-        ${pkgs.xorg.xrandr}/bin/xrandr --output $CENTER  --output $LEFT  --left-of $CENTER --output $RIGHT  --right-of $CENTER
-      '';
-    };
-    windowManager.i3 = {
-      enable = false;
-      extraPackages = with pkgs; [
-        rofi
-        i3status
-        i3lock
-        i3blocks
-      ];
-    };
-  };
-
+  services.xserver.videoDrivers = [ "nvidia" ];
+  services.xserver.xkb.variant = "us";
   # Configure keymap in X11
   services.mysql = {
     enable = true;
@@ -200,6 +185,7 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "docker"
     ];
     packages = with pkgs; [
       firefox
@@ -207,16 +193,6 @@
       lshw
       tldr
     ];
-  };
-  services.greetd = {
-    enable = true;
-
-    settings = {
-      defaultSession = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
-        user = "kaki";
-      };
-    };
   };
   services.xserver.xkb.layout = "us";
   # List packages installed in system profile. To search, run:

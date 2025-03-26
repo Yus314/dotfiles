@@ -579,33 +579,43 @@ emacs lisp はデフォでやってくれているっぽい。
     )
 #+end_src
 * 入力補完
-** corfu
+** coTrfu
 #+begin_src emacs-lisp :tangle yes
-  ;  (leaf corfu
-  ;    :ensure t
-  ;    :custom(
-  ;            (corfu-auto . t)
-  ;            (corfu-auto-delay . 0)
-  ;            (corfu-popupinfo-delay . 0)
-  ;            (corfu-quit-no-match . 'separator)
-  ;            (corfu-auto-prefix . 1)
-  ;            (corfu-cycle . t)
-  ;            (text-mode-ispell-word-completion . nil)
-  ;            (tab-awlays-indent . 'complete)
-  ;            )
-   ;   :init
-      ;(global-corfu-mode)
-   ;   :config
-     ; (corfu-popupinfo-mode)
-  ;    (keymap-unset corfu-map "RET")
-  ;    (keymap-unset corfu-map "<up>")
-  ;    (keymap-unset corfu-map "<remap> <next-line>")
-  ;    (keymap-unset corfu-map "<remap> <previous-line>")
-  ;    (keymap-unset corfu-map "<down>")
-  ;    (keymap-set corfu-map "C-n" 'corfu-next)
-  ;    (keymap-set corfu-map "C-p" 'corfu-previous)
-  ;    )
-  ;    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+  (leaf corfu
+    :ensure t
+    :custom(
+            (corfu-auto . t)
+            (corfu-auto-delay . 0)
+           (corfu-popupinfo-delay . 0)
+            (corfu-quit-no-match . 'separator)
+            (corfu-auto-prefix . 1)
+            (corfu-cycle . t)
+            (text-mode-ispell-word-completion . nil)
+            (tab-awlays-indent . 'complete)
+            )
+    :init
+    (global-corfu-mode)
+   :config
+    (corfu-popupinfo-mode)
+    (keymap-unset corfu-map "RET")
+    (keymap-unset corfu-map "<up>")
+    (keymap-unset corfu-map "<remap> <next-line>")
+    (keymap-unset corfu-map "<remap> <previous-line>")
+    (keymap-unset corfu-map "<down>")
+    (keymap-set corfu-map "C-n" 'corfu-next)
+    (keymap-set corfu-map "C-p" 'corfu-previous)
+    )
+    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+#+end_src
+** company
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf company
+ ;   :custom
+ ;   (company-minimum-prefix-length . 1)
+ ;   (company-idle-delay . 0)
+ ;   :config
+ ;   ;(global-company-mode)
+ ;   :ensure t)
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
@@ -662,22 +672,62 @@ emacs lisp はデフォでやってくれているっぽい。
     #+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes
-  (require 'yasnippet)
-  (yas-global-mode 1)
-  (require 'lsp-bridge)
-  (global-lsp-bridge-mode)
-  (setq lsp-bridge-nix-lsp-server "nil")
-  (setq lsp-bridge-enable-with-tramp t)
-  (setq lsp-bridge-remote-start-automatically t)
-  (setq lsp-bridge-enable-search-words nil)
-  (setq lsp-bridge-auto-format-code t)
-  (setq lsp-bridge-auto-format-code-idle 10)
-  (setq lsp-bridge-enable-org-babel t)
-  (setq lsp-bridge-enable-hover-diagnostic t)
-  (setq acm-enable-tabnine nil)
-  (setq acm-enable-search-file-words nil)
-  (setq acm-enable-ctag nil)
-  (setq acm-enable-telega nil)
+  ;(require 'yasnippet)
+  ;(yas-global-mode 1)
+  ;(require 'lsp-bridge)
+  ;(global-lsp-bridge-mode)
+  ;(setq lsp-bridge-nix-lsp-server "nil")
+  ;(setq lsp-bridge-enable-with-tramp t)
+  ;(setq lsp-bridge-remote-start-automatically t)
+  ;(setq lsp-bridge-enable-search-words nil)
+  ;(setq lsp-bridge-auto-format-code t)
+  ;(setq lsp-bridge-auto-format-code-idle 10)
+  ;(setq lsp-bridge-enable-org-babel t)
+  ;(setq lsp-bridge-enable-hover-diagnostic t)
+  ;(setq acm-enable-tabnine nil)
+  ;(setq acm-enable-search-file-words nil)
+  ;(setq acm-enable-ctag nil)
+  ;(setq acm-enable-telega nil)
+  ;(setq lsp-bridge-log-level "debug")
+#+end_src
+* lsp-mode
+#+begin_src emacs-lisp :tabgle yes
+  (leaf lsp-mode
+  :ensure t
+  )
+  (setq lsp-completion-provider :none)
+
+
+  (defun lsp-booster--advice-json-parse (old-fn &rest args)
+    "Try to parse bytecode instead of json."
+    (or
+     (when (equal (following-char) ?#)
+       (let ((bytecode (read (current-buffer))))
+         (when (byte-code-function-p bytecode)
+           (funcall bytecode))))
+     (apply old-fn args)))
+  (advice-add (if (progn (require 'json)
+                         (fboundp 'json-parse-buffer))
+                  'json-parse-buffer
+                'json-read)
+              :around
+              #'lsp-booster--advice-json-parse)
+
+  (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+    "Prepend emacs-lsp-booster command to lsp CMD."
+    (let ((orig-result (funcall old-fn cmd test?)))
+      (if (and (not test?)                             ;; for check lsp-server-present?
+               (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+               lsp-use-plists
+               (not (functionp 'json-rpc-connection))  ;; native json-rpc
+               (executable-find "emacs-lsp-booster"))
+          (progn
+            (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
+              (setcar orig-result command-from-exec-path))
+            (message "Using emacs-lsp-booster for %s!" orig-result)
+            (cons "emacs-lsp-booster" orig-result))
+        orig-result)))
+  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 #+end_src
 * tmampのread-only問題への対処
 #+begin_src emacs-lisp :tangle yes
@@ -697,6 +747,7 @@ emacs lisp はデフォでやってくれているっぽい。
     (("\\.nix\\'" . nix-ts-mode))
     :hook
     (nix-ts-mode-hook . nixfmt-on-save-mode)
+    (nix-ts-mode-hook . lsp)
     )
 #+end_src
 ** yaml
@@ -714,21 +765,23 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** rust
 #+begin_src emacs-lisp :tangle yes
-  (leaf rust-mode
-     :ensure t
-     :custom
-     (rust-mode-treesitter-derive . t)
-     (rust-format-on-save . t)
-     )
- ; (add-hook 'rust-mode-hook 'eglot-ensure)
- ; (defun my/find-rust-project-root (dir)                                                                           
- ;    (when-let ((root (locate-dominating-file dir "Cargo.toml")))                                                         
- ;      (list 'vc 'Git root)))
+   (leaf rust-mode
+      :ensure t
+      :custom
+      (rust-mode-treesitter-derive . t)
+      (rust-format-on-save . t)
+      :hook
+      (rust-mode-hook . lsp)
+      )
+  ; (add-hook 'rust-mode-hook 'eglot-ensure)
+   (defun my/find-rust-project-root (dir)                                                                           
+      (when-let ((root (locate-dominating-file dir "Cargo.toml")))                                                         
+        (list 'vc 'Git root)))
 
- ; (defun my/rust-mode-hook ()
- ;   (setq-local project-find-functions (list #'my/find-rust-project-root)))
+   (defun my/rust-mode-hook ()
+     (setq-local project-find-functions (list #'my/find-rust-project-root)))
 
- ; (add-hook 'rust-mode-hook #'my/rust-mode-hook)
+   (add-hook 'rust-mode-hook #'my/rust-mode-hook)
 #+end_src
 ** Python
 #+begin_src emacs-lisp :tangle yes
@@ -736,6 +789,15 @@ emacs lisp はデフォでやってくれているっぽい。
     ;(leaf ruff-format
     ;  :ensure t
     ;  )
+  (leaf python-mode
+    :ensure t
+    )
+  (use-package lsp-pyright
+    :ensure t
+    :custom (lsp-pyright-langserver-command "pyright") ;; or basedpyright
+    :hook (python-ts-mode . (lambda ()
+                            (require 'lsp-pyright)
+                            (lsp))))  ; or lsp-deferred
 #+end_src
 ** typst
 #+begin_src emacs-lisp :tangle yes
@@ -1349,6 +1411,10 @@ emacs lisp はデフォでやってくれているっぽい。
         :program "nixfmt"
         :args '("-")
         )
+    ;  (reformatter-define ruff
+    ;    :program "ruff format"
+    ;    :args '("-")
+    ;    )
       )
 #+end_src
 * aggressive-inden
