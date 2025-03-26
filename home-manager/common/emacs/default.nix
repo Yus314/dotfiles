@@ -51,6 +51,7 @@ in
           # mu4eのためのパッケッージ
           (pkgs.mu)
           (pkgs.xapian)
+          (pkgs.gmime)
           (pkgs.adwaita-icon-theme)
 
         ];

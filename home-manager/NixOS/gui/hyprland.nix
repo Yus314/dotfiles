@@ -41,7 +41,6 @@
       "$terminal" = "kitty";
       bind = [
         "$mainMod SHIFT Control_R, RETURN, exec, foot"
-        "$mainMod, W, exec, wezterm"
         "$mainMod, Z, exec, vivaldi --disable-gpu"
         "$mainMod, Q, exec, qutebrowser"
         "$mainMod, E, exec, emacs"
