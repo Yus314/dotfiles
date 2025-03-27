@@ -7,7 +7,7 @@
 let
   tangle = org-babel.lib.tangleOrgBabel { languages = [ "emacs-lisp" ]; };
   system = pkgs.stdenv.hostPlatform.system;
-  emacs-packages = if system == "x86_64-linux" then pkgs.emacs-unstable-pgtk else unstable.emacs30;
+  emacs-packages = if system == "x86_64-linux" then pkgs.emacs-unstable-pgtk else pkgs.emacs-unstable;
 in
 {
   programs.emacs = {
@@ -19,7 +19,6 @@ in
       alwaysTangle = true;
       override = final: prev: {
         withXwidgets = true;
-        withNativeComplation = false;
       };
       extraEmacsPackages =
         epkgs: with epkgs; [
