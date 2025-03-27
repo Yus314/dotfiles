@@ -694,6 +694,9 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tabgle yes
   (leaf lsp-mode
   :ensure t
+  :custom
+  (lsp-keymap-prefix . "M-l")
+  (lsp-
   )
   (setq lsp-completion-provider :none)
 
@@ -728,6 +731,12 @@ emacs lisp はデフォでやってくれているっぽい。
             (cons "emacs-lsp-booster" orig-result))
         orig-result)))
   (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+#+end_src
+* lsp-ui
+#+begin_src emacs-lisp :tangle yes
+  (leaf lsp-ui
+    :ensure t
+    )
 #+end_src
 * tmampのread-only問題への対処
 #+begin_src emacs-lisp :tangle yes
