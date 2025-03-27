@@ -544,10 +544,14 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf orderless
     :ensure t
-    :custom(
-            (completion-styles . '(orderless basic))
-            (completion-category-overrides . '((file
-                                                (styles basic partial-completion)))))
+    :custom
+    (orderless-matching-styles .
+  			     '(orderless-literal-prefix
+  			       ))
+    (completion-styles . '(orderless basic))
+    (completion-category-overrides . '((file
+                                        (styles basic partial-completion))
+  				       (command (styles orderless))))
     )
 #+end_src
 ** consult
@@ -695,8 +699,14 @@ emacs lisp はデフォでやってくれているっぽい。
   (leaf lsp-mode
   :ensure t
   :custom
-  (lsp-keymap-prefix . "M-l")
-  (lsp-
+  (lsp-keymap-prefix . "M-p")
+  (lsp-log-in . nil) ;パフォーマンスに大きく影響するらしい
+  :hook
+  (lsp-mode-hook . lsp-enable-which-key-integration)
+  ;補完をorderlessで絞れるようにする
+  (lsp-completion-mode-hook . (lambda ()
+    (setq-local completion-category-defaults
+                (assoc-delete-all 'lsp-capf completion-category-defaults))))
   )
   (setq lsp-completion-provider :none)
 
@@ -736,7 +746,7 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf lsp-ui
     :ensure t
-    )
+  )
 #+end_src
 * tmampのread-only問題への対処
 #+begin_src emacs-lisp :tangle yes
