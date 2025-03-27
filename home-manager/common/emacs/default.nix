@@ -32,6 +32,7 @@ in
               tree-sitter-typst
             ]
           ))
+
           mu4e
           (unstable.emacsPackages.slack) # stableのバージョンがかなり古いのでunstableを使う
           (pkgs.texlive.combined.scheme-full)
