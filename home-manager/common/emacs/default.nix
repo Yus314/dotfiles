@@ -7,7 +7,7 @@
 let
   tangle = org-babel.lib.tangleOrgBabel { languages = [ "emacs-lisp" ]; };
   system = pkgs.stdenv.hostPlatform.system;
-  emacs-packages = if system == "x86_64-linux" then pkgs.emacs-unstable-pgtk else unstable.emacs30;
+  emacs-packages = if system == "x86_64-linux" then pkgs.emacs-unstable-pgtk else pkgs.emacs-unstable;
 in
 {
   programs.emacs = {
@@ -49,7 +49,14 @@ in
           (pkgs.xapian)
           (pkgs.gmime)
           (pkgs.adwaita-icon-theme)
-
+          (callPackage ./org-modern-indent.nix {
+            inherit (pkgs) fetchFromGitHub;
+            inherit (epkgs) trivialBuild;
+          })
+          (callPackage ./ol-emacs-slack.nix {
+            inherit (pkgs) fetchFromGitHub;
+            inherit (epkgs) trivialBuild dash s;
+          })
         ];
     };
   };
