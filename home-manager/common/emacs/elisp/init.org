@@ -546,7 +546,7 @@ emacs lisp はデフォでやってくれているっぽい。
     :ensure t
     :custom
     (orderless-matching-styles .
-  			     '(orderless-literal-prefix
+  			     '(orderless-prefixes
   			       ))
     (completion-styles . '(orderless basic))
     (completion-category-overrides . '((file
@@ -765,7 +765,7 @@ emacs lisp はデフォでやってくれているっぽい。
     :mode
     (("\\.nix\\'" . nix-ts-mode))
     :hook
-    (nix-ts-mode-hook . nixfmt-on-save-mode)
+    ;(nix-ts-mode-hook . nixfmt-on-save-mode)
     (nix-ts-mode-hook . lsp)
     )
 #+end_src
