@@ -1,14 +1,19 @@
 {
   fetchFromGitHub,
-  trivialBuild,
+  melpaBuild,
+  compat,
 }:
-trivialBuild {
+melpaBuild rec {
   pname = "org-modern-indent";
-  version = "v0.5";
+  version = "0.5";
   src = fetchFromGitHub {
     owner = "jdtsmith";
     repo = "org-modern-indent";
-    rev = "fcd4368476a9c4eadfac4d6f51159d90a15de15a";
-    sha256 = "sha256-obx83T90LoVor5O5bniXCtWhNV7GmF3fYpNhCNgSm1M=";
+    rev = "b8f3b2e4768951f9846994d653367bae2b491eba";
+    sha256 = "sha256-RxvjqWiGY77pO+tO2zgkNU0trcD2tA7A1qLQ6F+CP+s=";
   };
+  propagatedUserEnvPkgs = [
+    compat
+  ];
+  buildInputs = propagatedUserEnvPkgs;
 }

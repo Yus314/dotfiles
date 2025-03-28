@@ -33,7 +33,7 @@ in
             ]
           ))
 
-          mu4e
+          (unstable.emacsPackages.mu4e)
           (unstable.emacsPackages.slack) # stableのバージョンがかなり古いのでunstableを使う
           (pkgs.texlive.combined.scheme-full)
           (pkgs.zathura)
@@ -45,18 +45,47 @@ in
           (pkgs.tree-sitter)
           (pkgs.emacs-lsp-booster)
           # mu4eのためのパッケッージ
-          (pkgs.mu)
           (pkgs.xapian)
           (pkgs.gmime)
           (pkgs.adwaita-icon-theme)
           (callPackage ./org-modern-indent.nix {
             inherit (pkgs) fetchFromGitHub;
-            inherit (epkgs) trivialBuild;
+            inherit (epkgs) melpaBuild compat;
           })
           (callPackage ./ol-emacs-slack.nix {
             inherit (pkgs) fetchFromGitHub;
-            inherit (epkgs) trivialBuild dash s;
+            inherit (epkgs) melpaBuild dash s;
           })
+          (callPackage ./gcal.nix {
+            inherit (pkgs) fetchFromGitHub;
+            inherit (epkgs) melpaBuild;
+          })
+          (callPackage ./typst-ts-mode.nix {
+            inherit (pkgs) fetchgit;
+            inherit (epkgs) melpaBuild;
+          })
+          (callPackage ./typst-preview.nix {
+            inherit (pkgs) fetchFromGitHub;
+            inherit (epkgs) melpaBuild websocket;
+          })
+          (callPackage ./nursery.nix {
+            inherit (pkgs) fetchFromGitHub;
+            inherit (epkgs)
+              melpaBuild
+              org-roam
+              ht
+              async
+              f
+              consult
+              org-drill
+              pcre2el
+              ts
+              memoize
+              magit
+              dash
+              ;
+          })
+
         ];
     };
   };
@@ -73,6 +102,7 @@ in
       (unstable.pyright)
       (unstable.ruff)
       (unstable.ruff-lsp)
+      (unstable.tinymist)
     ];
   };
 
