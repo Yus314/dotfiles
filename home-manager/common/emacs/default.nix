@@ -49,7 +49,14 @@ in
           (pkgs.xapian)
           (pkgs.gmime)
           (pkgs.adwaita-icon-theme)
-
+          (callPackage ./org-modern-indent.nix {
+            inherit (pkgs) fetchFromGitHub;
+            inherit (epkgs) trivialBuild;
+          })
+          (callPackage ./ol-emacs-slack.nix {
+            inherit (pkgs) fetchFromGitHub;
+            inherit (epkgs) trivialBuild dash s;
+          })
         ];
     };
   };
