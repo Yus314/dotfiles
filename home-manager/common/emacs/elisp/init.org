@@ -147,6 +147,7 @@ modus のテーマもある。
        ;(modus-themes-load-theme)
       (load-theme 'modus-operandi)
       )
+
 #+end_src
 ** tree-sitter
 世界を色付けてくれる。これがないと完全に真っ黒だったので必須。
@@ -640,39 +641,37 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * ellama
 #+begin_src emacs-lisp :tangle yes
-                 (require 'llm)
-                 (require 'llm-ollama)
-                 (leaf ellama
-                   :ensure t
-                   :require t  
-                   :bind ("C-c e" . ellama-transient-main-menu)
-                   :init
-                   (setopt ellama-provider (make-llm-ollama
-                 			   :scheme "http"
-                                            :host "ollama.mdip2home.com"
-                 			   :port 80
-                                            :chat-model "Qwen2.5:14b"
-                                            :embedding-model "Qwen2.5:14b"
-       					:default-chat-non-standard-params '(("num_ctx" . 32768))))
-                   :config
-                   (defcustom ellama-japanese-correction-prompt-template
-      	       "文:\n%s\n
+  (leaf ellama
+    :ensure t
+    :bind ("C-c e" . ellama-transient-main-menu)
+    :init
+    (require 'llm-ollama)
+    (setopt ellama-provider (make-llm-ollama
+                 		   :scheme "http"
+                             :host "ollama.mdip2home.com"
+                 		   :port 80
+                             :chat-model "Qwen2.5:14b"
+                             :embedding-model "Qwen2.5:14b"
+       			   :default-chat-non-standard-params '(("num_ctx" . 32768))))
+    :config
+    (defcustom ellama-japanese-correction-prompt-template
+      "文:\n%s\n
   あなたは論理的な思考を重視する編集者です。
           上記のメモを添削し、論理的なメモに適した形にしてください。
          "
-                     "Prompt template for `ellama-summarize'."
-                     :group 'ellama
-                     :type 'string)
-                   (defun ellama-japanese-correction ()
-                     "Summarize selected region or current buffer."
-                     (interactive)
-                     (let ((text (if (region-active-p)
-                 		    (buffer-substring-no-properties (region-beginning) (region-end))
-                 		  (buffer-substring-no-properties (point-min) (point-max)))))
-                       (ellama-instant (format ellama-japanese-correction-prompt-template
-       					 text))))
+      "Prompt template for `ellama-summarize'."
+      :group 'ellama
+      :type 'string)
+    (defun ellama-japanese-correction ()
+      "Summarize selected region or current buffer."
+      (interactive)
+      (let ((text (if (region-active-p)
+                 	    (buffer-substring-no-properties (region-beginning) (region-end))
+                 	  (buffer-substring-no-properties (point-min) (point-max)))))
+        (ellama-instant (format ellama-japanese-correction-prompt-template
+       			      text))))
 
-       )
+    )
     #+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes
@@ -765,7 +764,7 @@ emacs lisp はデフォでやってくれているっぽい。
     :mode
     (("\\.nix\\'" . nix-ts-mode))
     :hook
-    ;(nix-ts-mode-hook . nixfmt-on-save-mode)
+    (nix-ts-mode-hook . nixfmt-on-save-mode)
     (nix-ts-mode-hook . lsp)
     )
 #+end_src
@@ -820,11 +819,10 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** typst
 #+begin_src emacs-lisp :tangle yes
-  (leaf typst-ts-mode
-    :el-get kaction-emacs/typst-ts-mode
-    :custom
-    (typst-ts-mode-watch-option . "--open")
-    )
+  (setq typst-ts-mode-watch-option "--open")
+
+  ;typst-previewだと保存しなくても同期するようになる
+  (setq typst-preview-browser "qutebrowser")
 #+end_src
 * org
 ** org
@@ -1117,19 +1115,13 @@ emacs lisp はデフォでやってくれているっぽい。
       )
      )
     :config
-    (global-org-modern-mode)
+    (with-eval-after-load ' org ( global-org-modern-mode))
     )
 
 #+end_src
 
-** org-nodern-indent
+** org-modern-indent
 #+begin_src emacs-lisp :tangle yes
-  ;(leaf org-modern-indent
-  ;    :el-get jdtsmith/org-modern-indent
-  ;    :require t
-  ;    :config (add-hook 'org-mode-hook #'org-modern-indent-mode 90)
-  					;    )
-  (require 'org-modern-indent)
   (add-hook 'org-mode-hook #'org-modern-indent-mode 90)
 #+end_src
 ** org-habit
@@ -1144,24 +1136,26 @@ emacs lisp はデフォでやってくれているっぽい。
 ** gcal
 #+begin_src emacs-lisp :tangle yes
   (with-delayed-execution
-    (add-to-list 'load-path (locate-user-emacs-file "el-get/gcal/"))
-    (require 'gcal )(require'gcal-org)
-    (setq gcal-client-id  "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
-    (setq gcal-client-secret  "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")
-    (gcal-org-push-file
-     "shizhaoyoujie@gmail.com"
-     "~/dropbox/inbox/inbox.org"
-     "~/dropbox/my-schedule.gcal-cache"
-     )
-    (gcal-org-pull-to-file
-     "shizhaoyoujie@gmail.com"
-     "~/dropbox/inbox/inbox.org"
-     "FROM_GCAL"
-     "~/dropbox/my-schedule.gcal-cache")
+    (eval-after-load 'gcal
+      '(eval-after-load 'gcal-org
+         (setq gcal-client-id  "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
+         (setq gcal-client-secret  "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")
+         (gcal-org-push-file
+  	"shizhaoyoujie@gmail.com"
+  	"~/dropbox/inbox/inbox.org"
+  	"~/dropbox/my-schedule.gcal-cache"
+  	)
+         (gcal-org-pull-to-file
+  	"shizhaoyoujie@gmail.com"
+  	"~/dropbox/inbox/inbox.org"
+  	"FROM_GCAL"
+  	"~/dropbox/my-schedule.gcal-cache")
   					; かなとの予定
-    (gcal-org-push-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com" "~/dropbox/kana.org")
-    (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com" "~/dropbox/kana.org" "FROM_GCAL" "~/dropbox/my-schedule.gcal-cache")
-    )
+         (gcal-org-push-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com" "~/dropbox/kana.org")
+         (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com" "~/dropbox/kana.org" "FROM_GCAL" "~/dropbox/my-schedule.gcal-cache")
+         )
+      )
+    ) 
 #+end_src
 ** org-babel
 #+begin_src emacs-lisp :tangle yes
@@ -1235,11 +1229,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** org-roam-review
 #+begin_src emacs-lisp :tangle yes
   (leaf org-roam-review
-      :init
-    (let ((repo-path (expand-file-name "~/.emacs.d/nursery")))
-      (unless (file-exists-p repo-path)
-        (shell-command (format "git clone https://github.com/chrisbarrett/nursery.git %s" repo-path)))
-      (add-to-list 'load-path (concat repo-path "/lisp")))
     :commands (org-roam-review
                org-roam-review-list-by-maturity
                org-roam-review-list-recently-added)
@@ -1257,11 +1246,6 @@ emacs lisp はデフォでやってくれているっぽい。
     (  	 ("C-c n r" . org-roam-review)
 )
     )
-  ;; Check and install dependencies listed in nursery-pkg.el
-  (let ((dependencies '(org-drill)))
-    (dolist (pkg dependencies)
-      (unless (package-installed-p pkg)
-        (package-install pkg))))
 #+end_src
 ** citer
 #+begin_src emacs-lisp :tangle yes
@@ -1400,8 +1384,7 @@ emacs lisp はデフォでやってくれているっぽい。
   (with-delayed-execution
     (leaf go-translate
       :ensure t
-      :require t
-      :config
+      :defer-config
       (setq gt-langs '(en ja))
       (setq gt-default-translator
   	  (gt-translator
@@ -1452,11 +1435,6 @@ emacs lisp はデフォでやってくれているっぽい。
     (add-to-list 'eglot-server-programs
   	       '(typst-ts-mode . ("tinymist")))
     )
- ; (leaf typst-preview
-  ;   :el-get havarddj/typst-preview.el
-   ;  :require t
-    ; :custom
-     ;(typst-preview-browser . "qutebrowser"))
   (leaf eglot-booster
     :when (executable-find "emacs-lsp-booster")
     :vc ( :url "https://github.com/jdtsmith/eglot-booster")
@@ -1533,8 +1511,6 @@ emacs lisp はデフォでやってくれているっぽい。
 * mu4e
 #+begin_src emacs-lisp :tangle yes
   (with-delayed-execution
-    (add-to-list 'load-path "/nix/store/1jg084yny96rx858vsmayjpc3flrjqni-emacs-mu4e-1.12.5/share/emacs/site-lisp/elpa/mu4e-1.12.5")
-    (require 'mu4e)
     (setq mail-user-agent 'mu4e-user-agent)
     )
 #+end_src
@@ -1576,9 +1552,6 @@ emacs lisp はデフォでやってくれているっぽい。
 org-store-linkでリンクをコピーすることができる。
 TODOに貼っておくことで、作業の際に確認することができるようになる。
 #+begin_src emacs-lisp :tangle yes
-  (with-delayed-execution
-    (require 'ol-emacs-slack)
-    )
 #+end_src
 * 履歴保存
 bufferが溜ったり、設定が更新されなかったり、ssh先が保存されなかったり、いまいちなことが多いので一旦無効化する。

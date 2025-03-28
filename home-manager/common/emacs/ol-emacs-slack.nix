@@ -1,10 +1,10 @@
 {
   fetchFromGitHub,
-  trivialBuild,
+  melpaBuild,
   dash,
   s,
 }:
-trivialBuild rec {
+melpaBuild rec {
   pname = "ol-emacs-slack";
   version = "20240718";
   src = fetchFromGitHub {
