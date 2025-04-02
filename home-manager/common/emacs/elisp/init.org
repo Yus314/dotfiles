@@ -509,6 +509,11 @@ emacs lisp はデフォでやってくれているっぽい。
   (keymap-global-set "C-s" 'next-line)
   
 #+end_src
+** multiple-cursors
+#+begin_src emacs-lisp :tangle yes
+  (leaf multiple-cursors
+    :ensure t)
+#+end_src
 * タイマーを利用した疑似非同期
 #+begin_src  emacs-lisp :tangle yes
   (defvar my-delayed-configurations nil)
@@ -1539,14 +1544,14 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * Slack
 #+begin_src emacs-lisp :tangle yes
-  (with-delayed-execution
+  (with-eval-after-load 'slack
     (slack-register-team
      :name "mdip"
      :token "xoxc-14011030212-3874022267665-7457834306050-c11c89ae65f84a20d838527b17e004f9164a04139ba7f3f765040503139c761a"
      :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
      :default t
      )
-  )
+    )
 #+end_src
 ** slack-org
 org-store-linkでリンクをコピーすることができる。
