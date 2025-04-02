@@ -42,6 +42,7 @@ in
           vterm
           (pkgs.tinymist)
 
+          (unstable.aider-chat)
           (pkgs.tree-sitter)
           (pkgs.emacs-lsp-booster)
           # mu4eのためのパッケッージ
@@ -105,5 +106,4 @@ in
       (unstable.tinymist)
     ];
   };
-
 }
