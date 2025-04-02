@@ -13,9 +13,8 @@ melpaBuild rec {
     rev = "299bd86280179999b049abc7252eb1bffa8a5ddd";
     sha256 = "sha256-uEVJYAqVolyL8Li7zagl/4XcgkNJH+JIupLsh7tJhEE=";
   };
-  propagatedUserEnvPkgs = [
+  packageRequires = [
     dash
     s
   ];
-  buildInputs = propagatedUserEnvPkgs;
 }

@@ -272,121 +272,119 @@ emacs lisp はデフォでやってくれているっぽい。
 * 入力支援
 ** mewo
 #+begin_src emacs-lisp :tangle yes
-  ;(leaf meow
-  ;  :ensure t
-  ;  :require meow
-  ; :custom
-  ;  (meow-use-clipboard . t)
-  ;  (meow-expand-hint-counts . nil)
-  ;  :config
-  ;  (defun meow-setup ()
-  ;    (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
-  ;    (meow-leader-define-key
-  ;     '("?" . meow-cheatsheet))
-  ;    (meow-motion-overwrite-define-key
-  ;     ;; custom keybinding for motion state
-  ;     '("<escape>" . ignore))
-  ;    (meow-normal-define-key
-  ;     '("?" . meow-cheatsheet)
-  ;     ;; Ctrl key;
-  ;
-  ;
-  ;                                        ;'("*" . meow-expand-0)
-  ;     ;; puni
-  ;     '(", a (" . puni-wrap-round)
-  ;     '(", a [" . puni-wrap-square)
-  ;     '(", a {" . puni-wrap-curly)
-  ;     '(", a <" . puni-wrap-angle)
-  ;     '(", a d" . puni-splice)
-  ;     '(", s l" . puni-slurp-forward)
-  ;     '(", b a" . puni-barf-forward)
+  (leaf meow
+    :ensure t
+    :require meow
+   :custom
+    (meow-use-clipboard . t)
+    (meow-expand-hint-counts . nil)
+    :config
+    (defun meow-setup ()
+      (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
+      (meow-leader-define-key
+      '("?" . meow-cheatsheet))
+      (meow-motion-overwrite-define-key
+       ;; custom keybinding for motion state
+       '("<escape>" . ignore))
+      (meow-normal-define-key
+       '("?" . meow-cheatsheet)
+       ;; Ctrl key;
 
-  ;     '("=" . meow-expand-9)
-  ;     '("!" . meow-expand-8)
-  ;     '("[" . meow-expand-7)
-  ;     '("]" . meow-expand-6)
-  ;     '("{" . meow-expand-5)
-  ;     '("+" . meow-expand-4)
-  ;     '("}" . meow-expand-3)
-  ;     '(")" . meow-expand-2)
-  ;     '("(" . meow-expand-1)
-  ;     '("1" . digit-argument)
-  ;     '("2" . digit-argument)
-  ;     '("3" . digit-argument)
-  ;     '("4" . digit-argument)
-  ;     '("5" . digit-argument)
-  ;     '("6" . digit-argument)
-  ;     '("7" . digit-argument)
-  ;     '("8" . digit-argument)
-  ;     '("9" . digit-argument)
-  ;     '("0" . digit-argument)
-  ;     '("-" . negativargument)
-  ;     '(";" . meow-reverse)
-  ;     '("*" . meow-inner-of-thing)
-  ;     '("." . meow-bounds-of-thing)
-  ;     '("<" . meow-beginning-of-thing)
-  ;     '(">" . meow-end-of-thing)
-  ;     '("a" . meow-append)
-  ;     '("A" . meow-open-below)
-  ;     '("b" . consult-buffer) ;元はmeow-back-word     
-  ;     '("B" . meow-back-symbol)
-  ;     '("c" . meow-change)
-  ;     '("p" . meow-delete)
-  ;     '("P" . meow-backward-delete)
-  ;     '("e" . meow-line)
-  ;     '("E" . meow-goto-line)
-  ;     '("f" . meow-find)
-  ;     '("<escape>" . meow-cancel-selection)
-  ;     '("G" . meow-grab)
-  ;     '("d" . meow-left)
-  ;     '("D" . meow-left-expand)
-  ;     '("i" . meow-insert)
-  ;     '("I" . meow-open-above)
-  ;     '("j" . meow-join)
-  ;     '("k" . meow-kill)
-  ;     '("l" . meow-till)
-  ;     '("m" . meow-mark-word)
-  ;     '("M" . meow-mark-symbol)
-  ;     '("s" . meow-next)
-  ;     '("S" . meow-next-expand)
-  ;     '("o" . meow-block)
-  ;     '("O" . meow-to-block)
-  ;     '("t" . meow-prev)
-  ;     '("T" . meow-prev-expand)
-  ;     '("q" . meow-quit)
-  ;     '("r" . meow-replace)
-  ;     '("R" . meow-swap-grab)
-  ;     '("h" . meow-search)
-  ;     '("n" . meow-right)
-  ;     '("N" . meow-right-expand)
-  ;     '("u" . vundo)
-  ;     '("U" . meow-undo-in-selection)
-                                          ;'("v" . meow-visit)
 
-   ;    '("v i" . meow-inner-of-thing) ;; Inner
-  ;     '("v a" . meow-bounds-of-thing) ;; Arround
-  ;     '("v b" . meow-block) ;; Block
-  ;     '("v c" . puni-mark-list-around-point) ;; Contents
-  ;     '("v x" . puni-mark-sexp-around-point) ;; eXpression
-  ;     '("v l" . meow-line) ;; Line
-  ;     '("v s" . meow-mark-symbol) ;; Symbol
-  ;     '("v w" . meow-mark-word) ;; Word
-  ;     '("v v" . puni-expand-region) ;; Expand
-  ;     '("v r" . rectangle-mark-mode) ;; Rectangle
+                                          ;'("*" . meow-expand-0)
+       ;; puni
+       '(", a (" . puni-wrap-round)
+       '(", a [" . puni-wrap-square)
+       '(", a {" . puni-wrap-curly)
+       '(", a <" . puni-wrap-angle)
+       '(", a d" . puni-splice)
+       '(", s l" . puni-slurp-forward)
+       '(", b a" . puni-barf-forward)
 
-  ;     '("w" . meow-next-word)
-  ;     '("W" . meow-next-symbol)
-  ;     '("x" . meow-save)
-  ;     '("X" . meow-sync-grab)
-  ;     '("y" . meow-yank)
-  ;     '("z" . meow-pop-selection)
-  ;     '("'" . repeat)
-       ;'("g" . avy-goto-char-timer)
-  ;     )
-  ;    )
-  ;  (meow-setup)
-  ;  (meow-global-mode)
-  ;  )
+       '("=" . meow-expand-9)
+       '("!" . meow-expand-8)
+       '("[" . meow-expand-7)
+       '("]" . meow-expand-6)
+       '("{" . meow-expand-5)
+       '("+" . meow-expand-4)
+       '("}" . meow-expand-3)
+       '(")" . meow-expand-2)
+       '("(" . meow-expand-1)
+       '("1" . digit-argument)
+       '("2" . digit-argument)
+       '("3" . digit-argument)
+       '("4" . digit-argument)
+       '("5" . digit-argument)
+       '("6" . digit-argument)
+       '("7" . digit-argument)
+       '("8" . digit-argument)
+       '("9" . digit-argument)
+       '("0" . digit-argument)
+       '("-" . negativargument)
+       '(";" . meow-reverse)
+       '("*" . meow-inner-of-thing)
+       '("." . meow-bounds-of-thing)
+       '("<" . meow-beginning-of-thing)
+       '(">" . meow-end-of-thing)
+       '("a" . meow-append)
+       '("A" . meow-open-below)
+       '("b" . consult-buffer) ;元はmeow-back-word     
+       '("B" . meow-back-symbol)
+       '("c" . meow-change)
+       '("p" . meow-delete)
+       '("P" . meow-backward-delete)
+       '("e" . meow-line)
+       '("E" . meow-goto-line)
+       '("f" . meow-find)
+       '("<escape>" . meow-cancel-selection)
+       '("G" . meow-grab)
+       '("d" . meow-left)
+       '("D" . meow-left-expand)
+       '("i" . meow-insert)
+       '("I" . meow-open-above)
+       '("j" . meow-join)
+       '("k" . meow-kill)
+       '("l" . meow-till)
+       '("m" . meow-mark-word)
+       '("M" . meow-mark-symbol)
+       '("s" . meow-next)
+       '("S" . meow-next-expand)
+       '("o" . meow-block)
+       '("O" . meow-to-block)
+       '("t" . meow-prev)
+       '("T" . meow-prev-expand)
+       '("q" . meow-quit)
+       '("r" . meow-replace)
+       '("R" . meow-swap-grab)
+       '("h" . meow-search)
+       '("n" . meow-right)
+       '("N" . meow-right-expand)
+       '("u" . vundo)
+       '("U" . meow-undo-in-selection)
+                                         ;'("v" . meow-visit)
+       '("v i" . meow-inner-of-thing) ;; Inner
+     '("v a" . meow-bounds-of-thing) ;; Arround
+      '("v b" . meow-block) ;; Block
+      '("v c" . puni-mark-list-around-point) ;; Contents
+       '("v x" . puni-mark-sexp-around-point) ;; eXpression
+       '("v l" . meow-line) ;; Line
+       '("v s" . meow-mark-symbol) ;; Symbol
+       '("v w" . meow-mark-word) ;; Word
+       '("v v" . puni-expand-region) ;; Expand
+       '("v r" . rectangle-mark-mode) ;; Rectangle
+       '("w" . meow-next-word)
+       '("W" . meow-next-symbol)
+       '("x" . meow-save)
+       '("X" . meow-sync-grab)
+       '("y" . meow-yank)
+       '("z" . meow-pop-selection)
+       '("'" . repeat)
+      ;'("g" . avy-goto-char-timer)
+       )
+      )
+    (meow-setup)
+    (meow-global-mode)
+    )
 
 #+end_src
 ** puni
@@ -446,68 +444,75 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** shift-selection-mode
 #+begin_src emacs-lisp :tangle yes
-  (defun handle-shift-selection ()
-    "Activate/deactivate mark depending on invocation thru shift translation.
-  This function behaves opposite to the original: it activates the
-  mark when Shift is NOT pressed, and deactivates it when Shift is
-  pressed."
-    (cond ((and (eq shift-select-mode 'permanent)
-                (not this-command-keys-shift-translated))
-           (unless mark-active
-             (push-mark nil nil t)))
-          ((and shift-select-mode
-                (not this-command-keys-shift-translated))
-           (unless (and mark-active
-  		      (eq (car-safe transient-mark-mode) 'only))
-  	   (setq-local transient-mark-mode
-                         (cons 'only
-                               (unless (eq transient-mark-mode 'lambda)
-                                 transient-mark-mode))) 
-             (push-mark nil nil t)))
-          ((eq (car-safe transient-mark-mode) 'only)
-           (setq transient-mark-mode (cdr transient-mark-mode))
-           (if (eq transient-mark-mode (default-value 'transient-mark-mode))
-               (kill-local-variable 'transient-mark-mode))
-           (deactivate-mark))))
-  (defun open-below()
-    "Open a newline and move cursor"
-    (interactive)
-    (goto-char (line-end-position))
-    (newline-and-indent)
-    )
-  (defun select-current-line ()
-  "Select the current line."
-  (interactive)
-  (let ((start (line-beginning-position))
-        (end (line-end-position)))
-    (set-mark start)
-    (goto-char (min (point-max) (+ 1 end)))))
-  (defun quit-and-back ()
-    "Quit current buffer and back prev buffer"
-    (interactive)
-    (if (> (seq-length (window-list (selected-frame)))1)
-        (previous-buffer
-         ))
-    )
-  (defun quit-and-back ()
-    "Quit current buffer and go back to previous buffer."
-    (interactive)
-    (if (> (length (window-list)) 1)
-        (progn
-          (bury-buffer)
-          (previous-buffer))
-      (kill-buffer (current-buffer))))
-  (set-frame-parameter (window-frame) 'cursor-type 'bar)
-  (define-key input-decode-map (kbd "C-i") [contorol-i])
-  (keymap-global-set "C-d" 'backward-char)
-  (keymap-global-set "C-f" 'isearch-forward)
-  (global-set-key [contorol-i]  'avy-goto-char-timer)
-  (keymap-global-set "C-k" 'select-current-line)
-  (keymap-global-set "C-n" 'forward-char)
-  (keymap-global-set "C-o" 'open-below)
-  (keymap-global-set "C-t" 'previous-line)
-  (keymap-global-set "C-s" 'next-line)
-  
+  ; (defun handle-shift-selection ()
+  ;   "Activate/deactivate mark depending on invocation thru shift translation.
+  ; This function behaves opposite to the original: it activates the
+  ; mark when Shift is NOT pressed, and deactivates it when Shift is
+  ; pressed."
+  ;   (cond ((and (eq shift-select-mode 'permanent)
+  ;               (not this-command-keys-shift-translated))
+  ;          (unless mark-active
+  ;            (push-mark nil nil t)))
+  ;         ((and shift-select-mode
+  ;               (not this-command-keys-shift-translated))
+  ;          (unless (and mark-active
+  ; 		      (eq (car-safe transient-mark-mode) 'only))
+  ; 	   (setq-local transient-mark-mode
+  ;                        (cons 'only
+  ;                              (unless (eq transient-mark-mode 'lambda)
+  ;                                transient-mark-mode))) 
+  ;            (push-mark nil nil t)))
+  ;         ((eq (car-safe transient-mark-mode) 'only)
+  ;          (setq transient-mark-mode (cdr transient-mark-mode))
+  ;          (if (eq transient-mark-mode (default-value 'transient-mark-mode))
+  ;              (kill-local-variable 'transient-mark-mode))
+  ;          (deactivate-mark))))
+  ; (defun open-below()
+  ;   "Open a newline and move cursor"
+  ;   (interactive)
+  ;   (goto-char (line-end-position))
+  ;   (newline-and-indent)
+  ;   )
+  ; (defun select-current-line ()
+  ; "Select the current line."
+  ; (interactive)
+  ; (let ((start (line-beginning-position))
+  ;       (end (line-end-position)))
+  ;   (set-mark start)
+  ;   (goto-char (min (point-max) (+ 1 end)))))
+  ; (defun quit-and-back ()
+  ;   "Quit current buffer and back prev buffer"
+  ;   (interactive)
+  ;   (if (> (seq-length (window-list (selected-frame)))1)
+  ;       (previous-buffer
+  ;        ))
+  ;   )
+  ; (defun quit-and-back ()
+  ;   "Quit current buffer and go back to previous buffer."
+  ;   (interactive)
+  ;   (if (> (length (window-list)) 1)
+  ;       (progn
+  ;         (bury-buffer)
+  ;         (previous-buffer))
+  ;     (kill-buffer (current-buffer))))
+  ; (defun consult-line-literal ()
+  ; (interactive)
+  ; (let ((completion-styles '(orderless))
+  ;       (orderless-matching-styles '(orderless-literal))
+  ;       (completion-category-defaults nil)
+  ;       (completion-category-overrides nil))
+  ;   (consult-line)))
+  ; (set-frame-parameter (window-frame) 'cursor-type 'bar)
+  ; (define-key input-decode-map (kbd "C-i") [contorol-i])
+  ; (keymap-global-set "C-d" 'backward-char)
+  ; (keymap-global-set "C-f" 'consult-line-literal)
+  ; (global-set-key [contorol-i]  'avy-goto-char-timer)
+  ; (keymap-global-set "C-k" 'select-current-line)
+  ; (keymap-global-set "C-n" 'forward-char)
+  ; (keymap-global-set "C-o" 'open-below)
+  ; (keymap-global-set "C-t" 'previous-line)
+  ; (keymap-global-set "C-s" 'next-line);;;
+
 #+end_src
 ** multiple-cursors
 #+begin_src emacs-lisp :tangle yes
@@ -678,6 +683,19 @@ emacs lisp はデフォでやってくれているっぽい。
 
     )
     #+end_src
+* aidermacs
+#+begin_src emacs-lisp :tangle yes
+  ;(leaf aidermacs
+  ;  :ensure t
+  ;  :bind
+  ;  ("C-c i" . aidermacs-transient-menu)
+  ;  :custom
+  ;  (aidermacs-backend . 'vterm)
+  ;  (aidermacs-default-model . "ollama/Qwen2.5:14b") 
+  ;  :config
+  ;  (setenv "OLLAMA_API_BASE" "http://ollama.mdip2home.com")
+  ;  )
+#+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes
   ;(require 'yasnippet)
@@ -832,41 +850,42 @@ emacs lisp はデフォでやってくれているっぽい。
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
-    (leaf org
-      :ensure t
-      :custom
-      (org-todo-keywords
-       . '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)")
-           )
-       )
-      (org-hide-emphasis-markers . t);boldなどの*を隠す
-      (org-emphasis-regexp-components . '("[:alnum:][:nonascii:][:punct:]" "[:alnum:][:nonascii:][:punct:]" "[:space:]" "." 1));*の前後にspaceが要らないように
+  (leaf org
+    :ensure t
+    :custom
+    (org-todo-keywords
+     . '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)")
+         )
+     )
+    (org-startup-truncated . nil)
+    (org-hide-emphasis-markers . t);boldなどの*を隠す
+    (org-emphasis-regexp-components . '("[:alnum:][:nonascii:][:punct:]" "[:alnum:][:nonascii:][:punct:]" "[:space:]" "." 1));*の前後にspaceが要らないように
 
 
-      (org-todo-keyword-faces
-       . '(("TODO" . (:foreground "white" :background "red" :weight bold))
-           ("WAIT" . org-warning)
-           ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
-           ("DONE(d)" . "yellow")
-           ("CANCEL" . org-warning)
-           ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
-           ))
-      (org-startup-folded . t)
-      (org-tag-alist
-       . '(("HOME" . ?h)
-           ("LAB" . ?l)
-           ("PC" . ?p)
-           ("desk" . ?d)
-           ("smartphone" . ?s)
-           ("anywhere" . ?a)
-           ("movie" . ?m)
-           ("Kana" . ?k)
-           ))
-      (org-directory . "~/dropbox")
-      (org-return-follows-link . t)
-      :config
-      )
-      (regexp-opt '("Tasks" "Notes"))
+    (org-todo-keyword-faces
+     . '(("TODO" . (:foreground "white" :background "red" :weight bold))
+         ("WAIT" . org-warning)
+         ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
+         ("DONE(d)" . "yellow")
+         ("CANCEL" . org-warning)
+         ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
+         ))
+    (org-startup-folded . t)
+    (org-tag-alist
+     . '(("HOME" . ?h)
+         ("LAB" . ?l)
+         ("PC" . ?p)
+         ("desk" . ?d)
+         ("smartphone" . ?s)
+         ("anywhere" . ?a)
+         ("movie" . ?m)
+         ("Kana" . ?k)
+         ))
+    (org-directory . "~/dropbox")
+    (org-return-follows-link . t)
+    :config
+    )
+    (regexp-opt '("Tasks" "Notes"))
 #+end_src
 ** org-clock
 #+begin_src emacs-lisp :tangle yes

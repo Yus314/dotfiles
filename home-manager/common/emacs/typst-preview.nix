@@ -3,7 +3,7 @@
   melpaBuild,
   websocket,
 }:
-melpaBuild rec{
+melpaBuild rec {
   pname = "typst-preview";
   version = "20250328";
   src = fetchFromGitHub {
@@ -12,8 +12,7 @@ melpaBuild rec{
     rev = "8d5d1f5bd70d9e6b2fa89295ac3a5802419305a2";
     sha256 = "sha256-pPYs74qIGvm4RAP9U5PnYkoeagAfVNsl6mW05BnFXlY=";
   };
-    propagatedUserEnvPkgs = [
+  packageRequires = [
     websocket
   ];
-  buildInputs = propagatedUserEnvPkgs;
 }
