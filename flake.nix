@@ -32,6 +32,7 @@
     org-babel.url = "github:emacs-twist/org-babel";
     sops-nix.url = "github:Mic92/sops-nix";
     impermanence.url = "github:nix-community/impermanence";
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
   outputs =
     {
@@ -48,8 +49,9 @@
       emacs-overlay,
       org-babel,
       sops-nix,
+      flake-parts,
       ...
-    }:
+    }@inputs:
     let
       tmp_pkgs = import nixpkgs { system = "x86_64-linux"; };
       bizin-gothic-discord = tmp_pkgs.callPackage ./bizin.nix { };
@@ -119,5 +121,5 @@
           inherit org-babel;
         };
       };
-    };
+      };
 }
