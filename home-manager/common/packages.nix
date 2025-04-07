@@ -34,5 +34,8 @@
     kakoune
     #(unstable.qutebrowser)
     zotero
+    (unstable.anki-bin)
+    (unstable.mpv)
+    (unstable.aider-chat)
   ];
 }
