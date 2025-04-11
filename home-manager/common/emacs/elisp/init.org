@@ -680,16 +680,17 @@ emacs lisp はデフォでやってくれているっぽい。
     #+end_src
 * aidermacs
 #+begin_src emacs-lisp :tangle yes
-  ;(leaf aidermacs
-  ;  :ensure t
-  ;  :bind
-  ;  ("C-c i" . aidermacs-transient-menu)
-  ;  :custom
-  ;  (aidermacs-backend . 'vterm)
-  ;  (aidermacs-default-model . "ollama/Qwen2.5:14b") 
-  ;  :config
-  ;  (setenv "OLLAMA_API_BASE" "http://ollama.mdip2home.com")
-  ;  )
+  (leaf aidermacs
+    :bind
+    ("C-c i" . aidermacs-transient-menu)
+    :custom
+    (aidermacs-backend . 'vterm)
+    (aidermacs-vterm-multiline-newline-key . "S-<return>")
+    (aidermacs-use-architect-mode . nil)
+    (aidermacs-default-model  . "gemini/gemini-2.5-pro-preview-03-25")
+    :config
+    (setenv "GEMINI_API_KEY" "AIzaSyDnLq5TwWqfyWAWFr1dgyuimIQ_vyGw2A0")
+    )
 #+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes
