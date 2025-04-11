@@ -5,34 +5,34 @@
 }:
 {
   home.packages = with pkgs; [
-    #cowsay
-    tldr
-    pandoc
-    texliveTeTeX
-    iconv
-    just
-    zathura
-    unzip
-    cloudflared
-    marp-cli
-    vimgolf
-    carapace
-    #zoom
-    #swayn
-    #slack
-    #zoom
-    kitty
-    gdrive3
-    drive
-    #dropbox
-    rclone
-    # adobe-reader
-    #(xremap)
-    qutebrowser
+    # --- CLI Utilities ---
+    tldr # Simplified man pages
+    pandoc # Universal document converter
+    # texliveTeTeX # Basic TeX distribution. Consider texlive.combined.scheme-medium or full for more features.
+    texlive.combined.scheme-small # A slightly larger but still minimal TeX setup
+    just # Command runner
+    unzip # ZIP archive utility
+    cloudflared # Cloudflare Tunnel daemon
+    marp-cli # Markdown presentation ecosystem CLI
+    vimgolf # Vim code golf client
+    carapace # Command argument completion generator
+    gdrive3 # Google Drive CLI Client (consider using rclone instead?)
+    # drive # Another Google Drive CLI Client (choose one or use rclone)
+    rclone # Rsync for cloud storage
+    # xremap # Key remapper (commented out)
 
-    #nyxt
-    kakoune
-    #(unstable.qutebrowser)
-    zotero
+    # --- GUI Applications ---
+    zathura # Document viewer with vi-like keybindings
+    kitty # Fast, feature-rich GPU-based terminal emulator
+    qutebrowser # Keyboard-focused browser with a minimal GUI
+    # nyxt # Another keyboard-focused browser (commented out)
+    kakoune # Modal editor with multiple selections
+    zotero # Reference management software
+
+    # --- Packages from Unstable ---
+    # Using unstable for potentially newer versions or features
+    (unstable.anki-bin) # Spaced repetition flashcard program (binary version)
+    (unstable.mpv) # Feature-rich media player
+    (unstable.aider-chat) # AI pair programming tool in your terminal
   ];
 }
