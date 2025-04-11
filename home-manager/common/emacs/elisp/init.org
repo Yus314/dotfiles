@@ -673,6 +673,7 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * ellama
 #+begin_src emacs-lisp :tangle yes
+  (require 'llm-gemini)
   (leaf ellama
     :ensure t
     :bind ("C-c e" . ellama-transient-main-menu)
@@ -680,7 +681,7 @@ emacs lisp はデフォでやってくれているっぽい。
     (require 'llm-ollama)
     (setopt ellama-provider
   	  (make-llm-gemini
-  	   :key
+  	   :key "AIzaSyDnLq5TwWqfyWAWFr1dgyuimIQ_vyGw2A0"
   	   :chat-model "gemini-2.5-pro-preview-03-25"
   	   )
   	  ;(make-llm-ollama
@@ -693,9 +694,18 @@ emacs lisp はデフォでやってくれているっぽい。
   	  )
     :config
     (defcustom ellama-japanese-correction-prompt-template
-      "文:\n%s\n
+      "文:%s
   あなたは論理的な思考を重視する編集者です。
-          上記のメモを添削し、論理的なメモに適した形にしてください。
+   あなたはZettelkastenのエキスパートであり、元のメモの意図と表現を尊重しつつ、改善点を指摘するアドバイザーです。以下のZettelkastenメモを、元の内容を大きく変更せずに、より良くするための添削をお願いします。\n
+
+  重視する点（指摘してほしいこと）:\n
+  ,* アトミック（単一のアイデアか？）: 一つのメモに複数のアイデアが混在していないか確認し、もし混在していればどのように分割できるか、元の構成を尊重しつつ指摘してください。\n
+  ,* 明確性・簡潔性: メモの内容が不明確、または冗長な箇所があれば、元の表現を活かしたより良い表現の可能性を提案してください。\n
+  添削してほしいメモ:\n%s\n
+  出力形式:\n
+  ,* 元のメモに対する具体的な改善点の指摘をリスト形式で記述してください。（例：「この部分は複数のアイデアを含んでいる可能性があります。具体的にはAとBのアイデアです。分割するなら〜」「『それ』が指す内容が少し曖昧かもしれません。明確にするなら〜」など）\n
+  ,* 修正が必要な場合でも、大幅な書き換えは行わず、修正箇所の指摘と、修正案（複数可）の提示*にとどめてください。\n
+  ,* 変更提案の理由を簡潔に説明してください\n
          "
       "Prompt template for `ellama-summarize'."
       :group 'ellama
