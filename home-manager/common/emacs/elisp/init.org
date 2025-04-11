@@ -248,7 +248,6 @@ emacs lisp はデフォでやってくれているっぽい。
   (use-package moody
     :config
     (setq moody-mode-line-height 26)
-    (moody-replace-mode-line-front-space)
     (moody-replace-mode-line-buffer-identification)
     (moody-replace-vc-mode)
     )
@@ -270,6 +269,27 @@ emacs lisp はデフォでやってくれているっぽい。
     )
  #+end_src
 * 入力支援
+** ryo-modal-mode
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf ryo-modal
+  ;  :ensure t
+  ;    )
+#+end_src
+** evil-mode
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf evil
+ ;   :ensure t
+ ;   )
+
+#+end_src
+** kakoune
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf kakoune
+ ;   :ensure t
+ ;   :after ryo-modal multiple-cursors expand-region
+ ;   :bind ("C-z" . ryo-modal-mode)
+ ;   )
+#+end_src
 ** mewo
 #+begin_src emacs-lisp :tangle yes
   (leaf meow
@@ -327,10 +347,12 @@ emacs lisp はデフォでやってくれているっぽい。
        '("<" . meow-beginning-of-thing)
        '(">" . meow-end-of-thing)
        '("a" . meow-append)
-       '("A" . meow-open-below)
+  					;'("A" . meow-open-below)
+       '("A" . meow-block)
        '("b" . consult-buffer) ;元はmeow-back-word     
        '("B" . meow-back-symbol)
        '("c" . meow-change)
+       '("C" . mc/mark-next-like-this)
        '("p" . meow-delete)
        '("P" . meow-backward-delete)
        '("e" . meow-line)
@@ -341,16 +363,16 @@ emacs lisp はデフォでやってくれているっぽい。
        '("d" . meow-left)
        '("D" . meow-left-expand)
        '("i" . meow-insert)
-       '("I" . meow-open-above)
+       '("I" . meow-to-block)
        '("j" . meow-join)
        '("k" . meow-kill)
        '("l" . meow-till)
-       '("m" . meow-mark-word)
+       '("m" . meow-forward-bracket)
        '("M" . meow-mark-symbol)
        '("s" . meow-next)
        '("S" . meow-next-expand)
-       '("o" . meow-block)
-       '("O" . meow-to-block)
+       '("o" . meow-open-below)
+       '("O" . meow-open-above)
        '("t" . meow-prev)
        '("T" . meow-prev-expand)
        '("q" . meow-quit)
@@ -385,7 +407,6 @@ emacs lisp はデフォでやってくれているっぽい。
     (meow-setup)
     (meow-global-mode)
     )
-
 #+end_src
 ** puni
  #+begin_src emacs-lisp :tangle yes
@@ -426,8 +447,9 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf dmacro
     :ensure t
-    :custom `((dmacro-key . ,(kbd "C-b")))  ;; C-b を dmacro のキーにする
-    :global-minor-mode global-dmacro-mode)
+    )
+    ;:custom `((dmacro-key . ,(kbd "C-b")))  ;; C-b を dmacro のキーにする
+    ;:global-minor-mode global-dmacro-mode)
   (defun my-indent-rigidly-right-to-tab-stop (beg end)
     "Indent all lines between BEG and END rightward to a tab stop and keep the region active."
     (interactive "r")
@@ -1162,24 +1184,33 @@ emacs lisp はデフォでやってくれているっぽい。
   (with-delayed-execution
     (eval-after-load 'gcal
       '(eval-after-load 'gcal-org
+         '(progn
          (setq gcal-client-id  "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
          (setq gcal-client-secret  "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")
-         (gcal-org-push-file
-  	"shizhaoyoujie@gmail.com"
-  	"~/dropbox/inbox/inbox.org"
-  	"~/dropbox/my-schedule.gcal-cache"
-  	)
          (gcal-org-pull-to-file
-  	"shizhaoyoujie@gmail.com"
-  	"~/dropbox/inbox/inbox.org"
-  	"FROM_GCAL"
-  	"~/dropbox/my-schedule.gcal-cache")
-  					; かなとの予定
-         (gcal-org-push-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com" "~/dropbox/kana.org")
-         (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com" "~/dropbox/kana.org" "FROM_GCAL" "~/dropbox/my-schedule.gcal-cache")
+      	"shizhaoyoujie@gmail.com"
+      	"~/dropbox/inbox/inbox.org"
+      	"FROM_GCAL"
+      	"~/dropbox/my-schedule.gcal-cache")
+         (gcal-org-push-file
+      	"shizhaoyoujie@gmail.com"
+      	"~/dropbox/inbox/inbox.org"
+      	"~/dropbox/my-schedule.gcal-cache")
+
+         ; かなとの予定
+         (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+      			      "~/dropbox/kana.org"
+      			      "FROM_KANA"
+      			      "~/dropbox/kana-schedule.gcal-cache")
+         (gcal-org-push-file
+    	"3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+    	"~/dropbox/kana.org"
+    	"~/dropbox/kana-schedule.gcal-cache")
+
+         )
          )
       )
-    ) 
+    )
 #+end_src
 ** org-babel
 #+begin_src emacs-lisp :tangle yes
@@ -1563,14 +1594,14 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * Slack
 #+begin_src emacs-lisp :tangle yes
-  (with-eval-after-load 'slack
-    (slack-register-team
-     :name "mdip"
-     :token "xoxc-14011030212-3874022267665-7457834306050-c11c89ae65f84a20d838527b17e004f9164a04139ba7f3f765040503139c761a"
-     :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
-     :default t
-     )
-    )
+  ;(with-eval-after-load 'slack
+  ;  (slack-register-team
+  ;   :name "mdip"
+  ;   :token "xoxc-14011030212-3874022267665-7457834306050-c11c89ae65f84a20d838527b17e004f9164a04139ba7f3f765040503139c761a"
+   ;  :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
+   ;  :default t
+   ;  )
+   ; )
 #+end_src
 ** slack-org
 org-store-linkでリンクをコピーすることができる。
