@@ -678,13 +678,19 @@ emacs lisp はデフォでやってくれているっぽい。
     :bind ("C-c e" . ellama-transient-main-menu)
     :init
     (require 'llm-ollama)
-    (setopt ellama-provider (make-llm-ollama
-                 		   :scheme "http"
-                             :host "ollama.mdip2home.com"
-                 		   :port 80
-                             :chat-model "Qwen2.5:14b"
-                             :embedding-model "Qwen2.5:14b"
-       			   :default-chat-non-standard-params '(("num_ctx" . 32768))))
+    (setopt ellama-provider
+  	  (make-llm-gemini
+  	   :key
+  	   :chat-model "gemini-2.5-pro-preview-03-25"
+  	   )
+  	  ;(make-llm-ollama
+            ;     		   :scheme "http"
+            ;                 :host "ollama.mdip2home.com"
+            ;     		   :port 80
+            ;                 :chat-model "Qwen2.5:14b"
+            ;                 :embedding-model "Qwen2.5:14b"
+  					;		   :default-chat-non-standard-params '(("num_ctx" . 32768))))
+  	  )
     :config
     (defcustom ellama-japanese-correction-prompt-template
       "文:\n%s\n
