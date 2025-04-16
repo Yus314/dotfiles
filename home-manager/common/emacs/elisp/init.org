@@ -711,8 +711,8 @@ emacs lisp はデフォでやってくれているっぽい。
     :bind
     ("C-c i" . aidermacs-transient-menu)
     :custom
-    (aidermacs-backend . 'vterm)
-    (aidermacs-vterm-multiline-newline-key . "S-<return>")
+    ;(aidermacs-backend . 'vterm)
+    ;(aidermacs-vterm-multiline-newline-key . "S-<return>")
     (aidermacs-use-architect-mode . nil)
     (aidermacs-default-model  . "gemini/gemini-2.5-pro-preview-03-25")
     :config
@@ -1549,6 +1549,12 @@ emacs lisp はデフォでやってくれているっぽい。
   (with-eval-after-load "tramp"
     (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
     )
+  ;(add-to-list 'tramp-remote-path "/run/current-system/sw/bin")
+  (require 'tramp-sh)
+  (setq tramp-remote-path
+       (append tramp-remote-path
+   	      '(tramp-own-remote-path)))
+
 #+end_src
 * Dired
 ** dired-narrow
