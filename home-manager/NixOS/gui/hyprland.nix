@@ -23,8 +23,6 @@
     #               									monitor = DP-1,1920x1080@60.00000,1920x0,1
     #               									monitor = DP-3,1920x1080@60.00000,3840x0,1
     #         										monitor = Unknown-1, disable
-    # exec-once = [workspace 2]vivaldi --disable-gpu
-    # exec-once = [workspace 1]wezterm
     settings = {
       general = {
         "gaps_in" = 5;
@@ -33,7 +31,6 @@
       };
       input = {
         "kb_layout" = "us";
-        # "kb_variant" = "dvorak";
         "follow_mouse" = 1;
         "force_no_accel" = 0;
       };
@@ -42,11 +39,8 @@
       "$terminal" = "kitty";
       bind = [
         "$mainMod SHIFT Control_R, RETURN, exec, tofi-drun | xargs hyprctl dispatch exec --"
-        #        "$mainMod, Z, exec, vivaldi --disable-gpu"
         "$mainMod, Q, exec, qutebrowser"
         "$mainMod, E, exec, emacs"
-        #        "$mainMod, L, exec, slack"
-        #        "$mainMod, S, exec, wlogout"
         "$mainMod, N, movefocus, r"
         "$mainMod, D, movefocus, l"
         "$mainMod, H, movefocus, d"

@@ -81,4 +81,10 @@
       # 削除: padding-top = "35%";
     };
   };
+  xdg.desktopEntries.wlogout = {
+    name = "wlogout";
+    type = "Application";
+    exec = "wlogout";
+    terminal = false;
+  };
 }
