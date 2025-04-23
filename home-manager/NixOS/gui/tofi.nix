@@ -76,9 +76,6 @@
       scale = true;
       # ランチャーの表示位置 (center, top, bottom, left, right, top-left など)
       anchor = "center";
-      # 削除: num-results = 5;
-      # 削除: padding-left = "35%";
-      # 削除: padding-top = "35%";
     };
   };
   xdg.desktopEntries.wlogout = {

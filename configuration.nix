@@ -34,6 +34,9 @@
       "dropbox/token/token_type" = { };
       "dropbox/token/refresh_token" = { };
       "dropbox/token/expiry" = { };
+      cachix-agent-token = {
+        sopsFile = ./secrets/cachix.yaml;
+      };
     };
     templates = {
 
@@ -68,12 +71,23 @@
         "nix-command"
         "flakes"
       ];
+      substituters = [
+        "https://yus314.cachix.org"
+      ];
+      trusted-public-keys = [
+        "yus314.cachix.org-1:VyHussCju8oVuLg52oE5RDOKMvWIInAvJumaJSvzWvk="
+      ];
     };
     extraOptions = ''
       !include ${config.sops.templates."gh-token".path}
     '';
   };
-
+  networking.hostName = "toro";
+  services.cachix-agent = {
+    enable = true;
+    name = "toro";
+    credentialsFile = config.sops.secrets.cachix-agent-token.path;
+  };
   systemd.user.services.dropbox = {
     description = "Dropbox service";
     after = [ "network-online.target" ];
@@ -105,7 +119,6 @@
   # /boot がいっぱいになったので保存する履歴を制限
   boot.loader.systemd-boot.configurationLimit = 32;
 
-  networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
