@@ -1223,11 +1223,13 @@ emacs lisp はデフォでやってくれているっぽい。
     	"3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
     	"~/dropbox/kana.org"
     	"~/dropbox/kana-schedule.gcal-cache")
-
          )
          )
       )
     )
+
+  (require 'gcal)
+  (require 'gcal-org)
 #+end_src
 ** org-babel
 #+begin_src emacs-lisp :tangle yes

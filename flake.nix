@@ -33,6 +33,7 @@
     sops-nix.url = "github:Mic92/sops-nix";
     impermanence.url = "github:nix-community/impermanence";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    cachix-deploy-flake.url = "github:cachix/cachix-deploy-flake";
   };
   outputs =
     {
@@ -121,5 +122,5 @@
           inherit org-babel;
         };
       };
-      };
+    };
 }
