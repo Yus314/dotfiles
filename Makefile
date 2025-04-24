@@ -27,7 +27,6 @@ x86_64-linux:
 	$(NIX) build --impure --keep-going --no-link --show-trace --system x86_64-linux $(JOBS_X86_64-LINUX) \
 	.#nixosConfigurations.home.config.system.build.toplevel \
 	.#nixosConfigurations.lab-main.config.system.build.toplevel \
-	.#nixosConfigurations.lab-sub.config.system.build.toplevel \
 
 aarch64-darwin:
 	$(NIX) build --keep-going --no-link --show-trace --system aarch64-darwin $(JOBS_AARCH64-DARWIN) --option extra-sandbox-paths /nix/store \
