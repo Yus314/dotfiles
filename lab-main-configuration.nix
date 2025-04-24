@@ -6,7 +6,6 @@
   inputs,
   config,
   pkgs,
-  unstable,
   emacs-overlay,
   org-babel,
   bizin-gothic-discord,
@@ -18,7 +17,7 @@
   imports = [
     # Include the results of the hardware scan.
     ./host/lab-main-hardware-configuration.nix
-	./greetd.nix
+    ./greetd.nix
   ];
   fonts.packages = [ bizin-gothic-discord ];
   fonts.fontDir.enable = true;
@@ -66,13 +65,13 @@
     rootless = {
       enable = true;
       setSocketVariable = true;
-      };
+    };
   };
-hardware.nvidia-container-toolkit = {
-	enable = true;
+  hardware.nvidia-container-toolkit = {
+    enable = true;
   };
   virtualisation.docker.daemon.settings.features.cdi = true;
- virtualisation.docker.rootless.daemon.settings.features.cdi = true;
+  virtualisation.docker.rootless.daemon.settings.features.cdi = true;
   home-manager = {
     users.kaki = {
       imports = [
@@ -92,7 +91,6 @@ hardware.nvidia-container-toolkit = {
     # useGlobalPkgs = true;
     # useUserPackages = true;
     extraSpecialArgs = {
-      inherit unstable;
       inherit org-babel;
       inherit xremap;
     };
@@ -109,14 +107,14 @@ hardware.nvidia-container-toolkit = {
   boot.initrd.kernelModules = [ "nvidia" ];
   boot.loader.systemd-boot.configurationLimit = 14;
   hardware.graphics = {
-	enable = true;
-	enable32Bit = true;
+    enable = true;
+    enable32Bit = true;
   };
   hardware.nvidia = {
     modesetting.enable = true;
     powerManagement.enable = false;
     powerManagement.finegrained = false;
-#	datacenter.enable = true;
+    #	datacenter.enable = true;
     open = false;
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;

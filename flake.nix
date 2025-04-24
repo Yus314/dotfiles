@@ -2,8 +2,8 @@
   description = "A simple NixOS flakes";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
-    unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "git+https://github.com/nixos/nixpkgs?shallow=1&ref=nixos-unstable";
+    nixpkgs-stable.url = "git+https://github.com/nixos/nixpkgs?shallow=1&ref=nixos-24.05";
     nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-24.11-darwin";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     home-manager = {
@@ -12,7 +12,7 @@
     };
     nix-darwin = {
       url = "github:LnL7/nix-darwin";
-      inputs.nixpkgs.follows = "unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
     homebrew-core = {
@@ -38,7 +38,6 @@
   outputs =
     {
       nixpkgs,
-      unstable,
       nixpkgs-darwin,
       nixos-hardware,
       home-manager,
@@ -69,10 +68,10 @@
             sops-nix.nixosModules.sops
           ];
           specialArgs = {
-            unstable = import unstable {
-              system = "x86_64-linux";
-              config.allowUnfree = true;
-            };
+            #            unstable = import unstable {
+            #             system = "x86_64-linux";
+            #             config.allowUnfree = true;
+            #           };
             inherit emacs-overlay;
             inherit org-babel;
             inherit xremap;
@@ -85,10 +84,10 @@
             home-manager.nixosModules.home-manager
           ];
           specialArgs = {
-            unstable = import unstable {
-              system = "x86_64-linux";
-              config.allowUnfree = true;
-            };
+            #   unstable = import unstable {
+            #     system = "x86_64-linux";
+            #     config.allowUnfree = true;
+            #   };
             inherit emacs-overlay;
             inherit org-babel;
             inherit xremap;
@@ -114,10 +113,10 @@
           nix-homebrew.darwinModules.nix-homebrew
         ];
         specialArgs = {
-          unstable = import unstable {
-            system = "aarch64-darwin";
-            config.allowUnfree = true;
-          };
+          #    unstable = import unstable {
+          #      system = "aarch64-darwin";
+          #      config.allowUnfree = true;
+          #    };
           inherit emacs-overlay;
           inherit org-babel;
         };

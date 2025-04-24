@@ -5,7 +5,6 @@
   config,
   system,
   pkgs,
-  unstable,
   emacs-overlay,
   org-babel,
   xremap,
@@ -165,7 +164,6 @@
     };
     backupFileExtension = "hm-backup";
     extraSpecialArgs = {
-      inherit unstable;
       inherit xremap;
       inherit org-babel;
     };
