@@ -14,7 +14,7 @@
   magit,
 }:
 melpaBuild rec {
-  pname = "nursery";
+  pname = "org-roam-review";
   version = "20250215";
   src = fetchFromGitHub {
     owner = "chrisbarrett";
