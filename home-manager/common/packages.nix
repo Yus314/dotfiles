@@ -34,5 +34,6 @@
     kakoune
     #(unstable.qutebrowser)
     zotero
+    (unstable.aider-chat)
   ];
 }
