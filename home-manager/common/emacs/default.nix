@@ -10,7 +10,7 @@ let
   emacs-packages = if system == "x86_64-linux" then pkgs.emacs-unstable-pgtk else unstable.emacs30;
 in
 {
-  programs.emacs ={
+  programs.emacs = {
     enable = true;
     package = pkgs.emacsWithPackagesFromUsePackage {
       config = ./elisp/init.org;
@@ -43,14 +43,15 @@ in
           (unstable.emacsPackages.lsp-bridge)
           (pkgs.tinymist)
 
-	        (pkgs.tree-sitter)
-      (pkgs.emacs-lsp-booster)
-      # mu4eのためのパッケッージ
-      (pkgs.mu)
-      (pkgs.xapian)
-      (pkgs.gmime)
-	  (pkgs.adwaita-icon-theme)
-	  
+          (pkgs.tree-sitter)
+          (pkgs.emacs-lsp-booster)
+          # mu4eのためのパッケッージ
+          (pkgs.mu)
+          (pkgs.xapian)
+          (pkgs.gmime)
+          (pkgs.adwaita-icon-theme)
+          (unstable.emacsPackages.aidermacs)
+          (unstable.aider-chat)
         ];
     };
   };
@@ -63,6 +64,7 @@ in
       nil
       (unstable.rust-analyzer)
       (unstable.basedpyright)
+      (unstable.pyright)
       (unstable.ruff)
       (unstable.ruff-lsp)
     ];
