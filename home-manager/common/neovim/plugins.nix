@@ -1,4 +1,4 @@
-{ pkgs, unstable, ... }:
+{ pkgs, ... }:
 let
   normalizedPluginAttr = p: {
     "${builtins.replaceStrings
@@ -18,7 +18,7 @@ let
 in
 with pkgs.vimPlugins;
 plugins [
-  (unstable.vimPlugins.barbar-nvim)
+  barbar-nvim
   cmp-buffer
   cmp-nvim-lsp
   cmp-path

@@ -147,6 +147,7 @@ modus のテーマもある。
        ;(modus-themes-load-theme)
       (load-theme 'modus-operandi)
       )
+
 #+end_src
 ** tree-sitter
 世界を色付けてくれる。これがないと完全に真っ黒だったので必須。
@@ -247,7 +248,6 @@ emacs lisp はデフォでやってくれているっぽい。
   (use-package moody
     :config
     (setq moody-mode-line-height 26)
-    (moody-replace-mode-line-front-space)
     (moody-replace-mode-line-buffer-identification)
     (moody-replace-vc-mode)
     )
@@ -269,124 +269,144 @@ emacs lisp はデフォでやってくれているっぽい。
     )
  #+end_src
 * 入力支援
+** ryo-modal-mode
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf ryo-modal
+  ;  :ensure t
+  ;    )
+#+end_src
+** evil-mode
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf evil
+ ;   :ensure t
+ ;   )
+
+#+end_src
+** kakoune
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf kakoune
+ ;   :ensure t
+ ;   :after ryo-modal multiple-cursors expand-region
+ ;   :bind ("C-z" . ryo-modal-mode)
+ ;   )
+#+end_src
 ** mewo
 #+begin_src emacs-lisp :tangle yes
-  ;(leaf meow
-  ;  :ensure t
-  ;  :require meow
-  ; :custom
-  ;  (meow-use-clipboard . t)
-  ;  (meow-expand-hint-counts . nil)
-  ;  :config
-  ;  (defun meow-setup ()
-  ;    (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
-  ;    (meow-leader-define-key
-  ;     '("?" . meow-cheatsheet))
-  ;    (meow-motion-overwrite-define-key
-  ;     ;; custom keybinding for motion state
-  ;     '("<escape>" . ignore))
-  ;    (meow-normal-define-key
-  ;     '("?" . meow-cheatsheet)
-  ;     ;; Ctrl key;
-  ;
-  ;
-  ;                                        ;'("*" . meow-expand-0)
-  ;     ;; puni
-  ;     '(", a (" . puni-wrap-round)
-  ;     '(", a [" . puni-wrap-square)
-  ;     '(", a {" . puni-wrap-curly)
-  ;     '(", a <" . puni-wrap-angle)
-  ;     '(", a d" . puni-splice)
-  ;     '(", s l" . puni-slurp-forward)
-  ;     '(", b a" . puni-barf-forward)
+  (leaf meow
+    :ensure t
+    :require meow
+   :custom
+    (meow-use-clipboard . t)
+    (meow-expand-hint-counts . nil)
+    :config
+    (defun meow-setup ()
+      (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
+      (meow-leader-define-key
+      '("?" . meow-cheatsheet))
+      (meow-motion-overwrite-define-key
+       ;; custom keybinding for motion state
+       '("<escape>" . ignore))
+      (meow-normal-define-key
+       '("?" . meow-cheatsheet)
+       ;; Ctrl key;
 
-  ;     '("=" . meow-expand-9)
-  ;     '("!" . meow-expand-8)
-  ;     '("[" . meow-expand-7)
-  ;     '("]" . meow-expand-6)
-  ;     '("{" . meow-expand-5)
-  ;     '("+" . meow-expand-4)
-  ;     '("}" . meow-expand-3)
-  ;     '(")" . meow-expand-2)
-  ;     '("(" . meow-expand-1)
-  ;     '("1" . digit-argument)
-  ;     '("2" . digit-argument)
-  ;     '("3" . digit-argument)
-  ;     '("4" . digit-argument)
-  ;     '("5" . digit-argument)
-  ;     '("6" . digit-argument)
-  ;     '("7" . digit-argument)
-  ;     '("8" . digit-argument)
-  ;     '("9" . digit-argument)
-  ;     '("0" . digit-argument)
-  ;     '("-" . negativargument)
-  ;     '(";" . meow-reverse)
-  ;     '("*" . meow-inner-of-thing)
-  ;     '("." . meow-bounds-of-thing)
-  ;     '("<" . meow-beginning-of-thing)
-  ;     '(">" . meow-end-of-thing)
-  ;     '("a" . meow-append)
-  ;     '("A" . meow-open-below)
-  ;     '("b" . consult-buffer) ;元はmeow-back-word     
-  ;     '("B" . meow-back-symbol)
-  ;     '("c" . meow-change)
-  ;     '("p" . meow-delete)
-  ;     '("P" . meow-backward-delete)
-  ;     '("e" . meow-line)
-  ;     '("E" . meow-goto-line)
-  ;     '("f" . meow-find)
-  ;     '("<escape>" . meow-cancel-selection)
-  ;     '("G" . meow-grab)
-  ;     '("d" . meow-left)
-  ;     '("D" . meow-left-expand)
-  ;     '("i" . meow-insert)
-  ;     '("I" . meow-open-above)
-  ;     '("j" . meow-join)
-  ;     '("k" . meow-kill)
-  ;     '("l" . meow-till)
-  ;     '("m" . meow-mark-word)
-  ;     '("M" . meow-mark-symbol)
-  ;     '("s" . meow-next)
-  ;     '("S" . meow-next-expand)
-  ;     '("o" . meow-block)
-  ;     '("O" . meow-to-block)
-  ;     '("t" . meow-prev)
-  ;     '("T" . meow-prev-expand)
-  ;     '("q" . meow-quit)
-  ;     '("r" . meow-replace)
-  ;     '("R" . meow-swap-grab)
-  ;     '("h" . meow-search)
-  ;     '("n" . meow-right)
-  ;     '("N" . meow-right-expand)
-  ;     '("u" . vundo)
-  ;     '("U" . meow-undo-in-selection)
-                                          ;'("v" . meow-visit)
 
-   ;    '("v i" . meow-inner-of-thing) ;; Inner
-  ;     '("v a" . meow-bounds-of-thing) ;; Arround
-  ;     '("v b" . meow-block) ;; Block
-  ;     '("v c" . puni-mark-list-around-point) ;; Contents
-  ;     '("v x" . puni-mark-sexp-around-point) ;; eXpression
-  ;     '("v l" . meow-line) ;; Line
-  ;     '("v s" . meow-mark-symbol) ;; Symbol
-  ;     '("v w" . meow-mark-word) ;; Word
-  ;     '("v v" . puni-expand-region) ;; Expand
-  ;     '("v r" . rectangle-mark-mode) ;; Rectangle
+                                          ;'("*" . meow-expand-0)
+       ;; puni
+       '(", a (" . puni-wrap-round)
+       '(", a [" . puni-wrap-square)
+       '(", a {" . puni-wrap-curly)
+       '(", a <" . puni-wrap-angle)
+       '(", a d" . puni-splice)
+       '(", s l" . puni-slurp-forward)
+       '(", b a" . puni-barf-forward)
 
-  ;     '("w" . meow-next-word)
-  ;     '("W" . meow-next-symbol)
-  ;     '("x" . meow-save)
-  ;     '("X" . meow-sync-grab)
-  ;     '("y" . meow-yank)
-  ;     '("z" . meow-pop-selection)
-  ;     '("'" . repeat)
-       ;'("g" . avy-goto-char-timer)
-  ;     )
-  ;    )
-  ;  (meow-setup)
-  ;  (meow-global-mode)
-  ;  )
-
+       '("=" . meow-expand-9)
+       '("!" . meow-expand-8)
+       '("[" . meow-expand-7)
+       '("]" . meow-expand-6)
+       '("{" . meow-expand-5)
+       '("+" . meow-expand-4)
+       '("}" . meow-expand-3)
+       '(")" . meow-expand-2)
+       '("(" . meow-expand-1)
+       '("1" . digit-argument)
+       '("2" . digit-argument)
+       '("3" . digit-argument)
+       '("4" . digit-argument)
+       '("5" . digit-argument)
+       '("6" . digit-argument)
+       '("7" . digit-argument)
+       '("8" . digit-argument)
+       '("9" . digit-argument)
+       '("0" . digit-argument)
+       '("-" . negativargument)
+       '(";" . meow-reverse)
+       '("*" . meow-inner-of-thing)
+       '("." . meow-bounds-of-thing)
+       '("<" . meow-beginning-of-thing)
+       '(">" . meow-end-of-thing)
+       '("a" . meow-append)
+  					;'("A" . meow-open-below)
+       '("A" . meow-block)
+       '("b" . consult-buffer) ;元はmeow-back-word     
+       '("B" . meow-back-symbol)
+       '("c" . meow-change)
+       '("C" . mc/mark-next-like-this)
+       '("p" . meow-delete)
+       '("P" . meow-backward-delete)
+       '("e" . meow-line)
+       '("E" . meow-goto-line)
+       '("f" . meow-find)
+       '("<escape>" . meow-cancel-selection)
+       '("G" . meow-grab)
+       '("d" . meow-left)
+       '("D" . meow-left-expand)
+       '("i" . meow-insert)
+       '("I" . meow-to-block)
+       '("j" . meow-join)
+       '("k" . meow-kill)
+       '("l" . meow-till)
+       '("m" . meow-forward-bracket)
+       '("M" . meow-mark-symbol)
+       '("s" . meow-next)
+       '("S" . meow-next-expand)
+       '("o" . meow-open-below)
+       '("O" . meow-open-above)
+       '("t" . meow-prev)
+       '("T" . meow-prev-expand)
+       '("q" . meow-quit)
+       '("r" . meow-replace)
+       '("R" . meow-swap-grab)
+       '("h" . meow-search)
+       '("n" . meow-right)
+       '("N" . meow-right-expand)
+       '("u" . vundo)
+       '("U" . meow-undo-in-selection)
+                                         ;'("v" . meow-visit)
+       '("v i" . meow-inner-of-thing) ;; Inner
+     '("v a" . meow-bounds-of-thing) ;; Arround
+      '("v b" . meow-block) ;; Block
+      '("v c" . puni-mark-list-around-point) ;; Contents
+       '("v x" . puni-mark-sexp-around-point) ;; eXpression
+       '("v l" . meow-line) ;; Line
+       '("v s" . meow-mark-symbol) ;; Symbol
+       '("v w" . meow-mark-word) ;; Word
+       '("v v" . puni-expand-region) ;; Expand
+       '("v r" . rectangle-mark-mode) ;; Rectangle
+       '("w" . meow-next-word)
+       '("W" . meow-next-symbol)
+       '("x" . meow-save)
+       '("X" . meow-sync-grab)
+       '("y" . meow-yank)
+       '("z" . meow-pop-selection)
+       '("'" . repeat)
+      ;'("g" . avy-goto-char-timer)
+       )
+      )
+    (meow-setup)
+    (meow-global-mode)
+    )
 #+end_src
 ** puni
  #+begin_src emacs-lisp :tangle yes
@@ -427,8 +447,9 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf dmacro
     :ensure t
-    :custom `((dmacro-key . ,(kbd "C-b")))  ;; C-b を dmacro のキーにする
-    :global-minor-mode global-dmacro-mode)
+    )
+    ;:custom `((dmacro-key . ,(kbd "C-b")))  ;; C-b を dmacro のキーにする
+    ;:global-minor-mode global-dmacro-mode)
   (defun my-indent-rigidly-right-to-tab-stop (beg end)
     "Indent all lines between BEG and END rightward to a tab stop and keep the region active."
     (interactive "r")
@@ -445,68 +466,80 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** shift-selection-mode
 #+begin_src emacs-lisp :tangle yes
-  (defun handle-shift-selection ()
-    "Activate/deactivate mark depending on invocation thru shift translation.
-  This function behaves opposite to the original: it activates the
-  mark when Shift is NOT pressed, and deactivates it when Shift is
-  pressed."
-    (cond ((and (eq shift-select-mode 'permanent)
-                (not this-command-keys-shift-translated))
-           (unless mark-active
-             (push-mark nil nil t)))
-          ((and shift-select-mode
-                (not this-command-keys-shift-translated))
-           (unless (and mark-active
-  		      (eq (car-safe transient-mark-mode) 'only))
-  	   (setq-local transient-mark-mode
-                         (cons 'only
-                               (unless (eq transient-mark-mode 'lambda)
-                                 transient-mark-mode))) 
-             (push-mark nil nil t)))
-          ((eq (car-safe transient-mark-mode) 'only)
-           (setq transient-mark-mode (cdr transient-mark-mode))
-           (if (eq transient-mark-mode (default-value 'transient-mark-mode))
-               (kill-local-variable 'transient-mark-mode))
-           (deactivate-mark))))
-  (defun open-below()
-    "Open a newline and move cursor"
-    (interactive)
-    (goto-char (line-end-position))
-    (newline-and-indent)
-    )
-  (defun select-current-line ()
-  "Select the current line."
-  (interactive)
-  (let ((start (line-beginning-position))
-        (end (line-end-position)))
-    (set-mark start)
-    (goto-char (min (point-max) (+ 1 end)))))
-  (defun quit-and-back ()
-    "Quit current buffer and back prev buffer"
-    (interactive)
-    (if (> (seq-length (window-list (selected-frame)))1)
-        (previous-buffer
-         ))
-    )
-  (defun quit-and-back ()
-    "Quit current buffer and go back to previous buffer."
-    (interactive)
-    (if (> (length (window-list)) 1)
-        (progn
-          (bury-buffer)
-          (previous-buffer))
-      (kill-buffer (current-buffer))))
-  (set-frame-parameter (window-frame) 'cursor-type 'bar)
-  (define-key input-decode-map (kbd "C-i") [contorol-i])
-  (keymap-global-set "C-d" 'backward-char)
-  (keymap-global-set "C-f" 'isearch-forward)
-  (global-set-key [contorol-i]  'avy-goto-char-timer)
-  (keymap-global-set "C-k" 'select-current-line)
-  (keymap-global-set "C-n" 'forward-char)
-  (keymap-global-set "C-o" 'open-below)
-  (keymap-global-set "C-t" 'previous-line)
-  (keymap-global-set "C-s" 'next-line)
-  
+  ; (defun handle-shift-selection ()
+  ;   "Activate/deactivate mark depending on invocation thru shift translation.
+  ; This function behaves opposite to the original: it activates the
+  ; mark when Shift is NOT pressed, and deactivates it when Shift is
+  ; pressed."
+  ;   (cond ((and (eq shift-select-mode 'permanent)
+  ;               (not this-command-keys-shift-translated))
+  ;          (unless mark-active
+  ;            (push-mark nil nil t)))
+  ;         ((and shift-select-mode
+  ;               (not this-command-keys-shift-translated))
+  ;          (unless (and mark-active
+  ; 		      (eq (car-safe transient-mark-mode) 'only))
+  ; 	   (setq-local transient-mark-mode
+  ;                        (cons 'only
+  ;                              (unless (eq transient-mark-mode 'lambda)
+  ;                                transient-mark-mode))) 
+  ;            (push-mark nil nil t)))
+  ;         ((eq (car-safe transient-mark-mode) 'only)
+  ;          (setq transient-mark-mode (cdr transient-mark-mode))
+  ;          (if (eq transient-mark-mode (default-value 'transient-mark-mode))
+  ;              (kill-local-variable 'transient-mark-mode))
+  ;          (deactivate-mark))))
+  ; (defun open-below()
+  ;   "Open a newline and move cursor"
+  ;   (interactive)
+  ;   (goto-char (line-end-position))
+  ;   (newline-and-indent)
+  ;   )
+  ; (defun select-current-line ()
+  ; "Select the current line."
+  ; (interactive)
+  ; (let ((start (line-beginning-position))
+  ;       (end (line-end-position)))
+  ;   (set-mark start)
+  ;   (goto-char (min (point-max) (+ 1 end)))))
+  ; (defun quit-and-back ()
+  ;   "Quit current buffer and back prev buffer"
+  ;   (interactive)
+  ;   (if (> (seq-length (window-list (selected-frame)))1)
+  ;       (previous-buffer
+  ;        ))
+  ;   )
+  ; (defun quit-and-back ()
+  ;   "Quit current buffer and go back to previous buffer."
+  ;   (interactive)
+  ;   (if (> (length (window-list)) 1)
+  ;       (progn
+  ;         (bury-buffer)
+  ;         (previous-buffer))
+  ;     (kill-buffer (current-buffer))))
+  ; (defun consult-line-literal ()
+  ; (interactive)
+  ; (let ((completion-styles '(orderless))
+  ;       (orderless-matching-styles '(orderless-literal))
+  ;       (completion-category-defaults nil)
+  ;       (completion-category-overrides nil))
+  ;   (consult-line)))
+  ; (set-frame-parameter (window-frame) 'cursor-type 'bar)
+  ; (define-key input-decode-map (kbd "C-i") [contorol-i])
+  ; (keymap-global-set "C-d" 'backward-char)
+  ; (keymap-global-set "C-f" 'consult-line-literal)
+  ; (global-set-key [contorol-i]  'avy-goto-char-timer)
+  ; (keymap-global-set "C-k" 'select-current-line)
+  ; (keymap-global-set "C-n" 'forward-char)
+  ; (keymap-global-set "C-o" 'open-below)
+  ; (keymap-global-set "C-t" 'previous-line)
+  ; (keymap-global-set "C-s" 'next-line);;;
+
+#+end_src
+** multiple-cursors
+#+begin_src emacs-lisp :tangle yes
+  (leaf multiple-cursors
+    :ensure t)
 #+end_src
 * タイマーを利用した疑似非同期
 #+begin_src  emacs-lisp :tangle yes
@@ -544,10 +577,14 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (leaf orderless
     :ensure t
-    :custom(
-            (completion-styles . '(orderless basic))
-            (completion-category-overrides . '((file
-                                                (styles basic partial-completion)))))
+    :custom
+    (orderless-matching-styles .
+  			     '(orderless-prefixes
+  			       ))
+    (completion-styles . '(orderless basic))
+    (completion-category-overrides . '((file
+                                        (styles basic partial-completion))
+  				       (command (styles orderless))))
     )
 #+end_src
 ** consult
@@ -579,33 +616,43 @@ emacs lisp はデフォでやってくれているっぽい。
     )
 #+end_src
 * 入力補完
-** corfu
+** coTrfu
 #+begin_src emacs-lisp :tangle yes
-  ;  (leaf corfu
-  ;    :ensure t
-  ;    :custom(
-  ;            (corfu-auto . t)
-  ;            (corfu-auto-delay . 0)
-  ;            (corfu-popupinfo-delay . 0)
-  ;            (corfu-quit-no-match . 'separator)
-  ;            (corfu-auto-prefix . 1)
-  ;            (corfu-cycle . t)
-  ;            (text-mode-ispell-word-completion . nil)
-  ;            (tab-awlays-indent . 'complete)
-  ;            )
-   ;   :init
-      ;(global-corfu-mode)
-   ;   :config
-     ; (corfu-popupinfo-mode)
-  ;    (keymap-unset corfu-map "RET")
-  ;    (keymap-unset corfu-map "<up>")
-  ;    (keymap-unset corfu-map "<remap> <next-line>")
-  ;    (keymap-unset corfu-map "<remap> <previous-line>")
-  ;    (keymap-unset corfu-map "<down>")
-  ;    (keymap-set corfu-map "C-n" 'corfu-next)
-  ;    (keymap-set corfu-map "C-p" 'corfu-previous)
-  ;    )
-  ;    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+  (leaf corfu
+    :ensure t
+    :custom(
+            (corfu-auto . t)
+            (corfu-auto-delay . 0)
+           (corfu-popupinfo-delay . 0)
+            (corfu-quit-no-match . 'separator)
+            (corfu-auto-prefix . 1)
+            (corfu-cycle . t)
+            (text-mode-ispell-word-completion . nil)
+            (tab-awlays-indent . 'complete)
+            )
+    :init
+    (global-corfu-mode)
+   :config
+    (corfu-popupinfo-mode)
+    (keymap-unset corfu-map "RET")
+    (keymap-unset corfu-map "<up>")
+    (keymap-unset corfu-map "<remap> <next-line>")
+    (keymap-unset corfu-map "<remap> <previous-line>")
+    (keymap-unset corfu-map "<down>")
+    (keymap-set corfu-map "C-n" 'corfu-next)
+    (keymap-set corfu-map "C-p" 'corfu-previous)
+    )
+    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+#+end_src
+** company
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf company
+ ;   :custom
+ ;   (company-minimum-prefix-length . 1)
+ ;   (company-idle-delay . 0)
+ ;   :config
+ ;   ;(global-company-mode)
+ ;   :ensure t)
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
@@ -626,68 +673,141 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * ellama
 #+begin_src emacs-lisp :tangle yes
-               (require 'llm)
-               (require 'llm-ollama)
-               (leaf ellama
-                 :ensure t
-                 :require t  
-                 :bind ("C-c e" . ellama-transient-main-menu)
-                 :init
-                 (setopt ellama-provider (make-llm-ollama
-               			   :scheme "http"
-                                          :host "ollama.mdip2home.com"
-               			   :port 80
-                                          :chat-model "Qwen2.5:14b"
-                                          :embedding-model "Qwen2.5:14b"
-     					:default-chat-non-standard-params '(("num_ctx" . 32768))))
-                 :config
-                 (defcustom ellama-japanese-correction-prompt-template
-    	       "文:\n%s\n
-以下はユーザーが作成したメモです。  
-このメモは、以下の点を満たすように整理してください。  
-1. 明確なタイトルを持つこと、
-2. 単一の明確なアイデアが簡潔に記述されていること、
-3. 関連するアイデアへのリンクが適切に含まれていること、
+  (require 'llm-gemini)
+  (leaf ellama
+    :ensure t
+    :bind ("C-c e" . ellama-transient-main-menu)
+    :init
+    (require 'llm-ollama)
+    (setopt ellama-provider
+  	  (make-llm-gemini
+  	   :key "AIzaSyDnLq5TwWqfyWAWFr1dgyuimIQ_vyGw2A0"
+  	   :chat-model "gemini-2.5-pro-preview-03-25"
+  	   )
+  	  ;(make-llm-ollama
+            ;     		   :scheme "http"
+            ;                 :host "ollama.mdip2home.com"
+            ;     		   :port 80
+            ;                 :chat-model "Qwen2.5:14b"
+            ;                 :embedding-model "Qwen2.5:14b"
+  					;		   :default-chat-non-standard-params '(("num_ctx" . 32768))))
+  	  )
+    :config
+    (defcustom ellama-japanese-correction-prompt-template
+      "文:%s
+  あなたは論理的な思考を重視する編集者です。
+   あなたはZettelkastenのエキスパートであり、元のメモの意図と表現を尊重しつつ、改善点を指摘するアドバイザーです。以下のZettelkastenメモを、元の内容を大きく変更せずに、より良くするための添削をお願いします。\n
 
-添削を行い、簡潔に改善点を提案してください。  
-ユーザーの書き方のスタイルを維持してください。  
+  重視する点（指摘してほしいこと）:\n
+  ,* アトミック（単一のアイデアか？）: 一つのメモに複数のアイデアが混在していないか確認し、もし混在していればどのように分割できるか、元の構成を尊重しつつ指摘してください。\n
+  ,* 明確性・簡潔性: メモの内容が不明確、または冗長な箇所があれば、元の表現を活かしたより良い表現の可能性を提案してください。\n
+  添削してほしいメモ:\n%s\n
+  出力形式:\n
+  ,* 元のメモに対する具体的な改善点の指摘をリスト形式で記述してください。（例：「この部分は複数のアイデアを含んでいる可能性があります。具体的にはAとBのアイデアです。分割するなら〜」「『それ』が指す内容が少し曖昧かもしれません。明確にするなら〜」など）\n
+  ,* 修正が必要な場合でも、大幅な書き換えは行わず、修正箇所の指摘と、修正案（複数可）の提示*にとどめてください。\n
+  ,* 変更提案の理由を簡潔に説明してください\n
+         "
+      "Prompt template for `ellama-summarize'."
+      :group 'ellama
+      :type 'string)
+    (defun ellama-japanese-correction ()
+      "Summarize selected region or current buffer."
+      (interactive)
+      (let ((text (if (region-active-p)
+                 	    (buffer-substring-no-properties (region-beginning) (region-end))
+                 	  (buffer-substring-no-properties (point-min) (point-max)))))
+        (ellama-instant (format ellama-japanese-correction-prompt-template
+       			      text))))
 
-修正例を示す場合は、次のように * 修正例 として示してくださいし。  
-また、複数のメモに分割する場合は、それぞれを別の 見出しで示してください。  
-
-       "
-                   "Prompt template for `ellama-summarize'."
-                   :group 'ellama
-                   :type 'string)
-                 (defun ellama-japanese-correction ()
-                   "Summarize selected region or current buffer."
-                   (interactive)
-                   (let ((text (if (region-active-p)
-               		    (buffer-substring-no-properties (region-beginning) (region-end))
-               		  (buffer-substring-no-properties (point-min) (point-max)))))
-                     (ellama-instant (format ellama-japanese-correction-prompt-template
-     					 text))))
-
-     )
+    )
     #+end_src
+* aidermacs
+#+begin_src emacs-lisp :tangle yes
+  (leaf aidermacs
+    :bind
+    ("C-c i" . aidermacs-transient-menu)
+    :custom
+    ;(aidermacs-backend . 'vterm)
+    ;(aidermacs-vterm-multiline-newline-key . "S-<return>")
+    (aidermacs-use-architect-mode . nil)
+    (aidermacs-default-model  . "gemini/gemini-2.5-pro-preview-03-25")
+    :config
+    (setenv "GEMINI_API_KEY" "AIzaSyDnLq5TwWqfyWAWFr1dgyuimIQ_vyGw2A0")
+    )
+#+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes
-  (require 'yasnippet)
-  (yas-global-mode 1)
-  (require 'lsp-bridge)
-  (global-lsp-bridge-mode)
-  (setq lsp-bridge-nix-lsp-server "nil")
-  (setq lsp-bridge-enable-with-tramp t)
-  (setq lsp-bridge-remote-start-automatically t)
-  (setq lsp-bridge-enable-search-words nil)
-  (setq lsp-bridge-auto-format-code t)
-  (setq lsp-bridge-auto-format-code-idle 10)
-  (setq lsp-bridge-enable-org-babel t)
-  (setq lsp-bridge-enable-hover-diagnostic t)
-  (setq acm-enable-tabnine nil)
-  (setq acm-enable-search-file-words nil)
-  (setq acm-enable-ctag nil)
-  (setq acm-enable-telega nil)
+  ;(require 'yasnippet)
+  ;(yas-global-mode 1)
+  ;(require 'lsp-bridge)
+  ;(global-lsp-bridge-mode)
+  ;(setq lsp-bridge-nix-lsp-server "nil")
+  ;(setq lsp-bridge-enable-with-tramp t)
+  ;(setq lsp-bridge-remote-start-automatically t)
+  ;(setq lsp-bridge-enable-search-words nil)
+  ;(setq lsp-bridge-auto-format-code t)
+  ;(setq lsp-bridge-auto-format-code-idle 10)
+  ;(setq lsp-bridge-enable-org-babel t)
+  ;(setq lsp-bridge-enable-hover-diagnostic t)
+  ;(setq acm-enable-tabnine nil)
+  ;(setq acm-enable-search-file-words nil)
+  ;(setq acm-enable-ctag nil)
+  ;(setq acm-enable-telega nil)
+  ;(setq lsp-bridge-log-level "debug")
+#+end_src
+* lsp-mode
+#+begin_src emacs-lisp :tabgle yes
+  (leaf lsp-mode
+  :ensure t
+  :custom
+  (lsp-keymap-prefix . "M-p")
+  (lsp-log-in . nil) ;パフォーマンスに大きく影響するらしい
+  :hook
+  (lsp-mode-hook . lsp-enable-which-key-integration)
+  ;補完をorderlessで絞れるようにする
+  (lsp-completion-mode-hook . (lambda ()
+    (setq-local completion-category-defaults
+                (assoc-delete-all 'lsp-capf completion-category-defaults))))
+  )
+  (setq lsp-completion-provider :none)
+
+
+  (defun lsp-booster--advice-json-parse (old-fn &rest args)
+    "Try to parse bytecode instead of json."
+    (or
+     (when (equal (following-char) ?#)
+       (let ((bytecode (read (current-buffer))))
+         (when (byte-code-function-p bytecode)
+           (funcall bytecode))))
+     (apply old-fn args)))
+  (advice-add (if (progn (require 'json)
+                         (fboundp 'json-parse-buffer))
+                  'json-parse-buffer
+                'json-read)
+              :around
+              #'lsp-booster--advice-json-parse)
+
+  (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+    "Prepend emacs-lsp-booster command to lsp CMD."
+    (let ((orig-result (funcall old-fn cmd test?)))
+      (if (and (not test?)                             ;; for check lsp-server-present?
+               (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+               lsp-use-plists
+               (not (functionp 'json-rpc-connection))  ;; native json-rpc
+               (executable-find "emacs-lsp-booster"))
+          (progn
+            (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
+              (setcar orig-result command-from-exec-path))
+            (message "Using emacs-lsp-booster for %s!" orig-result)
+            (cons "emacs-lsp-booster" orig-result))
+        orig-result)))
+  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+#+end_src
+* lsp-ui
+#+begin_src emacs-lisp :tangle yes
+  (leaf lsp-ui
+    :ensure t
+  )
 #+end_src
 * tmampのread-only問題への対処
 #+begin_src emacs-lisp :tangle yes
@@ -707,6 +827,7 @@ emacs lisp はデフォでやってくれているっぽい。
     (("\\.nix\\'" . nix-ts-mode))
     :hook
     (nix-ts-mode-hook . nixfmt-on-save-mode)
+    (nix-ts-mode-hook . lsp)
     )
 #+end_src
 ** yaml
@@ -724,21 +845,23 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** rust
 #+begin_src emacs-lisp :tangle yes
-  (leaf rust-mode
-     :ensure t
-     :custom
-     (rust-mode-treesitter-derive . t)
-     (rust-format-on-save . t)
-     )
- ; (add-hook 'rust-mode-hook 'eglot-ensure)
- ; (defun my/find-rust-project-root (dir)                                                                           
- ;    (when-let ((root (locate-dominating-file dir "Cargo.toml")))                                                         
- ;      (list 'vc 'Git root)))
+   (leaf rust-mode
+      :ensure t
+      :custom
+      (rust-mode-treesitter-derive . t)
+      (rust-format-on-save . t)
+      :hook
+      (rust-mode-hook . lsp)
+      )
+  ; (add-hook 'rust-mode-hook 'eglot-ensure)
+   (defun my/find-rust-project-root (dir)                                                                           
+      (when-let ((root (locate-dominating-file dir "Cargo.toml")))                                                         
+        (list 'vc 'Git root)))
 
- ; (defun my/rust-mode-hook ()
- ;   (setq-local project-find-functions (list #'my/find-rust-project-root)))
+   (defun my/rust-mode-hook ()
+     (setq-local project-find-functions (list #'my/find-rust-project-root)))
 
- ; (add-hook 'rust-mode-hook #'my/rust-mode-hook)
+   (add-hook 'rust-mode-hook #'my/rust-mode-hook)
 #+end_src
 ** Python
 #+begin_src emacs-lisp :tangle yes
@@ -746,53 +869,62 @@ emacs lisp はデフォでやってくれているっぽい。
     ;(leaf ruff-format
     ;  :ensure t
     ;  )
+  (leaf python-mode
+    :ensure t
+    )
+  (use-package lsp-pyright
+    :ensure t
+    :custom (lsp-pyright-langserver-command "pyright") ;; or basedpyright
+    :hook (python-ts-mode . (lambda ()
+                            (require 'lsp-pyright)
+                            (lsp))))  ; or lsp-deferred
 #+end_src
 ** typst
 #+begin_src emacs-lisp :tangle yes
-  (leaf typst-ts-mode
-    :el-get kaction-emacs/typst-ts-mode
-    :custom
-    (typst-ts-mode-watch-option . "--open")
-    )
+  (setq typst-ts-mode-watch-option "--open")
+
+  ;typst-previewだと保存しなくても同期するようになる
+  (setq typst-preview-browser "qutebrowser")
 #+end_src
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
-    (leaf org
-      :ensure t
-      :custom
-      (org-todo-keywords
-       . '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)")
-           )
-       )
-      (org-hide-emphasis-markers . t);boldなどの*を隠す
-      (org-emphasis-regexp-components . '("[:alnum:][:nonascii:][:punct:]" "[:alnum:][:nonascii:][:punct:]" "[:space:]" "." 1));*の前後にspaceが要らないように
+  (leaf org
+    :ensure t
+    :custom
+    (org-todo-keywords
+     . '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)")
+         )
+     )
+    (org-startup-truncated . nil)
+    (org-hide-emphasis-markers . t);boldなどの*を隠す
+    (org-emphasis-regexp-components . '("[:alnum:][:nonascii:][:punct:]" "[:alnum:][:nonascii:][:punct:]" "[:space:]" "." 1));*の前後にspaceが要らないように
 
 
-      (org-todo-keyword-faces
-       . '(("TODO" . (:foreground "white" :background "red" :weight bold))
-           ("WAIT" . org-warning)
-           ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
-           ("DONE(d)" . "yellow")
-           ("CANCEL" . org-warning)
-           ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
-           ))
-      (org-startup-folded . t)
-      (org-tag-alist
-       . '(("HOME" . ?h)
-           ("LAB" . ?l)
-           ("PC" . ?p)
-           ("desk" . ?d)
-           ("smartphone" . ?s)
-           ("anywhere" . ?a)
-           ("movie" . ?m)
-           ("Kana" . ?k)
-           ))
-      (org-directory . "~/dropbox")
-      (org-return-follows-link . t)
-      :config
-      )
-      (regexp-opt '("Tasks" "Notes"))
+    (org-todo-keyword-faces
+     . '(("TODO" . (:foreground "white" :background "red" :weight bold))
+         ("WAIT" . org-warning)
+         ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
+         ("DONE(d)" . "yellow")
+         ("CANCEL" . org-warning)
+         ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
+         ))
+    (org-startup-folded . t)
+    (org-tag-alist
+     . '(("HOME" . ?h)
+         ("LAB" . ?l)
+         ("PC" . ?p)
+         ("desk" . ?d)
+         ("smartphone" . ?s)
+         ("anywhere" . ?a)
+         ("movie" . ?m)
+         ("Kana" . ?k)
+         ))
+    (org-directory . "~/dropbox")
+    (org-return-follows-link . t)
+    :config
+    )
+    (regexp-opt '("Tasks" "Notes"))
 #+end_src
 ** org-clock
 #+begin_src emacs-lisp :tangle yes
@@ -1046,18 +1178,14 @@ emacs lisp はデフォでやってくれているっぽい。
       )
      )
     :config
-    (global-org-modern-mode)
+    (with-eval-after-load ' org ( global-org-modern-mode))
     )
 
 #+end_src
 
-** org-nodern-indent
+** org-modern-indent
 #+begin_src emacs-lisp :tangle yes
-  (leaf org-modern-indent
-      :el-get jdtsmith/org-modern-indent
-      :require t
-      :config (add-hook 'org-mode-hook #'org-modern-indent-mode 90)
-      )
+  (add-hook 'org-mode-hook #'org-modern-indent-mode 90)
 #+end_src
 ** org-habit
 #+begin_src emacs-lisp :tangle yes
@@ -1071,24 +1199,37 @@ emacs lisp はデフォでやってくれているっぽい。
 ** gcal
 #+begin_src emacs-lisp :tangle yes
   (with-delayed-execution
-    (add-to-list 'load-path (locate-user-emacs-file "el-get/gcal/"))
-    (require 'gcal )(require'gcal-org)
-    (setq gcal-client-id  "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
-    (setq gcal-client-secret  "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")
-    (gcal-org-push-file
-     "shizhaoyoujie@gmail.com"
-     "~/dropbox/inbox/inbox.org"
-     "~/dropbox/my-schedule.gcal-cache"
-     )
-    (gcal-org-pull-to-file
-     "shizhaoyoujie@gmail.com"
-     "~/dropbox/inbox/inbox.org"
-     "FROM_GCAL"
-     "~/dropbox/my-schedule.gcal-cache")
-  					; かなとの予定
-    (gcal-org-push-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com" "~/dropbox/kana.org")
-    (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com" "~/dropbox/kana.org" "FROM_GCAL" "~/dropbox/my-schedule.gcal-cache")
+    (eval-after-load 'gcal
+      '(eval-after-load 'gcal-org
+         '(progn
+         (setq gcal-client-id  "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
+         (setq gcal-client-secret  "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")
+         (gcal-org-pull-to-file
+      	"shizhaoyoujie@gmail.com"
+      	"~/dropbox/inbox/inbox.org"
+      	"FROM_GCAL"
+      	"~/dropbox/my-schedule.gcal-cache")
+         (gcal-org-push-file
+      	"shizhaoyoujie@gmail.com"
+      	"~/dropbox/inbox/inbox.org"
+      	"~/dropbox/my-schedule.gcal-cache")
+
+         ; かなとの予定
+         (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+      			      "~/dropbox/kana.org"
+      			      "FROM_KANA"
+      			      "~/dropbox/kana-schedule.gcal-cache")
+         (gcal-org-push-file
+    	"3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+    	"~/dropbox/kana.org"
+    	"~/dropbox/kana-schedule.gcal-cache")
+         )
+         )
+      )
     )
+
+  (require 'gcal)
+  (require 'gcal-org)
 #+end_src
 ** org-babel
 #+begin_src emacs-lisp :tangle yes
@@ -1162,11 +1303,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** org-roam-review
 #+begin_src emacs-lisp :tangle yes
   (leaf org-roam-review
-      :init
-    (let ((repo-path (expand-file-name "~/.emacs.d/nursery")))
-      (unless (file-exists-p repo-path)
-        (shell-command (format "git clone https://github.com/chrisbarrett/nursery.git %s" repo-path)))
-      (add-to-list 'load-path (concat repo-path "/lisp")))
     :commands (org-roam-review
                org-roam-review-list-by-maturity
                org-roam-review-list-recently-added)
@@ -1184,11 +1320,6 @@ emacs lisp はデフォでやってくれているっぽい。
     (  	 ("C-c n r" . org-roam-review)
 )
     )
-  ;; Check and install dependencies listed in nursery-pkg.el
-  (let ((dependencies '(org-drill)))
-    (dolist (pkg dependencies)
-      (unless (package-installed-p pkg)
-        (package-install pkg))))
 #+end_src
 ** citer
 #+begin_src emacs-lisp :tangle yes
@@ -1327,8 +1458,7 @@ emacs lisp はデフォでやってくれているっぽい。
   (with-delayed-execution
     (leaf go-translate
       :ensure t
-      :require t
-      :config
+      :defer-config
       (setq gt-langs '(en ja))
       (setq gt-default-translator
   	  (gt-translator
@@ -1359,6 +1489,10 @@ emacs lisp はデフォでやってくれているっぽい。
         :program "nixfmt"
         :args '("-")
         )
+    ;  (reformatter-define ruff
+    ;    :program "ruff format"
+    ;    :args '("-")
+    ;    )
       )
 #+end_src
 * aggressive-inden
@@ -1375,11 +1509,6 @@ emacs lisp はデフォでやってくれているっぽい。
     (add-to-list 'eglot-server-programs
   	       '(typst-ts-mode . ("tinymist")))
     )
- ; (leaf typst-preview
-  ;   :el-get havarddj/typst-preview.el
-   ;  :require t
-    ; :custom
-     ;(typst-preview-browser . "qutebrowser"))
   (leaf eglot-booster
     :when (executable-find "emacs-lsp-booster")
     :vc ( :url "https://github.com/jdtsmith/eglot-booster")
@@ -1438,6 +1567,12 @@ emacs lisp はデフォでやってくれているっぽい。
   (with-eval-after-load "tramp"
     (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
     )
+  ;(add-to-list 'tramp-remote-path "/run/current-system/sw/bin")
+  (require 'tramp-sh)
+  (setq tramp-remote-path
+       (append tramp-remote-path
+   	      '(tramp-own-remote-path)))
+
 #+end_src
 * Dired
 ** dired-narrow
@@ -1456,8 +1591,6 @@ emacs lisp はデフォでやってくれているっぽい。
 * mu4e
 #+begin_src emacs-lisp :tangle yes
   (with-delayed-execution
-    (add-to-list 'load-path "/nix/store/1jg084yny96rx858vsmayjpc3flrjqni-emacs-mu4e-1.12.5/share/emacs/site-lisp/elpa/mu4e-1.12.5")
-    (require 'mu4e)
     (setq mail-user-agent 'mu4e-user-agent)
     )
 #+end_src
@@ -1486,23 +1619,19 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * Slack
 #+begin_src emacs-lisp :tangle yes
-  (with-delayed-execution
-    (slack-register-team
-     :name "mdip"
-     :token "xoxc-14011030212-3874022267665-7457834306050-c11c89ae65f84a20d838527b17e004f9164a04139ba7f3f765040503139c761a"
-     :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
-     :default t
-     )
-  )
+  ;(with-eval-after-load 'slack
+  ;  (slack-register-team
+  ;   :name "mdip"
+  ;   :token "xoxc-14011030212-3874022267665-7457834306050-c11c89ae65f84a20d838527b17e004f9164a04139ba7f3f765040503139c761a"
+   ;  :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
+   ;  :default t
+   ;  )
+   ; )
 #+end_src
 ** slack-org
 org-store-linkでリンクをコピーすることができる。
 TODOに貼っておくことで、作業の際に確認することができるようになる。
 #+begin_src emacs-lisp :tangle yes
-  (with-delayed-execution
-    (el-get-bundle ag91/ol-emacs-slack)
-    (require 'ol-emacs-slack)
-    )
 #+end_src
 * 履歴保存
 bufferが溜ったり、設定が更新されなかったり、ssh先が保存されなかったり、いまいちなことが多いので一旦無効化する。

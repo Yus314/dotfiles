@@ -1,13 +1,12 @@
 {
   pkgs,
   org-babel,
-  unstable,
   ...
 }:
 let
   tangle = org-babel.lib.tangleOrgBabel { languages = [ "emacs-lisp" ]; };
   system = pkgs.stdenv.hostPlatform.system;
-  emacs-packages = if system == "x86_64-linux" then pkgs.emacs-unstable-pgtk else unstable.emacs30;
+  emacs-packages = if system == "x86_64-linux" then pkgs.emacs-unstable-pgtk else pkgs.emacs-unstable;
 in
 {
   programs.emacs = {
@@ -19,7 +18,6 @@ in
       alwaysTangle = true;
       override = final: prev: {
         withXwidgets = true;
-        withNativeComplation = false;
       };
       extraEmacsPackages =
         epkgs: with epkgs; [
@@ -33,16 +31,17 @@ in
               tree-sitter-typst
             ]
           ))
-          mu4e
-          (unstable.emacsPackages.slack) # stableのバージョンがかなり古いのでunstableを使う
+
+          (pkgs.emacsPackages.mu4e)
+          (pkgs.emacsPackages.slack) # stableのバージョンがかなり古いのでunstableを使う
           (pkgs.texlive.combined.scheme-full)
           (pkgs.zathura)
           (pkgs.imagemagick)
           (pkgs.ghq)
           vterm
-          (unstable.emacsPackages.lsp-bridge)
           (pkgs.tinymist)
 
+          (pkgs.aider-chat)
           (pkgs.tree-sitter)
           (pkgs.emacs-lsp-booster)
           # mu4eのためのパッケッージ
@@ -50,8 +49,44 @@ in
           (pkgs.xapian)
           (pkgs.gmime)
           (pkgs.adwaita-icon-theme)
-          (unstable.emacsPackages.aidermacs)
-          (unstable.aider-chat)
+          (callPackage ./org-modern-indent.nix {
+            inherit (pkgs) fetchFromGitHub;
+            inherit (epkgs) melpaBuild compat;
+          })
+          (callPackage ./ol-emacs-slack.nix {
+            inherit (pkgs) fetchFromGitHub;
+            inherit (epkgs) melpaBuild dash s;
+          })
+          (callPackage ./gcal.nix {
+            inherit (pkgs) fetchFromGitHub;
+            inherit (epkgs) melpaBuild;
+          })
+          (callPackage ./typst-ts-mode.nix {
+            inherit (pkgs) fetchgit;
+            inherit (epkgs) melpaBuild;
+          })
+          (callPackage ./typst-preview.nix {
+            inherit (pkgs) fetchFromGitHub;
+            inherit (epkgs) melpaBuild websocket;
+          })
+          (callPackage ./nursery.nix {
+            inherit (pkgs) fetchFromGitHub;
+            inherit (epkgs)
+              melpaBuild
+              org-roam
+              ht
+              async
+              f
+              consult
+              org-drill
+              pcre2el
+              ts
+              memoize
+              magit
+              dash
+              ;
+          })
+          (pkgs.emacsPackages.aidermacs)
         ];
     };
   };
@@ -62,12 +97,12 @@ in
     };
     packages = with pkgs; [
       nil
-      (unstable.rust-analyzer)
-      (unstable.basedpyright)
-      (unstable.pyright)
-      (unstable.ruff)
-      (unstable.ruff-lsp)
+      nixfmt-rfc-style
+      rust-analyzer
+      basedpyright
+      pyright
+      ruff
+      tinymist
     ];
   };
-
 }

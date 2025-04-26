@@ -1,6 +1,5 @@
 {
   pkgs,
-  unstable,
   emacs-overlay,
   org-babel,
   ...
@@ -50,7 +49,6 @@
       nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
     };
     extraSpecialArgs = {
-      inherit unstable;
       inherit org-babel;
     };
   };
