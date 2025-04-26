@@ -57,6 +57,12 @@
         "flakes"
       ];
       #    access-tokens = ;
+      substituters = [
+        "https://yus314.cachix.org"
+      ];
+      trusted-public-keys = [
+        "yus314.cachix.org-1:VyHussCju8oVuLg52oE5RDOKMvWIInAvJumaJSvzWvk="
+      ];
     };
   };
   virtualisation.docker = {
