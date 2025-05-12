@@ -1,7 +1,6 @@
 {
   pkgs,
   org-babel,
-  unstable,
   ...
 }:
 let
@@ -33,8 +32,8 @@ in
             ]
           ))
 
-          (unstable.emacsPackages.mu4e)
-          (unstable.emacsPackages.slack) # stableのバージョンがかなり古いのでunstableを使う
+          (pkgs.emacsPackages.mu4e)
+          (pkgs.emacsPackages.slack) # stableのバージョンがかなり古いのでunstableを使う
           (pkgs.texlive.combined.scheme-full)
           (pkgs.zathura)
           (pkgs.imagemagick)
@@ -43,7 +42,7 @@ in
           (pkgs.tinymist)
           (unstable.emacsPackages.lsp-bridge)
 
-          (unstable.aider-chat)
+          (pkgs.aider-chat)
           (pkgs.tree-sitter)
           (pkgs.emacs-lsp-booster)
           # mu4eのためのパッケッージ
@@ -87,8 +86,7 @@ in
               dash
               ;
           })
-          (unstable.emacsPackages.aidermacs)
-	  (unstable.emacsPackages.corfu)
+          (pkgs.emacsPackages.aidermacs)
         ];
     };
   };
@@ -99,12 +97,12 @@ in
     };
     packages = with pkgs; [
       nil
-      (unstable.nixfmt-rfc-style)
-      (unstable.rust-analyzer)
-      (unstable.basedpyright)
-      (unstable.pyright)
-      (unstable.ruff)
-      (unstable.tinymist)
+      nixfmt-rfc-style
+      rust-analyzer
+      basedpyright
+      pyright
+      ruff
+      tinymist
     ];
   };
 }

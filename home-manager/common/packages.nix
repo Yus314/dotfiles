@@ -1,6 +1,5 @@
 {
   pkgs,
-  unstable,
   ...
 }:
 {
@@ -29,12 +28,9 @@
     kakoune # Modal editor with multiple selections
     zotero # Reference management software
 
-    # --- Packages from Unstable ---
-    # Using unstable for potentially newer versions or features
-    (unstable.anki-bin) # Spaced repetition flashcard program (binary version)
-    (unstable.mpv) # Feature-rich media player
-    (unstable.aider-chat) # AI pair programming tool in your terminal
-
-    #(unstable.rquickshare) # Android と エアドロップできるようなやつ
+    anki-bin # Spaced repetition flashcard program (binary version)
+    mpv # Feature-rich media player
+    aider-chat # AI pair programming tool in your terminal
+    cachix
   ];
 }

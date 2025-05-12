@@ -5,25 +5,24 @@
     systemd.enable = false;
     #systemd.variables = [ "--all" ];
     extraConfig = ''
-                                                       	env = XCURSOR_SIZE,24
-                                                       	env = LIBVA_DRIVER_NAME,nvidia
-                                                       	env = XDG_SESSION_TYPE,wayland
-                                                       	env = GBM_BACKEND,nvidia-drm
-                                                       	env = __GLX_VENDOR_LIBRARY_NAME,nvidia-drm
-                         								monitor = , preffered, auto, 1
-                   									monitor = HDMI-A-1,1920x1080@60.00000,0x0,1 
-                   									monitor = DP-1,1920x1080@60.00000,1920x0,1
-                   									monitor = DP-3,1920x1080@60.00000,3840x0,1	
-             										monitor = Unknown-1, disable
+                                                        	env = XCURSOR_SIZE,24
+                                                        	env = LIBVA_DRIVER_NAME,nvidia
+                                                        	env = XDG_SESSION_TYPE,wayland
+                                                        	env = GBM_BACKEND,nvidia-drm
+                                                        	env = __GLX_VENDOR_LIBRARY_NAME,nvidia-drm
+      monitor=DVI-D-1,1920x1080@60.00000,0x0,1
+      monitor=HDMI-A-1,1920x1080@74.97300,1920x0,1
       exec-once = chmod 777 ~/dotfiles/shingeta.sh && echo "OK2" >> ~/shingetalog.txt &&  bash ~/dotfiles/shingeta.sh
-           exec-once = waybar
+            exec-once = waybar
     '';
 
     # 				env = WLR_DRM_DEVICES,/dev/dri/card0
-    # monitor=HDMI-A-1,1920x1080@74.97300,-1920x0,1
-    # monitor=DVI-D-1,1920x1080@60.00000,0x0,1
-    # exec-once = [workspace 2]vivaldi --disable-gpu
-    # exec-once = [workspace 1]wezterm
+    #
+    #                     								monitor = , preffered, auto, 1
+    #               									monitor = HDMI-A-1,1920x1080@60.00000,0x0,1
+    #               									monitor = DP-1,1920x1080@60.00000,1920x0,1
+    #               									monitor = DP-3,1920x1080@60.00000,3840x0,1
+    #         										monitor = Unknown-1, disable
     settings = {
       general = {
         "gaps_in" = 5;
@@ -32,7 +31,6 @@
       };
       input = {
         "kb_layout" = "us";
-        # "kb_variant" = "dvorak";
         "follow_mouse" = 1;
         "force_no_accel" = 0;
       };
@@ -40,12 +38,9 @@
       "$mainMod" = "ALT";
       "$terminal" = "kitty";
       bind = [
-        "$mainMod SHIFT Control_R, RETURN, exec, foot"
-        "$mainMod, Z, exec, vivaldi --disable-gpu"
+        "$mainMod SHIFT Control_R, RETURN, exec, tofi-drun | xargs hyprctl dispatch exec --"
         "$mainMod, Q, exec, qutebrowser"
         "$mainMod, E, exec, emacs"
-        "$mainMod, L, exec, slack"
-        "$mainMod, S, exec, wlogout"
         "$mainMod, N, movefocus, r"
         "$mainMod, D, movefocus, l"
         "$mainMod, H, movefocus, d"
