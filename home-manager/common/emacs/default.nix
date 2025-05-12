@@ -41,6 +41,7 @@ in
           (pkgs.ghq)
           vterm
           (pkgs.tinymist)
+          (unstable.emacsPackages.lsp-bridge)
 
           (unstable.aider-chat)
           (pkgs.tree-sitter)
@@ -53,10 +54,10 @@ in
             inherit (pkgs) fetchFromGitHub;
             inherit (epkgs) melpaBuild compat;
           })
-          (callPackage ./ol-emacs-slack.nix {
-            inherit (pkgs) fetchFromGitHub;
-            inherit (epkgs) melpaBuild dash s;
-          })
+          # (callPackage ./ol-emacs-slack.nix {
+          # inherit (pkgs) fetchFromGitHub;
+          #  inherit (epkgs) melpaBuild dash s;
+          #})
           (callPackage ./gcal.nix {
             inherit (pkgs) fetchFromGitHub;
             inherit (epkgs) melpaBuild;
@@ -87,6 +88,7 @@ in
               ;
           })
           (unstable.emacsPackages.aidermacs)
+	  (unstable.emacsPackages.corfu)
         ];
     };
   };
@@ -102,7 +104,6 @@ in
       (unstable.basedpyright)
       (unstable.pyright)
       (unstable.ruff)
-      (unstable.ruff-lsp)
       (unstable.tinymist)
     ];
   };

@@ -34,5 +34,7 @@
     (unstable.anki-bin) # Spaced repetition flashcard program (binary version)
     (unstable.mpv) # Feature-rich media player
     (unstable.aider-chat) # AI pair programming tool in your terminal
+
+    #(unstable.rquickshare) # Android と エアドロップできるようなやつ
   ];
 }
