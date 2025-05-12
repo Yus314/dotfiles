@@ -116,6 +116,7 @@
           unstable = import unstable {
             system = "aarch64-darwin";
             config.allowUnfree = true;
+	    config.allowBroken = true;
           };
           inherit emacs-overlay;
           inherit org-babel;

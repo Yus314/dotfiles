@@ -95,6 +95,7 @@
     path = [ pkgs.mu ];
   };
   services.onedrive.enable = true;
+  # たぶんxremapのため
   boot.kernelModules = [ "uinput" ];
   services.udev.extraRules = ''
     KERNEL=="uinput", GROUP="input", TAG+="uaccess"

@@ -8,7 +8,11 @@
 {
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
-  environment.systemPackages = [ pkgs.vim ];
+  environment.systemPackages = [
+    pkgs.vim
+    pkgs.gnupg
+    pkgs.pinentry_mac
+  ];
   ids.gids.nixbld = 30000;
 
   # Auto upgrade nix package and the daemon service.
@@ -34,6 +38,11 @@
       "flakes"
     ];
   };
+  programs.gnupg = {
+    agent = {
+      enable = true;
+    };
+  };
   home-manager = {
     #useGlobalPkgs = true;
     users.kakinumayuusuke = {
@@ -46,6 +55,12 @@
         homeDirectory = "/Users/kakinumayuusuke";
         stateVersion = "25.05";
       };
+      home.file.".gnupg/gpg-agent.conf".text = ''
+        pinentry-program ${pkgs.pinentry_mac}/Applications/pinentry-mac.app/Contents/MacOS/pinentry-mac
+        default-cache-ttl 34560000
+        max-cache-ttl 34560000
+      '';
+
       nixpkgs.config.allowUnfree = true;
       nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
     };
