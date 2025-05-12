@@ -1241,11 +1241,13 @@ emacs lisp はデフォでやってくれているっぽい。
     	"3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
     	"~/dropbox/kana.org"
     	"~/dropbox/kana-schedule.gcal-cache")
-
          )
          )
       )
     )
+
+  (require 'gcal)
+  (require 'gcal-org)
 #+end_src
 ** org-babel
 #+begin_src emacs-lisp :tangle yes
@@ -1589,6 +1591,12 @@ emacs lisp はデフォでやってくれているっぽい。
   (with-eval-after-load "tramp"
     (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
     )
+  ;(add-to-list 'tramp-remote-path "/run/current-system/sw/bin")
+  (require 'tramp-sh)
+  (setq tramp-remote-path
+       (append tramp-remote-path
+   	      '(tramp-own-remote-path)))
+
 #+end_src
 * Dired
 ** dired-narrow

@@ -5,7 +5,6 @@
   config,
   system,
   pkgs,
-  unstable,
   emacs-overlay,
   org-babel,
   xremap,
@@ -34,6 +33,9 @@
       "dropbox/token/token_type" = { };
       "dropbox/token/refresh_token" = { };
       "dropbox/token/expiry" = { };
+      cachix-agent-token = {
+        sopsFile = ./secrets/cachix.yaml;
+      };
     };
     templates = {
 
@@ -68,12 +70,23 @@
         "nix-command"
         "flakes"
       ];
+      substituters = [
+        "https://yus314.cachix.org"
+      ];
+      trusted-public-keys = [
+        "yus314.cachix.org-1:VyHussCju8oVuLg52oE5RDOKMvWIInAvJumaJSvzWvk="
+      ];
     };
     extraOptions = ''
       !include ${config.sops.templates."gh-token".path}
     '';
   };
-
+  networking.hostName = "toro";
+  services.cachix-agent = {
+    enable = true;
+    name = "toro";
+    credentialsFile = config.sops.secrets.cachix-agent-token.path;
+  };
   systemd.user.services.dropbox = {
     description = "Dropbox service";
     after = [ "network-online.target" ];
@@ -105,13 +118,6 @@
   boot.loader.efi.canTouchEfiVariables = true;
   # /boot がいっぱいになったので保存する履歴を制限
   boot.loader.systemd-boot.configurationLimit = 32;
-
-  networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -145,8 +151,6 @@
   home-manager = {
     users.kaki = {
       imports = [
-        #   ./home-manager/NixOS/gui/packages.nix
-        #  ./home-manager/NixOS/cli
         ./home-manager/common
         ./home-manager/NixOS/gui
         ./home-manager/NixOS/cli
@@ -157,12 +161,10 @@
         stateVersion = "24.11";
       };
       nixpkgs.config.allowUnfree = true;
-      nixpkgs.config.permittedInsecurePacakges = [ "adobe-reader-9.5.5" ];
       nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
     };
     backupFileExtension = "hm-backup";
     extraSpecialArgs = {
-      inherit unstable;
       inherit xremap;
       inherit org-babel;
     };
@@ -190,10 +192,7 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     git
     firefox
     mu

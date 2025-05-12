@@ -7,5 +7,6 @@
     ./waybar.nix
     ./browser.nix
     ./foot.nix
+    ./tofi.nix
   ];
 }

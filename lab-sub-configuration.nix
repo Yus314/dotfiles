@@ -52,7 +52,7 @@
   users.users.kaki = {
     isNormalUser = true;
     description = "kaki";
-    defaultShell = pkgs.zsh;
+    shell = pkgs.bash;
     extraGroups = [
       "networkmanager"
       "wheel"

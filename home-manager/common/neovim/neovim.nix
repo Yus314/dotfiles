@@ -1,9 +1,8 @@
-{ pkgs, unstable, ... }:
+{ pkgs, ... }:
 let
 
   plugins = import ./plugins.nix {
     inherit pkgs;
-    inherit unstable;
   };
 
   configFile = file: {
