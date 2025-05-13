@@ -1,5 +1,47 @@
 {
   "nodes": {
+    "brew-api": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1747090093,
+        "narHash": "sha256-cznJgG3DdPEEoJfzD/StFBRvEpWDTBsFTEAU+5++BfI=",
+        "owner": "BatteredBunny",
+        "repo": "brew-api",
+        "rev": "bafce06da0fed5124844e3bef1c1d47b27891719",
+        "type": "github"
+      },
+      "original": {
+        "owner": "BatteredBunny",
+        "repo": "brew-api",
+        "type": "github"
+      }
+    },
+    "brew-nix": {
+      "inputs": {
+        "brew-api": [
+          "brew-api"
+        ],
+        "nix-darwin": [
+          "nix-darwin"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1745789424,
+        "narHash": "sha256-+VxPIcnS+bG2kh6pf04WtcxnmNAmLlT3JLEhFwRzDa4=",
+        "owner": "BatteredBunny",
+        "repo": "brew-nix",
+        "rev": "928e5382d927727666bcbbd27240e73eeb269b4a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "BatteredBunny",
+        "repo": "brew-nix",
+        "type": "github"
+      }
+    },
     "brew-src": {
       "flake": false,
       "locked": {
@@ -632,6 +674,8 @@
     },
     "root": {
       "inputs": {
+        "brew-api": "brew-api",
+        "brew-nix": "brew-nix",
         "cachix-deploy-flake": "cachix-deploy-flake",
         "emacs-overlay": "emacs-overlay",
         "flake-parts": "flake-parts_2",

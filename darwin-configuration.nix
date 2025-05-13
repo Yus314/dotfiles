@@ -2,22 +2,39 @@
   pkgs,
   emacs-overlay,
   org-babel,
+  brew-nix,
   ...
 }:
 {
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
+   brew-nix.enable = true;
   environment.systemPackages = [
     pkgs.vim
     pkgs.gnupg
     pkgs.pinentry_mac
+    #pkgs.brewCasks.dropbox
+    #pkgs.brewCasks.aquaskk
   ];
-  ids.gids.nixbld = 30000;
+  ids.gids.nixbld = 350;
 
   # Auto upgrade nix package and the daemon service.
   nix.package = pkgs.nix;
   nixpkgs.hostPlatform = "aarch64-darwin";
   security.pam.services.sudo_local.touchIdAuth = true;
+nixpkgs.config.allowBroken = true;
+nixpkgs.overlays = [
+(self: super: {
+karabiner-elements = super.karabiner-elements.overrideAttrs (old: {
+version = "14.13.0";
+
+    src = super.fetchurl {
+      inherit (old.src) url;
+      hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
+    };
+  });
+})
+];
 
   imports = [
     ./home-manager/macOS/yabai.nix
@@ -30,7 +47,7 @@
   #  noto-fonts-emoji
   #  nerdfonts
   #];
-  #home-manager.users.kakinumayuusuke = import ./home-manager/home.nix;
+  #home-manager.users.kotsu = import ./home-manager/home.nix;
   nix.settings = {
     experimental-features = [
       "nix-command"
@@ -42,16 +59,19 @@
       enable = true;
     };
   };
+   services.karabiner-elements = {
+     enable = true;
+     };
   home-manager = {
     #useGlobalPkgs = true;
-    users.kakinumayuusuke = {
+    users.kotsu = {
       imports = [
         ./home-manager/common
         ./home-manager/macOS
       ];
       home = {
-        username = "kakinumayuusuke";
-        homeDirectory = "/Users/kakinumayuusuke";
+        username = "kotsu";
+        homeDirectory = "/Users/kotsu";
         stateVersion = "25.05";
       };
       home.file.".gnupg/gpg-agent.conf".text = ''
@@ -70,16 +90,16 @@
   users = {
 
     users = {
-      kakinumayuusuke = {
+      kotsu = {
         shell = pkgs.zsh;
-        home = "/Users/kakinumayuusuke";
+        home = "/Users/kotsu";
       };
     };
   };
-  nix-homebrew = {
-    enable = true;
-    enableRosetta = true;
-    user = "kakinumayuusuke";
-  };
+  #nix-homebrew = {
+   # enable = true;
+   # enableRosetta = true;
+   # user = "kotsu";
+  #};
   system.stateVersion = 5;
 }
