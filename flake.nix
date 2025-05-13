@@ -34,6 +34,18 @@
     impermanence.url = "github:nix-community/impermanence";
     flake-parts.url = "github:hercules-ci/flake-parts";
     cachix-deploy-flake.url = "github:cachix/cachix-deploy-flake";
+        brew-nix = {
+      # for local testing via `nix flake check` while developing
+      #url = "path:../";
+      url = "github:BatteredBunny/brew-nix";
+      inputs.nix-darwin.follows = "nix-darwin";
+      inputs.brew-api.follows = "brew-api";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    brew-api = {
+      url = "github:BatteredBunny/brew-api";
+      flake = false;
+    };
   };
   outputs =
     {
@@ -50,6 +62,8 @@
       org-babel,
       sops-nix,
       flake-parts,
+      brew-nix,
+      brew-api,
       ...
     }@inputs:
     let
@@ -105,12 +119,13 @@
           # };
         };
       };
-      darwinConfigurations."kakinumayuusukenoMacBook-Air" = nix-darwin.lib.darwinSystem {
+      darwinConfigurations."KakinumanoMacBook-Air" = nix-darwin.lib.darwinSystem {
         system = "aaarch64-darwin";
         modules = [
           ./darwin-configuration.nix
           home-manager.darwinModules.home-manager
           nix-homebrew.darwinModules.nix-homebrew
+	  brew-nix.darwinModules.default
         ];
         specialArgs = {
           #    unstable = import unstable {
@@ -119,6 +134,7 @@
           #    };
           inherit emacs-overlay;
           inherit org-babel;
+	  inherit brew-nix;
         };
       };
     };

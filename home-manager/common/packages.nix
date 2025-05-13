@@ -32,5 +32,6 @@
     mpv # Feature-rich media player
     aider-chat # AI pair programming tool in your terminal
     cachix
+    code-cursor
   ];
 }

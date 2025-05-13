@@ -40,7 +40,7 @@ in
           (pkgs.ghq)
           vterm
           (pkgs.tinymist)
-          (unstable.emacsPackages.lsp-bridge)
+          lsp-bridge
 
           (pkgs.aider-chat)
           (pkgs.tree-sitter)
