@@ -30,7 +30,7 @@ x86_64-linux:
 
 aarch64-darwin:
 	$(NIX) build --keep-going --no-link --show-trace --system aarch64-darwin $(JOBS_AARCH64-DARWIN) --option extra-sandbox-paths /nix/store \
-		.#darwinConfigurations.kakinumayuusukenoMacBook-Air.system \
+		.#darwinConfigurations.KakinumanoMacBook-Air.system \
 
 $(NIX_PROFILE):
 	curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
