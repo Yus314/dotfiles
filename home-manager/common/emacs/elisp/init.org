@@ -7,10 +7,11 @@
 #+end_src
 * パッケージを読み込まないようにする
 #+begin_src emacs-lisp :tangle yes
-  (setq package-enable-at-startup nil)
-   (setopt use-package-ensure-function '(lambda (&rest args) t))
-   (require 'profiler) ;; Profiler start removed
-   (profiler-start 'cpu) ;; Profiler start removed
+  (require 'profiler) ;; Profiler start removed
+  (profiler-start 'cpu) ;; Profiler start removed
+  (setq debug-on-error t)
+  (defconst my-saved-file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil)
 #+end_src
 * leaf.el
 #+begin_src emacs-lisp :tangle yes
@@ -54,11 +55,13 @@
 #+end_src
 * 一般設定
 #+begin_src emacs-lisp :tangle yes
-  (use-package smooth-scroll
-    :ensure t
-    :config
-    (smooth-scroll-mode)
-    )
+  ;(use-package smooth-scroll
+  ;  :ensure t
+  ;  :config
+  ;  (smooth-scroll-mode)
+  ;  )
+  (require 'smooth-scroll)
+  (smooth-scroll-mode)
   (setq scroll-conservatively 35)
   (setq scroll-step 1)
   (setq scroll-margin 5)
@@ -138,17 +141,24 @@ Waylandでペーストできるようにする設定
 emacs のテーマは色々なモードに対応していたりいなかったりするみたいで、新しく作られたということも安心感につながっている。
 modus のテーマもある。
   #+begin_src emacs-lisp :tangle yes
-    (use-package modus-themes
-      :ensure t
-      :custom
-      (modus-themes-italic-constructs  t)
-      (modus-themes-bold-constructs  t)
-      (modus-themes-mode-line  '(moody borderless))
-      (modus-themes-prompts  '(italic bold))
-      (custom-safe-themes  t)
-      :config
-      (load-theme 'modus-operandi)
-      )
+    ;(use-package modus-themes
+    ;  :ensure t
+    ;  :custom
+    ;  (modus-themes-italic-constructs  t)
+    ;  (modus-themes-bold-constructs  t)
+    ;  (modus-themes-mode-line  '(moody borderless))
+    ;  (modus-themes-prompts  '(italic bold))
+    ;  (custom-safe-themes  t)
+    ;  :config
+    ;  (load-theme 'modus-operandi)
+    ;  )
+    (require 'modus-themes)
+      (setq modus-themes-italic-constructs  t)
+      (setq modus-themes-bold-constructs  t)
+      (setq modus-themes-mode-line  '(moody borderless))
+      (setq modus-themes-prompts  '(italic bold))
+      (setq custom-safe-themes  t)
+    (load-theme 'modus-operandi)
 
 #+end_src
 ** tree-sitter
@@ -178,9 +188,8 @@ emacs lisp はデフォでやってくれているっぽい。
 
   #+end_src
 ** perfect-mergin
-#+begin_src emacs-lisp :tangle yes
-  (use-package perfect-margin
-    :ensure t
+#+begin_src emacs-lisp :tangle yes 
+ (use-package perfect-margin
     :custom
     (perfect-margin-ignore-filters  nil)
     (perfect-margin-ignore-regexps  nil)
@@ -194,19 +203,17 @@ emacs lisp はデフォでやってくれているっぽい。
 *** nerd-icons
 #+begin_src emacs-lisp :tangle yes
   (use-package nerd-icons
-    :ensure t
     )
   					;(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
   (use-package nerd-icons-corfu
-    :ensure t
     :after nerd-icons
     :config
     )
 #+end_src
 ** winnum
 #+begin_src emacs-lisp :tangle yes
-  (use-package winum
-    :ensure t)
+    (use-package winum
+      )
 #+end_src
 ** tab bar
 バッファをウインドウの管理をうまくできていないので、あまりつかいこなせていない。
@@ -258,7 +265,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** spacious-padding
 #+begin_src emacs-lisp :tangle yes
   (use-package spacious-padding
-    :ensure t
     :custom
     (spacious-padding-widths
       '(
@@ -296,7 +302,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** mewo
 #+begin_src emacs-lisp :tangle yes
   (use-package meow
-    :ensure t
     ;:require meow
    :custom
     (meow-use-clipboard  t)
@@ -418,7 +423,6 @@ emacs lisp はデフォでやってくれているっぽい。
    (with-eval-after-load 'puni
    (keymap-global-unset "C-j")
    (use-package puni
-       :ensure t
        :bind
        ("C-j i" . puni-mark-list-around-point)
        ("C-j a" . puni-mark-sexp-around-point)
@@ -438,9 +442,7 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** vundo
 #+begin_src emacs-lisp :tangle yes
-     (with-eval-after-load 'vundo
   (use-package vundo
-    :ensure t
     :bind
     ("C-r" . vundo)
     (:map vundo-mode-map
@@ -449,7 +451,6 @@ emacs lisp はデフォでやってくれているっぽい。
      ("s" . vundo-next)
      ("t" . vundo-previous)
      ("b" . vundo-diff)
-     )
     )
   )
 #+end_src
@@ -457,7 +458,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
      (with-eval-after-load 'dmacro
   (use-package dmacro
-    :ensure t
     )
     ;:custom `((dmacro-key . ,(kbd "C-b")))  ;; C-b を dmacro のキーにする
     ;:global-minor-mode global-dmacro-mode
@@ -550,10 +550,10 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** multiple-cursors
 #+begin_src emacs-lisp :tangle yes
-     (with-eval-after-load 'multiple-cursors
-  (use-package multiple-cursors
-    :ensure t)
-  )
+       (with-eval-after-load 'multiple-cursors
+    (use-package multiple-cursors
+      )
+    )
 #+end_src
 * タイマーを利用した疑似非同期
 #+begin_src  emacs-lisp :tangle yes
@@ -582,7 +582,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** marginalia
 #+begin_src emacs-lisp :tangle yes
   (use-package marginalia
-      :ensure t
       :config
       (marginalia-mode))
 
@@ -590,7 +589,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** orderless
 #+begin_src emacs-lisp :tangle yes
   (use-package orderless
-    :ensure t
     :custom
     (orderless-matching-styles
   			     '(orderless-prefixes
@@ -604,7 +602,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** consult
 #+begin_src emacs-lisp :tangle yes
   (use-package consult
-        :ensure t
         :bind
         ("C-x b" . consult-buffer)
      )
@@ -612,7 +609,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** affe
 #+begin_src emacs-lisp :tangle yes
   (use-package affe
-    :ensure t
     :after consult
     :init
     (defun affe-find-home ()
@@ -632,28 +628,46 @@ emacs lisp はデフォでやってくれているっぽい。
 * 入力補完
 ** corfu
 #+begin_src emacs-lisp :tangle yes
-  (use-package corfu
-    :ensure t
-    :custom
-    (corfu-auto  t)
-    (corfu-auto-delay  0)
-    (corfu-popupinfo-delay  0)
-    (corfu-quit-no-match  'separator)
-    (corfu-auto-prefix  1)
-    (corfu-cycle  t)
-    (text-mode-ispell-word-completion  nil)
-    (tab-awlays-indent  'complete)
-    :config 
-    (global-corfu-mode)
-    (corfu-popupinfo-mode)
-    (keymap-unset corfu-map "RET")
-    (keymap-unset corfu-map "<up>")
-    (keymap-unset corfu-map "<remap> <next-line>")
-    (keymap-unset corfu-map "<remap> <previous-line>")
-    (keymap-unset corfu-map "<down>")
-    (keymap-set corfu-map "C-n" 'corfu-next)
-    (keymap-set corfu-map "C-p" 'corfu-previous)
-    )
+  ;(use-package corfu
+  ;  :custom
+  ;  (corfu-auto  t)
+  ;  (corfu-auto-delay  0)
+  ;  (corfu-popupinfo-delay  0)
+  ;  (corfu-quit-no-match  'separator)
+  ;  (corfu-auto-prefix  1)
+  ;  (corfu-cycle  t)
+  ;  (text-mode-ispell-word-completion  nil)
+  ;  (tab-awlays-indent  'complete)
+  ;  :config 
+  ;  (global-corfu-mode)
+  ;  (corfu-popupinfo-mode)
+  ;  (keymap-unset corfu-map "RET")
+  ;  (keymap-unset corfu-map "<up>")
+  ;  (keymap-unset corfu-map "<remap> <next-line>")
+  ;  (keymap-unset corfu-map "<remap> <previous-line>")
+  ;  (keymap-unset corfu-map "<down>")
+  ;  (keymap-set corfu-map "C-n" 'corfu-next)
+  ;  (keymap-set corfu-map "C-p" 'corfu-previous)
+  ;  )
+  (require 'corfu)
+  (require 'corfu-popupinfo)
+  (setq corfu-auto  t)
+  (setq corfu-auto-delay  0)
+  (setq corfu-popupinfo-delay  0)
+  (setq corfu-quit-no-match  'separator)
+  (setq corfu-auto-prefix  1)
+  (setq corfu-cycle  t)
+  (setq text-mode-ispell-word-completion  nil)
+  (setq tab-awlays-indent  'complete)
+  (global-corfu-mode)
+  (corfu-popupinfo-mode)
+  (keymap-unset corfu-map "RET")
+  (keymap-unset corfu-map "<up>")
+  (keymap-unset corfu-map "<remap> <next-line>")
+  (keymap-unset corfu-map "<remap> <previous-line>")
+  (keymap-unset corfu-map "<down>")
+  (keymap-set corfu-map "C-n" 'corfu-next)
+  (keymap-set corfu-map "C-p" 'corfu-previous)
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
 #+end_src
 ** company
@@ -746,7 +760,7 @@ emacs lisp はデフォでやってくれているっぽい。
     (aidermacs-use-architect-mode  nil)
     (aidermacs-default-model   "gemini/gemini-2.5-pro-preview-03-25")
     :config
-    (setenv "GEMINI_API_KEY" (funcall(plist-get (nth 0 (auth-source-search :host "gemini")) :secret)))
+    ;(setenv "GEMINI_API_KEY" (funcall(plist-get (nth 0 (auth-source-search :host "gemini")) :secret)))
     )
   )
 #+end_src
@@ -776,7 +790,6 @@ emacs lisp はデフォでやってくれているっぽい。
 * lsp-mode
 #+begin_src emacs-lisp :tangle yes
   (use-package lsp-mode
-  :ensure t
   :custom
   (lsp-keymap-prefix  "M-p")
   (lsp-log-in  nil) ;パフォーマンスに大きく影響するらしい
@@ -824,7 +837,6 @@ emacs lisp はデフォでやってくれているっぽい。
 * lsp-ui
 #+begin_src emacs-lisp :tangle yes
   (use-package lsp-ui
-    :ensure t
   )
 #+end_src
 * tmampのread-only問題への対処
@@ -840,7 +852,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** nix
 #+begin_src emacs-lisp :tangle yes
   (use-package nix-ts-mode
-    :ensure t
     :mode
     (("\\.nix\\'" . nix-ts-mode))
     :hook
@@ -851,7 +862,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** yaml
 #+begin_src emacs-lisp :tangle yes
   (use-package yaml-mode
-    :ensure t
     )
   (add-to-list 'auto-mode-alist '("\\.ya?ml$" . yaml-mode))
   (use-package yaml-ts-mode
@@ -864,7 +874,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** rust
 #+begin_src emacs-lisp :tangle yes
    (use-package rust-mode
-      :ensure t
       :custom
       (rust-mode-treesitter-derive  t)
       (rust-format-on-save  t)
@@ -888,10 +897,8 @@ emacs lisp はデフォでやってくれているっぽい。
     ;  :ensure t
     ;  )
   (use-package python-mode
-    :ensure t
     )
   (use-package lsp-pyright
-    :ensure t
     :custom (lsp-pyright-langserver-command "pyright") ;; or basedpyright
     :hook (python-ts-mode . (lambda ()
                             (require 'lsp-pyright)
@@ -908,7 +915,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** org
 #+begin_src emacs-lisp :tangle yes
   (use-package org
-    :ensure t
     :custom
     (org-todo-keywords
       '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)")
@@ -977,7 +983,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (with-eval-after-load 'org
   (use-package org-super-agenda
-    :ensure t
     :bind
     ("C-c a" . #'org-agenda)
     :custom
@@ -1182,7 +1187,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** org-modern
 #+begin_src emacs-lisp :tangle yes
   (use-package org-modern
-    :ensure t
     :custom
    (
      (org-insert-heading-respect-content  t)
@@ -1216,38 +1220,36 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** gcal
 #+begin_src emacs-lisp :tangle yes
-  (with-delayed-execution
-    (eval-after-load 'gcal
-      '(eval-after-load 'gcal-org
-         '(progn
-         (setq gcal-client-id  "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
-         (setq gcal-client-secret  (funcall(plist-get (nth 0 (auth-source-search :host "gcal")) :secret)))
-         (gcal-org-pull-to-file
-      	"shizhaoyoujie@gmail.com"
-      	"~/dropbox/inbox/inbox.org"
-      	"FROM_GCAL"
-      	"~/dropbox/my-schedule.gcal-cache")
-         (gcal-org-push-file
-      	"shizhaoyoujie@gmail.com"
-      	"~/dropbox/inbox/inbox.org"
-      	"~/dropbox/my-schedule.gcal-cache")
+  ;(with-delayed-execution
+  ;  (eval-after-load 'gcal
+  ;    '(eval-after-load 'gcal-org
+  ;       '(progn
+  ;	  (setq gcal-client-id  "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
+  ;	  (setq gcal-client-secret  (funcall(plist-get (nth 0 (auth-source-search :host "gcal")) :secret)))
+  ;	  (gcal-org-pull-to-file
+   ;   	   "shizhaoyoujie@gmail.com"
+   ;   	   "~/dropbox/inbox/inbox.org"
+   ;   	   "FROM_GCAL"
+  ;    	   "~/dropbox/my-schedule.gcal-cache")
+  ;	  (gcal-org-push-file
+  ;    	   "shizhaoyoujie@gmail.com"
+  ;    	   "~/dropbox/inbox/inbox.org"
+  ;    	   "~/dropbox/my-schedule.gcal-cache")
 
-         ; かなとの予定
-         (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
-      			      "~/dropbox/kana.org"
-      			      "FROM_KANA"
-      			      "~/dropbox/kana-schedule.gcal-cache")
-         (gcal-org-push-file
-    	"3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
-    	"~/dropbox/kana.org"
-    	"~/dropbox/kana-schedule.gcal-cache")
-         )
-         )
-      )
-    )
+  					; かなとの予定
+  ;	  (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+  ;    				 "~/dropbox/kana.org"
+  ;    				 "FROM_KANA"
+  ;    				 "~/dropbox/kana-schedule.gcal-cache")
+  ;	  (gcal-org-push-file
+  ;  	   "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+  ;  	   "~/dropbox/kana.org"
+  ;  	   "~/dropbox/kana-schedule.gcal-cache")
+  ;	  )
+  ;       )
+  ;    )
+  ;  )
 
-  (require 'gcal)
-  (require 'gcal-org)
 #+end_src
 ** org-babel
 #+begin_src emacs-lisp :tangle yes
@@ -1258,7 +1260,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** org-roam
 #+begin_src emacs-lisp :tangle yes
   (use-package org-roam
-    :ensure t
     :bind
     ("C-c n l" . org-roam-buffer-toggle)
     ("C-c n f" . org-roam-node-find)
@@ -1308,7 +1309,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** org-roam-ui
 #+begin_src emacs-lisp :tangle yes
   (use-package org-roam-ui
-    :ensure t
     :custom
     (org-roam-ui-sync-theme  t)
     (org-roam-ui-follow   t)
@@ -1342,7 +1342,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** citer
 #+begin_src emacs-lisp :tangle yes
   (use-package citar
-    :ensure t
     :custom
     (citar-bibliography  '("~/dropbox/ref.bib"))
     :config
@@ -1353,7 +1352,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** diff-hl
 #+begin_src emacs-lisp :tangle yes
   (use-package diff-hl
-    :ensure t
     :custom
     (global-diff-hl-mode  t)
     (diff-hl-flydiff-mode  t)
@@ -1363,7 +1361,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** magit
 #+begin_src emacs-lisp :tangle yes
   (use-package magit
-    :ensure t
     :bind
     ("C-x g" . magit-status)
     )
@@ -1371,7 +1368,6 @@ emacs lisp はデフォでやってくれているっぽい。
 * flycheck
 #+begin_src emacs-lisp :tangle yes
   (use-package flycheck
-    :ensure t
     :config
     (flycheck-define-checker textlint
     "textlint."
@@ -1389,27 +1385,28 @@ emacs lisp はデフォでやってくれているっぽい。
     )
   (add-hook 'after-init-hook #'global-flycheck-mode)
   (use-package flycheck-posframe
-      :ensure t
       :after flycheck posframe
       :config(flycheck-posframe-mode)
       )
 #+end_src
 * PDF
 #+begin_src emacs-lisp :tangle yes
-  (with-delayed-execution
-   (use-package pdf-tools
-     :ensure t
-     :config
-     (pdf-loader-install)
-     )
-   (add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
-   )
+  ;(with-delayed-execution
+  ;  (use-package pdf-tools
+  ;    :config
+  ;    (pdf-tools-install)
+  ;    )
+  ;  (add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
+  ;  )
+  (require 'pdf-tools)
+  (require 'pdf-occur)
+  (pdf-tools-install)
+  (add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
   #+end_src
 * MisTTY
 #+begin_src emacs-lisp :tangle yes
   (with-delayed-execution
     (use-package mistty
-      :ensure t
       :custom
   					;(explicit-shell-file-name . "/home/kaki/.nix-profile/bin/fish")
       (mistty-shell-command  "/bin/bash")
@@ -1419,13 +1416,11 @@ emacs lisp はデフォでやってくれているっぽい。
 * helpful
 #+begin_src emacs-lisp :tangle yes
   (use-package helpful
-      :ensure t
       )
 #+end_src
 * Avy
 #+begin_src emacs-lisp :tangle yes
   (use-package avy
-    :ensure t
     :bind ("M-'" . avy-goto-char-timer)
     )
   (defun avy-action-helpful (pt)
@@ -1450,7 +1445,6 @@ emacs lisp はデフォでやってくれているっぽい。
 * ace-window
 #+begin_src emacs-lisp :tangle yes
   (use-package ace-window
-    :ensure t
     :bind
     ("C-x o" . ace-window)
   )
@@ -1459,7 +1453,6 @@ emacs lisp はデフォでやってくれているっぽい。
 * embark
 #+begin_src emacs-lisp :tangle yes
   (use-package embark
-    :ensure t
   ;  :bind(
   ; 	("C-." . embark-act)
   ;	("C-;" . embark-dwim)
@@ -1468,7 +1461,6 @@ emacs lisp はデフォでやってくれているっぽい。
     (prefix-help-command #'embark-prefix-help-command)
     )
   (use-package embark-consult
-    :ensure t
     :after consult
     )
 #+end_src
@@ -1476,7 +1468,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (with-delayed-execution
     (use-package go-translate
-      :ensure t
       :defer t
       :config
       (setq gt-langs '(en ja))
@@ -1496,7 +1487,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (with-delayed-execution
   (use-package rainbow-delimiters
-    :ensure t
     :hook emacs-lisp-mode-hook (rainbow-delimiters-mode)
     )
   )
@@ -1505,7 +1495,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (with-delayed-execution
     (use-package reformatter
-        :ensure t
         )
       (reformatter-define nixfmt
         :program "nixfmt"
@@ -1578,7 +1567,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (with-delayed-execution
   (use-package envrc
-    :ensure t
     :custom
     (envrc-remote  t)
     :config
@@ -1603,7 +1591,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
   (with-delayed-execution
   (use-package dired-narrow
-    :ensure t
     :after dired-hacks-utils
     :bind
     (:map dired-mode-map
@@ -1621,7 +1608,6 @@ emacs lisp はデフォでやってくれているっぽい。
 * vterm
 #+begin_src emacs-lisp :tangle yes
    (use-package vterm
-     :ensure t
      :custom
      (vterm-keymap-exceptions
        '("C-c" "C-y" "M-v" "M-x"))
@@ -1636,7 +1622,6 @@ emacs lisp はデフォでやってくれているっぽい。
 ** vterm-toggle
 #+begin_src emacs-lisp :tangle yes
   (use-package vterm-toggle
-    :ensure t
     :custom
     (vterm-toggle-scope  'project)
     )
@@ -1667,4 +1652,5 @@ bufferが溜ったり、設定が更新されなかったり、ssh先が保存�
    ;  )
    (profiler-report) ;; Profiler report removed
    (profiler-stop) ;; Profiler stop removed
+  (setq file-name-handler-alist my-saved-file-name-handler-alist)
 #+end_src
