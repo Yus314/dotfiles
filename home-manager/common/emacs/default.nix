@@ -25,6 +25,7 @@ let
   packages = pkgs.callPackages ./package.nix {inherit  epkgs pkgs;};
 in
   with epkgs; [
+    esup
     smooth-scroll
     modus-themes
     perfect-margin
@@ -41,6 +42,7 @@ in
     vundo
     dmacro
     multiple-cursors
+    vertico
     marginalia
     orderless
     consult
@@ -50,6 +52,7 @@ in
     cape
     ellama
     aidermacs
+    lsp-bridge
     lsp-mode
     lsp-ui
     nix-ts-mode
@@ -83,6 +86,7 @@ in
     envrc
     mu4e
     dired-narrow
+    nerd-icons-dired
     vterm
     vterm-toggle
     slack
