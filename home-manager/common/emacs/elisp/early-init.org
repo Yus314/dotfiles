@@ -1,3 +1,4 @@
+
 #+TITLE: early-init.el - Configurations for GNU Emacs
 #+AUTHOR: takeokunn
 #+EMAIL: bararararatty@gmail.com
@@ -49,7 +50,7 @@
 #+END_SRC
 ** GC/Memory
 #+begin_src emacs-lisp :tangle yes
-  (setq gc-cons-threshold (* 10 128 1024 1024))
+  (setq gc-cons-threshold (* 512 1024 1024))
   (setq garbage-collection-messages nil)
 #+END_SRC
 ** read-process
@@ -102,3 +103,7 @@
   (setq byte-compile-warnings '(cl-functions))
 #+end_src
 
+** フレームのリサイズを抑制
+#+begin_src emacs-lisp :tangle yes
+  (setq frame-inhibit-implied-resize t)
+#+end_src
