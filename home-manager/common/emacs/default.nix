@@ -21,76 +21,77 @@ in
       };
       extraEmacsPackages =
         epkgs:
-let
-  packages = pkgs.callPackages ./package.nix {inherit  epkgs pkgs;};
-in
-  with epkgs; [
-    esup
-    smooth-scroll
-    modus-themes
-    perfect-margin
-    nerd-icons
-    nerd-icons-corfu
-    winum
-    centaur-tabs
-    minions
-    moody
-    spacious-padding
-    meow
-    puni
-    which-key
-    vundo
-    dmacro
-    multiple-cursors
-    vertico
-    marginalia
-    orderless
-    consult
-    affe
-    corfu
-    company
-    cape
-    ellama
-    aidermacs
-    lsp-bridge
-    lsp-mode
-    lsp-ui
-    nix-ts-mode
-    yaml-mode
-    rust-mode
-    python-mode
-    lsp-pyright
-    typst-ts-mode
-    packages.typst-preview
-    org-super-agenda
-    org-modern
-    packages.org-modern-indent
-    packages.gcal
-    org-roam
-    org-roam-ui
-    packages.org-roam-review
-    citar
-    diff-hl
-    magit
-    flycheck
-    pdf-tools
-    mistty
-    helpful
-    avy
-    ace-window
-    embark
-    embark-consult
-    go-translate
-    rainbow-delimiters
-    reformatter
-    envrc
-    mu4e
-    dired-narrow
-    nerd-icons-dired
-    vterm
-    vterm-toggle
-    slack
-    packages.ol-emacs-slack
+        let
+          packages = pkgs.callPackages ./package.nix { inherit epkgs pkgs; };
+        in
+        with epkgs;
+        [
+          esup
+          smooth-scroll
+          modus-themes
+          perfect-margin
+          nerd-icons
+          nerd-icons-corfu
+          winum
+          centaur-tabs
+          minions
+          moody
+          spacious-padding
+          meow
+          puni
+          which-key
+          vundo
+          dmacro
+          multiple-cursors
+          vertico
+          marginalia
+          orderless
+          consult
+          affe
+          corfu
+          company
+          cape
+          ellama
+          aidermacs
+          lsp-bridge
+          lsp-mode
+          lsp-ui
+          nix-ts-mode
+          yaml-mode
+          rust-mode
+          python-mode
+          lsp-pyright
+          typst-ts-mode
+          packages.typst-preview
+          org-super-agenda
+          org-modern
+          packages.org-modern-indent
+          packages.gcal
+          org-roam
+          org-roam-ui
+          packages.org-roam-review
+          citar
+          diff-hl
+          magit
+          flycheck
+          pdf-tools
+          mistty
+          helpful
+          avy
+          ace-window
+          embark
+          embark-consult
+          go-translate
+          rainbow-delimiters
+          reformatter
+          envrc
+          mu4e
+          dired-narrow
+          nerd-icons-dired
+          vterm
+          vterm-toggle
+          slack
+          packages.ol-emacs-slack
 
           (treesit-grammars.with-grammars (
             p: with p; [
@@ -102,10 +103,9 @@ in
               tree-sitter-typst
             ]
           ))
-  ]
-      ++
-      [
-	  pkgs.texlive.combined.scheme-full
+        ]
+        ++ [
+          pkgs.texlive.combined.scheme-full
           pkgs.zathura
           pkgs.imagemagick
           pkgs.ghq
@@ -116,9 +116,9 @@ in
           pkgs.emacs-lsp-booster
           # mu4eのためのパッケッージ
           pkgs.xapian
-        pkgs.gmime
-	pkgs.adwaita-icon-theme
-      ];
+          pkgs.gmime
+          pkgs.adwaita-icon-theme
+        ];
     };
   };
   home = {
