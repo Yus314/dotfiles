@@ -11,48 +11,10 @@
   (profiler-start 'cpu) ;; Profiler start removed
   (setq debug-on-error t)
   (defconst my-saved-file-name-handler-alist file-name-handler-alist)
-(setq file-name-handler-alist nil)
-#+end_src
-* leaf.el
-#+begin_src emacs-lisp :tangle yes
-      ;;<leaf-install-code>
-     ; (eval-and-compile
-     ; (customize-set-variable
-     ;      'package-archives
-     ; '(("melpa" . "https://melpa.org/packages/")
-     ; ("gnu" . "https://elpa.gnu.org/packages/")))
-      ;(package-initialize)
-      ;)
-      ;(unless (package-installed-p 'leaf)
-      ;(package-refresh-contents)
-      ;(package-install 'leaf))
-      ;(leaf leaf-keywords
-      ;  	:ensure t
-      ;  	:init
-     ; 	(leaf el-get :ensure t);
-
-     ;  	:config
-     ;  	(leaf-keywords-init)))
-
-    ;  (leaf leaf-tree :ensure t)
-
-     ; (leaf leaf-convert :ensure t)
-
+  (setq file-name-handler-alist nil)
 #+end_src
 * じかん計測
 #+begin_src emacs-lisp :tangle yes
-  ;   (use-package benchmark-init
-  ;     :ensure t
-  ;     :config
-  ;     ;; To disable collection of benchmark data after init is done.
-  ;     (benchmark-init/activate)
-  ;     (add-hook 'after-init-hook 'benchmark-init/deactivate))
-  ;   (use-package esup
-  ;   :ensure t
-     ; To use MELPA Stable use ":pin melpa-stable",
-  ;   :pin melpa
-  ;   :config
-  ;   (setq esup-depth 0))
   (require 'esup)
   (setq esup-depth 0)
 #+end_src
@@ -73,13 +35,6 @@
 #+end_src
 * 一般設定
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package smooth-scroll
-  ;  :ensure t
-  ;  :config
-  ;  (smooth-scroll-mode)
-  ;  )
-  ;(require 'smooth-scroll)
-  ;(smooth-scroll-mode)
   (add-hook 'emacs-startup-hook #'smooth-scroll-mode)
   (autoload 'smooth-scroll-mode "smooth-scroll" nil t)
 
@@ -157,29 +112,7 @@ Waylandでペーストできるようにする設定
 * UI
 ** theme
 *** Modus Theme
-見やすさにおいて、何らかの認定を受けたという言葉に弱く採用している。
-少し、配色が落ち着きすぎている気もするが、これは元々 one dark  を使っていたこともあり、慣れの問題かもしれない。
-emacs のテーマは色々なモードに対応していたりいなかったりするみたいで、新しく作られたということも安心感につながっている。
-modus のテーマもある。
   #+begin_src emacs-lisp :tangle yes
-    ;(use-package modus-themes
-    ;  :ensure t
-    ;  :custom
-    ;  (modus-themes-italic-constructs  t)
-    ;  (modus-themes-bold-constructs  t)
-    ;  (modus-themes-mode-line  '(moody borderless))
-    ;  (modus-themes-prompts  '(italic bold))
-    ;  (custom-safe-themes  t)
-    ;  :config
-    ;  (load-theme 'modus-operandi)
-    ;  )
-    ;(require 'modus-themes)
-    ;  (setq modus-themes-italic-constructs  t)
-    ;  (setq modus-themes-bold-constructs  t)
-    ;  (setq modus-themes-mode-line  '(moody borderless))
-    ;  (setq modus-themes-prompts  '(italic bold))
-    ;  (setq custom-safe-themes  t)
-    ;(load-theme 'modus-operandi)
     (add-hook 'emacs-startup-hook
     	  #'(lambda ()
     	      (when (require 'modus-themes)
@@ -194,59 +127,27 @@ modus のテーマもある。
       )
 #+end_src
 ** tree-sitter
-世界を色付けてくれる。これがないと完全に真っ黒だったので必須。
-Tree-sitter はモードに依存していて、設定がわかりにくい。
-有効化、無効化をコマンドで行ないたいのだが、よくわかっていない。
-tree-sitter と treesit の役割の違いも理解していない。
-emacs lisp はデフォでやってくれているっぽい。
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package treesit
-  ;  :custom
-  ;  (treesit-font-lock-level  4)
-  ;  (major-mode-remap-alist
-  ;   '(
-  ;     (nix-mode  nix-ts-mode)
-                                          ;  (emacs-lisp-mode . emacs-lisp-ts-mode)
-  ;     (yaml-mode  yaml-ts-mode)
-  ;     (python-mode  python-ts-mode)
-  ;     )
-  ;   )
-  ;  )
-    (setq treesit-font-lock-level  4)
-    (setq major-mode-remap-alist
-     '(
-       (nix-mode  nix-ts-mode)
-                                          ;  (emacs-lisp-mode . emacs-lisp-ts-mode)
-       (yaml-mode  yaml-ts-mode)
-       (python-mode  python-ts-mode)
-       )
-     )
-  ;(use-package tree-sitter
-  ;  :ensure t
-  ;  :config
-  ;  (global-tree-sitter-mode)
-  ;  )
-
-  #+end_src
+  (setq treesit-font-lock-level  4)
+  (setq major-mode-remap-alist
+        '(
+  	(nix-mode  nix-ts-mode)
+  					;  (emacs-lisp-mode . emacs-lisp-ts-mode)
+  	(yaml-mode  yaml-ts-mode)
+  	(python-mode  python-ts-mode)
+  	)
+        )
+#+end_src
 ** perfect-mergin
 #+begin_src emacs-lisp :tangle yes 
-  ;(use-package perfect-margin
-  ;   :custom
-  ;   (perfect-margin-ignore-filters  nil)
-  ;   (perfect-margin-ignore-regexps  nil)
-  ;   (perfect-margin-visible-width  108)
-  ;   (split-width-threshold  107)
-  ;;   :config
-   ;  (perfect-margin-mode)
-   ;  )
   (add-hook 'emacs-startup-hook #'perfect-margin-mode)
   (autoload 'perfect-margin-mode "perfect-margin" nil t)
   (with-eval-after-load 'perfect-margin
-       (setq perfect-margin-ignore-filters  nil)
-     (setq perfect-margin-ignore-regexps  nil)
-     (setq perfect-margin-visible-width  108)
-     (setq split-width-threshold  107)
-     )
+    (setq perfect-margin-ignore-filters  nil)
+    (setq perfect-margin-ignore-regexps  nil)
+    (setq perfect-margin-visible-width  108)
+    (setq split-width-threshold  107)
+    )
 #+end_src
 ** icon
 *** nerd-icons
@@ -267,77 +168,45 @@ emacs lisp はデフォでやってくれているっぽい。
 ** tab bar
 バッファをウインドウの管理をうまくできていないので、あまりつかいこなせていない。
  #+begin_src emacs-lisp :tangle yes
-  ; (use-package centaur-tabs
-  ;   :ensure t
-  ;   :custom
-  ;   (centaur-tabs-style  "alternate")
-  ;   (centaur-tabs-set-icons  t)
-  ;   (centaur-tabs-icon-type  'nerd-icons)
-     ;(centaur-tabs-set-bar . 'under)
-     ;(x-underline-at-descent-line . t)
-  ;   (centaur-tabs-mode  t)
-  ;   :config
-  ;   (centaur-tabs-headline-match)
-  ;   (setq centaur-tabs-set-bar 'under)
-  ;   (setq x-underline-at-descent-line t)
-  ;   )
+   (require 'centaur-tabs)
+   (centaur-tabs-mode  t)
+   (setq centaur-tabs-style  "alternate")
+   (setq centaur-tabs-set-icons  t)
+   (setq centaur-tabs-icon-type  'nerd-icons)
+   (setq centaur-tabs-set-bar  'under)
+   (setq x-underline-at-descent-line  t)
+   (centaur-tabs-headline-match)
+   (setq centaur-tabs-set-bar 'under)
+   (setq x-underline-at-descent-line t)
  #+end_src
 ** minus
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package minions
-  ;  :ensure t
-  ;  :config
-  ;  (minions-mode 1)
-  ;  )
   (autoload 'minions-mode "minions" nil t)
   (add-hook 'emacs-startup-hook #'minions-mode)
 #+end_src
 ** Moody
 #+begin_src emacs-lisp :tangle yes
-                                          ;(leaf moody
-                                          ;  :ensure t
-                                          ;                                        ; :custom
-                                          ;                                        ;  (x-underline-at-descent-line . t)
-                                          ;                                        ;  (moody-mode-line-height . 26)
-                                          ;  :config
-                                          ;  (moody-replace-mode-line-front-space)
-                                          ;  (moody-replace-mode-line-buffer-identification)
-                                          ;  (moody-replace-vc-mode)
-                                          ;  )
-
-  ;(use-package moody
-  ;  :ensure t
-  ;  :config
-  ;  (setq moody-mode-line-height 26)
-  ;  (moody-replace-mode-line-buffer-identification)
-  ;  (moody-replace-vc-mode)
-  ;  )
+  (add-hook 'emacs-startup-hook #'moody-replace-mode-line-buffer-identification)
+  (add-hook 'emacs-startup-hook #'moody-replace-vc-mode)
+  (autoload 'moody-replace-mode-line-buffer-identification "moody" nil t)
+  (autoload 'moody-replace-vc-mode "moody" nil t)
+  (with-eval-after-load 'moody
+  (setq moody-mode-line-height 26)
+  )
 #+end_src
 ** spacious-padding
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package spacious-padding
-  ;  :custom
-  ;  (spacious-padding-widths
-  ;    '(
-  ;       :internal-border-width 5
-  ;       :right-divider-width 0
-  ;       :mode-line-width 0
-  ;       :left-fringe-width 5
-  ;       ))
-  ;  :config
-  ;  (spacious-padding-mode)
-  ;  )
   (add-hook 'emacs-startup-hook #'spacious-padding-mode)
   (autoload 'spacious-padding-mode "spacious-padding" nil t)
   (with-eval-after-load 'spacious-padding
-      (setq spacious-padding-widths
-      '(
-         :internal-border-width 5
-         :right-divider-width 0
-         :mode-line-width 0
-         :left-fringe-width 5
-         ))
-      )
+    (setq spacious-padding-widths
+  	'(
+  	  :internal-border-width 5
+  	  :right-divider-width 0
+  	  :mode-line-width 0
+  	  :left-fringe-width 5
+  	  ))
+    )
  #+end_src
 * 入力支援
 ** ryo-modal-mode
@@ -479,282 +348,174 @@ emacs lisp はデフォでやってくれているっぽい。
   ;  (meow-setup)
   ;  (meow-global-mode)
   ;  )
-  (add-hook 'emacs-startup-hook #'meow-global-mode)
-       
-  (autoload 'meow-global-mode "meow" nil t)
-  (with-eval-after-load 'meow
-     (meow-normal-define-key
-         '("?" . meow-cheatsheet)
+  ;(add-hook 'emacs-startup-hook #'meow-global-mode)
+  ;     
+  ;(autoload 'meow-global-mode "meow" nil t)
+  ;(with-eval-after-load 'meow
+  ;   (meow-normal-define-key
+  ;       '("?" . meow-cheatsheet)
          ;; Ctrl key;;;;;;;
 
 
                                             ;'("*" . meow-expand-0)
          ;; puni
-         '(", a (" . puni-wrap-round)
-         '(", a [" . puni-wrap-square)
-         '(", a {" . puni-wrap-curly)
-         '(", a <" . puni-wrap-angle)
-         '(", a d" . puni-splice)
-         '(", s l" . puni-slurp-forward)
-         '(", b a" . puni-barf-forward)
+  ;       '(", a (" . puni-wrap-round)
+  ;       '(", a [" . puni-wrap-square)
+  ;       '(", a {" . puni-wrap-curly)
+  ;       '(", a <" . puni-wrap-angle)
+  ;       '(", a d" . puni-splice)
+  ;       '(", s l" . puni-slurp-forward)
+  ;       '(", b a" . puni-barf-forward)
 
-         '("%" . mark-whole-buffer)
+  ;       '("%" . mark-whole-buffer)
 
-         '("=" . meow-expand-9)
-         '("!" . meow-expand-8)
-         '("[" . meow-expand-7)
-         '("]" . meow-expand-6)
-         '("{" . meow-expand-5)
-         '("+" . meow-expand-4)
-         '("}" . meow-expand-3)
-         '(")" . meow-expand-2)
-         '("(" . meow-expand-1)
-         '("1" . digit-argument)
-         '("2" . digit-argument)
-         '("3" . digit-argument)
-         '("4" . digit-argument)
-         '("5" . digit-argument)
-         '("6" . digit-argument)
-         '("7" . digit-argument)
-         '("8" . digit-argument)
-         '("9" . digit-argument)
-         '("0" . digit-argument)
-         '("-" . negativargument)
-         '(";" . meow-reverse)
-         '("*" . meow-inner-of-thing)
-         '("." . meow-bounds-of-thing)
-         '("<" . meow-beginning-of-thing)
-         '(">" . meow-end-of-thing)
-         '("a" . meow-append)
-         '("A" . meow-forward-bracket)
-         '("b" . meow-back-word) ;元はmeow-back-word
-         '("B" . meow-back-symbol)
-         '("c" . meow-swap-grab)
-         '("C" . mc/mark-next-like-this)
-         '("p" . meow-delete)
-         '("P" . meow-backward-delete)
-         '("e" . meow-line)
-         '("E" . meow-goto-line)
-        '("f" . meow-find)
-        '("<escape>" . meow-cancel-selection)
-         '("G" . meow-grab)
-         '("d" . meow-left)
-         '("D" . meow-left-expand)
-         '("i" . meow-insert)
-         '("I" . meow-mark-symbol)
-         '("j" . meow-join)
-         '("k" . meow-kill)
-         '("l" . meow-till)
-         '("m" . meow-block)
-       '("M" . meow-to-block)
-         '("s" . meow-next)
-         '("S" . meow-next-expand)
-         '("o" . meow-open-below)
-         '("O" . meow-open-above)
-         '("t" . meow-prev)
-         '("T" . meow-prev-expand)
-         '("q" . meow-quit)
-         '("Q" . kmacro-start-macro)
-         '("r" . meow-change)
-         '("R" . meow-replace)
-         '("h" . meow-search)
-         '("n" . meow-right)
-         '("N" . meow-right-expand)
-         '("u" . vundo)
-         '("U" . meow-undo-in-selection)
+  ;       '("=" . meow-expand-9)
+  ;       '("!" . meow-expand-8)
+  ;       '("[" . meow-expand-7)
+  ;       '("]" . meow-expand-6)
+  ;       '("{" . meow-expand-5)
+  ;       '("+" . meow-expand-4)
+  ;       '("}" . meow-expand-3)
+  ;       '(")" . meow-expand-2)
+  ;       '("(" . meow-expand-1)
+  ;       '("1" . digit-argument)
+  ;       '("2" . digit-argument)
+  ;       '("3" . digit-argument)
+  ;       '("4" . digit-argument)
+  ;       '("5" . digit-argument)
+  ;       '("6" . digit-argument)
+  ;       '("7" . digit-argument)
+  ;       '("8" . digit-argument)
+  ;       '("9" . digit-argument)
+  ;       '("0" . digit-argument)
+  ;       '("-" . negativargument)
+  ;       '(";" . meow-reverse)
+  ;       '("*" . meow-inner-of-thing)
+  ;       '("." . meow-bounds-of-thing)
+  ;       '("<" . meow-beginning-of-thing)
+  ;      '(">" . meow-end-of-thing)
+  ;       '("a" . meow-append)
+  ;       '("A" . meow-forward-bracket)
+  ;       '("b" . meow-back-word) ;元はmeow-back-word
+  ;       '("B" . meow-back-symbol)
+  ;       '("c" . meow-swap-grab)
+  ;       '("C" . mc/mark-next-like-this)
+  ;       '("p" . meow-delete)
+  ;       '("P" . meow-backward-delete)
+  ;       '("e" . meow-line)
+  ;       '("E" . meow-goto-line)
+  ;      '("f" . meow-find)
+  ;      '("<escape>" . meow-cancel-selection)
+  ;       '("G" . meow-grab)
+  ;       '("d" . meow-left)
+  ;       '("D" . meow-left-expand)
+  ;       '("i" . meow-insert)
+  ;       '("I" . meow-mark-symbol)
+  ;       '("j" . meow-join)
+  ;       '("k" . meow-kill)
+  ;       '("l" . meow-till)
+  ;       '("m" . meow-block)
+  ;     '("M" . meow-to-block)
+  ;       '("s" . meow-next)
+  ;       '("S" . meow-next-expand)
+  ;       '("o" . meow-open-below)
+  ;       '("O" . meow-open-above)
+  ;       '("t" . meow-prev)
+  ;       '("T" . meow-prev-expand)
+  ;       '("q" . meow-quit)
+  ;       '("Q" . kmacro-start-macro)
+  ;       '("r" . meow-change)
+  ;       '("R" . meow-replace)
+  ;       '("h" . meow-search)
+  ;       '("n" . meow-right)
+  ;       '("N" . meow-right-expand)
+  ;       '("u" . vundo)
+  ;       '("U" . meow-undo-in-selection)
                                            ;'("v" . meow-visit)
-         '("v i" . meow-inner-of-thing) ;; Inner
-       '("v a" . meow-bounds-of-thing) ;; Arround
-        '("v b" . meow-block) ;; Block
-        '("v c" . puni-mark-list-around-point) ;; Contents
-         '("v x" . puni-mark-sexp-around-point) ;; eXpression
-        '("v l" . meow-line) ;; Line
-         '("v s" . meow-mark-symbol) ;; Symbol
-         '("v w" . meow-mark-word) ;; Word
-         '("v v" . puni-expand-region) ;; Expand
-         '("v r" . rectangle-mark-mode) ;; Rectangle
-         '("w" . meow-next-word)
-         '("W" . meow-next-symbol)
-         '("x" . meow-save)
-         '("X" . meow-sync-grab)
-         '("y" . meow-yank)
-         '("z" . meow-pop-selection)
-         '("'" . repeat)
+  ;       '("v i" . meow-inner-of-thing) ;; Inner
+  ;     '("v a" . meow-bounds-of-thing) ;; Arround
+  ;      '("v b" . meow-block) ;; Block
+  ;      '("v c" . puni-mark-list-around-point) ;; Contents
+  ;       '("v x" . puni-mark-sexp-around-point) ;; eXpression
+  ;      '("v l" . meow-line) ;; Line
+  ;       '("v s" . meow-mark-symbol) ;; Symbol
+  ;       '("v w" . meow-mark-word) ;; Word
+  ;       '("v v" . puni-expand-region) ;; Expand
+  ;       '("v r" . rectangle-mark-mode) ;; Rectangle
+  ;       '("w" . meow-next-word)
+  ;       '("W" . meow-next-symbol)
+  ;       '("x" . meow-save)
+  ;       '("X" . meow-sync-grab)
+  ;       '("y" . meow-yank)
+  ;       '("z" . meow-pop-selection)
+  ;       '("'" . repeat)
         ;'("g" . avy-goto-char-timer)
-         )   
-    )
+  ;       )   
+  ;  )
 #+end_src
 ** puni
  #+begin_src emacs-lisp :tangle yes
-   (with-eval-after-load 'puni
-   (keymap-global-unset "C-j")
-   (use-package puni
-       :bind
-       ("C-j i" . puni-mark-list-around-point)
-       ("C-j a" . puni-mark-sexp-around-point)
-       ("C-j e" . puni-expand-region)
-       )
-   )
+   ;(with-eval-after-load 'puni
+   ;(keymap-global-unset "C-j")
+   ;(use-package puni
+   ;    :bind
+   ;    ("C-j i" . puni-mark-list-around-point)
+   ;    ("C-j a" . puni-mark-sexp-around-point)
+   ;    ("C-j e" . puni-expand-region)
+   ;    )
+   ;)
+   (require 'puni)
  #+end_src
 
 ** which key
 #+begin_src emacs-lisp :tangle yes
-  ;     (with-eval-after-load 'which-key
-  ;  (use-package which-key
-  ;      :config
-  ;      (which-key-mode)
-  ;      )
-  ;)
   (add-hook 'emacs-startup-hook #'which-key-mode)
   (autoload 'which-key-mode "which-key" nil t)
 #+end_src
 ** vundo
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package vundo
-  ;  :bind
-  ;  ("C-r" . vundo)
-  ;  (:map vundo-mode-map
-  ;   ("d" . vundo-backward)
-  ;   ("n" . vundo-forward)
-  ;   ("s" . vundo-next)
-  ;   ("t" . vundo-previous)
-  ;   ("b" . vundo-diff)
-  ;  )
-  ;)
   (autoload 'vundo "vundo" nil t)
   (with-eval-after-load 'vundo
-     (keymap-set vundo-mode-map "d" 'vundo-backward)
-     (keymap-set vundo-mode-map "n" 'vundo-forward)
-     (keymap-set vundo-mode-map "s" 'vundo-next)
-     (keymap-set vundo-mode-map "t" 'vundo-previous)
-     (keymap-set vundo-mode-map "b" 'vundo-diff)
+    (keymap-set vundo-mode-map "d" 'vundo-backward)
+    (keymap-set vundo-mode-map "n" 'vundo-forward)
+    (keymap-set vundo-mode-map "s" 'vundo-next)
+    (keymap-set vundo-mode-map "t" 'vundo-previous)
+    (keymap-set vundo-mode-map "b" 'vundo-diff)
     ) 
 
 #+end_src
 ** dmacro
 #+begin_src emacs-lisp :tangle yes
-     (with-eval-after-load 'dmacro
-  (use-package dmacro
+  (with-eval-after-load 'dmacro
+    (use-package dmacro
+      )
+  					;:custom `((dmacro-key . ,(kbd "C-b")))  ;; C-b を dmacro のキーにする
+  					;:global-minor-mode global-dmacro-mode
+    (defun my-indent-rigidly-right-to-tab-stop (beg end)
+      "Indent all lines between BEG and END rightward to a tab stop and keep the region active."
+      (interactive "r")
+      (let ((deactivate-mark nil))  ; 選択範囲を解除しない
+        (indent-rigidly-right-to-tab-stop beg end)))
+
+    (global-set-key (kbd "C->") 'my-indent-rigidly-right-to-tab-stop)
+    (defun select-to-end-of-buffer ()
+      "Select from the current point to the end of the buffer."
+      (interactive)
+      (set-mark (point)) ;; 現在のポイントをマークに設定
+      (goto-char (point-max))) ;; バッファ末尾に移動
+    (global-set-key (kbd "M->") 'select-to-end-of-buffer)
     )
-    ;:custom `((dmacro-key . ,(kbd "C-b")))  ;; C-b を dmacro のキーにする
-    ;:global-minor-mode global-dmacro-mode
-  (defun my-indent-rigidly-right-to-tab-stop (beg end)
-    "Indent all lines between BEG and END rightward to a tab stop and keep the region active."
-    (interactive "r")
-    (let ((deactivate-mark nil))  ; 選択範囲を解除しない
-      (indent-rigidly-right-to-tab-stop beg end)))
-
-  (global-set-key (kbd "C->") 'my-indent-rigidly-right-to-tab-stop)
-  (defun select-to-end-of-buffer ()
-    "Select from the current point to the end of the buffer."
-    (interactive)
-    (set-mark (point)) ;; 現在のポイントをマークに設定
-    (goto-char (point-max))) ;; バッファ末尾に移動
-  (global-set-key (kbd "M->") 'select-to-end-of-buffer)
-  )
-#+end_src
-** shift-selection-mode
-#+begin_src emacs-lisp :tangle yes
-  ; (defun handle-shift-selection ()
-  ;   "Activate/deactivate mark depending on invocation thru shift translation.
-  ; This function behaves opposite to the original: it activates the
-  ; mark when Shift is NOT pressed, and deactivates it when Shift is
-  ; pressed."
-  ;   (cond ((and (eq shift-select-mode 'permanent)
-  ;               (not this-command-keys-shift-translated))
-  ;          (unless mark-active
-  ;            (push-mark nil nil t)))
-  ;         ((and shift-select-mode
-  ;               (not this-command-keys-shift-translated))
-  ;          (unless (and mark-active
-  ; 		      (eq (car-safe transient-mark-mode) 'only))
-  ; 	   (setq-local transient-mark-mode
-  ;                        (cons 'only
-  ;                              (unless (eq transient-mark-mode 'lambda)
-  ;                                transient-mark-mode)))
-  ;            (push-mark nil nil t)))
-  ;         ((eq (car-safe transient-mark-mode) 'only)
-  ;          (setq transient-mark-mode (cdr transient-mark-mode))
-  ;          (if (eq transient-mark-mode (default-value 'transient-mark-mode))
-  ;              (kill-local-variable 'transient-mark-mode))
-  ;          (deactivate-mark))))
-  ; (defun open-below()
-  ;   "Open a newline and move cursor"
-  ;   (interactive)
-  ;   (goto-char (line-end-position))
-  ;   (newline-and-indent)
-  ;   )
-  ; (defun select-current-line ()
-  ; "Select the current line."
-  ; (interactive)
-  ; (let ((start (line-beginning-position))
-  ;       (end (line-end-position)))
-  ;   (set-mark start)
-  ;   (goto-char (min (point-max) (+ 1 end)))))
-  ; (defun quit-and-back ()
-  ;   "Quit current buffer and back prev buffer"
-  ;   (interactive)
-  ;   (if (> (seq-length (window-list (selected-frame)))1)
-  ;       (previous-buffer
-  ;        ))
-  ;   )
-  ; (defun quit-and-back ()
-  ;   "Quit current buffer and go back to previous buffer."
-  ;   (interactive)
-  ;   (if (> (length (window-list)) 1)
-  ;       (progn
-  ;         (bury-buffer)
-  ;         (previous-buffer))
-  ;     (kill-buffer (current-buffer))))
-  ; (defun consult-line-literal ()
-  ; (interactive)
-  ; (let ((completion-styles '(orderless))
-  ;       (orderless-matching-styles '(orderless-literal))
-  ;       (completion-category-defaults nil)
-  ;       (completion-category-overrides nil))
-  ;   (consult-line)))
-  ; (set-frame-parameter (window-frame) 'cursor-type 'bar)
-  ; (define-key input-decode-map (kbd "C-i") [contorol-i])
-  ; (keymap-global-set "C-d" 'backward-char)
-  ; (keymap-global-set "C-f" 'consult-line-literal)
-  ; (global-set-key [contorol-i]  'avy-goto-char-timer)
-  ; (keymap-global-set "C-k" 'select-current-line)
-  ; (keymap-global-set "C-n" 'forward-char)
-  ; (keymap-global-set "C-o" 'open-below)
-  ; (keymap-global-set "C-t" 'previous-line)
-  ; (keymap-global-set "C-s" 'next-line);;;
-
 #+end_src
 ** multiple-cursors
 #+begin_src emacs-lisp :tangle yes
-       (with-eval-after-load 'multiple-cursors
+  (with-eval-after-load 'multiple-cursors
     (use-package multiple-cursors
       )
     )
 #+end_src
-* タイマーを利用した疑似非同期
-#+begin_src  emacs-lisp :tangle yes
-  (defvar my-delayed-configurations nil)
-
-  ;; 0.1 秒ずつ間隔を開けながら消化
-  (defvar my-delayed-configuration-timer nil)
-  (add-hook 'after-init-hook
-            (lambda ()
-              (setq my-delayed-configuration-timer
-                    (run-with-timer
-                      0.1 0.1 ; 0.1 秒ごとに
-                      (lambda ()
-                        (if my-delayed-configurations ; まだやることがあれば
-                            (eval (pop my-delayed-configurations)) ; 一個やる
-                          (cancel-timer my-delayed-configuration-timer)))))))
-  (defmacro with-delayed-execution (&rest body)
-    (declare (indent 0))
-    `(push ',(cons 'progn body) my-delayed-configurations))
-#+end_src
 * ミニバッファ補完
 ** vercico
 #+begin_src emacs-lisp :tangle yes
-  ;(fido-vertical-mode +1)
   (autoload 'vertico-mode "vertico-autoloads" nil t)
 
   (add-hook 'emacs-startup-hook #'vertico-mode)
@@ -766,14 +527,8 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** marginalia
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package marginalia
-  ;    :config
-  					;    (marginalia-mode))
-
-
   (autoload 'marginalia-mode "marginalia" nil t)
   (add-hook 'emacs-startup-hook #'marginalia-mode)
-         
 #+end_src
 ** orderless
 #+begin_src emacs-lisp :tangle yes
@@ -802,33 +557,11 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** consult
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package consult
-  ;      :bind
-  ;      ("C-x b" . consult-buffer)
-  ;   )
   (autoload 'consult-buffer "consult")
   (keymap-global-set "C-x b" 'consult-buffer)
-        #+end_src
+  #+end_src
 ** affe
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package affe
-  ;  :after consult
-  ;  :init
-  ;  (defun affe-find-home ()
-  ;    "Affeをホームルートから実行する"
-  ;    (interactive)
-  ;    (affe-find "~")
-  ;    )
-  ;  :bind
-  ;  ("M-g f" . affe-find)
-  ;  ("M-g h" . affe-find-home)
-  ;  ("M-g g" . affe-grep)
-  ;  :custom
-  ;  (affe-highlight-function  'orderless-highlight-matches)
-  ;  (affe-find-command  "fd --color=never --full-path")
-  ;  )
-
-
   (autoload 'affe-find "affe" nil t)
   (autoload 'affe-find-home "affe" nil t)
   (autoload 'affe-grep "affe" nil t)
@@ -914,10 +647,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * キーバインディング
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package keymap
-  ;  :bind
-  ;  ("C-q" . scroll-down-command) ;元々M-vだったが、入力しにくいので、そっちをvterm-toggleにした
-  ;  )
   (keymap-global-set "C-q"  'scroll-down-command) ;元々M-vだったが、入力しにくいので、そっちをvterm-toggleにした
 #+end_src
 * ellama
@@ -992,24 +721,6 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes
-    ;(require 'yasnippet)
-    ;(yas-global-mode 1)
-    ;(require 'lsp-bridge)
-    ;(global-lsp-bridge-mode)
-    ;(setq lsp-bridge-nix-lsp-server "nil")
-    ;(setq lsp-bridge-enable-with-tramp t)
-    ;(setq lsp-bridge-remote-start-automatically t)
-    ;(setq lsp-bridge-enable-search-words nil)
-    ;(setq lsp-bridge-auto-format-code t)
-    ;(setq lsp-bridge-auto-format-code-idle 10)
-    ;(setq lsp-bridge-enable-org-babel t)
-    ;(setq lsp-bridge-enable-hover-diagnostic t)
-    ;(setq acm-enable-tabnine nil)
-    ;(setq acm-enable-search-file-words nil)
-    ;(setq acm-enable-ctag nil)
-    ;(setq acm-enable-telega nil)
-    ;(setq lsp-bridge-log-level "debug")
-
     (add-hook 'emacs-startup-hook #'global-lsp-bridge-mode)
     (autoload 'global-lsp-bridge-mode "lsp-bridge")
     (with-eval-after-load 'lsp-bridge
@@ -1078,9 +789,9 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * lsp-ui
 #+begin_src emacs-lisp :tangle yes
-  (autoload 'lsp-ui-mode "lsp-ui" nil t)
-  (with-eval-after-load 'lsp-mode
-    (add-hook 'lsp-mode-hook #'lsp-ui-mode))
+;  (autoload 'lsp-ui-mode "lsp-ui" nil t)
+;  (with-eval-after-load 'lsp-mode
+;    (add-hook 'lsp-mode-hook #'lsp-ui-mode))
 #+end_src
 * tmampのread-only問題への対処
 #+begin_src emacs-lisp :tangle yes
@@ -1103,10 +814,10 @@ emacs lisp はデフォでやってくれているっぽい。
   ;  )
 
   (autoload 'nix-ts-mode "nix-ts-mode" nil t)
-  ;(with-eval-after-load
-    ;(add-hook 'nix-ts-mode-hook #'nix-fmt-on-save-mode)
+  (with-eval-after-load
+    (add-hook 'nix-ts-mode-hook 'nixfmt-on-save-mode)
     ;(add-hook 'nix-ts-mode-hook 'lsp)
-   ; )
+    )
 #+end_src
 ** yaml
 #+begin_src emacs-lisp :tangle yes
@@ -2025,18 +1736,17 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 * reformatter
 #+begin_src emacs-lisp :tangle yes
-  (with-delayed-execution
-    (use-package reformatter
-        )
-      (reformatter-define nixfmt
-        :program "nixfmt"
-        :args '("-")
-        )
-    ;  (reformatter-define ruff
-    ;    :program "ruff format"
-    ;    :args '("-")
-    ;    )
+  (use-package reformatter
       )
+    (reformatter-define nixfmt
+      :program "nixfmt"
+      :args '("-")
+      )
+  ;  (reformatter-define ruff
+  ;    :program "ruff format"
+  ;    :args '("-")
+  ;    )
+    ;)
 #+end_src
 * aggressive-inden
 * プログラミング支援
