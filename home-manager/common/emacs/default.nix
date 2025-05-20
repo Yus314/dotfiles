@@ -20,7 +20,79 @@ in
         withXwidgets = true;
       };
       extraEmacsPackages =
-        epkgs: with epkgs; [
+        epkgs:
+        let
+          packages = pkgs.callPackages ./package.nix { inherit epkgs pkgs; };
+        in
+        with epkgs;
+        [
+          esup
+          smooth-scroll
+          modus-themes
+          perfect-margin
+          nerd-icons
+          nerd-icons-corfu
+          winum
+          centaur-tabs
+          minions
+          moody
+          spacious-padding
+          meow
+          puni
+          which-key
+          vundo
+          dmacro
+          multiple-cursors
+          vertico
+          marginalia
+          orderless
+          consult
+          affe
+          corfu
+          company
+          cape
+          ellama
+          aidermacs
+          lsp-bridge
+          lsp-mode
+          lsp-ui
+          nix-ts-mode
+          yaml-mode
+          rust-mode
+          python-mode
+          lsp-pyright
+          typst-ts-mode
+          packages.typst-preview
+          org-super-agenda
+          org-modern
+          packages.org-modern-indent
+          packages.gcal
+          org-roam
+          org-roam-ui
+          packages.org-roam-review
+          citar
+          diff-hl
+          magit
+          flycheck
+          pdf-tools
+          mistty
+          helpful
+          avy
+          ace-window
+          embark
+          embark-consult
+          go-translate
+          rainbow-delimiters
+          reformatter
+          envrc
+          mu4e
+          dired-narrow
+          nerd-icons-dired
+          vterm
+          vterm-toggle
+          slack
+          packages.ol-emacs-slack
+
           (treesit-grammars.with-grammars (
             p: with p; [
               tree-sitter-elisp
@@ -31,62 +103,21 @@ in
               tree-sitter-typst
             ]
           ))
+        ]
+        ++ [
+          pkgs.texlive.combined.scheme-full
+          pkgs.zathura
+          pkgs.imagemagick
+          pkgs.ghq
+          pkgs.tinymist
 
-          (pkgs.emacsPackages.mu4e)
-          (pkgs.emacsPackages.slack) # stableのバージョンがかなり古いのでunstableを使う
-          (pkgs.texlive.combined.scheme-full)
-          (pkgs.zathura)
-          (pkgs.imagemagick)
-          (pkgs.ghq)
-          vterm
-          (pkgs.tinymist)
-          lsp-bridge
-
-          (pkgs.aider-chat)
-          (pkgs.tree-sitter)
-          (pkgs.emacs-lsp-booster)
+          pkgs.aider-chat
+          pkgs.tree-sitter
+          pkgs.emacs-lsp-booster
           # mu4eのためのパッケッージ
-          (pkgs.xapian)
-          (pkgs.gmime)
-          (pkgs.adwaita-icon-theme)
-          (callPackage ./org-modern-indent.nix {
-            inherit (pkgs) fetchFromGitHub;
-            inherit (epkgs) melpaBuild compat;
-          })
-          # (callPackage ./ol-emacs-slack.nix {
-          # inherit (pkgs) fetchFromGitHub;
-          #  inherit (epkgs) melpaBuild dash s;
-          #})
-          (callPackage ./gcal.nix {
-            inherit (pkgs) fetchFromGitHub;
-            inherit (epkgs) melpaBuild;
-          })
-          (callPackage ./typst-ts-mode.nix {
-            inherit (pkgs) fetchgit;
-            inherit (epkgs) melpaBuild;
-          })
-          (callPackage ./typst-preview.nix {
-            inherit (pkgs) fetchFromGitHub;
-            inherit (epkgs) melpaBuild websocket;
-          })
-          (callPackage ./nursery.nix {
-            inherit (pkgs) fetchFromGitHub;
-            inherit (epkgs)
-              melpaBuild
-              org-roam
-              ht
-              async
-              f
-              consult
-              org-drill
-              pcre2el
-              ts
-              memoize
-              magit
-              dash
-              ;
-          })
-          (pkgs.emacsPackages.aidermacs)
+          pkgs.xapian
+          pkgs.gmime
+          pkgs.adwaita-icon-theme
         ];
     };
   };
