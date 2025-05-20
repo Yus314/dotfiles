@@ -33,5 +33,7 @@
     aider-chat # AI pair programming tool in your terminal
     cachix
     code-cursor
+    slack
+    zoom-us
   ];
 }

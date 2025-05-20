@@ -13,8 +13,10 @@
     pkgs.vim
     pkgs.gnupg
     pkgs.pinentry_mac
+    pkgs.cloudflared
     #pkgs.brewCasks.dropbox
     #pkgs.brewCasks.aquaskk
+    #pkgs.brewCasks.zoom
   ];
   ids.gids.nixbld = 350;
 
