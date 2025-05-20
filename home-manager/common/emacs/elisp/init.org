@@ -7,7 +7,6 @@
 #+end_src
 * パッケージを読み込まないようにする
 #+begin_src emacs-lisp :tangle yes
-  (setq package-enable-at-startup nil)
    (setopt use-package-ensure-function '(lambda (&rest args) t))
    (require 'profiler) ;; Profiler start removed
    (profiler-start 'cpu) ;; Profiler start removed
@@ -780,8 +779,10 @@ emacs lisp はデフォでやってくれているっぽい。
   :custom
   (lsp-keymap-prefix  "M-p")
   (lsp-log-in  nil) ;パフォーマンスに大きく影響するらしい
+  (lsp-rust-server 'rust-analyzer)
   :hook
   (lsp-mode-hook . lsp-enable-which-key-integration)
+  (rust-mode . lsp)
   ;補完をorderlessで絞れるようにする
   (lsp-completion-mode-hook . (lambda ()
     (setq-local completion-category-defaults
@@ -1576,15 +1577,14 @@ emacs lisp はデフォでやってくれているっぽい。
 
 ** envrc
 #+begin_src emacs-lisp :tangle yes
-  (with-delayed-execution
+
   (use-package envrc
-    :ensure t
-    :custom
-    (envrc-remote  t)
-    :config
-    (envrc-global-mode)
-    )
-  )
+      :ensure t
+      :custom
+      (envrc-remote  t)
+      :config
+      (envrc-global-mode)
+      )
 #+end_src
 ** tramp
 #+begin_src emacs-lisp :tangle yes
