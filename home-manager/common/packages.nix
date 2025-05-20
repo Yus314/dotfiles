@@ -35,5 +35,6 @@
     code-cursor
     slack
     zoom-us
+    nvfetcher
   ];
 }

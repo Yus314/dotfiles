@@ -40,7 +40,7 @@
       bind = [
         "$mainMod SHIFT Control_R, RETURN, exec, tofi-drun | xargs hyprctl dispatch exec --"
         "$mainMod, Q, exec, qutebrowser"
-        "$mainMod, E, exec, emacs"
+        "$mainMod, E, exec, emacsclient -nc"
         "$mainMod, N, movefocus, r"
         "$mainMod, D, movefocus, l"
         "$mainMod, H, movefocus, d"
