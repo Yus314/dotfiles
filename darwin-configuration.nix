@@ -3,6 +3,7 @@
   emacs-overlay,
   org-babel,
   brew-nix,
+  bizin-gothic-discord,
   ...
 }:
 {
@@ -36,6 +37,10 @@ version = "14.13.0";
     };
   });
 })
+];
+fonts.packages =
+[
+bizin-gothic-discord
 ];
 
   imports = [
