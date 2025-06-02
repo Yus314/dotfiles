@@ -1198,38 +1198,38 @@ emacs lisp はデフォでやってくれているっぽい。
 #+end_src
 ** gcal
 #+begin_src emacs-lisp :tangle yes
-  (with-delayed-execution
-    (eval-after-load 'gcal
-      '(eval-after-load 'gcal-org
-         '(progn
-         (setq gcal-client-id  "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
-         (setq gcal-client-secret  "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")
-         (gcal-org-pull-to-file
-      	"shizhaoyoujie@gmail.com"
-      	"~/dropbox/inbox/inbox.org"
-      	"FROM_GCAL"
-      	"~/dropbox/my-schedule.gcal-cache")
-         (gcal-org-push-file
-      	"shizhaoyoujie@gmail.com"
-      	"~/dropbox/inbox/inbox.org"
-      	"~/dropbox/my-schedule.gcal-cache")
+ ; (with-delayed-execution
+ ;   (eval-after-load 'gcal
+ ;     '(eval-after-load 'gcal-org
+ ;        '(progn
+ ;         (setq gcal-client-id  "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
+ ;       (setq gcal-client-secret  "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")
+ ;        (gcal-org-pull-to-file
+ ;     	"shizhaoyoujie@gmail.com"
+ ;     	"~/dropbox/inbox/inbox.org"
+ ;     	"FROM_GCAL"
+ ;     	"~/dropbox/my-schedule.gcal-cache")
+ ;        (gcal-org-push-file
+ ;     	"shizhaoyoujie@gmail.com"
+ ;     	"~/dropbox/inbox/inbox.org"
+ ;     	"~/dropbox/my-schedule.gcal-cache")
 
          ; かなとの予定
-         (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
-      			      "~/dropbox/kana.org"
-      			      "FROM_KANA"
-      			      "~/dropbox/kana-schedule.gcal-cache")
-         (gcal-org-push-file
-    	"3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
-    	"~/dropbox/kana.org"
-    	"~/dropbox/kana-schedule.gcal-cache")
-         )
-         )
-      )
-    )
+ ;        (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+ ;     			      "~/dropbox/kana.org"
+ ;     			      "FROM_KANA"
+ ;     			      "~/dropbox/kana-schedule.gcal-cache")
+ ;        (gcal-org-push-file
+ ;   	"3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+ ;   	"~/dropbox/kana.org"
+ ;   	"~/dropbox/kana-schedule.gcal-cache")
+ ;        )
+ ;        )
+ ;     )
+ ;   )
 
-  (require 'gcal)
-  (require 'gcal-org)
+ ; (require 'gcal)
+ ; (require 'gcal-org)
 #+end_src
 ** org-babel
 #+begin_src emacs-lisp :tangle yes
