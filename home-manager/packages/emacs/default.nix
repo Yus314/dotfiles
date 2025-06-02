@@ -1,112 +1,119 @@
-{pkgs,...}:
+{ pkgs, ... }:
 {
   emacs-unstable = pkgs.emacsWithPackagesFromUsePackage {
-      config = ../../common/emacs/elisp/init.org;
-      defaultInitFile = true;
-      package = pkgs.emacs-unstable-pgtk;
-      alwaysTangle = true;
-      override = final: prev: {
-        withXwidgets = true;
-      };
-          extraEmacsPackages =
-        epkgs:
-let
-  packages = pkgs.callPackages ./package.nix {inherit  epkgs pkgs;};
-in
-  with epkgs; [
-    esup
-    smooth-scroll
-    modus-themes
-    perfect-margin
-    nerd-icons
-    nerd-icons-corfu
-    winum
-    centaur-tabs
-    minions
-    moody
-    spacious-padding
-    meow
-    puni
-    which-key
-    vundo
-    dmacro
-    multiple-cursors
-    vertico
-    marginalia
-    orderless
-    consult
-    affe
-    corfu
-    company
-    cape
-    ellama
-    aidermacs
-    lsp-bridge
-    lsp-mode
-    lsp-ui
-    nix-ts-mode
-    yaml-mode
-    rust-mode
-    python-mode
-    lsp-pyright
-    typst-ts-mode
-    packages.typst-preview
-    org-super-agenda
-    org-modern
-    packages.org-modern-indent
-    packages.gcal
-    org-roam
-    org-roam-ui
-    packages.org-roam-review
-    citar
-    diff-hl
-    magit
-    flycheck
-    pdf-tools
-    mistty
-    helpful
-    avy
-    ace-window
-    embark
-    embark-consult
-    go-translate
-    rainbow-delimiters
-    reformatter
-    envrc
-    mu4e
-    dired-narrow
-    nerd-icons-dired
-    vterm
-    vterm-toggle
-    slack
-    packages.ol-emacs-slack
-
-          (treesit-grammars.with-grammars (
-            p: with p; [
-              tree-sitter-elisp
-              tree-sitter-nix
-              tree-sitter-yaml
-              tree-sitter-rust
-              tree-sitter-python
-              tree-sitter-typst
-            ]
-          ))
-  ]
-      ++
+    config = ../../common/emacs/elisp/init.org;
+    defaultInitFile = true;
+    package = pkgs.emacs-unstable-pgtk;
+    alwaysTangle = true;
+    override = final: prev: {
+      withXwidgets = true;
+    };
+    extraEmacsPackages =
+      epkgs:
+      let
+        packages = pkgs.callPackages ./package.nix { inherit epkgs pkgs; };
+        my_rustic = epkgs.rustic.overrideAttrs (
+          finalAttrs: previousAttrs: {
+            packagesRequires = previousAttrs.packageRequires ++ [ epkgs.flycheck ];
+          }
+        );
+      in
+      with epkgs;
       [
-	  pkgs.texlive.combined.scheme-full
-          pkgs.zathura
-          pkgs.imagemagick
-          pkgs.ghq
-          pkgs.tinymist
+        esup
+        smooth-scroll
+        modus-themes
+        perfect-margin
+        nerd-icons
+        nerd-icons-corfu
+        winum
+        centaur-tabs
+        minions
+        moody
+        spacious-padding
+        meow
+        puni
+        which-key
+        vundo
+        dmacro
+        multiple-cursors
+        vertico
+        marginalia
+        orderless
+        consult
+        affe
+        corfu
+        company
+        cape
+        ellama
+        aidermacs
+        lsp-bridge
+        lsp-mode
+        lsp-ui
+        nix-ts-mode
+        yaml-mode
+        rust-mode
+        my_rustic
+        python-mode
+        lsp-pyright
+        typst-ts-mode
+        packages.typst-preview
+        org-super-agenda
+        org-modern
+        packages.org-modern-indent
+        packages.gcal
+        org-roam
+        org-roam-ui
+        packages.org-roam-review
+        citar
+        diff-hl
+        magit
+        flycheck
+        pdf-tools
+        mistty
+        helpful
+        avy
+        ace-window
+        embark
+        embark-consult
+        go-translate
+        rainbow-delimiters
+        reformatter
+        apheleia
+        envrc
+        mu4e
+        dired-narrow
+        nerd-icons-dired
+        vterm
+        vterm-toggle
+        slack
+        packages.ol-emacs-slack
 
-          pkgs.aider-chat
-          pkgs.tree-sitter
-          pkgs.emacs-lsp-booster
-          # mu4eのためのパッケッージ
-          pkgs.xapian
+        (treesit-grammars.with-grammars (
+          p: with p; [
+            tree-sitter-elisp
+            tree-sitter-nix
+            tree-sitter-yaml
+            tree-sitter-rust
+            tree-sitter-python
+            tree-sitter-typst
+          ]
+        ))
+      ]
+      ++ [
+        pkgs.texlive.combined.scheme-full
+        pkgs.zathura
+        pkgs.imagemagick
+        pkgs.ghq
+        pkgs.tinymist
+
+        pkgs.aider-chat
+        pkgs.tree-sitter
+        pkgs.emacs-lsp-booster
+        # mu4eのためのパッケッージ
+        pkgs.xapian
         pkgs.gmime
-	pkgs.adwaita-icon-theme
+        pkgs.adwaita-icon-theme
       ];
-      };
+  };
 }

@@ -23,6 +23,12 @@ in
         epkgs:
         let
           packages = pkgs.callPackages ./package.nix { inherit epkgs pkgs; };
+          my_rustic = epkgs.rustic.overrideAttrs (
+            finalAttrs: previousAttrs: {
+              packagesRequires = previousAttrs.packageRequires ++ [ epkgs.flycheck ];
+            }
+          );
+
         in
         with epkgs;
         [
@@ -59,6 +65,7 @@ in
           nix-ts-mode
           yaml-mode
           rust-mode
+          my_rustic
           python-mode
           lsp-pyright
           typst-ts-mode
@@ -84,6 +91,7 @@ in
           go-translate
           rainbow-delimiters
           reformatter
+          apheleia
           envrc
           mu4e
           dired-narrow
