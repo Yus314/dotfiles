@@ -1,3 +1,3 @@
 build:
-	nix run nix-darwin -- switch --flake ~/dotfiles
+	sudo nix run nix-darwin -- switch --flake ~/dotfiles
 

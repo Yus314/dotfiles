@@ -3,6 +3,7 @@
   emacs-overlay,
   org-babel,
   brew-nix,
+  bizin-gothic-discord,
   ...
 }:
 {
@@ -13,8 +14,10 @@
     pkgs.vim
     pkgs.gnupg
     pkgs.pinentry_mac
+    pkgs.cloudflared
     #pkgs.brewCasks.dropbox
     #pkgs.brewCasks.aquaskk
+    #pkgs.brewCasks.zoom
   ];
    ids.gids.nixbld = 350;
    
@@ -34,6 +37,10 @@ version = "14.13.0";
     };
   });
 })
+];
+fonts.packages =
+[
+bizin-gothic-discord
 ];
 
   imports = [
