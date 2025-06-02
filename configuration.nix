@@ -27,6 +27,9 @@
       keyFile = "/home/kaki/.config/sops/age/keys.txt";
       generateKey = true;
     };
+    #gnupg = {
+    #  home = "home/kaki/.gnupg";
+    #};
     secrets = {
       gh-token = { };
       "dropbox/token/access_token" = { };
