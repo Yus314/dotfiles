@@ -68,7 +68,9 @@
     }@inputs:
     let
       tmp_pkgs = import nixpkgs { system = "x86_64-linux"; };
+      tmp_pkgs2 = import nixpkgs { system = "aarch64-darwin"; };
       bizin-gothic-discord = tmp_pkgs.callPackage ./bizin.nix { };
+      bizin-gothic-discord2 = tmp_pkgs2.callPackage ./bizin.nix { };
       xremap = tmp_pkgs.callPackage ./xremap.nix { };
     in
     {
@@ -135,6 +137,7 @@
           inherit emacs-overlay;
           inherit org-babel;
 	  inherit brew-nix;
+	  bizin-gothic-discord =  bizin-gothic-discord2;
         };
       };
     };
