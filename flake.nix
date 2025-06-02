@@ -82,6 +82,7 @@
           modules = [
             ./lab-main-configuration.nix
             home-manager.nixosModules.home-manager
+            sops-nix.nixosModules.sops
           ];
           specialArgs = {
             #   unstable = import unstable {
