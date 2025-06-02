@@ -16,8 +16,8 @@
     #pkgs.brewCasks.dropbox
     #pkgs.brewCasks.aquaskk
   ];
-  ids.gids.nixbld = 350;
-
+   ids.gids.nixbld = 350;
+   
   # Auto upgrade nix package and the daemon service.
   nix.package = pkgs.nix;
   nixpkgs.hostPlatform = "aarch64-darwin";
