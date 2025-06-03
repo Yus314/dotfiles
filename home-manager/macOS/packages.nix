@@ -1,4 +1,4 @@
 { pkgs, ... }:
 {
-  home.packages = with pkgs; [ skimpdf ];
+  home.packages = with pkgs; [ skimpdf google-chrome ];
 }

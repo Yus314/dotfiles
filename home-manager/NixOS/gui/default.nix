@@ -8,5 +8,6 @@
     ./browser.nix
     ./foot.nix
     ./tofi.nix
+    ../../../service/emacs
   ];
 }
