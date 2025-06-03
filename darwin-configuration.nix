@@ -2,18 +2,46 @@
   pkgs,
   emacs-overlay,
   org-babel,
+  brew-nix,
+  bizin-gothic-discord,
   ...
 }:
 {
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
-  environment.systemPackages = [ pkgs.vim ];
-  ids.gids.nixbld = 30000;
-
+   brew-nix.enable = true;
+  environment.systemPackages = [
+    pkgs.vim
+    pkgs.gnupg
+    pkgs.pinentry_mac
+    pkgs.cloudflared
+    #pkgs.brewCasks.dropbox
+    #pkgs.brewCasks.aquaskk
+    #pkgs.brewCasks.zoom
+  ];
+   ids.gids.nixbld = 350;
+   
   # Auto upgrade nix package and the daemon service.
   nix.package = pkgs.nix;
   nixpkgs.hostPlatform = "aarch64-darwin";
   security.pam.services.sudo_local.touchIdAuth = true;
+nixpkgs.config.allowBroken = true;
+nixpkgs.overlays = [
+(self: super: {
+karabiner-elements = super.karabiner-elements.overrideAttrs (old: {
+version = "14.13.0";
+
+    src = super.fetchurl {
+      inherit (old.src) url;
+      hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
+    };
+  });
+})
+];
+fonts.packages =
+[
+bizin-gothic-discord
+];
 
   imports = [
     ./home-manager/macOS/yabai.nix
@@ -26,25 +54,39 @@
   #  noto-fonts-emoji
   #  nerdfonts
   #];
-  #home-manager.users.kakinumayuusuke = import ./home-manager/home.nix;
+  #home-manager.users.kotsu = import ./home-manager/home.nix;
   nix.settings = {
     experimental-features = [
       "nix-command"
       "flakes"
     ];
   };
+  programs.gnupg = {
+    agent = {
+      enable = true;
+    };
+  };
+   services.karabiner-elements = {
+     enable = true;
+     };
   home-manager = {
     #useGlobalPkgs = true;
-    users.kakinumayuusuke = {
+    users.kotsu = {
       imports = [
         ./home-manager/common
         ./home-manager/macOS
       ];
       home = {
-        username = "kakinumayuusuke";
-        homeDirectory = "/Users/kakinumayuusuke";
+        username = "kotsu";
+        homeDirectory = "/Users/kotsu";
         stateVersion = "25.05";
       };
+      home.file.".gnupg/gpg-agent.conf".text = ''
+        pinentry-program ${pkgs.pinentry_mac}/Applications/pinentry-mac.app/Contents/MacOS/pinentry-mac
+        default-cache-ttl 34560000
+        max-cache-ttl 34560000
+      '';
+
       nixpkgs.config.allowUnfree = true;
       nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
     };
@@ -55,16 +97,16 @@
   users = {
 
     users = {
-      kakinumayuusuke = {
+      kotsu = {
         shell = pkgs.zsh;
-        home = "/Users/kakinumayuusuke";
+        home = "/Users/kotsu";
       };
     };
   };
-  nix-homebrew = {
-    enable = true;
-    enableRosetta = true;
-    user = "kakinumayuusuke";
-  };
+  #nix-homebrew = {
+   # enable = true;
+   # enableRosetta = true;
+   # user = "kotsu";
+  #};
   system.stateVersion = 5;
 }

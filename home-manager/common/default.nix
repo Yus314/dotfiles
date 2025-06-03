@@ -22,5 +22,6 @@
     ./emacs
     ./neomutt.nix
     ./offlineimap.nix
+    ./kitty.nix
   ];
 }

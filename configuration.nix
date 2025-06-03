@@ -27,6 +27,9 @@
       keyFile = "/home/kaki/.config/sops/age/keys.txt";
       generateKey = true;
     };
+    #gnupg = {
+    #  home = "home/kaki/.gnupg";
+    #};
     secrets = {
       gh-token = { };
       "dropbox/token/access_token" = { };
@@ -108,6 +111,7 @@
     path = [ pkgs.mu ];
   };
   services.onedrive.enable = true;
+  # たぶんxremapのため
   boot.kernelModules = [ "uinput" ];
   services.udev.extraRules = ''
     KERNEL=="uinput", GROUP="input", TAG+="uaccess"
@@ -167,6 +171,7 @@
       inherit xremap;
       inherit org-babel;
     };
+
   };
   security.polkit.enable = true;
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
