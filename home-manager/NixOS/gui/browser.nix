@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   programs.vivaldi = {
-    enable = true;
+    enable = false;
 
     package = pkgs.vivaldi;
     commandLineArgs = [
