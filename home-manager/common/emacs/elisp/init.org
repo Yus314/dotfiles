@@ -900,7 +900,8 @@ Waylandでペーストできるようにする設定
    ;(use-package python-mode
    ;  )
    (autoload 'python-mode "python-mode" nil t)
-   (add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
+  (autoload 'python-ts-mode "python-mode" nil t)
+   (add-to-list 'auto-mode-alist '("\\.py$" . python-ts-mode))
   ; (add-hook 'python-ts-mode-hook (lambda ()
   ; 				  (require 'lsp-pyright)
   ; 				  (lsp)))
