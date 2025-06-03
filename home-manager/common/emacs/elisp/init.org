@@ -142,7 +142,7 @@ Waylandでペーストできるようにする設定
   	(nix-mode  nix-ts-mode)
   					;  (emacs-lisp-mode . emacs-lisp-ts-mode)
   	(yaml-mode  yaml-ts-mode)
-  	(python-mode  python-ts-mode)
+;  	(python-mode  python-ts-mode)
   	)
         )
 #+end_src
@@ -899,9 +899,10 @@ Waylandでペーストできるようにする設定
      ;  )
    ;(use-package python-mode
    ;  )
-   (autoload 'python-mode "python-mode" nil t)
-  (autoload 'python-ts-mode "python-mode" nil t)
-   (add-to-list 'auto-mode-alist '("\\.py$" . python-ts-mode))
+ ;  (autoload 'python-mode "python-mode" nil t)
+ ; (autoload 'python-ts-mode "python-mode" nil t)
+ ;  (add-to-list 'auto-mode-alist '("\\.py$" . python-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
   ; (add-hook 'python-ts-mode-hook (lambda ()
   ; 				  (require 'lsp-pyright)
   ; 				  (lsp)))
@@ -910,11 +911,10 @@ Waylandでペーストできるようにする設定
   ;   :hook (python-ts-mode . (lambda ()
   ;                           (require 'lsp-pyright)
   ;                           (lsp))))  ; or lsp-deferred
-  (with-eval-after-load 'lsp-mode
     (add-hook 'python-ts-mode-hook
   	    (lambda ()
   	      (require 'lsp-pyright)
-  	      (lsp))))
+  	      (lsp)))
   (with-eval-after-load 'lsp-pyright
     (setq lsp-pyright-langserver-command "pyright")
     )
