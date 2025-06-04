@@ -530,7 +530,8 @@ Waylandでペーストできるようにする設定
   (with-eval-after-load 'vertico
 
     (setopt vertico-count 8)
-    (setopt vertico-cycle t))
+    (setopt vertico-cycle t)
+    (keymap-set vertico-map "DEL" 'vertico-directory-delete-char))
 #+end_src
 ** marginalia
 #+begin_src emacs-lisp :tangle yes
