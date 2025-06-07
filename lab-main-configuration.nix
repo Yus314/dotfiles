@@ -21,8 +21,21 @@
   ];
   fonts.packages = [ bizin-gothic-discord ];
   fonts.fontDir.enable = true;
+  programs.gnupg.agent = {
+    enable = true;
+  };
+  sops = {
+    gnupg = {
+      home = "~/.gnupg";
+    };
+    defaultSopsFile = ./secrets/default.yaml;
+    secrets = {
+      cloudflared-tunnel-cert = {
+        sopsFile = ./secrets/cloudflare.yaml;
+      };
+    };
+  };
 
-  console.keyMap = "dvorak";
   users.users.Cloudflared = {
     group = "wheel";
     isSystemUser = true;
@@ -42,6 +55,8 @@
     wantedBy = [ "multi-user.target" ];
     after = [ "network.target" ];
     serviceConfig = {
+      TimeOutStartSec = 0;
+      Type = "notify";
       ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel --no-autoupdate run --token=eyJhIjoiZTU4ODdmZDg4NDFmZjRmZDQzZTQ2Y2QxZTAxYjM4MDkiLCJ0IjoiMGMzYzdiNmQtZDY1Yy00MTM0LWJiY2QtMzkzMDM4M2M4OGQ3IiwicyI6IllXTTNaalppTmpFdFpEZzJZUzAwTm1JMExUazJZekV0T0dKbE5HTTBOemRoTVRoaiJ9";
       Restart = "always";
       User = "kaki";
@@ -49,6 +64,32 @@
     };
   };
 
+  systemd.user.services.remap = {
+    enable = true;
+    wantedBy = [ "default.target" ];
+    # after = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "exec";
+      TimeOutStartSec = 30;
+      WorkingDirectory = "/home/kaki";
+      StandardOutput = "journal";
+      ExecStart = "${xremap}/bin/xremap /home/kaki/.config/xremap/config.yaml";
+
+      Restart = "always";
+    };
+
+  };
+
+  services.cloudflared = {
+    enable = true;
+    tunnels."d2bb7add-9929-4016-a839-0e03a71bdb14" = {
+      credentialsFile = "${config.sops.secrets.cloudflared-tunnel-cert.path}";
+      default = "http_status:404";
+      ingress = {
+        "test.mdip2home.com" = "ssh://localhost:22";
+      };
+    };
+  };
   # Bootloader
   nix = {
     settings = {
@@ -65,6 +106,10 @@
       ];
     };
   };
+  #boot.kernelModules = ["uinput"];
+  services.udev.extraRules = ''
+    KERNEL=="uinput", GROUP="input", TAG+="uaccess"
+  '';
   virtualisation.docker = {
     enable = true;
     enableNvidia = true;
@@ -109,7 +154,10 @@
     r8125
     nvidia_x11
   ];
-  boot.kernelModules = [ "r8125" ];
+  boot.kernelModules = [
+    "r8125"
+    "uinput"
+  ];
   boot.initrd.kernelModules = [ "nvidia" ];
   boot.loader.systemd-boot.configurationLimit = 14;
   hardware.graphics = {
@@ -190,6 +238,7 @@
       "networkmanager"
       "wheel"
       "docker"
+      "input"
     ];
     packages = with pkgs; [
       firefox
