@@ -36,5 +36,6 @@
     slack
     zoom-us
     nvfetcher
+    discord
   ];
 }

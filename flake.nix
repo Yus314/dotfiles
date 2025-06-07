@@ -34,7 +34,7 @@
     impermanence.url = "github:nix-community/impermanence";
     flake-parts.url = "github:hercules-ci/flake-parts";
     cachix-deploy-flake.url = "github:cachix/cachix-deploy-flake";
-        brew-nix = {
+    brew-nix = {
       # for local testing via `nix flake check` while developing
       #url = "path:../";
       url = "github:BatteredBunny/brew-nix";
@@ -66,79 +66,73 @@
       brew-api,
       ...
     }@inputs:
-    let
-      tmp_pkgs = import nixpkgs { system = "x86_64-linux"; };
-      tmp_pkgs2 = import nixpkgs { system = "aarch64-darwin"; };
-      bizin-gothic-discord = tmp_pkgs.callPackage ./bizin.nix { };
-      bizin-gothic-discord2 = tmp_pkgs2.callPackage ./bizin.nix { };
-      xremap = tmp_pkgs.callPackage ./xremap.nix { };
-    in
-    {
-      packages.x86_64-linux.default = tmp_pkgs.callPackage ./bizin.nix { };
-      nixosConfigurations = {
-        home = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            ./configuration.nix
-            home-manager.nixosModules.home-manager
-            sops-nix.nixosModules.sops
-          ];
-          specialArgs = {
-            #            unstable = import unstable {
-            #             system = "x86_64-linux";
-            #             config.allowUnfree = true;
-            #           };
-            inherit emacs-overlay;
-            inherit org-babel;
-            inherit xremap;
-          };
-        };
-        lab-main = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            ./lab-main-configuration.nix
-            home-manager.nixosModules.home-manager
-          ];
-          specialArgs = {
-            #   unstable = import unstable {
-            #     system = "x86_64-linux";
-            #     config.allowUnfree = true;
-            #   };
-            inherit emacs-overlay;
-            inherit org-babel;
-            inherit xremap;
-            inherit bizin-gothic-discord;
-          };
-        };
-        lab-sub = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            ./lab-sub-configuration.nix
-            home-manager.nixosModules.home-manager
-          ];
-          # specialArgs = {
-          # inherit allowed-unfree-packages;
-          # };
+    #let
+    #  tmp_pkgs = import nixpkgs { system = "x86_64-linux"; };
+    #  tmp_pkgs2 = import nixpkgs { system = "aarch64-darwin"; };
+    #  bizin-gothic-discord = tmp_pkgs.callPackage ./bizin.nix { };
+    #  bizin-gothic-discord2 = tmp_pkgs2.callPackage ./bizin.nix { };
+    #  xremap = tmp_pkgs.callPackage ./xremap.nix { };
+    #in
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [
+        "aarch64-darwin"
+        "x86_64-linux"
+      ];
+
+      #packages.x86_64-linux.default = tmp_pkgs.callPackage ./bizin.nix { };
+      flake = {
+        nixosConfigurations = {
+          watari = import ./homes/watari { inherit inputs; };
         };
       };
-      darwinConfigurations."KakinumanoMacBook-Air" = nix-darwin.lib.darwinSystem {
-        system = "aaarch64-darwin";
-        modules = [
-          ./darwin-configuration.nix
-          home-manager.darwinModules.home-manager
-          nix-homebrew.darwinModules.nix-homebrew
-	  brew-nix.darwinModules.default
-        ];
-        specialArgs = {
-          #    unstable = import unstable {
-          #      system = "aarch64-darwin";
-          #      config.allowUnfree = true;
-          #    };
-          inherit emacs-overlay;
-          inherit org-babel;
-	  inherit brew-nix;
-	  bizin-gothic-discord =  bizin-gothic-discord2;
-        };
-      };
+      #nixosConfigurations = {
+
+      # lab-main = nixpkgs.lib.nixosSystem {
+      #   system = "x86_64-linux";
+      #   modules = [
+      #     ./lab-main-configuration.nix
+      #     home-manager.nixosModules.home-manager
+      #   ];
+      #   specialArgs = {
+      #   unstable = import unstable {
+      #     system = "x86_64-linux";
+      #     config.allowUnfree = true;
+      #   };
+      #     inherit emacs-overlay;
+      #     inherit org-babel;
+      # inherit xremap;
+      #inherit bizin-gothic-discord;
+      #  };
+      #};
+      #lab-sub = nixpkgs.lib.nixosSystem {
+      #  system = "x86_64-linux";
+      #  modules = [
+      #    ./lab-sub-configuration.nix
+      #    home-manager.nixosModules.home-manager
+      #  ];
+      # specialArgs = {
+      # inherit allowed-unfree-packages;
+      # };
+      #};
+      #};
+      #darwinConfigurations."KakinumanoMacBook-Air" = nix-darwin.lib.darwinSystem {
+      #  system = "aaarch64-darwin";
+      #  modules = [
+      #    ./darwin-configuration.nix
+      #    home-manager.darwinModules.home-manager
+      #    nix-homebrew.darwinModules.nix-homebrew
+      #    brew-nix.darwinModules.default
+      #  ];
+      #  specialArgs = {
+      #    #    unstable = import unstable {
+      #    #      system = "aarch64-darwin";
+      #    #      config.allowUnfree = true;
+      #    #    };
+      #    inherit emacs-overlay;
+      #    inherit org-babel;
+      #    inherit brew-nix;
+      #    #  bizin-gothic-discord = bizin-gothic-discord2;
+      #  };
+      #};
     };
 }

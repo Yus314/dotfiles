@@ -161,7 +161,7 @@
       home = {
         username = "kaki";
         homeDirectory = "/home/kaki";
-        stateVersion = "24.11";
+        stateVersion = "25.05";
       };
       nixpkgs.config.allowUnfree = true;
       nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
@@ -171,7 +171,6 @@
       inherit xremap;
       inherit org-babel;
     };
-
   };
   security.polkit.enable = true;
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
@@ -208,5 +207,5 @@
     pinentryPackage = pkgs.pinentry-emacs;
   };
   services.pcscd.enable = true;
-  system.stateVersion = "24.11"; # Did you read the comment?
+  system.stateVersion = "25.05"; # Did you read the comment?
 }
