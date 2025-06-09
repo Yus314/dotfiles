@@ -7,10 +7,11 @@
   pkgs,
   emacs-overlay,
   org-babel,
-  xremap,
   ...
 }:
-
+let
+  xremap = pkgs.callPackage ./pkgs/xremap { };
+in
 {
   imports = [
     # Include the results of the hardware scan.
@@ -21,6 +22,9 @@
     ./user.nix
     #    ./home-manager/common/dropbox.nix
   ];
+  #hardware.bluetooth.enable = true;
+  #hardware.bluetooth.powerOnBoot = true;
+  #services.blueman.enable = true;
   sops = {
     defaultSopsFile = ./secrets/default.yaml;
     age = {
@@ -116,6 +120,23 @@
   services.udev.extraRules = ''
     KERNEL=="uinput", GROUP="input", TAG+="uaccess"
   '';
+
+  systemd.user.services.xremap = rec {
+    enable = true;
+    wantedBy = [ "default.target" ];
+    # after = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "exec";
+      TimeOutStartSec = 30;
+      WorkingDirectory = "/home/kaki";
+      StandardOutput = "journal";
+      ExecStart = "${xremap}/bin/xremap /home/kaki/dotfiles/shingeta.yaml";
+
+      Restart = "always";
+    };
+
+  };
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -168,7 +189,6 @@
     };
     backupFileExtension = "hm-backup";
     extraSpecialArgs = {
-      inherit xremap;
       inherit org-babel;
     };
   };

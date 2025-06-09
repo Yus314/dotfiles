@@ -7,6 +7,6 @@ in
     enable = pkgs.stdenv.isLinux;
     package = emacsPkg.emacs-unstable;
     defaultEditor = true;
-    #startWithGraphical = true;
+    startWithUserSession = "graphical";
   };
 }
