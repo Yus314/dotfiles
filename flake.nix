@@ -78,6 +78,11 @@
           ...
         }:
         {
+          _module.args.pkgs = import self.inputs.nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+            #overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
+          };
           packages = {
             xremap = pkgs.callPackage ./pkgs/xremap { };
           };
