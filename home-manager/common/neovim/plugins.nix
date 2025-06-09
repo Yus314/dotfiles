@@ -18,7 +18,7 @@ let
 in
 with pkgs.vimPlugins;
 plugins [
-  barbar-nvim
+  #barbar-nvim
   cmp-buffer
   cmp-nvim-lsp
   cmp-path
