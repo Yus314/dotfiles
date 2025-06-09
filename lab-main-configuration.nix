@@ -77,7 +77,6 @@
 
       Restart = "always";
     };
-
   };
 
   services.cloudflared = {
