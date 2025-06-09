@@ -16,5 +16,13 @@
       };
     };
   };
+  i18n.inputMethod = {
+    type = "fcitx5";
+    enable = true;
+    fcitx5.addons = [
+      pkgs.fcitx5-skk
+    ];
+    fcitx5.waylandFrontend = true;
+  };
 
 }
