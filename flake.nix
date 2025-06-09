@@ -46,6 +46,7 @@
   };
   outputs =
     {
+      self,
       flake-parts,
       ...
     }@inputs:
@@ -54,14 +55,19 @@
         "aarch64-darwin"
         "x86_64-linux"
       ];
-      flake = {
-        nixosConfigurations = {
-          watari = import ./homes/watari { inherit inputs; };
-          ryuk = import ./homes/ryuk { inherit inputs; };
-          rem = import ./homes/rem { inherit inputs; };
+      imports = [ ./flake-module.nix ];
+      hosts = {
+        watari = {
+          system = "x86_64-linux";
         };
-        darwinConfigurations = {
-          lawliet = import ./homes/lawliet { inherit inputs; };
+        lawliet = {
+          system = "aarch64-darwin";
+        };
+        ryuk = {
+          system = "x86_64-linux";
+        };
+        rem = {
+          system = "x86_64-linux";
         };
       };
       perSystem =

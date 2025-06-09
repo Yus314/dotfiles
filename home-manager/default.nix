@@ -32,4 +32,12 @@ let
 in
 {
   imports = Services ++ NixGuiPrograms ++ NixCliPrograms ++ CommomPrograms;
+  home = {
+    username = "kaki";
+    homeDirectory = "/home/kaki";
+    stateVersion = "25.05";
+  };
+  nixpkgs.config.allowUnfree = true;
+  nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
+
 }

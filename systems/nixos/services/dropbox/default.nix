@@ -1,5 +1,6 @@
 { pkgs, config, ... }:
 {
+  programs.fuse.userAllowOther = true;
   sops = {
     secrets = {
       "dropbox/token/access_token" = { };
