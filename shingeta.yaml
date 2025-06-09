@@ -130,7 +130,7 @@ keymap:
         timeout_key: [h, i]
       z:
         remap:
-          e: [w, o]
+          e: [u, x, o]
         timeout_millis: 50
         timeout_key: [g, e]
         
@@ -171,7 +171,7 @@ keymap:
          l: [y, o]
          p: [m, i]
          q: [w, e]
-         z: [w, o]
+         z: [u, x, o]
          d: [h, e]
          s: [a]
          t: [r, e]

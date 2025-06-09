@@ -35,6 +35,7 @@ version = "14.13.0";
       inherit (old.src) url;
       hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
     };
+				dontFixup = true;
   });
 })
 ];

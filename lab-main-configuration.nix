@@ -114,7 +114,6 @@
 
       Restart = "always";
     };
-
   };
 
   services.cloudflared = {
