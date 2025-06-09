@@ -3,9 +3,11 @@
   emacs-overlay,
   org-babel,
   brew-nix,
-  bizin-gothic-discord,
   ...
 }:
+let
+    bizin-gothic-discord = pkgs.callPackage ./bizin.nix {};
+  in
 {
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
@@ -20,6 +22,7 @@
     #pkgs.brewCasks.zoom
   ];
    ids.gids.nixbld = 350;
+   system.primaryUser = "kotsu";
    
   # Auto upgrade nix package and the daemon service.
   nix.package = pkgs.nix;
