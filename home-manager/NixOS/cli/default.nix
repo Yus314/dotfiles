@@ -1,5 +1,7 @@
-{
-  imports = [
-    ./packages.nix
-  ];
-}
+{ pkgs, ... }:
+let
+  packages = import ./packages.nix;
+in
+[
+  packages
+]
