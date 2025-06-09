@@ -23,8 +23,8 @@
 #+end_src
 * じかん計測
 #+begin_src emacs-lisp :tangle yes
-  (require 'esup)
-  (setq esup-depth 0)
+  ;(require 'esup)
+  ;(setq esup-depth 0)
 #+end_src
 
 * builtin properties
@@ -142,7 +142,7 @@ Waylandでペーストできるようにする設定
   	(nix-mode  nix-ts-mode)
   					;  (emacs-lisp-mode . emacs-lisp-ts-mode)
   	(yaml-mode  yaml-ts-mode)
-  	(python-mode  python-ts-mode)
+  	;(python-mode  python-ts-mode)
   	)
         )
 #+end_src
@@ -175,16 +175,16 @@ Waylandでペーストできるようにする設定
 ** tab bar
 バッファをウインドウの管理をうまくできていないので、あまりつかいこなせていない。
  #+begin_src emacs-lisp :tangle yes
-   (require 'centaur-tabs)
-   (centaur-tabs-mode  t)
-   (setq centaur-tabs-style  "alternate")
-   (setq centaur-tabs-set-icons  t)
-   (setq centaur-tabs-icon-type  'nerd-icons)
-   (setq centaur-tabs-set-bar  'under)
-   (setq x-underline-at-descent-line  t)
-   (centaur-tabs-headline-match)
-   (setq centaur-tabs-set-bar 'under)
-   (setq x-underline-at-descent-line t)
+  ; (centaur-tabs-mode  t)
+  ; (autoload-if-found 'centaur-tabs-mode "centaur-tabs")
+  ; (setq centaur-tabs-style  "alternate")
+  ; (setq centaur-tabs-set-icons  t)
+  ; (setq centaur-tabs-icon-type  'nerd-icons)
+  ; (setq centaur-tabs-set-bar  'under)
+  ; (setq x-underline-at-descent-line  t)
+  ; (centaur-tabs-headline-match)
+  ; (setq centaur-tabs-set-bar 'under)
+  ; (setq x-underline-at-descent-line t)
  #+end_src
 ** minus
 #+begin_src emacs-lisp :tangle yes
@@ -523,14 +523,15 @@ Waylandでペーストできるようにする設定
 * ミニバッファ補完
 ** vercico
 #+begin_src emacs-lisp :tangle yes
-  (autoload 'vertico-mode "vertico-autoloads" nil t)
+    (autoload 'vertico-mode "vertico-autoloads" nil t)
 
-  (add-hook 'emacs-startup-hook #'vertico-mode)
+    (add-hook 'emacs-startup-hook #'vertico-mode)
 
-  (with-eval-after-load 'vertico
+    (with-eval-after-load 'vertico
 
-    (setopt vertico-count 8)
-    (setopt vertico-cycle t))
+      (setopt vertico-count 8)
+      (setopt vertico-cycle t)
+      )
 #+end_src
 ** marginalia
 #+begin_src emacs-lisp :tangle yes
@@ -1547,17 +1548,17 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** citer
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package citar
-  ;  :custom
-  ;  (citar-bibliography  '("~/dropbox/ref.bib"))
-  ;  :config
-  ;  (keymap-setminibuffer-local-map (kbd "s-j") 'icomplete-fido-exit)
-  ;  )
-  (autoload 'org-cite-insert "citar" nil t)
-  (with-eval-after-load 'citar
-    (setq citar-bibliography  '("~/dropbox/ref.bib"))
-    (keymap-setminibuffer-local-map (kbd "s-j") 'icomplete-fido-exit)
-    )
+      ;(use-package citar
+      ;  :custom
+      ;  (citar-bibliography  '("~/dropbox/ref.bib"))
+      ;  :config
+      ;  (keymap-setminibuffer-local-map (kbd "s-j") 'icomplete-fido-exit)
+      ;  )
+      (autoload 'org-cite-insert "citar" nil t)
+      (with-eval-after-load 'citar
+        (setq citar-bibliography  '("~/dropbox/ref.bib"))
+        (keymap-set minibuffer-local-completion-map "s-j" 'icomplete-fido-exit)
+        )
 #+end_src
 * Git
 ** diff-hl
@@ -1784,9 +1785,10 @@ Waylandでペーストできるようにする設定
 #+end_src
 * apheleia
 #+begin_src emacs-lisp :tangle yes
-(require 'apheleia)
-(apheleia-global-mode)
-(setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)  
+  ;(require 'apheleia)
+  ;(autoload 'apheleia-global-mode "apheleia")
+  ;(apheleia-global-mode)
+  ;(setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)  
 #+end_src
 * aggressive-inden
 * プログラミング支援
