@@ -1,6 +1,6 @@
 { pkgs, ... }:
 let
-  xremap = pkgs.callPackage ../../../xremap.nix { };
+  xremap = pkgs.callPackage ../../../pkgs/xremap { };
 in
 {
   home.packages = with pkgs; [

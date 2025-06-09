@@ -837,7 +837,7 @@ Waylandでペーストできるようにする設定
   (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
   (autoload 'nix-ts-mode "nix-ts-mode" nil t)
   (with-eval-after-load 'nix-ts-mode
-;    (add-hook 'nix-ts-mode-hook 'nixfmt-on-save-mode)
+  (add-hook 'nix-ts-mode-hook 'nixfmt-on-save-mode)
     (add-hook 'nix-ts-mode-hook 'lsp)
    )
 #+end_src
@@ -1772,12 +1772,12 @@ Waylandでペーストできるようにする設定
 #+end_src
 * reformatter
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package reformatter
-  ;    )
-  ;  (reformatter-define nixfmt
-  ;    :program "nixfmt"
-  ;    :args '("-")
-  ;    )
+  (use-package reformatter
+     )
+    (reformatter-define nixfmt
+      :program "nixfmt"
+      :args '("-")
+      )
   ;  (reformatter-define ruff
   ;    :program "ruff format"
   ;    :args '("-")

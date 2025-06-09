@@ -6,18 +6,18 @@
   inputs,
   config,
   pkgs,
-  emacs-overlay,
-  org-babel,
-  bizin-gothic-discord,
-  xremap,
   ...
 }:
-
+let
+  bizin-gothic-discord = pkgs.callPackage ../../../pkgs/bizin { };
+  xremap = pkgs.callPackage ../../../pkgs/xremap { };
+in
 {
   imports = [
     # Include the results of the hardware scan.
-    ./host/lab-main-hardware-configuration.nix
-    ./greetd.nix
+    ./lab-main-hardware-configuration.nix
+    ../common.nix
+    ../services/dropbox
   ];
   fonts.packages = [ bizin-gothic-discord ];
   fonts.fontDir.enable = true;
@@ -25,13 +25,43 @@
     enable = true;
   };
   sops = {
-    gnupg = {
-      home = "~/.gnupg";
-    };
-    defaultSopsFile = ./secrets/default.yaml;
     secrets = {
+      gh-token = { };
+      "dropbox/token/access_token" = { };
+      "dropbox/token/token_type" = { };
+      "dropbox/token/refresh_token" = { };
+      "dropbox/token/expiry" = { };
+      cachix-agent-token = {
+        sopsFile = ../../../secrets/cachix.yaml;
+      };
       cloudflared-tunnel-cert = {
-        sopsFile = ./secrets/cloudflare.yaml;
+      };
+      cloudflared-tunnel-cred = {
+      };
+    };
+    templates = {
+
+      "gh-token" = {
+        owner = "kaki";
+        group = "users";
+        mode = "0440";
+        content = ''
+          	  access-tokens = github.com=${config.sops.placeholder."gh-token"}
+          	'';
+      };
+      "dropbox.conf" = {
+        owner = "kaki";
+        group = "users";
+        mode = "0440";
+        content = ''
+          [dropbox]
+          type = dropbox
+          token = {"access_token":"${config.sops.placeholder."dropbox/token/access_token"}","token_type":"${
+            config.sops.placeholder."dropbox/token/token_type"
+          }","refresh_token":"${config.sops.placeholder."dropbox/token/refresh_token"}","expiry":"${
+            config.sops.placeholder."dropbox/token/expiry"
+          }"}
+        '';
       };
     };
   };
@@ -49,19 +79,6 @@
             #type database  DBuser  auth-method
       	  local  all       all   trust
     '';
-  };
-
-  systemd.services.lab2home = {
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" ];
-    serviceConfig = {
-      TimeOutStartSec = 0;
-      Type = "notify";
-      ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel --no-autoupdate run --token=eyJhIjoiZTU4ODdmZDg4NDFmZjRmZDQzZTQ2Y2QxZTAxYjM4MDkiLCJ0IjoiMGMzYzdiNmQtZDY1Yy00MTM0LWJiY2QtMzkzMDM4M2M4OGQ3IiwicyI6IllXTTNaalppTmpFdFpEZzJZUzAwTm1JMExUazJZekV0T0dKbE5HTTBOemRoTVRoaiJ9";
-      Restart = "always";
-      User = "kaki";
-      Group = "wheel";
-    };
   };
 
   systemd.user.services.remap = {
@@ -82,12 +99,13 @@
   services.cloudflared = {
     enable = true;
     tunnels."d2bb7add-9929-4016-a839-0e03a71bdb14" = {
-      credentialsFile = "${config.sops.secrets.cloudflared-tunnel-cert.path}";
+      credentialsFile = "${config.sops.secrets.cloudflared-tunnel-cred.path}";
       default = "http_status:404";
       ingress = {
         "test.mdip2home.com" = "ssh://localhost:22";
       };
     };
+    certificateFile = "${config.sops.secrets.cloudflared-tunnel-cert.path}";
   };
   # Bootloader
   nix = {
@@ -124,24 +142,15 @@
   virtualisation.docker.rootless.daemon.settings.features.cdi = true;
   home-manager = {
     users.kaki = {
-      imports = [
-        ./home-manager/NixOS/gui
-        ./home-manager/NixOS/cli
-        ./home-manager/common
-      ];
       home = {
         username = "kaki";
         homeDirectory = "/home/kaki";
         stateVersion = "24.11";
       };
       nixpkgs.config.allowUnfree = true;
-      nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
     };
     backupFileExtension = "buckup";
-    # useGlobalPkgs = true;
-    # useUserPackages = true;
     extraSpecialArgs = {
-      inherit org-babel;
       inherit xremap;
     };
   };
@@ -247,8 +256,6 @@
     ];
   };
   services.xserver.xkb.layout = "us";
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     #  wget
@@ -260,30 +267,5 @@
     openssl
   ];
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.11"; # Did you read the comment?
 }

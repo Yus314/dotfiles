@@ -13,16 +13,7 @@
     LC_TELEPHONE = "ja_JP.UTF-8";
     LC_TIME = "ja_JP.UTF-8";
   };
-  i18n.inputMethod = {
-    type = "fcitx5";
-    enable = true;
-    fcitx5.addons = [
-      pkgs.fcitx5-skk
-      pkgs.fcitx5-mozc
-      pkgs.fcitx5-gtk
-    ];
-    fcitx5.waylandFrontend = true;
-  };
+
   fonts = {
     packages = with pkgs; [
       noto-fonts-cjk-serif
