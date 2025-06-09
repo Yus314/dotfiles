@@ -14,7 +14,7 @@ in
 nixpkgs.lib.nixosSystem {
   inherit system;
   modules = [
-    ../../lab-main-configuration.nix
+    ../../systems/nixos/ryuk
     home-manager.nixosModules.home-manager
     {
       home-manager = {
