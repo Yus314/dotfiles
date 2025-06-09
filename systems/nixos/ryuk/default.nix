@@ -15,7 +15,7 @@ in
 {
   imports = [
     # Include the results of the hardware scan.
-    ../../../host/lab-main-hardware-configuration.nix
+    ./lab-main-hardware-configuration.nix
     ../common.nix
     ../services/dropbox
   ];
@@ -34,10 +34,10 @@ in
       cachix-agent-token = {
         sopsFile = ../../../secrets/cachix.yaml;
       };
-               cloudflared-tunnel-cert = {
-               };
-                     cloudflared-tunnel-cred = {
-         };
+      cloudflared-tunnel-cert = {
+      };
+      cloudflared-tunnel-cred = {
+      };
     };
     templates = {
 
@@ -64,7 +64,7 @@ in
         '';
       };
     };
-    };
+  };
 
   users.users.Cloudflared = {
     group = "wheel";
@@ -105,7 +105,7 @@ in
         "test.mdip2home.com" = "ssh://localhost:22";
       };
     };
-          certificateFile = "${config.sops.secrets.cloudflared-tunnel-cert.path}";
+    certificateFile = "${config.sops.secrets.cloudflared-tunnel-cert.path}";
   };
   # Bootloader
   nix = {
@@ -267,5 +267,5 @@ in
     openssl
   ];
 
- system.stateVersion = "24.11"; # Did you read the comment?
+  system.stateVersion = "24.11"; # Did you read the comment?
 }
