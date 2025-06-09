@@ -9,14 +9,14 @@
   ...
 }:
 let
-  bizin-gothic-discord = pkgs.callPackage ./pkgs/bizin { };
-  xremap = pkgs.callPackage ./pkgs/xremap { };
+  bizin-gothic-discord = pkgs.callPackage ../../../pkgs/bizin { };
+  xremap = pkgs.callPackage ../../../pkgs/xremap { };
 in
 {
   imports = [
     # Include the results of the hardware scan.
-    ./host/lab-main-hardware-configuration.nix
-    ./greetd.nix
+    ../../../host/lab-main-hardware-configuration.nix
+    ../common.nix
   ];
   fonts.packages = [ bizin-gothic-discord ];
   fonts.fontDir.enable = true;
@@ -24,14 +24,6 @@ in
     enable = true;
   };
   sops = {
-    defaultSopsFile = ./secrets/default.yaml;
-    age = {
-      keyFile = "/home/kaki/.config/sops/age/keys.txt";
-      generateKey = true;
-    };
-    #gnupg = {
-    #  home = "home/kaki/.gnupg";
-    #};
     secrets = {
       gh-token = { };
       "dropbox/token/access_token" = { };
@@ -39,7 +31,7 @@ in
       "dropbox/token/refresh_token" = { };
       "dropbox/token/expiry" = { };
       cachix-agent-token = {
-        sopsFile = ./secrets/cachix.yaml;
+        sopsFile = ../../../secrets/cachix.yaml;
       };
                cloudflared-tunnel-cert = {
                };
@@ -71,8 +63,8 @@ in
         '';
       };
     };
+    };
 
-  };
   users.users.Cloudflared = {
     group = "wheel";
     isSystemUser = true;
@@ -87,19 +79,6 @@ in
       	  local  all       all   trust
     '';
   };
-
-  #  systemd.services.lab2home = {
-  #    wantedBy = [ "multi-user.target" ];
-  #    after = [ "network.target" ];
-  #    serviceConfig = {
-  #      TimeOutStartSec = 0;
-  #      Type = "notify";
-  #      ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel --no-autoupdate run --token=eyJhIjoiZTU4ODdmZDg4NDFmZjRmZDQzZTQ2Y2QxZTAxYjM4MDkiLCJ0IjoiMGMzYzdiNmQtZDY1Yy00MTM0LWJiY2QtMzkzMDM4M2M4OGQ3IiwicyI6IllXTTNaalppTmpFdFpEZzJZUzAwTm1JMExUazJZekV0T0dKbE5HTTBOemRoTVRoaiJ9";
-  #      Restart = "always";
-  #      User = "kaki";
-  #      Group = "wheel";
-  #    };
-  #  };
 
   systemd.user.services.remap = {
     enable = true;
