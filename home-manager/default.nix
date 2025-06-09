@@ -2,6 +2,7 @@
   nixpkgs,
   system,
   emacs-overlay,
+  org-babel,
   ...
 }:
 let
@@ -14,11 +15,29 @@ let
   emacs = import ./packages/emacs {
     inherit pkgs sources;
   };
-  emacsPkg = emacs.emacs-usntable;
+  emacsPkg = emacs.emacs-unstable;
   Services = import ./services {
     inherit pkgs emacsPkg;
   };
+  NixGuiPrograms = import ./NixOS/gui {
+    inherit pkgs emacsPkg;
+  };
+  NixCliPrograms = import ./NixOS/cli {
+    inherit pkgs emacsPkg;
+  };
+  CommomPrograms = import ./common {
+    inherit pkgs;
+    inherit emacsPkg org-babel;
+  };
 in
 {
-  imports = Services;
+  imports = Services ++ NixGuiPrograms ++ NixCliPrograms ++ CommomPrograms;
+  home = {
+    username = "kaki";
+    homeDirectory = "/home/kaki";
+    stateVersion = "25.05";
+  };
+  nixpkgs.config.allowUnfree = true;
+  nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
+
 }

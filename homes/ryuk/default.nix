@@ -4,22 +4,34 @@ let
     nixpkgs
     home-manager
     unstable
-    xremap
-    bizin-gothic-discord
+    sops-nix
+    emacs-overlay
+    org-babel
     ;
+  system = "x86_64-linux";
+
 in
 nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
+  inherit system;
   modules = [
-    ./lab-main-configuration.nix
+    ../../systems/nixos/ryuk
     home-manager.nixosModules.home-manager
+    {
+      home-manager = {
+        users.kaki = import ../../home-manager;
+        extraSpecialArgs = {
+          inherit nixpkgs;
+          inherit system;
+          inherit org-babel emacs-overlay;
+        };
+      };
+    }
+    sops-nix.nixosModules.sops
   ];
   specialArgs = {
     unstable = import unstable {
       sysmet = "x86_64-linux";
       config.allowUnfree = true;
     };
-    inherit xremap;
-    inherit bizin-gothic-discord;
   };
 }

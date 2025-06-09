@@ -2,15 +2,15 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 {
+  inputs,
   config,
   system,
   pkgs,
-  emacs-overlay,
-  org-babel,
   ...
 }:
 let
-  xremap = pkgs.callPackage ./pkgs/xremap { };
+  xremap = pkgs.callPackage ../../../pkgs/xremap { };
+  inherit (inputs) org-babel emacs-overlay;
 in
 {
   imports = [
@@ -18,7 +18,7 @@ in
     ./hardware-configuration.nix
     ./font.nix
     ./nvidia.nix
-    ./greetd.nix
+    ../common.nix
     ./user.nix
     #    ./home-manager/common/dropbox.nix
   ];
@@ -26,7 +26,7 @@ in
   #hardware.bluetooth.powerOnBoot = true;
   #services.blueman.enable = true;
   sops = {
-    defaultSopsFile = ./secrets/default.yaml;
+    defaultSopsFile = ../../../secrets/default.yaml;
     age = {
       keyFile = "/home/kaki/.config/sops/age/keys.txt";
       generateKey = true;
@@ -36,16 +36,11 @@ in
     #};
     secrets = {
       gh-token = { };
-      "dropbox/token/access_token" = { };
-      "dropbox/token/token_type" = { };
-      "dropbox/token/refresh_token" = { };
-      "dropbox/token/expiry" = { };
       cachix-agent-token = {
-        sopsFile = ./secrets/cachix.yaml;
+        sopsFile = ../../../secrets/cachix.yaml;
       };
     };
     templates = {
-
       "gh-token" = {
         owner = "kaki";
         group = "users";
@@ -53,20 +48,6 @@ in
         content = ''
           	  access-tokens = github.com=${config.sops.placeholder."gh-token"}
           	'';
-      };
-      "dropbox.conf" = {
-        owner = "kaki";
-        group = "users";
-        mode = "0440";
-        content = ''
-          [dropbox]
-          type = dropbox
-          token = {"access_token":"${config.sops.placeholder."dropbox/token/access_token"}","token_type":"${
-            config.sops.placeholder."dropbox/token/token_type"
-          }","refresh_token":"${config.sops.placeholder."dropbox/token/refresh_token"}","expiry":"${
-            config.sops.placeholder."dropbox/token/expiry"
-          }"}
-        '';
       };
     };
 
@@ -94,21 +75,6 @@ in
     name = "toro";
     credentialsFile = config.sops.secrets.cachix-agent-token.path;
   };
-  systemd.user.services.dropbox = {
-    description = "Dropbox service";
-    after = [ "network-online.target" ];
-    serviceConfig = {
-      Type = "notify";
-      ExecStartPre = "/run/current-system/sw/bin/mkdir -p %h/dropbox";
-      ExecStart = "${pkgs.rclone}/bin/rclone --config=${
-        config.sops.templates."dropbox.conf".path
-      } --vfs-cache-mode writes --ignore-checksum mount \"dropbox:\" \"dropbox\" --allow-other";
-      ExecStop = "/run/wrappers/bin/fusermount -u %h/dropbox/%i";
-      Environment = [ "PATH=/run/wrappers/bin/:$PATH" ];
-    };
-    wantedBy = [ "default.target" ];
-
-  };
 
   services.offlineimap = {
     enable = true;
@@ -121,21 +87,20 @@ in
     KERNEL=="uinput", GROUP="input", TAG+="uaccess"
   '';
 
-  systemd.user.services.xremap = rec {
-    enable = true;
-    wantedBy = [ "default.target" ];
-    # after = [ "graphical-session.target" ];
-    serviceConfig = {
-      Type = "exec";
-      TimeOutStartSec = 30;
-      WorkingDirectory = "/home/kaki";
-      StandardOutput = "journal";
-      ExecStart = "${xremap}/bin/xremap /home/kaki/dotfiles/shingeta.yaml";
+  #  systemd.user.services.xremap = {
+  #    enable = true;
+  #    wantedBy = [ "default.target" ];
+  # after = [ "graphical-session.target" ];
+  #    serviceConfig = {
+  #      Type = "exec";
+  #      TimeOutStartSec = 30;
+  #      WorkingDirectory = "/home/kaki";
+  #      StandardOutput = "journal";
+  #      ExecStart = "${xremap}/bin/xremap /home/kaki/dotfiles/shingeta.yaml";
+  #      Restart = "always";
+  #    };
 
-      Restart = "always";
-    };
-
-  };
+  #  };
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -163,8 +128,6 @@ in
     LC_TELEPHONE = "ja_JP.UTF-8";
     LC_TIME = "ja_JP.UTF-8";
   };
-  #for dropbox
-  programs.fuse.userAllowOther = true;
 
   programs.fish.enable = true;
   users.users.kaki.shell = pkgs.fish;
@@ -172,26 +135,14 @@ in
     enable = true;
   };
   hardware.keyboard.qmk.enable = true;
-  home-manager = {
-    users.kaki = {
-      imports = [
-        ./home-manager/common
-        ./home-manager/NixOS/gui
-        ./home-manager/NixOS/cli
-      ];
-      home = {
-        username = "kaki";
-        homeDirectory = "/home/kaki";
-        stateVersion = "25.05";
-      };
-      nixpkgs.config.allowUnfree = true;
-      nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
-    };
-    backupFileExtension = "hm-backup";
-    extraSpecialArgs = {
-      inherit org-babel;
-    };
-  };
+  #  home-manager = {
+  #    users.kaki = {
+  #imports = [
+  #  ../../../home-manager/common
+  #  ../../../home-manager/NixOS/gui
+  #  ../../../home-manager/NixOS/cli
+  #];
+  #  };
   security.polkit.enable = true;
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
   programs.hyprland = {
