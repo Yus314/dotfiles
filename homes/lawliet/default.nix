@@ -4,18 +4,26 @@ let
     nixpkgs
     home-manager
     unstable
-    bizin-gothic-discord
     nix-homebrew
     brew-nix
     emacs-overlay
     org-babel
-    ;
+nix-darwin
+  ;
+  #bizin-gothic-discord = nixpkgs.callPackage ../../bizin.nix {};
 in
-nixpkgs.lib.nixosSystem {
+nix-darwin.lib.darwinSystem {
   system = "aarch64-darwin";
   modules = [
-    ./darwin-configuration.nix
+    ../../darwin-configuration.nix
     home-manager.darwinModules.home-manager
+    #{
+    #  home-manager = {
+    #  extraSpecialArgs = {
+#	inherit  bizin-gothic-discord;
+ #     };
+#	};
+#  }
     nix-homebrew.darwinModules.nix-homebrew
     brew-nix.darwinModules.default
   ];
