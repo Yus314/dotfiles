@@ -2,7 +2,7 @@
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
-    systemd.enable = false;
+    systemd.enable = true;
     #systemd.variables = [ "--all" ];
     extraConfig = ''
                                                         	env = XCURSOR_SIZE,24
@@ -66,6 +66,6 @@
     };
   };
   xdg.configFile = {
-      "xremap/config.yaml".source = ../../../hhkb.yaml;
+    "xremap/config.yaml".source = ../../../hhkb.yaml;
   };
 }
