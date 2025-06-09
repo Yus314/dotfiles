@@ -6,9 +6,6 @@
   inputs,
   config,
   pkgs,
-  #emacs-overlay,
-  #org-babel,
-  #xremap,
   ...
 }:
 let
@@ -44,9 +41,10 @@ in
       cachix-agent-token = {
         sopsFile = ./secrets/cachix.yaml;
       };
-      #         cloudflared-tunnel-cert = {
-      #     sopsFile = ./secrets/cloudflare.yaml;
-      #   };
+               cloudflared-tunnel-cert = {
+               };
+                     cloudflared-tunnel-cred = {
+         };
     };
     templates = {
 
@@ -119,14 +117,15 @@ in
   };
 
   services.cloudflared = {
-    enable = false;
+    enable = true;
     tunnels."d2bb7add-9929-4016-a839-0e03a71bdb14" = {
-      credentialsFile = "${config.sops.secrets.cloudflared-tunnel-cert.path}";
+      credentialsFile = "${config.sops.secrets.cloudflared-tunnel-cred.path}";
       default = "http_status:404";
       ingress = {
         "test.mdip2home.com" = "ssh://localhost:22";
       };
     };
+          certificateFile = "${config.sops.secrets.cloudflared-tunnel-cert.path}";
   };
   # Bootloader
   nix = {
