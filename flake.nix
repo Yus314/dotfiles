@@ -23,9 +23,6 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
-    wezterm = {
-      url = "github:wez/wezterm?dir=nix";
-    };
     emacs-overlay = {
       url = "github:nix-community/emacs-overlay";
     };

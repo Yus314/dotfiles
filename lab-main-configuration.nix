@@ -25,17 +25,54 @@
     enable = true;
   };
   sops = {
-    gnupg = {
-      home = "~/.gnupg";
-    };
     defaultSopsFile = ./secrets/default.yaml;
+    age = {
+      keyFile = "/home/kaki/.config/sops/age/keys.txt";
+      generateKey = true;
+    };
+    #gnupg = {
+    #  home = "home/kaki/.gnupg";
+    #};
     secrets = {
-      cloudflared-tunnel-cert = {
-        sopsFile = ./secrets/cloudflare.yaml;
+      gh-token = { };
+      "dropbox/token/access_token" = { };
+      "dropbox/token/token_type" = { };
+      "dropbox/token/refresh_token" = { };
+      "dropbox/token/expiry" = { };
+      cachix-agent-token = {
+        sopsFile = ./secrets/cachix.yaml;
+      };
+   #         cloudflared-tunnel-cert = {
+   #     sopsFile = ./secrets/cloudflare.yaml;
+   #   };
+    };
+    templates = {
+
+      "gh-token" = {
+        owner = "kaki";
+        group = "users";
+        mode = "0440";
+        content = ''
+          	  access-tokens = github.com=${config.sops.placeholder."gh-token"}
+          	'';
+      };
+      "dropbox.conf" = {
+        owner = "kaki";
+        group = "users";
+        mode = "0440";
+        content = ''
+          [dropbox]
+          type = dropbox
+          token = {"access_token":"${config.sops.placeholder."dropbox/token/access_token"}","token_type":"${
+            config.sops.placeholder."dropbox/token/token_type"
+          }","refresh_token":"${config.sops.placeholder."dropbox/token/refresh_token"}","expiry":"${
+            config.sops.placeholder."dropbox/token/expiry"
+          }"}
+        '';
       };
     };
-  };
 
+  };
   users.users.Cloudflared = {
     group = "wheel";
     isSystemUser = true;
@@ -51,18 +88,18 @@
     '';
   };
 
-  systemd.services.lab2home = {
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" ];
-    serviceConfig = {
-      TimeOutStartSec = 0;
-      Type = "notify";
-      ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel --no-autoupdate run --token=eyJhIjoiZTU4ODdmZDg4NDFmZjRmZDQzZTQ2Y2QxZTAxYjM4MDkiLCJ0IjoiMGMzYzdiNmQtZDY1Yy00MTM0LWJiY2QtMzkzMDM4M2M4OGQ3IiwicyI6IllXTTNaalppTmpFdFpEZzJZUzAwTm1JMExUazJZekV0T0dKbE5HTTBOemRoTVRoaiJ9";
-      Restart = "always";
-      User = "kaki";
-      Group = "wheel";
-    };
-  };
+#  systemd.services.lab2home = {
+#    wantedBy = [ "multi-user.target" ];
+#    after = [ "network.target" ];
+#    serviceConfig = {
+#      TimeOutStartSec = 0;
+#      Type = "notify";
+#      ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel --no-autoupdate run --token=eyJhIjoiZTU4ODdmZDg4NDFmZjRmZDQzZTQ2Y2QxZTAxYjM4MDkiLCJ0IjoiMGMzYzdiNmQtZDY1Yy00MTM0LWJiY2QtMzkzMDM4M2M4OGQ3IiwicyI6IllXTTNaalppTmpFdFpEZzJZUzAwTm1JMExUazJZekV0T0dKbE5HTTBOemRoTVRoaiJ9";
+#      Restart = "always";
+#      User = "kaki";
+#      Group = "wheel";
+#    };
+#  };
 
   systemd.user.services.remap = {
     enable = true;
@@ -81,7 +118,7 @@
   };
 
   services.cloudflared = {
-    enable = true;
+    enable = false;
     tunnels."d2bb7add-9929-4016-a839-0e03a71bdb14" = {
       credentialsFile = "${config.sops.secrets.cloudflared-tunnel-cert.path}";
       default = "http_status:404";
