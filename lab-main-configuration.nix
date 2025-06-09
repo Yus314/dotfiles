@@ -6,13 +6,15 @@
   inputs,
   config,
   pkgs,
-  emacs-overlay,
-  org-babel,
-  bizin-gothic-discord,
-  xremap,
+  #emacs-overlay,
+  #org-babel,
+  #xremap,
   ...
 }:
-
+let
+  bizin-gothic-discord = pkgs.callPackage ./pkgs/bizin { };
+  xremap = pkgs.callPackage ./pkgs/xremap { };
+in
 {
   imports = [
     # Include the results of the hardware scan.
@@ -42,9 +44,9 @@
       cachix-agent-token = {
         sopsFile = ./secrets/cachix.yaml;
       };
-   #         cloudflared-tunnel-cert = {
-   #     sopsFile = ./secrets/cloudflare.yaml;
-   #   };
+      #         cloudflared-tunnel-cert = {
+      #     sopsFile = ./secrets/cloudflare.yaml;
+      #   };
     };
     templates = {
 
@@ -88,18 +90,18 @@
     '';
   };
 
-#  systemd.services.lab2home = {
-#    wantedBy = [ "multi-user.target" ];
-#    after = [ "network.target" ];
-#    serviceConfig = {
-#      TimeOutStartSec = 0;
-#      Type = "notify";
-#      ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel --no-autoupdate run --token=eyJhIjoiZTU4ODdmZDg4NDFmZjRmZDQzZTQ2Y2QxZTAxYjM4MDkiLCJ0IjoiMGMzYzdiNmQtZDY1Yy00MTM0LWJiY2QtMzkzMDM4M2M4OGQ3IiwicyI6IllXTTNaalppTmpFdFpEZzJZUzAwTm1JMExUazJZekV0T0dKbE5HTTBOemRoTVRoaiJ9";
-#      Restart = "always";
-#      User = "kaki";
-#      Group = "wheel";
-#    };
-#  };
+  #  systemd.services.lab2home = {
+  #    wantedBy = [ "multi-user.target" ];
+  #    after = [ "network.target" ];
+  #    serviceConfig = {
+  #      TimeOutStartSec = 0;
+  #      Type = "notify";
+  #      ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel --no-autoupdate run --token=eyJhIjoiZTU4ODdmZDg4NDFmZjRmZDQzZTQ2Y2QxZTAxYjM4MDkiLCJ0IjoiMGMzYzdiNmQtZDY1Yy00MTM0LWJiY2QtMzkzMDM4M2M4OGQ3IiwicyI6IllXTTNaalppTmpFdFpEZzJZUzAwTm1JMExUazJZekV0T0dKbE5HTTBOemRoTVRoaiJ9";
+  #      Restart = "always";
+  #      User = "kaki";
+  #      Group = "wheel";
+  #    };
+  #  };
 
   systemd.user.services.remap = {
     enable = true;
@@ -161,24 +163,24 @@
   virtualisation.docker.rootless.daemon.settings.features.cdi = true;
   home-manager = {
     users.kaki = {
-      imports = [
-        ./home-manager/NixOS/gui
-        ./home-manager/NixOS/cli
-        ./home-manager/common
-      ];
+      #imports = [
+      #  ./home-manager/NixOS/gui
+      #  ./home-manager/NixOS/cli
+      #  ./home-manager/common
+      #];
       home = {
         username = "kaki";
         homeDirectory = "/home/kaki";
         stateVersion = "24.11";
       };
       nixpkgs.config.allowUnfree = true;
-      nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
+      #nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
     };
     backupFileExtension = "buckup";
     # useGlobalPkgs = true;
     # useUserPackages = true;
     extraSpecialArgs = {
-      inherit org-babel;
+      # inherit org-babel;
       inherit xremap;
     };
   };

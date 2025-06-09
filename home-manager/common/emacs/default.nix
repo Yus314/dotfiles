@@ -1,16 +1,16 @@
 {
   pkgs,
+  emacsPkg,
   org-babel,
   ...
 }:
 let
   tangle = org-babel.lib.tangleOrgBabel { languages = [ "emacs-lisp" ]; };
-  emacsPkg = import ../../packages/emacs { inherit pkgs; };
 in
 {
   programs.emacs = {
     enable = true;
-    package = emacsPkg.emacs-unstable;
+    package = emacsPkg;
   };
   home = {
     file = {
