@@ -26,7 +26,7 @@ in
   #  home-manager.nixosModules.home-manager
   #  {
   home-manager = {
-    users.kaki = import ../../home-manager;
+    users.kaki = import ../../../home-manager;
     extraSpecialArgs = {
       inherit nixpkgs;
       inherit system;
