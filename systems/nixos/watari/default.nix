@@ -129,8 +129,6 @@ in
     LC_TIME = "ja_JP.UTF-8";
   };
 
-  programs.fish.enable = true;
-  users.users.kaki.shell = pkgs.fish;
   services.resolved = {
     enable = true;
   };
