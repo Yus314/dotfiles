@@ -25,8 +25,6 @@ let
   # Auto upgrade nix package and the daemon service.
   nix.package = pkgs.nix;
  # nixpkgs.hostPlatform = "aarch64-darwin";
-  security.pam.services.sudo_local.touchIdAuth = true;
-nixpkgs.config.allowBroken = true;
 fonts.packages =
 [
 bizin-gothic-discord
@@ -34,6 +32,7 @@ bizin-gothic-discord
 
   imports = [
     ../common.nix
+    ../desktop.nix
   ];
 
   #fonts.font = with pkgs; [
