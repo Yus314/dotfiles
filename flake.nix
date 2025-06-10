@@ -77,6 +77,7 @@
 	      src = ./.;
 	      hooks = {
 		nil.enable = true;
+		shellcheck.enable = true;
 		};
 	      };
 	    };
