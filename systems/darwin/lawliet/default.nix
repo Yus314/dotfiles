@@ -20,34 +20,19 @@ let
     #pkgs.brewCasks.zoom
   ];
    ids.gids.nixbld = 350;
-   system.primaryUser = "kotsu";
+   system.primaryUser = "kaki";
    
   # Auto upgrade nix package and the daemon service.
   nix.package = pkgs.nix;
-  nixpkgs.hostPlatform = "aarch64-darwin";
+ # nixpkgs.hostPlatform = "aarch64-darwin";
   security.pam.services.sudo_local.touchIdAuth = true;
 nixpkgs.config.allowBroken = true;
-nixpkgs.overlays = [
-(self: super: {
-karabiner-elements = super.karabiner-elements.overrideAttrs (old: {
-version = "14.13.0";
-
-    src = super.fetchurl {
-      inherit (old.src) url;
-      hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
-    };
-				dontFixup = true;
-  });
-})
-];
 fonts.packages =
 [
 bizin-gothic-discord
 ];
 
   imports = [
-    ../../../home-manager/macOS/yabai.nix
-    ../../../home-manager/macOS/shkd.nix
     ../common.nix
   ];
 
