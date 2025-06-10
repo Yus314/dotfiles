@@ -22,6 +22,7 @@
     impermanence.url = "github:nix-community/impermanence";
     flake-parts.url = "github:hercules-ci/flake-parts";
     cachix-deploy-flake.url = "github:cachix/cachix-deploy-flake";
+    git-hooks.url = "github:cachix/git-hooks.nix";
   };
   outputs =
     {
@@ -34,7 +35,7 @@
         "aarch64-darwin"
         "x86_64-linux"
       ];
-      imports = [ ./flake-module.nix ];
+      imports = [ ./flake-module.nix inputs.git-hooks.flakeModule];
       hosts = {
         watari = {
           system = "x86_64-linux";
@@ -70,6 +71,15 @@
           packages = {
             xremap = pkgs.callPackage ./pkgs/xremap { };
           };
+	  pre-commit = {
+	    check.enable = true;
+	    settings = {
+	      src = ./.;
+	      hooks = {
+		nil.enable = true;
+		};
+	      };
+	    };
         };
     };
 }
