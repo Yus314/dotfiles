@@ -1,11 +1,14 @@
 {
   inputs,
   lib,
+  pkgs,
+  specialArgs,
   self,
   ...
 }:
 let
   inherit (inputs) emacs-overlay ;
+  inherit (specialArgs) username;
   in
 {
   nixpkgs.overlays = [
@@ -13,4 +16,8 @@ let
   ]  ++ lib.attrValues self.overlays;
 
   nixpkgs.config.allowUnfree = true;
+
+    environment.shells = [ pkgs.fish ];
+  programs.fish.enable = true;
+  users.users.${username}.shell = pkgs.fish;
 }

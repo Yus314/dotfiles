@@ -1,17 +1,19 @@
-{pkgs,inputs,...}:{
+{pkgs,inputs,specialArgs,...}:
+let
+  inherit (specialArgs) username;
+  in{
 imports = [
             inputs.home-manager.darwinModules.home-manager
 ];
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
-    users.kotsu = {
+    users.${username} = {
       imports = [
 	../common.nix
       ];
       home = {
-        username = "kaki";
-        homeDirectory = "/Users/kaki";
+	inherit username;
         stateVersion = "25.05";
       };
       home.file.".gnupg/gpg-agent.conf".text = ''
@@ -26,13 +28,4 @@ imports = [
       inherit inputs;
     };
   };
-  users = {
-    users = {
-      kaki = {
-        shell = pkgs.zsh;
-        home = "/Users/kotsu";
-      };
-    };
-  };
-
 }
