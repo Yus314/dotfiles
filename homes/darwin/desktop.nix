@@ -1,7 +1,12 @@
-{
+{ pkgs, specialArgs, ... }:
+let
+  inherit (specialArgs) username;
+in{
   imports = [
     ../../applications/shkd
     ../../applications/yabai
-    ../desktop.nix
-    ];
+  ];
+    home-manager.users.${username} = {
+    imports = [ ../desktop.nix ];
+  };
 }
