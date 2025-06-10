@@ -14,15 +14,6 @@
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
-    homebrew-core = {
-      url = "github:homebrew/homebrew-core";
-      flake = false;
-    };
-    homebrew-cask = {
-      url = "github:homebrew/homebrew-cask";
-      flake = false;
-    };
     emacs-overlay = {
       url = "github:nix-community/emacs-overlay";
     };
@@ -31,18 +22,6 @@
     impermanence.url = "github:nix-community/impermanence";
     flake-parts.url = "github:hercules-ci/flake-parts";
     cachix-deploy-flake.url = "github:cachix/cachix-deploy-flake";
-    brew-nix = {
-      # for local testing via `nix flake check` while developing
-      #url = "path:../";
-      url = "github:BatteredBunny/brew-nix";
-      inputs.nix-darwin.follows = "nix-darwin";
-      inputs.brew-api.follows = "brew-api";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    brew-api = {
-      url = "github:BatteredBunny/brew-api";
-      flake = false;
-    };
   };
   outputs =
     {
@@ -70,6 +49,11 @@
           system = "x86_64-linux";
         };
       };
+
+      flake = {
+	overlays = import ./overlays { inherit inputs; };
+      };
+      
       perSystem =
         {
           config,
@@ -78,11 +62,11 @@
           ...
         }:
         {
-          _module.args.pkgs = import self.inputs.nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
+          #_module.args.pkgs = import self.inputs.nixpkgs {
+          #  inherit system;
+          #  config.allowUnfree = true;
             #overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
-          };
+ #         };
           packages = {
             xremap = pkgs.callPackage ./pkgs/xremap { };
           };

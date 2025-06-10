@@ -1,1 +1,4 @@
-{system.stateVersion = 6;}
+{
+  imports = [../common.nix];
+  system.stateVersion = 6;
+}

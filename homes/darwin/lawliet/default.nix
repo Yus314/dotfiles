@@ -1,4 +1,4 @@
-{ pkgs,specialArgs,... }:
+{ pkgs,inputs,specialArgs,... }:
 let
   inherit (specialArgs) username;
 in

@@ -1,19 +1,17 @@
-{
+{pkgs,inputs,...}:{
 imports = [
-            home-manager.darwinModules.home-manager
-    nix-homebrew.darwinModules.nix-homebrew
-    brew-nix.darwinModules.default
+            inputs.home-manager.darwinModules.home-manager
 ];
     home-manager = {
-    #useGlobalPkgs = true;
+      useGlobalPkgs = true;
+      useUserPackages = true;
     users.kotsu = {
       imports = [
-        ./home-manager/common
-        ./home-manager/macOS
+	../common.nix
       ];
       home = {
-        username = "kotsu";
-        homeDirectory = "/Users/kotsu";
+        username = "kaki";
+        homeDirectory = "/Users/kaki";
         stateVersion = "25.05";
       };
       home.file.".gnupg/gpg-agent.conf".text = ''
@@ -23,12 +21,14 @@ imports = [
       '';
 
       nixpkgs.config.allowUnfree = true;
-      nixpkgs.overlays = [ emacs-overlay.overlays.emacs ];
+    };
+          extraSpecialArgs = {
+      inherit inputs;
     };
   };
   users = {
     users = {
-      kotsu = {
+      kaki = {
         shell = pkgs.zsh;
         home = "/Users/kotsu";
       };
