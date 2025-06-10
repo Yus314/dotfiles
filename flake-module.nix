@@ -24,7 +24,7 @@ let
     if platform == "nixos" then
       { nixosConfigurations."${hostname}" = inputs.nixpkgs.lib.nixosSystem attrs; }
     else
-      { darwinConfigurations."${hostname}" = inputs.nixpkgs.lib.darwinSystem attrs; };
+      { darwinConfigurations."${hostname}" = inputs.nix-darwin.lib.darwinSystem attrs; };
 
   maybePath = path: if pathExists path then path else null;
 in
@@ -72,7 +72,7 @@ in
               modules =
                 filter (x: x != null) [
                   (maybePath ./systems/${cfg.platform}/${name})
-                  (maybePath ./homes/${name})
+                  (maybePath ./homes/${cfg.platform}/${name})
                 ]
                 ++ cfg.modules;
               specialArgs = {
@@ -80,9 +80,9 @@ in
                 inherit (cfg) username;
               } // cfg.specialArgs;
             }
-            // lib.optionalAttrs (false) {
-              inherit (cfg) system;
-            }
+            //    {           
+                inherit (cfg) system;
+	    }
           )
         ) config.hosts
       )
