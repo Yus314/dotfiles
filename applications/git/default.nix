@@ -11,5 +11,9 @@
       pull.rebase = false;
     };
     signing.format = "ssh";
+    ignores = [
+      ".DS_Store"
+      ".direnv"
+    ];
   };
 }
