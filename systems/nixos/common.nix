@@ -1,5 +1,6 @@
 { pkgs, ... }:
 {
+  imports = [ ../common.nix ];
   sops = {
     defaultSopsFile = ../../secrets/default.yaml;
     age = {
