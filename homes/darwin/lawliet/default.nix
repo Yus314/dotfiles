@@ -7,4 +7,7 @@ in
       ../common.nix
       ../desktop.nix
     ];
+        home-manager.users.${username} = {
+    imports = [ ../../../applications/ssh ];
+  };
 }
