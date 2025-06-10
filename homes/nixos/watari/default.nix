@@ -14,19 +14,25 @@ let
     ;
 
   system = "x86_64-linux";
-  username = "kaki";
+  inherit (specialArgs) username;
 in
 
 {
   imports = [
     inputs.home-manager.nixosModules.home-manager
     inputs.sops-nix.nixosModules.sops
+    ../common.nix
   ];
   #modules = [
   #  home-manager.nixosModules.home-manager
   #  {
   home-manager = {
-    users.kaki = import ../../home-manager;
+    users.${username} = {
+      imports = [
+        # ../../../home-manager
+        ../desktop.nix
+      ];
+    };
     extraSpecialArgs = {
       inherit nixpkgs;
       inherit system;
