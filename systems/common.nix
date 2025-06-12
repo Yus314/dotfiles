@@ -17,6 +17,13 @@ let
 
   nixpkgs.config.allowUnfree = true;
 
+
+nix.settings.trusted-users = [
+  "root"
+  "@wheel"
+  "@admin"
+];
+
   environment.shells = [ pkgs.fish ];
   programs.fish.enable = true;
   users.users.${username}.shell = pkgs.fish;
