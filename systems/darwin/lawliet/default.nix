@@ -4,9 +4,9 @@
   ...
 }:
 let
-  bizin-gothic-discord = pkgs.callPackage ../../../pkgs/bizin {};
+  bizin-gothic-discord = pkgs.callPackage ../../../pkgs/bizin { };
   inherit (inputs) emacs-overlay;
-  in
+in
 {
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
@@ -19,16 +19,15 @@ let
     #pkgs.brewCasks.aquaskk
     #pkgs.brewCasks.zoom
   ];
-   ids.gids.nixbld = 350;
-   system.primaryUser = "kaki";
-   
+  ids.gids.nixbld = 350;
+  system.primaryUser = "kaki";
+
   # Auto upgrade nix package and the daemon service.
   nix.package = pkgs.nix;
- # nixpkgs.hostPlatform = "aarch64-darwin";
-fonts.packages =
-[
-bizin-gothic-discord
-];
+  # nixpkgs.hostPlatform = "aarch64-darwin";
+  fonts.packages = [
+    bizin-gothic-discord
+  ];
 
   imports = [
     ../common.nix
@@ -41,7 +40,6 @@ bizin-gothic-discord
   #  noto-fonts-emoji
   #  nerdfonts
   #];
-  #home-manager.users.kotsu = import ./home-manager/home.nix;
   nix.settings = {
     experimental-features = [
       "nix-command"
@@ -53,12 +51,11 @@ bizin-gothic-discord
       enable = true;
     };
   };
-   services.karabiner-elements = {
-     enable = true;
-     };
+  services.karabiner-elements = {
+    enable = true;
+  };
   #nix-homebrew = {
-   # enable = true;
-   # enableRosetta = true;
-   # user = "kotsu";
+  # enable = true;
+  # enableRosetta = true;
   #};
 }
