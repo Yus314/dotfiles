@@ -17,7 +17,6 @@ in
     pkgs.cloudflared
     #pkgs.brewCasks.dropbox
     #pkgs.brewCasks.aquaskk
-    #pkgs.brewCasks.zoom
   ];
   ids.gids.nixbld = 350;
   system.primaryUser = "kaki";
@@ -40,6 +39,7 @@ in
   #  noto-fonts-emoji
   #  nerdfonts
   #];
+
   nix.settings = {
     experimental-features = [
       "nix-command"
@@ -53,6 +53,15 @@ in
   };
   services.karabiner-elements = {
     enable = true;
+    package = pkgs.karabiner-elements.overrideAttrs (old: {
+     version = "14.13.0";
+
+     src = pkgs.fetchurl {
+        inherit (old.src) url;
+        hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
+     };
+      #dontFixup = true;
+    });
   };
   #nix-homebrew = {
   # enable = true;
