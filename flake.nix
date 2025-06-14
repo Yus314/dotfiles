@@ -51,9 +51,9 @@
         };
       };
 
-      flake = {
-	overlays = import ./overlays { inherit inputs; };
-      };
+ #     flake = {
+#	overlays = import ./overlays { inherit inputs; };
+  #    };
       
       perSystem =
         {
