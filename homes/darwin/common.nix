@@ -1,20 +1,25 @@
-{pkgs,inputs,specialArgs,...}:
+{
+  pkgs,
+  inputs,
+  specialArgs,
+  ...
+}:
 let
   inherit (specialArgs) username;
-  in{
-imports = [
-            inputs.home-manager.darwinModules.home-manager
-];
-    home-manager = {
-      useGlobalPkgs = true;
-      useUserPackages = true;
+in
+{
+  imports = [
+    inputs.home-manager.darwinModules.home-manager
+  ];
+  home-manager = {
+    useGlobalPkgs = true;
+    useUserPackages = false;
     users.${username} = {
       imports = [
-	../common.nix
+        ../common.nix
       ];
       home = {
-	inherit username;
-        stateVersion = "25.05";
+        inherit username;
       };
       home.file.".gnupg/gpg-agent.conf".text = ''
         pinentry-program ${pkgs.pinentry_mac}/Applications/pinentry-mac.app/Contents/MacOS/pinentry-mac
@@ -22,9 +27,8 @@ imports = [
         max-cache-ttl 34560000
       '';
 
-      nixpkgs.config.allowUnfree = true;
     };
-          extraSpecialArgs = {
+    extraSpecialArgs = {
       inherit inputs;
     };
   };
