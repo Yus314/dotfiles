@@ -74,7 +74,7 @@ in
           cp "$generated_json" $out/karabiner.json
         '';
       };
-      home.file.".config/karabiner/karabiner.json" = {
+      home.file.".config/karabiner/assets/complex_modifications/karabiner.json" = {
         source = "${karabinerJson}/karabiner.json";
         # この設定により、gokuConfigPathで指定したEDNファイルが変更されると、
         # 自動的にJSONが再ビルドされ、シンボリックリンクが更新される
