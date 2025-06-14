@@ -1,3 +1,4 @@
+
 { pkgs, specialArgs, ... }:
 let
   inherit (specialArgs) username;
@@ -7,6 +8,8 @@ in{
     ../../applications/yabai
   ];
     home-manager.users.${username} = {
-    imports = [ ../desktop.nix ];
-  };
+      imports = [ ../desktop.nix ];
+#        home.packages = [pkgs.google-chrome];
+    };
+
 }
