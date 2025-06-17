@@ -21,6 +21,7 @@
       with epkgs;
       [
         esup
+	exec-path-from-shell
         smooth-scroll
         modus-themes
         perfect-margin
