@@ -70,11 +70,11 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1750152107,
-        "narHash": "sha256-EtSUmvOKU7mfocPNsBSmgjOcqPBKWshSN/jsxmHZqfI=",
+        "lastModified": 1750182527,
+        "narHash": "sha256-LYz1CmM/O0vAY9ADvG0ew6D8UcaTUY9R+tWfBFgV1/8=",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "cff16fc129c76889ddfb0ebb17b53b6633c77ba5",
+        "rev": "79cb0891f0cef9be3bd1d514edbd8d2b740e83b3",
         "type": "github"
       },
       "original": {
@@ -471,6 +471,26 @@
         "type": "github"
       }
     },
+    "nur-packages": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1750188137,
+        "narHash": "sha256-nQQPNGG7W5bcINYzY6YQx8UxK/HiZetglS1CGslxblI=",
+        "owner": "Yus314",
+        "repo": "nur-packages",
+        "rev": "c9b35b0042f4ac78fedcd7841546947ee1a86edd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Yus314",
+        "repo": "nur-packages",
+        "type": "github"
+      }
+    },
     "org-babel": {
       "locked": {
         "lastModified": 1731256202,
@@ -498,6 +518,7 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_4",
         "nixpkgs-stable": "nixpkgs-stable_2",
+        "nur-packages": "nur-packages",
         "org-babel": "org-babel",
         "sops-nix": "sops-nix",
         "treefmt-nix": "treefmt-nix_2"

@@ -53,6 +53,7 @@
     # drive # Another Google Drive CLI Client (choose one or use rclone)
     rclone # Rsync for cloud storage
     # xremap # Key remapper (commented out)
+    nix-init
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
