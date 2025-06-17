@@ -1,8 +1,7 @@
 { pkgs, ... }:
 {
-  programs.vivaldi = {
+  programs.google-chrome = {
     enable = true;
-    package = pkgs.vivaldi;
     #commandLineArgs = [
     #  "--enable-features=UseOzonePlatfor"
 

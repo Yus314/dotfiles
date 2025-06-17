@@ -43,8 +43,6 @@
     # --- CLI Utilities ---
     tldr # Simplified man pages
     pandoc # Universal document converter
-    # texliveTeTeX # Basic TeX distribution. Consider texlive.combined.scheme-medium or full for more features.
-    texlive.combined.scheme-small # A slightly larger but still minimal TeX setup
     just # Command runner
     unzip # ZIP archive utility
     cloudflared # Cloudflare Tunnel daemon
@@ -58,8 +56,6 @@
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
-    kitty # Fast, feature-rich GPU-based terminal emulator
-    qutebrowser # Keyboard-focused browser with a minimal GUI
     # nyxt # Another keyboard-focused browser (commented out)
     kakoune # Modal editor with multiple selections
     zotero # Reference management software
@@ -68,10 +64,6 @@
     mpv # Feature-rich media player
     aider-chat # AI pair programming tool in your terminal
     cachix
-    code-cursor
-    slack
-    zoom-us
     nvfetcher
-    discord
   ];
 }
