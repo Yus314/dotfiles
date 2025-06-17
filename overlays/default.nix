@@ -1,4 +1,5 @@
 { inputs }:
 {
-vivaldi = import ./vivaldi;
+  vivaldi = import ./vivaldi;
+  qutebrowser = import ./qutebrowser;
 }

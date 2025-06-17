@@ -26,3 +26,8 @@ fetch.github = "havarddj/typst-preview.el"
 [vivaldi-darwin]
 src.archpkg = "vivaldi"
 fetch.url = "https://downloads.vivaldi.com/stable/Vivaldi.$ver.universal.dmg"
+
+[qutebrowser-darwin]
+src.github = "qutebrowser/qutebrowser"
+src.prefix = "v"
+fetch.url = "https://github.com/qutebrowser/qutebrowser/releases/download/v$ver/qutebrowser-$ver-arm64.dmg"
