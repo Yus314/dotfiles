@@ -13,6 +13,12 @@
       (dolist (f functions)
         (autoload f file docstring interactive type))))
 #+end_src
+* exec-path-from-shell[macOS]
+#+begin_src emacs-lisp :tangle yes
+  ;(autoload-if-found '(exec-path-from-shell-initialize) "exec-path-from-shell")
+  ;(when (memq window-system '(mac ns x))
+  ;  (exec-path-from-shell-initialize))
+#+end_src
 * パッケージを読み込まないようにする
 #+begin_src emacs-lisp :tangle yes
   (require 'profiler) ;; Profiler start removed
@@ -26,7 +32,6 @@
   ;(require 'esup)
   ;(setq esup-depth 0)
 #+end_src
-
 * builtin properties
 #+begin_src emacs-lisp :tangle yes
   (setq user-full-name "Yusuke Kakinuma")
