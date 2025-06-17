@@ -7,7 +7,7 @@
 let
   # オプションの名前をaquaskkに変更
   cfg = config.my.services.aquaskk;
-       tracedPackage = builtins.trace "### AquaSKK package path is: ${cfg.package} ###" cfg.package;
+  tracedPackage = builtins.trace "### AquaSKK package path is: ${cfg.package} ###" cfg.package;
 in
 {
   options = {
@@ -33,7 +33,7 @@ in
             echo "Copying AquaSKK to $OLD 1..."
       OLD="/Library/Input Methods/AquaSKK.app"
       NEW="${cfg.package}/Library/Input Methods/AquaSKK.app"
-      
+
       echo "Copying AquaSKK to $OLD ..."
 
       # 既に古いバージョンのAquaSKK.appが存在するかどうかをチェック

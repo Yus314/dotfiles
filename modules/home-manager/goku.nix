@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -21,8 +26,8 @@ in
     home.packages = [ cfg.package ];
 
     xdg.configFile."karabiner.edn".source = cfg.configFile;
-    
-    home.activation.gokuGenerateConfig = hm.dag.entryAfter ["writeBoundary"] ''
+
+    home.activation.gokuGenerateConfig = hm.dag.entryAfter [ "writeBoundary" ] ''
       $DRY_RUN_CMD mkdir -p "$HOME/.config/karabiner"
       $DRY_RUN_CMD  ${cfg.package}/bin/goku
     '';

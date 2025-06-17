@@ -4,7 +4,7 @@ return {
 		dir = "@copilot_vim@",
 		config = function()
 			vim.g.copilot_filetypes = {
-				markdown = false
+				markdown = false,
 			}
 		end,
 	},

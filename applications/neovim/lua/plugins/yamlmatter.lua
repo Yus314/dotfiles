@@ -9,6 +9,6 @@ return {
 					draft = "",
 				},
 			})
-		end
+		end,
 	},
 }

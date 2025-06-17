@@ -1,4 +1,4 @@
-{ inputs }:
+{ inputs, ... }:
 let
   inherit (inputs)
     nixpkgs
@@ -8,18 +8,21 @@ let
     bizin-gothic-discord
     ;
 in
-nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
-  modules = [
-    ./lab-sub-configuration.nix
-    home-manager.nixosModules.home-manager
+{
+  imports = [
+    ../common.nix
   ];
-  specialArgs = {
-    unstable = import unstable {
-      sysmet = "x86_64-linux";
-      config.allowUnfree = true;
-    };
-    inherit xremap;
-    inherit bizin-gothic-discord;
-  };
+  #  system = "x86_64-linux";
+  #  modules = [
+  #    ./lab-sub-configuration.nix
+  #    home-manager.nixosModules.home-manager
+  #  ];
+  #  specialArgs = {
+  #    unstable = import unstable {
+  #      sysmet = "x86_64-linux";
+  #      config.allowUnfree = true;
+  #    };
+  #    inherit xremap;
+  #    inherit bizin-gothic-discord;
+  #  };
 }

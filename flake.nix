@@ -23,6 +23,8 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     cachix-deploy-flake.url = "github:cachix/cachix-deploy-flake";
     git-hooks.url = "github:cachix/git-hooks.nix";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs =
     {
@@ -35,7 +37,11 @@
         "aarch64-darwin"
         "x86_64-linux"
       ];
-      imports = [ ./flake-module.nix inputs.git-hooks.flakeModule];
+      imports = [
+        ./flake-module.nix
+        inputs.git-hooks.flakeModule
+        inputs.treefmt-nix.flakeModule
+      ];
       hosts = {
         watari = {
           system = "x86_64-linux";
@@ -52,9 +58,9 @@
       };
 
       flake = {
-	overlays = import ./overlays { inherit inputs; };
+        overlays = import ./overlays { inherit inputs; };
       };
-      
+
       perSystem =
         {
           config,
@@ -66,23 +72,35 @@
           #_module.args.pkgs = import self.inputs.nixpkgs {
           #  inherit system;
           #  config.allowUnfree = true;
-            #overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
- #         };
+          #overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
+          #         };
           packages = {
             xremap = pkgs.callPackage ./pkgs/xremap { };
-	    AquaSKK = pkgs.callPackage ./pkgs/AquaSKK { };
+            AquaSKK = pkgs.callPackage ./pkgs/AquaSKK { };
           };
-	  pre-commit = {
-	    check.enable = true;
-	    settings = {
-	      src = ./.;
-	      hooks = {
-		nil.enable = true;
-		nixfmt-rfc-style = true;
-		shellcheck.enable = true;
-		};
-	      };
-	    };
+          pre-commit = {
+            check.enable = true;
+            settings = {
+              src = ./.;
+              hooks = {
+                nil.enable = true;
+                shellcheck.enable = true;
+                treefmt.enable = true;
+              };
+            };
+          };
+          treefmt = {
+            projectRootFile = "flake.nix";
+            programs = {
+              biome.enable = true;
+              nixfmt.enable = true;
+              shfmt.enable = true;
+              stylua.enable = true;
+              taplo.enable = true;
+              terraform.enable = true;
+              yamlfmt.enable = true;
+            };
+          };
         };
     };
 }
