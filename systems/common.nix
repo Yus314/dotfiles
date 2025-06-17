@@ -7,22 +7,21 @@
   ...
 }:
 let
-  inherit (inputs) emacs-overlay ;
+  inherit (inputs) emacs-overlay;
   inherit (specialArgs) username;
-  in
+in
 {
   nixpkgs.overlays = [
     emacs-overlay.overlays.default
-  ]  ++ lib.attrValues self.overlays;
+  ] ++ lib.attrValues self.overlays;
 
   nixpkgs.config.allowUnfree = true;
 
-
-nix.settings.trusted-users = [
-  "root"
-  "@wheel"
-  "@admin"
-];
+  nix.settings.trusted-users = [
+    "root"
+    "@wheel"
+    "@admin"
+  ];
 
   environment.shells = [ pkgs.fish ];
   programs.fish.enable = true;

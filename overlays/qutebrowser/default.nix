@@ -28,7 +28,7 @@ final: prev: {
           mkdir -p "$out/Applications/qutebrowser.app"
           cp -R . "$out/Applications/qutebrowser.app"
         '';
-	dontFixup = true;
+        dontFixup = true;
 
         inherit (prev.qutebrowser) meta;
       };

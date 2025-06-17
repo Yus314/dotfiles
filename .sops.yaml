@@ -4,7 +4,7 @@ keys:
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-    - pgp:
-        - *admin_kaki
-      age:
-        - *admin_yusuke
+      - pgp:
+          - *admin_kaki 
+        age:
+          - *admin_yusuke 

@@ -8,15 +8,15 @@
       nix-direnv.enable = true;
     };
     eza.enable = true;
-   
+
     fd.enable = true;
 
     fzf.enable = true;
-  
+
     gh.enable = true;
 
     ripgrep.enable = true;
-  
+
     starship = {
       enable = true;
       enableZshIntegration = false;

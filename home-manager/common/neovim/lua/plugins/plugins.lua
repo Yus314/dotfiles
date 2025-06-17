@@ -11,34 +11,34 @@ return {
 		name = "comment-nvim",
 		dir = "@comment_nvim@",
 		config = function()
-			require('Comment').setup()
-		end
+			require("Comment").setup()
+		end,
 	},
 	{
 		name = "dial-nvim",
 		dir = "@dial_nvim@",
 		config = function()
 			local augend = require("dial.augend")
-			require("dial.config").augends:register_group {
+			require("dial.config").augends:register_group({
 				default = {
 					augend.integer.alias.decimal,
 					augend.integer.alias.hex,
 					augend.date.alias["%Y/%m/%d"],
 					augend.constant.alias.bool,
-					augend.constant.new {
+					augend.constant.new({
 						elements = { "and", "or" },
 						word = true,
 						cyclic = true,
-					},
-					augend.constant.new {
+					}),
+					augend.constant.new({
 						elements = { "&&", "||" },
 						word = true,
 						cyclic = true,
-					},
+					}),
 					augend.constant.alias.alpha,
 					augend.constant.alias.Alpha,
-				}
-			}
+				},
+			})
 			vim.keymap.set("n", "<C-a>", function()
 				require("dial.map").manipulate("increment", "normal")
 			end)
@@ -63,7 +63,7 @@ return {
 			vim.keymap.set("v", "g<C-x>", function()
 				require("dial.map").manipulate("decrement", "gvisual")
 			end)
-		end
+		end,
 	},
 	{
 		name = "oil-nvim",
@@ -85,7 +85,7 @@ return {
 					end,
 				},
 			})
-		end
+		end,
 	},
 	{
 		name = "barbar.nvim",
@@ -96,12 +96,12 @@ return {
 		dir = "@vim_markdown@",
 		config = function()
 			vim.g.vim_markdown_folding_disabled = 1
-		end
+		end,
 	},
 	{
-		'navarasu/onedark.nvim',
+		"navarasu/onedark.nvim",
 		opts = {
-			style = 'dark',
+			style = "dark",
 		},
 	},
 	{
@@ -116,7 +116,7 @@ return {
 	{
 		"delphinus/skkeleton_indicator.nvim",
 		branch = "main",
-		opts = {}
+		opts = {},
 	},
 	{
 		name = "nvim-treesitter",
@@ -164,7 +164,7 @@ return {
 	},
 	{
 		"epwalsh/obsidian.nvim",
-		opts   = {
+		opts = {
 			workspaces = {
 				{
 					name = "obsidian",
@@ -172,10 +172,10 @@ return {
 				},
 			},
 		},
-		ft     = { "markdown" },
+		ft = { "markdown" },
 		config = function()
 			vim.g.conceallevel = 2
-		end
+		end,
 	},
 	{
 		name = "rust-tools.nvim",
@@ -188,7 +188,7 @@ return {
 		dependencies = { {
 			name = "nvim-web-devicons",
 			dir = "@nvim_web_devicons@",
-		} }
+		} },
 	},
 	{
 		name = "toggleterm.nvim",
@@ -220,8 +220,8 @@ return {
 			},
 		},
 		config = function()
-			require('telescope').load_extension "file_browser"
-		end
+			require("telescope").load_extension("file_browser")
+		end,
 	},
 	{
 		name = "telescope-file-browser.nvim",
@@ -278,7 +278,7 @@ return {
 				dir = "@cmp_buffer@",
 			},
 			{
-				'rinx/cmp-skkeleton',
+				"rinx/cmp-skkeleton",
 			},
 		},
 	},

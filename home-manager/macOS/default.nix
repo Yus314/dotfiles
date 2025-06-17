@@ -1,2 +1,5 @@
-{ imports = [ ./packages.nix
-./ssh.nix]; }
+{
+  imports = [
+    ./packages.nix
+  ];
+}

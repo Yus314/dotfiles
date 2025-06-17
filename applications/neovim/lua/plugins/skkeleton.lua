@@ -7,11 +7,10 @@ return {
 		--"vim-denops/denops.vim",
 		config = function()
 			-- vim.g['denops#deno'] = '/nix/store/l3adf02p4xdxlvqy5rl2wzb37965nvml-deno-1.43.6/bin/deno'
-			vim.g['denops#deno'] = '/nix/store/4s9mwxzx1cqm2mv3w7zz43ylcsddavd0-deno-1.44.3/bin/deno'
+			vim.g["denops#deno"] = "/nix/store/4s9mwxzx1cqm2mv3w7zz43ylcsddavd0-deno-1.44.3/bin/deno"
 			-- vim.g['denops#deno'] = 'deno'
-		end
+		end,
 	},
-
 
 	config = function()
 		local augroup = vim.api.nvim_create_augroup("kaki.skkeleton", {})
@@ -704,5 +703,5 @@ return {
 				\ "pr": ["ぷろ"],
 				\ })
 			]])
-	end
+	end,
 }

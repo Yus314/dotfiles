@@ -1,4 +1,4 @@
-{ inputs,... }:
+{ inputs, ... }:
 let
   inherit (inputs)
     nixpkgs
@@ -11,26 +11,23 @@ let
   system = "x86_64-linux";
 
 in
- {
-  modules = [
-    ../../systems/nixos/ryuk
+{
+  imports = [
     home-manager.nixosModules.home-manager
-    {
-      home-manager = {
-        users.kaki = import ../../home-manager;
-        extraSpecialArgs = {
-          inherit nixpkgs;
-          inherit system;
-          inherit org-babel emacs-overlay;
-        };
-      };
-    }
     sops-nix.nixosModules.sops
   ];
-  specialArgs = {
-    unstable = import unstable {
-      sysmet = "x86_64-linux";
-      config.allowUnfree = true;
-    };
-  };
+  #    home-manager = {
+  #       users.kaki = import ../../home-manager;
+  #       extraSpecialArgs = {
+  #         inherit nixpkgs;
+  #         inherit system;
+  #         inherit org-babel emacs-overlay;
+  #       };
+  #     };
+  #   }
+  # specialArgs = {
+  #   unstable = import unstable {
+  #     sysmet = "x86_64-linux";
+  #     config.allowUnfree = true;
+  #   };
 }
