@@ -78,6 +78,7 @@
 	      src = ./.;
 	      hooks = {
 		nil.enable = true;
+		nixfmt-rfc-style = true;
 		shellcheck.enable = true;
 		};
 	      };
