@@ -1,7 +1,7 @@
 {specialArgs,lib,...}:let
   inherit (specialArgs) username;
 in{
-  imports = [../common.nix];
+  imports = [../../modules/darwin ../common.nix];
   system.stateVersion = 6;
 
     users = {
