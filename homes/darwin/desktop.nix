@@ -14,6 +14,5 @@ in
       enable = true;
       configFile = ./karabiner.edn;
     };
-
   };
 }

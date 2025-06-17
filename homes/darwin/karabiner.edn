@@ -161,7 +161,7 @@
                  [:##w :y]
                  [:##e :o]
                  [:##r :period]
-                 [:##t :equal_sign]
+                 [:##t :hyphen]
                  [:##y :f]
                  [:##u :c]
                  [:##i :l]
@@ -189,6 +189,8 @@
                  [:##comma :m]
                  [:##period :b]
                  [:##slash :x]
+		 
+		 [:##hyphen :quote]
 		 ]} 
 
         {;; ルール2: AquaSKK関連の修飾キー設定
