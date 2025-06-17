@@ -25,6 +25,8 @@
     git-hooks.url = "github:cachix/git-hooks.nix";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+    nur-packages.url = "github:Yus314/nur-packages";
+    nur-packages.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs =
     {
@@ -76,7 +78,6 @@
           #         };
           packages = {
             xremap = pkgs.callPackage ./pkgs/xremap { };
-            AquaSKK = pkgs.callPackage ./pkgs/AquaSKK { };
           };
           pre-commit = {
             check.enable = true;

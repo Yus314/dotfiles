@@ -7,12 +7,13 @@
   ...
 }:
 let
-  inherit (inputs) emacs-overlay;
+  inherit (inputs) emacs-overlay nur-packages;
   inherit (specialArgs) username;
 in
 {
   nixpkgs.overlays = [
     emacs-overlay.overlays.default
+    nur-packages.overlays.default
   ] ++ lib.attrValues self.overlays;
 
   nixpkgs.config.allowUnfree = true;

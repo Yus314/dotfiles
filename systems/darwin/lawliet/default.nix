@@ -4,7 +4,6 @@
   ...
 }:
 let
-  bizin-gothic-discord = pkgs.callPackage ../../../pkgs/bizin { };
   inherit (inputs) emacs-overlay;
 in
 {
@@ -24,7 +23,7 @@ in
   nix.package = pkgs.nix;
   # nixpkgs.hostPlatform = "aarch64-darwin";
   fonts.packages = [
-    bizin-gothic-discord
+    pkgs.bizin-gothic-nf
   ];
 
   imports = [

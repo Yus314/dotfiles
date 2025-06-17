@@ -5,7 +5,6 @@ let
     home-manager
     unstable
     xremap
-    bizin-gothic-discord
     ;
 in
 {
@@ -23,6 +22,5 @@ in
   #      config.allowUnfree = true;
   #    };
   #    inherit xremap;
-  #    inherit bizin-gothic-discord;
   #  };
 }
