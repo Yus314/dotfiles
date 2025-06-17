@@ -1,4 +1,4 @@
-{ inputs }:
+{ inputs,... }:
 let
   inherit (inputs)
     nixpkgs
@@ -11,8 +11,7 @@ let
   system = "x86_64-linux";
 
 in
-nixpkgs.lib.nixosSystem {
-  inherit system;
+ {
   modules = [
     ../../systems/nixos/ryuk
     home-manager.nixosModules.home-manager
