@@ -49,6 +49,14 @@
     };
     date = "2025-02-15";
   };
+  qutebrowser-darwin = {
+    pname = "qutebrowser-darwin";
+    version = "3.5.1";
+    src = fetchurl {
+      url = "https://github.com/qutebrowser/qutebrowser/releases/download/v3.5.1/qutebrowser-3.5.1-arm64.dmg";
+      sha256 = "sha256-sUB4ECoMn6jSFJD4+QLY7khrn7PgOMUrUPQvca88Gxo=";
+    };
+  };
   typst-preview = {
     pname = "typst-preview";
     version = "69918d5f5b77032d8a5f796793b8030b4f19f5d6";
