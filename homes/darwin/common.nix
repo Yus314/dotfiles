@@ -26,6 +26,7 @@ in
         default-cache-ttl 34560000
         max-cache-ttl 34560000
       '';
+    home.packages = [pkgs.goku];
 
     };
     extraSpecialArgs = {

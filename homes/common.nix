@@ -8,6 +8,7 @@
     stateVersion = "25.05";
   };
   imports = [
+    ../modules/home-manager
     ../applications/emacs
     ../applications/emacs/service.nix
     ../applications/fish

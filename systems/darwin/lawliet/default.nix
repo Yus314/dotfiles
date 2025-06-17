@@ -16,7 +16,6 @@ in
     pkgs.pinentry_mac
     pkgs.cloudflared
     #pkgs.brewCasks.dropbox
-    #pkgs.brewCasks.aquaskk
   ];
   ids.gids.nixbld = 350;
   system.primaryUser = "kaki";
@@ -60,8 +59,8 @@ in
         inherit (old.src) url;
         hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
      };
-      #dontFixup = true;
-    });
+        }
+    );
   };
   #nix-homebrew = {
   # enable = true;
