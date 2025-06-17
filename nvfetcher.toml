@@ -22,3 +22,7 @@ fetch.github = "misohena/gcal"
 src.git = "https://github.com/havarddj/typst-preview.el"
 src.branch = "main"
 fetch.github = "havarddj/typst-preview.el"
+
+[vivaldi-darwin]
+src.archpkg = "vivaldi"
+fetch.url = "https://downloads.vivaldi.com/stable/Vivaldi.$ver.universal.dmg"

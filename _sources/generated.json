@@ -103,5 +103,20 @@
             "type": "github"
         },
         "version": "69918d5f5b77032d8a5f796793b8030b4f19f5d6"
+    },
+    "vivaldi-darwin": {
+        "cargoLocks": null,
+        "date": null,
+        "extract": null,
+        "name": "vivaldi-darwin",
+        "passthru": null,
+        "pinned": false,
+        "src": {
+            "name": null,
+            "sha256": "sha256-d5tgT9AildwwTfdzGKbGv22+qA4VqsQgZSyb/WU2PHk=",
+            "type": "url",
+            "url": "https://downloads.vivaldi.com/stable/Vivaldi.7.4.3684.50.universal.dmg"
+        },
+        "version": "7.4.3684.50"
     }
 }
