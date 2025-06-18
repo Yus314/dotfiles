@@ -44,7 +44,7 @@
         nix-ts-mode
         yaml-mode
         rust-mode
-        my_rustic
+        rustic
         python-mode
         lsp-pyright
         typst-ts-mode
