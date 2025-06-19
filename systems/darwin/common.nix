@@ -19,7 +19,6 @@ in
     defaultSopsFile = ../../secrets/default.yaml;
     age = {
       keyFile = "/Users/kaki/.config/sops/age/keys.txt";
-      #generateKey = true;
     };
     secrets = {
       gh-token = { };
@@ -35,9 +34,9 @@ in
       };
     };
   };
-  nix.extraOptions = ''
-    !include ${config.sops.templates."gh-token".path}
-  '';
+  # nix.extraOptions = ''
+  #   !include ${config.sops.templates."gh-token".path}
+  # '';
   users = {
     users.${username} = {
       home = "/Users/${username}";

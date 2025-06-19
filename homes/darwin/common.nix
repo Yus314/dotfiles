@@ -21,11 +21,12 @@ in
       home = {
         inherit username;
       };
-      home.file.".gnupg/gpg-agent.conf".text = ''
-        pinentry-program ${pkgs.pinentry_mac}/Applications/pinentry-mac.app/Contents/MacOS/pinentry-mac
-        default-cache-ttl 34560000
-        max-cache-ttl 34560000
-      '';
+      #home.file.".gnupg/gpg-agent.conf".text = ''
+
+      #pinentry-program ${pkgs.pinentry_mac}/Applications/pinentry-mac.app/Contents/MacOS/pinentry-mac
+      # default-cache-ttl 34560000
+      #  max-cache-ttl 34560000
+      #'';
     };
     extraSpecialArgs = {
       inherit inputs;

@@ -71,11 +71,11 @@
           ...
         }:
         {
-          #_module.args.pkgs = import self.inputs.nixpkgs {
-          #  inherit system;
-          #  config.allowUnfree = true;
-          #overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
-          #         };
+          _module.args.pkgs = import self.inputs.nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+            overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
+          };
           packages = {
             xremap = pkgs.callPackage ./pkgs/xremap { };
           };
@@ -100,6 +100,22 @@
               taplo.enable = true;
               terraform.enable = true;
               yamlfmt.enable = true;
+            };
+          };
+          devShells = {
+            default = pkgs.mkShell {
+              packages = with pkgs; [
+                nix-fast-build
+                sops
+                (terraform.withPlugins (p: [
+                  p.cloudflare
+                  p.external
+                  p.github
+                  p.null
+                  p.sops
+                ]))
+              ];
+              shellHook = config.pre-commit.installationScript;
             };
           };
         };

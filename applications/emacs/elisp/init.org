@@ -932,6 +932,14 @@ Waylandでペーストできるようにする設定
   ;typst-previewだと保存しなくても同期するようになる
   (setq typst-preview-browser "qutebrowser")
 #+end_src
+** terraform
+#+begin_src emacs-lisp :tangle yes
+  (add-to-list 'auto-mode-alist '("\\.tf\\'" . terraform-mode))
+  (autoload 'terraform-mode "terraform-mode" nil t)
+  (with-eval-after-load 'terraform-mode
+    (add-hook 'torraform-mode-hook 'lsp)
+   )
+#+end_src
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
