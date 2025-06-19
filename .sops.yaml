@@ -8,3 +8,7 @@ creation_rules:
           - *admin_kaki 
         age:
           - *admin_yusuke 
+  - path_regex: infra/*
+    key_groups:
+      - age:
+          - *admin_yusuke 

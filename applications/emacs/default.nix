@@ -29,6 +29,7 @@ in
       pyright
       ruff
       tinymist
+      terraform-ls
     ];
   };
 }

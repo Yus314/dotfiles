@@ -49,6 +49,7 @@
         lsp-pyright
         typst-ts-mode
         typst-preview
+        terraform-mode
         org-super-agenda
         org-modern
         org-modern-indent
@@ -88,6 +89,7 @@
             tree-sitter-rust
             tree-sitter-python
             tree-sitter-typst
+            tree-sitter-hcl # terraform
           ]
         ))
       ]
