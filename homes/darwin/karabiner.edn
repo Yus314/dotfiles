@@ -13,6 +13,17 @@
 		 	    :input_mode_id "com.apple.inputmethod.Japanese.Hiragana"}
 		 }
  :main [
+	{;; ルール2: AquaSKK関連の修飾キー設定
+         :des "AquqSKKで日本語が有効化の際に英数で変更できるようにする"
+		 
+         :rules [[:##japanese_eisuu :right_control]
+                 [:##japanese_kana :left_shift]
+                 
+                 [:##left_control :l [:jp]]
+		 
+                 [:##left_control :japanese_kana [:en]]
+                 ]}
+
          {;; ルール3: 新下駄配列の実装 
          :des "新下駄配列の実装"
          :rules [:jp
@@ -156,7 +167,7 @@
                  ]}
         {;; ルール1: JIS配列から自作配列への変換
          :des "JIS配列から自作配列への変換"
-         :rules [
+         :rules [:!jp
                  [:##q :k]
                  [:##w :y]
                  [:##e :o]
@@ -193,14 +204,4 @@
 		 [:##hyphen :quote]
 		 ]} 
 
-        {;; ルール2: AquaSKK関連の修飾キー設定
-         :des "AquqSKKで日本語が有効化の際に英数で変更できるようにする"
-		 
-         :rules [[:japanese_eisuu :right_control]
-                 [:japanese_kana :left_shift]
-                 
-                 [:left_control :l [:jp]]
-		 
-                 [:left_control :japanese_kana [:en]]
-                 ]}
 		 ]}
