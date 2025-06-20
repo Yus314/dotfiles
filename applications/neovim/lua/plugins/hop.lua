@@ -5,6 +5,6 @@ return {
 		config = function()
 			vim.keymap.set("n", "h", "<CMD>HopWord<CR>", { desc = "Hop Word" })
 			require("hop").setup({ keys = "k,p.=aoeuidhtns-gcrm" })
-		end
+		end,
 	},
 }

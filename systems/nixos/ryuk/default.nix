@@ -9,7 +9,6 @@
   ...
 }:
 let
-  bizin-gothic-discord = pkgs.callPackage ../../../pkgs/bizin { };
   xremap = pkgs.callPackage ../../../pkgs/xremap { };
 in
 {
@@ -19,7 +18,7 @@ in
     ../common.nix
     ../services/dropbox
   ];
-  fonts.packages = [ bizin-gothic-discord ];
+  fonts.packages = [ pkgs.bizin-gothic-nf ];
   fonts.fontDir.enable = true;
   programs.gnupg.agent = {
     enable = true;
@@ -140,20 +139,20 @@ in
   };
   virtualisation.docker.daemon.settings.features.cdi = true;
   virtualisation.docker.rootless.daemon.settings.features.cdi = true;
-  home-manager = {
-    users.kaki = {
-      home = {
-        username = "kaki";
-        homeDirectory = "/home/kaki";
-        stateVersion = "24.11";
-      };
-      nixpkgs.config.allowUnfree = true;
-    };
-    backupFileExtension = "buckup";
-    extraSpecialArgs = {
-      inherit xremap;
-    };
-  };
+  # home-manager = {
+  #   users.kaki = {
+  #     home = {
+  #       username = "kaki";
+  #       homeDirectory = "/home/kaki";
+  #       stateVersion = "24.11";
+  #     };
+  #     nixpkgs.config.allowUnfree = true;
+  #   };
+  #   backupFileExtension = "buckup";
+  #   extraSpecialArgs = {
+  #     inherit xremap;
+  #   };
+  # };
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowBroken = true;
   boot.loader.systemd-boot.enable = true;
@@ -200,7 +199,7 @@ in
   # Select internationalisation properties.
   programs.fish.enable = true;
   programs.zsh.enable = true;
-  users.users.kaki.shell = pkgs.bash;
+  # users.users.kaki.shell = pkgs.bash;
   security.polkit.enable = true;
 
   services.meshcentral.enable = true;

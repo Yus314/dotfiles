@@ -15,7 +15,7 @@ jobs:
         os: [ubuntu-latest, macos-14]
     steps: # Corrected indentation: steps is now directly under build
       # workaround for "No space left on device"
-      - name:  Collect garbage
+      - name: Collect garbage
         if: matrix.os == 'ubuntu-latest'
         uses: easimon/maximize-build-space@fc881a613ad2a34aca9c9624518214ebc21dfc0c # v10
         with:

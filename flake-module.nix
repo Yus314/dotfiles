@@ -80,9 +80,9 @@ in
                 inherit (cfg) username;
               } // cfg.specialArgs;
             }
-            //    {           
-                inherit (cfg) system;
-	    }
+            // {
+              inherit (cfg) system;
+            }
           )
         ) config.hosts
       )

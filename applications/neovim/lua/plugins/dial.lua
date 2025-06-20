@@ -4,26 +4,26 @@ return {
 		dir = "@dial_nvim@",
 		config = function()
 			local augend = require("dial.augend")
-			require("dial.config").augends:register_group {
+			require("dial.config").augends:register_group({
 				default = {
 					augend.integer.alias.decimal,
 					augend.integer.alias.hex,
 					augend.date.alias["%Y/%m/%d"],
 					augend.constant.alias.bool,
-					augend.constant.new {
+					augend.constant.new({
 						elements = { "and", "or" },
 						word = true,
 						cyclic = true,
-					},
-					augend.constant.new {
+					}),
+					augend.constant.new({
 						elements = { "&&", "||" },
 						word = true,
 						cyclic = true,
-					},
+					}),
 					augend.constant.alias.alpha,
 					augend.constant.alias.Alpha,
-				}
-			}
+				},
+			})
 			vim.keymap.set("n", "<C-a>", function()
 				require("dial.map").manipulate("increment", "normal")
 			end)
@@ -48,6 +48,6 @@ return {
 			vim.keymap.set("v", "g<C-x>", function()
 				require("dial.map").manipulate("decrement", "gvisual")
 			end)
-		end
+		end,
 	},
 }

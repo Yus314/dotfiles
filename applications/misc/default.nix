@@ -8,15 +8,15 @@
       nix-direnv.enable = true;
     };
     eza.enable = true;
-   
+
     fd.enable = true;
 
     fzf.enable = true;
-  
+
     gh.enable = true;
 
     ripgrep.enable = true;
-  
+
     starship = {
       enable = true;
       enableZshIntegration = false;
@@ -43,8 +43,6 @@
     # --- CLI Utilities ---
     tldr # Simplified man pages
     pandoc # Universal document converter
-    # texliveTeTeX # Basic TeX distribution. Consider texlive.combined.scheme-medium or full for more features.
-    texlive.combined.scheme-small # A slightly larger but still minimal TeX setup
     just # Command runner
     unzip # ZIP archive utility
     cloudflared # Cloudflare Tunnel daemon
@@ -55,11 +53,10 @@
     # drive # Another Google Drive CLI Client (choose one or use rclone)
     rclone # Rsync for cloud storage
     # xremap # Key remapper (commented out)
+    nix-init
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
-    kitty # Fast, feature-rich GPU-based terminal emulator
-    qutebrowser # Keyboard-focused browser with a minimal GUI
     # nyxt # Another keyboard-focused browser (commented out)
     kakoune # Modal editor with multiple selections
     zotero # Reference management software
@@ -68,10 +65,6 @@
     mpv # Feature-rich media player
     aider-chat # AI pair programming tool in your terminal
     cachix
-    code-cursor
-    slack
-    zoom-us
     nvfetcher
-    discord
   ];
 }

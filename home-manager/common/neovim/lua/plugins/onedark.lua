@@ -1,12 +1,12 @@
 return {
 	{
-		'navarasu/onedark.nvim',
+		"navarasu/onedark.nvim",
 		config = function()
-			require('onedark').setup({
-				style = 'dark',
+			require("onedark").setup({
+				style = "dark",
 				highlights = {
-					["@markup.heading.1.markdown"] = { fg = '$cyan', fmt = "bold" },
-					["@markup.heading.1.marker.markdown"] = { fg = '$cyan', fmt = "bold" },
+					["@markup.heading.1.markdown"] = { fg = "$cyan", fmt = "bold" },
+					["@markup.heading.1.marker.markdown"] = { fg = "$cyan", fmt = "bold" },
 				},
 			})
 		end,
