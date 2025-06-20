@@ -1,10 +1,15 @@
-{specialArgs,lib,...}:let
+{ specialArgs, lib, ... }:
+let
   inherit (specialArgs) username;
-in{
-  imports = [../common.nix];
+in
+{
+  imports = [
+    ../common.nix
+    ../modules/darwin
+  ];
   system.stateVersion = 6;
 
-    users = {
+  users = {
     users.${username} = {
       home = "/Users/${username}";
       uid = lib.mkDefault 501;
