@@ -107,6 +107,7 @@
               packages = with pkgs; [
                 nix-fast-build
                 sops
+                go-task
                 (terraform.withPlugins (p: [
                   p.cloudflare
                   p.external

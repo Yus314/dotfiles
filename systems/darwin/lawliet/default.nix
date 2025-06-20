@@ -19,6 +19,8 @@ in
   ids.gids.nixbld = 350;
   system.primaryUser = "kaki";
 
+  networking.hostName = "lawliet";
+
   # Auto upgrade nix package and the daemon service.
   nix.package = pkgs.nix;
   # nixpkgs.hostPlatform = "aarch64-darwin";
