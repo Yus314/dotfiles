@@ -1,0 +1,40 @@
+version: '3'
+vars:
+  HOST:
+    sh: uname -n
+  NIX_PROFILE: /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+  NIX: nom
+  JOBS_X86_64-LINUX: '{{if eq .OS "darwin"}} -j0 {{end}}'
+  JOBS_AARCH64-DARWIN: '{{if eq .OS "linux"}} -j0 {{end}}'
+tasks:
+  switch:
+    cmds:
+      - sudo darwin-rebuild  switch --flake .#{{.HOST}} --show-trace
+  build:
+    desc: 現在のシステム向けのNix Configurationをビルドします
+    deps:
+      - task: '{{.OS}}'
+  build-all:
+    desc: 全てのシステムのNix Configurationをビルドします
+    deps:
+      - linux
+      - darwin
+  linux:
+    desc: Linux (x86_64) 向けのビルド
+    cmds:
+      # YAMLの `|` を使うと複数行のコマンドが見やすく書ける
+      - |
+        {{.NIX}} build --impure --keep-going --no-link --show-trace --system x86_64-linux {{.JOBS_X86_64-LINUX}} \
+          .#nixosConfigurations.home.config.system.build.toplevel \
+          .#nixosConfigurations.lab-main.config.system.build.toplevel
+  darwin:
+    desc: macOS (aarch64) 向けのビルド
+    cmds:
+      - "{{.NIX}} build --keep-going --no-link --show-trace --system aarch64-darwin {{.JOBS_AARCH64-DARWIN}} --option extra-sandbox-paths /nix/store \\\n  .#darwinConfigurations.KakinumanoMacBook-Air.system\n  \n"
+  install_nix:
+    desc: Determinate Systemsのインストーラを使ってNixをインストールします
+    status:
+      - test -f {{.NIX_PROFILE}}
+  uninstal_nix:
+    cmds:
+      - /nix/nix-installer uninstall
