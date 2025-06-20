@@ -23,7 +23,6 @@
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
     kitty # Fast, feature-rich GPU-based terminal emulator
-    qutebrowser # Keyboard-focused browser with a minimal GUI
     # nyxt # Another keyboard-focused browser (commented out)
     kakoune # Modal editor with multiple selections
     zotero # Reference management software

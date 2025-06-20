@@ -6,8 +6,8 @@
 let
   inherit (inputs) org-babel;
   tangle = org-babel.lib.tangleOrgBabel { languages = [ "emacs-lisp" ]; };
-    sources = pkgs.callPackage ../../sources/generated.nix { };
-  emacsPkg = import    ./emacspkg {
+  sources = pkgs.callPackage ../../sources/generated.nix { };
+  emacsPkg = import ./emacspkg {
     inherit pkgs sources;
   };
 in
@@ -29,6 +29,7 @@ in
       pyright
       ruff
       tinymist
+      terraform-ls
     ];
   };
 }

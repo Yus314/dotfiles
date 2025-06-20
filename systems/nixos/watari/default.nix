@@ -159,14 +159,6 @@ in
     enable = true;
   };
   hardware.keyboard.qmk.enable = true;
-  #  home-manager = {
-  #    users.kaki = {
-  #imports = [
-  #  ../../../home-manager/common
-  #  ../../../home-manager/NixOS/gui
-  #  ../../../home-manager/NixOS/cli
-  #];
-  #  };
   security.polkit.enable = true;
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
   programs.hyprland = {

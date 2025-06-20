@@ -21,7 +21,6 @@
     extraConfig = ''
       yabai -m rule --add app=CopyQ manage=off
       yabai -m rule --add app=Pritunl manage=off
-
       yabai -m rule --add label=emacs app=Emacs manage=on
     '';
   };

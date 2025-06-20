@@ -19,6 +19,6 @@ return {
 					end,
 				},
 			})
-		end
+		end,
 	},
 }

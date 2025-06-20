@@ -20,23 +20,22 @@ return {
 				dir = "@cmp_buffer@",
 			},
 			{
-				'rinx/cmp-skkeleton',
+				"rinx/cmp-skkeleton",
 			},
-
 		},
 		config = function()
 			local cmp = require("cmp")
 			cmp.setup({
 				sources = {
-					{ name = 'neorg' },
-					{ name = 'orgmode' },
+					{ name = "neorg" },
+					{ name = "orgmode" },
 				},
 			})
-		end
+		end,
 	},
 	{
 		"delphinus/skkeleton_indicator.nvim",
 		branch = "main",
-		opts = {}
+		opts = {},
 	},
 }

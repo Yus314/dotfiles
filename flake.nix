@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "git+https://github.com/nixos/nixpkgs?shallow=1&ref=nixos-unstable";
     nixpkgs-stable.url = "git+https://github.com/nixos/nixpkgs?shallow=1&ref=nixos-24.05";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-24.11-darwin";
+    #nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-24.11-darwin";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -23,6 +23,10 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     cachix-deploy-flake.url = "github:cachix/cachix-deploy-flake";
     git-hooks.url = "github:cachix/git-hooks.nix";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+    nur-packages.url = "github:Yus314/nur-packages";
+    nur-packages.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs =
     {
@@ -35,7 +39,11 @@
         "aarch64-darwin"
         "x86_64-linux"
       ];
-      imports = [ ./flake-module.nix inputs.git-hooks.flakeModule];
+      imports = [
+        ./flake-module.nix
+        inputs.git-hooks.flakeModule
+        inputs.treefmt-nix.flakeModule
+      ];
       hosts = {
         watari = {
           system = "x86_64-linux";
@@ -51,10 +59,10 @@
         };
       };
 
- #     flake = {
-#	overlays = import ./overlays { inherit inputs; };
-  #    };
-      
+      flake = {
+        overlays = import ./overlays { inherit inputs; };
+      };
+
       perSystem =
         {
           config,
@@ -63,24 +71,53 @@
           ...
         }:
         {
-          #_module.args.pkgs = import self.inputs.nixpkgs {
-          #  inherit system;
-          #  config.allowUnfree = true;
-            #overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
- #         };
+          _module.args.pkgs = import self.inputs.nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+            overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
+          };
           packages = {
             xremap = pkgs.callPackage ./pkgs/xremap { };
           };
-	  pre-commit = {
-	    check.enable = true;
-	    settings = {
-	      src = ./.;
-	      hooks = {
-		nil.enable = true;
-		shellcheck.enable = true;
-		};
-	      };
-	    };
+          pre-commit = {
+            check.enable = true;
+            settings = {
+              src = ./.;
+              hooks = {
+                nil.enable = true;
+                shellcheck.enable = true;
+                treefmt.enable = true;
+              };
+            };
+          };
+          treefmt = {
+            projectRootFile = "flake.nix";
+            programs = {
+              biome.enable = true;
+              nixfmt.enable = true;
+              shfmt.enable = true;
+              stylua.enable = true;
+              taplo.enable = true;
+              terraform.enable = true;
+              yamlfmt.enable = true;
+            };
+          };
+          devShells = {
+            default = pkgs.mkShell {
+              packages = with pkgs; [
+                nix-fast-build
+                sops
+                (terraform.withPlugins (p: [
+                  p.cloudflare
+                  p.external
+                  p.github
+                  p.null
+                  p.sops
+                ]))
+              ];
+              shellHook = config.pre-commit.installationScript;
+            };
+          };
         };
     };
 }
