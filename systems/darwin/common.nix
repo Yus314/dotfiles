@@ -17,8 +17,9 @@ in
   system.stateVersion = 6;
   sops = {
     defaultSopsFile = ../../secrets/default.yaml;
-    age = {
-      keyFile = "/Users/kaki/.config/sops/age/keys.txt";
+    gnupg = {
+      home = "/Users/kaki/.gnupg";
+      sshKeyPaths = [ ];
     };
     secrets = {
       gh-token = { };
