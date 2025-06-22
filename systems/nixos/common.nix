@@ -1,6 +1,24 @@
-{ config, pkgs, ... }:
 {
-  imports = [ ../common.nix ];
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
+let
+  inherit (inputs) xremap;
+in
+{
+  imports = [
+    ../common.nix
+    xremap.nixosModules.default
+  ];
+
+  services.xremap = {
+    enable = true;
+    withWlroots = true;
+    yamlConfig = builtins.readFile ./watari/test.yml;
+  };
+
   sops = {
     defaultSopsFile = ../../secrets/default.yaml;
     age = {
@@ -24,6 +42,8 @@
       pkgs.fcitx5-skk
       pkgs.fcitx5-mozc
       pkgs.fcitx5-gtk
+      pkgs.fcitx5-cskk
+      pkgs.fcitx5-sckk-qt
     ];
     fcitx5.waylandFrontend = true;
   };

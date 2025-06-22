@@ -14,9 +14,8 @@
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    emacs-overlay = {
-      url = "github:nix-community/emacs-overlay";
-    };
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
+
     org-babel.url = "github:emacs-twist/org-babel";
     sops-nix.url = "github:Mic92/sops-nix";
     impermanence.url = "github:nix-community/impermanence";
@@ -27,6 +26,10 @@
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
     nur-packages.url = "github:Yus314/nur-packages";
     nur-packages.inputs.nixpkgs.follows = "nixpkgs";
+    xremap = {
+      url = "github:xremap/nix-flake";
+      inputs.xremap.url = "github:Yus314/xremap/fix-issue-492";
+    };
   };
   outputs =
     {
@@ -60,7 +63,10 @@
       };
 
       flake = {
-        overlays = import ./overlays { inherit inputs; };
+        #   overlays = import ./overlays { inherit inputs; };
+        overlays = {
+          l = import ./pkgs { inherit inputs; };
+        };
       };
 
       perSystem =
@@ -76,8 +82,9 @@
             config.allowUnfree = true;
             overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
           };
-          packages = {
-            xremap = pkgs.callPackage ./pkgs/xremap { };
+          packages = rec {
+            cskk = pkgs.callPackage ./pkgs/cskk { };
+            fcitx5-cskk = pkgs.callPackage ./pkgs/fcitx5-cskk { inherit cskk; };
           };
           pre-commit = {
             check.enable = true;

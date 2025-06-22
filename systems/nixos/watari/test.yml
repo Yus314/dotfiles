@@ -1,11 +1,10 @@
 keymap:
-  -  mode: default
-     remap:
-       C-space: [C-space, {set_mode: shingeta }]
-  -  mode: shingeta
-     remap:
-       C-space: [C-space, {set_mode: default}]
-
+  - mode: default
+    remap:
+      C-space: [C-space, {set_mode: shingeta}]
+  - mode: shingeta
+    remap:
+      C-space: [C-space, {set_mode: default}]
   - name: shinyou
     mode: shingeta
     remap:
@@ -15,60 +14,59 @@ keymap:
           n: [d, i]
           l: [h, y, u]
           p: [r, y, u]
+        timeout_key: Key_MINUS
         timeout_millis: 50
-        timeout_key: [KEY_MINUS]
       y:
         remap:
-         f: [x, y, a]
-         c: [x, u]
-         l: [s, y, u]
-         p: [j, y, u]
-         q: [x, o]
-         d: [x, y, u]
-         s: [x, a]
-         t: [g, o]
-         n: [m, e]
-         r: [x, e]
-         w: [x, y, o]
-         g: [x, i]
-         # m: []
-         # b: []
-         x: [x, w, a]
+          f: [x, y, a]
+          c: [x, u]
+          l: [s, y, u]
+          p: [j, y, u]
+          q: [x, o]
+          d: [x, y, u]
+          s: [x, a]
+          t: [g, o]
+          n: [m, e]
+          r: [x, e]
+          w: [x, y, o]
+          g: [x, i]
+          # m: []
+          # b: []
+          x: [x, w, a]
         timeout_millis: 50
         timeout_key: [n, i]
       o:
         remap:
-         f: [m, y, a]
-         c: [b, y, a]
-         l: [s, y, o]
-         p: [j, y, o]
-         q: [p, y, a]
-         d: [m, y, u]
-         s: [b, y, u]
-         t: [h, u]
-         n: [k, e]
-         r: [p, y, u]
-         w: [m, y, o]
-         g: [b, y, o]
-         # m: []
-         # b: []
-         x: [p, y, o]
-        
+          f: [m, y, a]
+          c: [b, y, a]
+          l: [s, y, o]
+          p: [j, y, o]
+          q: [p, y, a]
+          d: [m, y, u]
+          s: [b, y, u]
+          t: [h, u]
+          n: [k, e]
+          r: [p, y, u]
+          w: [m, y, o]
+          g: [b, y, o]
+          # m: []
+          # b: []
+          x: [p, y, o]
         timeout_millis: 50
         timeout_key: [h, a]
       KEY_DOT:
         remap:
           t: [f, i]
-          n: [t, e, x, i]
+          n: [t, h, i]
           l: [k, y, u]
           p: [g, y, u]
         timeout_millis: 50
-        timeout_key: [KEY_COMMA]
+        timeout_key: KEY_COMMA
       # FIX IT
-      KEY_EQUAL:    
+      KEY_EQUAL:
         remap:
           t: [f, e]
-          n: [d, e, x, i]
+          n: [d, h, i]
           l: [t, y, u]
           p: [n, y, u]
         timeout_millis: 50
@@ -91,41 +89,40 @@ keymap:
         timeout_key: [b, a]
       l:
         remap:
-         k: [h, y, u]
-         y: [s, y, u]
-         o: [s, y, o]
-         KEY_DOT: [k, y, u]
-         KEY_EQUAL: [t, y, u]
-         h: [h, y, o]
-         i: [d, o]
-         e: [y, o]
-         a: [k, y, o]
-         u: [t, y, o]
-         j: [h, y, a,]
-         #KEY_SEMICOLON: []
-         KEY_COMMA: [s, y, a]
-         KEY_APOSTROPHE: [k, y, a]
-         KEY_SLASH: [c, y, a]
+          k: [h, y, u]
+          y: [s, y, u]
+          o: [s, y, o]
+          KEY_DOT: [k, y, u]
+          KEY_EQUAL: [t, y, u]
+          h: [h, y, o]
+          i: [d, o]
+          e: [y, o]
+          a: [k, y, o]
+          u: [t, y, o]
+          j: [h, y, a]
+          #KEY_SEMICOLON: []
+          KEY_COMMA: [s, y, a]
+          KEY_APOSTROPHE: [k, y, a]
+          KEY_SLASH: [c, y, a]
         timeout_millis: 50
         timeout_key: [k, o]
       p:
         remap:
-         k: [r, y, u]
-         y: [j, y, u]
-         o: [j, y, o]
-         KEY_DOT: [g, y, u]
-         KEY_EQUAL: [n, y, u]
-         h: [r, y, o]
-         i: [y, a]
-         e: [m, i]
-         a: [g, y, o]
-         u: [n, y, o]
-         j: [r, y, a,]
-         #KEY_SEMICOLON: []
-         KEY_COMMA: [j, y, a]
-         KEY_APOSTROPHE: [g, y, a]
-         KEY_SLASH: [n, y, a]
-
+          k: [r, y, u]
+          y: [j, y, u]
+          o: [j, y, o]
+          KEY_DOT: [g, y, u]
+          KEY_EQUAL: [n, y, u]
+          h: [r, y, o]
+          i: [y, a]
+          e: [m, i]
+          a: [g, y, o]
+          u: [n, y, o]
+          j: [r, y, a]
+          #KEY_SEMICOLON: []
+          KEY_COMMA: [j, y, a]
+          KEY_APOSTROPHE: [g, y, a]
+          KEY_SLASH: [n, y, a]
         timeout_millis: 50
         timeout_key: [g, a]
       q:
@@ -138,10 +135,9 @@ keymap:
         timeout_key: [h, i]
       z:
         remap:
-          e: [u, x, o]
+          e: [w, h, o]
         timeout_millis: 50
         timeout_key: [g, e]
-        
       # middle row
       h:
         remap:
@@ -153,45 +149,43 @@ keymap:
         timeout_key: [n, o]
       i:
         remap:
-         f: [s, y, e]
-         c: [p, e]
-         l: [d, o]
-         p: [y, a]
-         q: [j, e]
-         d: [b, i]
-         s: [r, a]
-         t: [j, i]
-         n: [s, a]
-         r: [s, o]
-         v: [SHIFT-KEY_SLASH]
-         w: [w, a]
-         g: [d, a]
-         m: [p, i]
-         b: [p, o]
-         x: [t, y, e]
-
+          f: [s, y, e]
+          c: [p, e]
+          l: [d, o]
+          p: [y, a]
+          q: [j, e]
+          d: [b, i]
+          s: [r, a]
+          t: [j, i]
+          n: [s, a]
+          r: [s, o]
+          v: [SHIFT-KEY_SLASH]
+          w: [w, a]
+          g: [d, a]
+          m: [p, i]
+          b: [p, o]
+          x: [t, y, e]
         timeout_millis: 50
         timeout_key: [t, o]
       e:
         remap:
-         f: [w, i]
-         c: [p, a]
-         l: [y, o]
-         p: [m, i]
-         q: [w, e]
-         z: [u, x, o]
-         d: [h, e]
-         s: [a]
-         t: [r, e]
-         n: [o]
-         r: [e]
-         v: [SHIFT-KEY_1]
-         w: [s, e]
-         g: [n, e]
-         m: [b, e]
-         b: [p, u]
-         x: [v, u]
-
+          f: [w, i]
+          c: [p, a]
+          l: [y, o]
+          p: [m, i]
+          q: [w, e]
+          z: [w, h, o]
+          d: [h, e]
+          s: a
+          t: [r, e]
+          n: o
+          r: e
+          v: SHIFT-KEY_1
+          w: [s, e]
+          g: [n, e]
+          m: [b, e]
+          b: [p, u]
+          x: [v, u]
         timeout_millis: 50
         timeout_key: [k, a]
       a:
@@ -220,7 +214,7 @@ keymap:
         timeout_key: [k, u]
       s:
         remap:
-          e: [a]
+          e: a
           i: [r, a]
           o: [b, y, u]
           y: [x, a]
@@ -228,47 +222,45 @@ keymap:
         timeout_key: [u]
       t:
         remap:
-         k: [f, a]
-         y: [g, o]
-         o: [h, u]
-         KEY_DOT: [f, i]
-         KEY_EQUAL: [f, e]
-         h: [h, o]
-         i: [j, i]
-         e: [r, e]
-         a: [m, o]
-         u: [y, u]
-         j: [d, u]
-         KEY_SEMICOLON: [z, o]
-         KEY_COMMA: [b, o]
-         KEY_APOSTROPHE: [m, u]
-         KEY_SLASH: [f, o]
-
+          k: [f, a]
+          y: [g, o]
+          o: [h, u]
+          KEY_DOT: [f, i]
+          KEY_EQUAL: [f, e]
+          h: [h, o]
+          i: [j, i]
+          e: [r, e]
+          a: [m, o]
+          u: [y, u]
+          j: [d, u]
+          KEY_SEMICOLON: [z, o]
+          KEY_COMMA: [b, o]
+          KEY_APOSTROPHE: [m, u]
+          KEY_SLASH: [f, o]
         timeout_millis: 50
-        timeout_key: [i]
+        timeout_key: i
       n:
         remap:
-         k: [d, i]
-         y: [m, e]
-         o: [k, e]
-         KEY_DOT: [t, e, x, i]
-         KEY_EQUAL: [d, e, x, i]
-         h: [w, o]
-         i: [s, a]
-         e: [o]
-         a: [r, i]
-         u: [z, u]
-         j: [z, e]
-         KEY_SEMICOLON: [z, a]
-         KEY_COMMA: [g, i]
-         KEY_APOSTROPHE: [r, o]
-         KEY_SLASH: [n, u]
-
+          k: [d, i]
+          y: [m, e]
+          o: [k, e]
+          KEY_DOT: [t, h, i]
+          KEY_EQUAL: [d, h, i]
+          h: [w, o]
+          i: [s, a]
+          e: o
+          a: [r, i]
+          u: [z, u]
+          j: [z, e]
+          KEY_SEMICOLON: [z, a]
+          KEY_COMMA: [g, i]
+          KEY_APOSTROPHE: [r, o]
+          KEY_SLASH: [n, u]
         timeout_millis: 50
         timeout_key: [s, i]
       r:
         remap:
-          e: [e]
+          e: e
           i: [s, o]
           o: [p, y, u]
           y: [x, e]
@@ -276,11 +268,11 @@ keymap:
         timeout_key: [n, a]
       v:
         remap:
-          e: [SHIFT-KEY_1]
-          i: [SHIFT-KEY_SLASH]
+          e: SHIFT-KEY_1
+          i: SHIFT-KEY_SLASH
         timeout_millis: 50
-        timeout_key: [q]
-     # low column
+        timeout_key: q
+        # low column
       j:
         remap:
           t: [d, u]
@@ -346,7 +338,7 @@ keymap:
           e: [p, u]
           i: [p, o]
         timeout_millis: 50
-        timeout_key: [KEY_DOT]
+        timeout_key: KEY_DOT
       x:
         remap:
           e: [v, u]
