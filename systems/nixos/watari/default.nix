@@ -9,21 +9,7 @@
   ...
 }:
 let
-  xremap = pkgs.callPackage ../../../pkgs/xremap { };
   inherit (inputs) org-babel emacs-overlay;
-  toggle-shingeta-script = pkgs.writeShellScriptBin "toggle-shingeta-by-xremap" ''
-        XREMAP_CONFIG="$HOME/dotfiles/systems/nixos//watari/shingeta.yaml"
-        FCITX_STATE=$(${pkgs.fcitx5}/bin/fcitx5-remote)
-        if [ "$FCITX_STATE" -eq 2 ]; then
-    	if ! ${pkgs.procps}/bin/pgrep -x "xremap" > /dev/null; then
-    	    ${xremap} "$XREMAP_CONFIG" &
-    	fi
-        else
-    	if ${pkgs.procps}/bin/pgrep -x "xremap" > /dev/null; then
-    	    pkill -x "xremap"
-    	fi
-        fi
-  '';
 in
 {
   imports = [
@@ -33,11 +19,14 @@ in
     ./nvidia.nix
     ../common.nix
     ./user.nix
-    #    ./home-manager/common/dropbox.nix
   ];
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
   services.blueman.enable = true;
+
+  services.openssh = {
+    enable = true;
+  };
   sops = {
     defaultSopsFile = ../../../secrets/default.yaml;
     age = {
@@ -78,9 +67,6 @@ in
         "yus314.cachix.org-1:VyHussCju8oVuLg52oE5RDOKMvWIInAvJumaJSvzWvk="
       ];
     };
-    extraOptions = ''
-      !include ${config.sops.templates."gh-token".path}
-    '';
   };
   networking.hostName = "toro";
   services.cachix-agent = {
@@ -94,39 +80,6 @@ in
     path = [ pkgs.mu ];
   };
   services.onedrive.enable = true;
-  # たぶんxremapのため
-  boot.kernelModules = [ "uinput" ];
-  services.udev.extraRules = ''
-    KERNEL=="uinput", GROUP="input", TAG+="uaccess"
-  '';
-
-  #systemd.user.services.shingeta = {
-  #  enable = false;
-  #  wantedBy = [ "default.target" ];
-  #  after = [ "graphical-session.target" ];
-  #  serviceConfig = {
-  #    Type = "dbu";
-  #    WorkingDirectory = "/home/kaki";
-  #    StandardOutput = "journal";
-  #ExecStart = "/home/kaki/dotfiles/systems/nixos/watari/shingeta.sh";
-  #     ExecStart = "${toggle-shingeta-script}/bin/toggle-shingeta-by-xremap";
-  #     Restart = "always";
-  #   };
-  #   environment = {
-  #DIPLAY = "0";
-  #     DBUS_SESSION_BUS_ADDRESS = "unit:path=/run/user/1000/bus";
-  #     GTK_IM_MODULE = "fcitx";
-  #     QT_IM_MODULE = "fcitx";
-  #   };
-  # };
-
-  # systemd.user.timers.shingeta = {
-  #   timerConfig = {
-  #     OnBootSec = "15s";
-  #     OnUnitActiveSec = "1s";
-  #   };
-  #   wantedBy = [ "timers.target" ];
-  # };
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -188,6 +141,7 @@ in
     mu
     sops
     age
+    pinentry-emacs
   ];
   programs.gnupg.agent = {
     enable = true;
