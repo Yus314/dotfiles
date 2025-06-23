@@ -139,20 +139,6 @@ in
   };
   virtualisation.docker.daemon.settings.features.cdi = true;
   virtualisation.docker.rootless.daemon.settings.features.cdi = true;
-  home-manager = {
-    users.kaki = {
-      home = {
-        username = "kaki";
-        homeDirectory = "/home/kaki";
-        stateVersion = "25.05";
-      };
-      nixpkgs.config.allowUnfree = true;
-    };
-    backupFileExtension = "buckup";
-    extraSpecialArgs = {
-      inherit xremap;
-    };
-  };
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowBroken = true;
   boot.loader.systemd-boot.enable = true;
