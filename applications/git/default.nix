@@ -5,7 +5,7 @@
     userName = "Yus314";
     userEmail = "shizhaoyoujie@gmail.com";
     signing = {
-      key = "A9CD106F20CB7E85";
+      key = "D2A9353AEDF9200A";
       format = "openpgp";
       signByDefault = true;
     };
