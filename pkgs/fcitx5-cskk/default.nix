@@ -21,8 +21,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "fcitx";
     repo = "fcitx5-cskk";
-    rev = "223c99a5dde7362f51059a15849edceb4a030d0a";
-    hash = "sha256-NSYtVX7XE9WkI8g1s+pC4/7QHEbQ3GO87ZZA9oMo090=";
+    rev = "6d4407c64df46423c378afeefa71bda3282a7cec";
+    hash = "sha256-UfEmRenWiX2xbIirkDRbix1YQrDz1/sVg6yut8ZRJ0k=";
   };
 
   nativeBuildInputs = [
@@ -42,9 +42,11 @@ stdenv.mkDerivation rec {
       qtbase
     ];
 
+  dontWrapQtApps = true;
+
   cmakeFlags = [
     "-DENABLE_QT=${toString enableQt}"
     "-DUSE_QT6=${toString useQt6}"
-    "-DSKK_DICT_DEFAULT_PATH=${skkDictionaries.l}/share/SKK-JISYO.L"
+    "-DSKK_DICT_DEFAULT_PATH=${skkDictionaries.l}/share/skk/SKK-JISYO.L"
   ];
 }

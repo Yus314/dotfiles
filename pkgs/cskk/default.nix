@@ -4,6 +4,7 @@
   cargo-c,
   rust-bindgen,
   libxkbcommon,
+  libiconv, # add
 }:
 rustPlatform.buildRustPackage rec {
   pname = "cskk";
@@ -18,7 +19,10 @@ rustPlatform.buildRustPackage rec {
   useFetchVendor = true;
   cargoHash = "sha256-XWPeqQ3dC73Hp+TTPdLJtvF0hQ+uI82xfY7DxAXO1gA=";
 
-  buildInputs = [ libxkbcommon.dev ];
+  buildInputs = [
+    libxkbcommon.dev
+    libiconv
+  ];
   nativeBuildInputs = [
     cargo-c
     rust-bindgen
