@@ -1,4 +1,9 @@
-{ inputs, ... }:
+{
+  inputs,
+  pkgs,
+  specialArgs,
+  ...
+}:
 let
   inherit (inputs)
     nixpkgs
@@ -9,25 +14,23 @@ let
     org-babel
     ;
   system = "x86_64-linux";
-
+  inherit (specialArgs) username;
 in
 {
   imports = [
     home-manager.nixosModules.home-manager
     sops-nix.nixosModules.sops
+    ../common.nix
   ];
-  #    home-manager = {
-  #       users.kaki = import ../../home-manager;
-  #       extraSpecialArgs = {
-  #         inherit nixpkgs;
-  #         inherit system;
-  #         inherit org-babel emacs-overlay;
-  #       };
-  #     };
-  #   }
-  # specialArgs = {
-  #   unstable = import unstable {
-  #     sysmet = "x86_64-linux";
-  #     config.allowUnfree = true;
-  #   };
+  home-manager = {
+    users.${username} = {
+      imports = [ ../desktop.nix ];
+    };
+    extraSpecialArgs = {
+      inherit nixpkgs;
+      inherit system;
+      inherit org-babel emacs-overlay;
+    };
+    backupFileExtension = "hm-backup";
+  };
 }
