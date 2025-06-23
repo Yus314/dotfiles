@@ -37,19 +37,8 @@ in
     #  home = "home/kaki/.gnupg";
     #};
     secrets = {
-      gh-token = { };
       cachix-agent-token = {
         sopsFile = ../../../secrets/cachix.yaml;
-      };
-    };
-    templates = {
-      "gh-token" = {
-        owner = "kaki";
-        group = "users";
-        mode = "0440";
-        content = ''
-          	  access-tokens = github.com=${config.sops.placeholder."gh-token"}
-          	'';
       };
     };
 
