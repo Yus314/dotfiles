@@ -13,5 +13,8 @@
         };
       }
     ];
+    interactiveShellInit = ''
+      set -x NIX_CONFIG "access-tokens = github.com="(gh auth token)
+    '';
   };
 }
