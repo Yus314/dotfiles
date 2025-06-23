@@ -25,7 +25,6 @@ in
   };
   sops = {
     secrets = {
-      gh-token = { };
       "dropbox/token/access_token" = { };
       "dropbox/token/token_type" = { };
       "dropbox/token/refresh_token" = { };
@@ -40,14 +39,6 @@ in
     };
     templates = {
 
-      "gh-token" = {
-        owner = "kaki";
-        group = "users";
-        mode = "0440";
-        content = ''
-          	  access-tokens = github.com=${config.sops.placeholder."gh-token"}
-          	'';
-      };
       "dropbox.conf" = {
         owner = "kaki";
         group = "users";

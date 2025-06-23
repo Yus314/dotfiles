@@ -20,19 +20,6 @@ in
     age = {
       keyFile = "/Users/kaki/.config/sops/age/keys.txt";
     };
-    secrets = {
-      gh-token = { };
-    };
-    templates = {
-      "gh-token" = {
-        owner = "kaki";
-        #group = "users";
-        mode = "0440";
-        content = ''
-          	  access-tokens = github.com=${config.sops.placeholder."gh-token"}
-          	'';
-      };
-    };
   };
   # nix.extraOptions = ''
   #   !include ${config.sops.templates."gh-token".path}
