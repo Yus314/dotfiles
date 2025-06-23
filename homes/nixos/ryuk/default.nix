@@ -1,4 +1,9 @@
-{ inputs }:
+{
+  inputs,
+  pkgs,
+  specialArgs,
+  ...
+}:
 let
   inherit (inputs)
     nixpkgs
@@ -8,30 +13,23 @@ let
     emacs-overlay
     org-babel
     ;
-  system = "x86_64-linux";
-
+  inherit (specialArgs) username;
 in
-nixpkgs.lib.nixosSystem {
-  inherit system;
-  modules = [
-    ../../systems/nixos/ryuk
-    home-manager.nixosModules.home-manager
-    {
-      home-manager = {
-        users.kaki = import ../../home-manager;
-        extraSpecialArgs = {
-          inherit nixpkgs;
-          inherit system;
-          inherit org-babel emacs-overlay;
-        };
-      };
-    }
-    sops-nix.nixosModules.sops
+{
+  imports = [
+    inputs.home-manager.nixosModules.home-manager
+    inputs.sops-nix.nixosModules.sops
+    ../common.nix
   ];
-  specialArgs = {
-    unstable = import unstable {
-      sysmet = "x86_64-linux";
-      config.allowUnfree = true;
+  home-manager = {
+    users.${username} = {
+      imports = [
+        ../desktop.nix
+      ];
+    };
+    extraSpecialArgs = {
+      inherit nixpkgs;
+      inherit org-babel emacs-overlay;
     };
   };
 }

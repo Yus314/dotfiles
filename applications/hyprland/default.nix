@@ -39,7 +39,6 @@
       "$terminal" = "kitty";
       bind = [
         "$mainMod SHIFT Control_R, RETURN, exec, tofi-drun | xargs hyprctl dispatch exec --"
-        "$mainMod SHIFT Control_R, o exec, foot"
         "$mainMod, Q, exec, qutebrowser"
         "$mainMod, E, exec, emacsclient -nc"
         "$mainMod, N, movefocus, r"
@@ -66,7 +65,7 @@
       };
     };
   };
-  #xdg.configFile = {
-  #  "xremap/config.yaml".source = ../../../hhkb.yaml;
-  #};
+  xdg.configFile = {
+    "xremap/config.yaml".source = ../../hhkb.yaml;
+  };
 }
