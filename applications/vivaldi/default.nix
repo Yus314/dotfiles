@@ -1,12 +1,12 @@
 { pkgs, ... }:
 {
   programs.vivaldi = {
-    enable = false;
-
+    enable = true;
     package = pkgs.vivaldi;
-    commandLineArgs = [
-      "--enable-features=UseOzonePlatfor"
-      "--ozone-platform=x11"
-    ];
+    #commandLineArgs = [
+    #  "--enable-features=UseOzonePlatfor"
+
+    #"--ozone-platform=x11"
+    #];
   };
 }

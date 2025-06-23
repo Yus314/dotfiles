@@ -4,7 +4,6 @@
   ...
 }:
 let
-  bizin-gothic-discord = pkgs.callPackage ../../../pkgs/bizin { };
   inherit (inputs) emacs-overlay;
 in
 {
@@ -16,17 +15,17 @@ in
     pkgs.pinentry_mac
     pkgs.cloudflared
     #pkgs.brewCasks.dropbox
-    #pkgs.brewCasks.aquaskk
-    #pkgs.brewCasks.zoom
   ];
   ids.gids.nixbld = 350;
   system.primaryUser = "kaki";
+
+  networking.hostName = "lawliet";
 
   # Auto upgrade nix package and the daemon service.
   nix.package = pkgs.nix;
   # nixpkgs.hostPlatform = "aarch64-darwin";
   fonts.packages = [
-    bizin-gothic-discord
+    pkgs.bizin-gothic-nf
   ];
 
   imports = [
@@ -40,6 +39,7 @@ in
   #  noto-fonts-emoji
   #  nerdfonts
   #];
+
   nix.settings = {
     experimental-features = [
       "nix-command"
@@ -53,6 +53,14 @@ in
   };
   services.karabiner-elements = {
     enable = true;
+    package = pkgs.karabiner-elements.overrideAttrs (old: {
+      version = "14.13.0";
+
+      src = pkgs.fetchurl {
+        inherit (old.src) url;
+        hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
+      };
+    });
   };
   #nix-homebrew = {
   # enable = true;

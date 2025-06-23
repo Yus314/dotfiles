@@ -10,19 +10,19 @@ return {
 			{
 				name = "telescope-fzf-native.nvim",
 				dir = "@telescope_fzf_native_nvim@",
-				build = 'make',
+				build = "make",
 			},
 		},
 		config = function()
-			telescope = require('telescope')
-			require('telescope').setup {
+			telescope = require("telescope")
+			require("telescope").setup({
 				defaults = {
 					mappings = {
 						i = {
 							["<C-J>"] = { "<Plug>(skkeleton-enable)", type = "command" },
 							["<C-L>"] = { "<Plug>(skkeleton-disable)", type = "command" },
 						},
-					}
+					},
 				},
 				extensions = {
 					fzf = {
@@ -32,13 +32,13 @@ return {
 						case_mode = "smart_case",
 					},
 				},
-			}
-			require('telescope').load_extension('fzf')
-			local builtin = require('telescope.builtin')
-			vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telecope find files' })
-			vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Telecope live grep' })
-			vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telecope buffers' })
-			vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telecope help tags' })
+			})
+			require("telescope").load_extension("fzf")
+			local builtin = require("telescope.builtin")
+			vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Telecope find files" })
+			vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Telecope live grep" })
+			vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Telecope buffers" })
+			vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Telecope help tags" })
 		end,
 	},
 	{

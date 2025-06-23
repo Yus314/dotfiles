@@ -6,14 +6,14 @@ return {
 			{
 				name = "nvim-web-devicons",
 				dir = "@nvim_web_devicons@",
-			}
+			},
 		},
 		config = function()
-			require('lualine').setup {
+			require("lualine").setup({
 				options = {
-					theme = 'onedark',
+					theme = "onedark",
 				},
-			}
-		end
+			})
+		end,
 	},
 }

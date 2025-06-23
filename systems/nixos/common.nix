@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   imports = [ ../common.nix ];
   sops = {
@@ -22,8 +22,15 @@
     enable = true;
     fcitx5.addons = [
       pkgs.fcitx5-skk
+      pkgs.fcitx5-mozc
+      pkgs.fcitx5-gtk
     ];
     fcitx5.waylandFrontend = true;
   };
 
+  services.dbus.packages = [ config.i18n.inputMethod.package ];
+
+  environment.variables = {
+    QT_IM_MODULE = "fcitx";
+  };
 }

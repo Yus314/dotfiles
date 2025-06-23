@@ -13,23 +13,24 @@ let
     emacs-overlay
     org-babel
     ;
+  system = "x86_64-linux";
   inherit (specialArgs) username;
 in
 {
   imports = [
-    inputs.home-manager.nixosModules.home-manager
-    inputs.sops-nix.nixosModules.sops
+    home-manager.nixosModules.home-manager
+    sops-nix.nixosModules.sops
     ../common.nix
   ];
   home-manager = {
     users.${username} = {
-      imports = [
-        ../desktop.nix
-      ];
-    };
-    extraSpecialArgs = {
-      inherit nixpkgs;
-      inherit org-babel emacs-overlay;
+      imports = [ ../desktop.nix ];
+      extraSpecialArgs = {
+        inherit nixpkgs;
+        inherit system;
+        inherit org-babel emacs-overlay;
+      };
+      backupFileExtension = "hm-backup";
     };
   };
 }

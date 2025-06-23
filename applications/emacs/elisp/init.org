@@ -13,6 +13,12 @@
       (dolist (f functions)
         (autoload f file docstring interactive type))))
 #+end_src
+* exec-path-from-shell[macOS]
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(exec-path-from-shell-initialize) "exec-path-from-shell")
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))
+#+end_src
 * パッケージを読み込まないようにする
 #+begin_src emacs-lisp :tangle yes
   (require 'profiler) ;; Profiler start removed
@@ -26,7 +32,6 @@
   ;(require 'esup)
   ;(setq esup-depth 0)
 #+end_src
-
 * builtin properties
 #+begin_src emacs-lisp :tangle yes
   (setq user-full-name "Yusuke Kakinuma")
@@ -926,6 +931,14 @@ Waylandでペーストできるようにする設定
 
   ;typst-previewだと保存しなくても同期するようになる
   (setq typst-preview-browser "qutebrowser")
+#+end_src
+** terraform
+#+begin_src emacs-lisp :tangle yes
+  (add-to-list 'auto-mode-alist '("\\.tf\\'" . terraform-mode))
+  (autoload 'terraform-mode "terraform-mode" nil t)
+  (with-eval-after-load 'terraform-mode
+    (add-hook 'torraform-mode-hook 'lsp)
+   )
 #+end_src
 * org
 ** org

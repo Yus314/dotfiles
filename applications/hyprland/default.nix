@@ -5,15 +5,16 @@
     systemd.enable = true;
     #systemd.variables = [ "--all" ];
     extraConfig = ''
-                                                           	env = XCURSOR_SIZE,24
-                                                           	env = LIBVA_DRIVER_NAME,nvidia
-                                                           	env = XDG_SESSION_TYPE,wayland
-                                                           	env = GBM_BACKEND,nvidia-drm
-                                                           	env = __GLX_VENDOR_LIBRARY_NAME,nvidia-drm
-         monitor=DVI-D-1,1920x1080@60.00000,0x0,1
-         monitor=HDMI-A-1,1920x1080@74.97300,1920x0,1
-      #   exec-once =  xremap home/kaki/.config/xremap/config.yaml 2>&1 >  home/kaki/shingeta.txt
-               exec-once = waybar
+                                                                 	env = XCURSOR_SIZE,24
+                                                                 	env = LIBVA_DRIVER_NAME,nvidia
+                                                                 	env = XDG_SESSION_TYPE,wayland
+                                                                 	env = GBM_BACKEND,nvidia-drm
+                                                                 	env = __GLX_VENDOR_LIBRARY_NAME,nvidia-drm
+               monitor=DVI-D-1,1920x1080@60.00000,0x0,1
+               monitor=HDMI-A-1,1920x1080@74.97300,1920x0,1
+            #   exec-once =  xremap home/kaki/.config/xremap/config.yaml 2>&1 >  home/kaki/shingeta.txt
+                     exec-once = waybar
+      	       exec-once = fcitx5 -d
     '';
 
     # 				env = WLR_DRM_DEVICES,/dev/dri/card0
