@@ -12,12 +12,12 @@
 {
   imports = [
     # Include the results of the hardware scan.
-    ./host/lab-sub-hardware-configuration.nix
-    ./keymap.nix
-    ./font.nix
-    ./nvidia.nix
-    ./cloudflare.nix
-    ./networks.nix
+    # ./host/lab-sub-hardware-configuration.nix
+    # ./keymap.nix
+    # ./font.nix
+    # ./nvidia.nix
+    # ./cloudflare.nix
+    # ./networks.nix
   ];
 
   # Use the systemd-boot EFI boot loader.
@@ -34,21 +34,22 @@
   };
   nixpkgs.config.allowUnfree = true;
   services.openssh.enable = true;
-  home-manager = {
-    users.kaki = {
-      imports = [
-        ./home-manager/NixOS/gui/i3.nix
-        ./home-manager/NixOS/gui/packages.nix
-        #./home-manager/NixOS/cli
-        ./home-manager/common
-      ];
-      home = {
-        username = "kaki";
-        homeDirectory = "/home/kaki";
-        stateVersion = "24.05";
-      };
-    };
-  };
+  # home-manager = {
+
+  #users.kaki = {
+  #    imports = [
+  #      ./home-manager/NixOS/gui/i3.nix
+  #      ./home-manager/NixOS/gui/packages.nix
+  #./home-manager/NixOS/cli
+  #      ./home-manager/common
+  #    ];
+  #    home = {
+  #      username = "kaki";
+  #      homeDirectory = "/home/kaki";
+  #      stateVersion = "24.05";
+  #    };
+  #  };
+  #};
   users.users.kaki = {
     isNormalUser = true;
     description = "kaki";

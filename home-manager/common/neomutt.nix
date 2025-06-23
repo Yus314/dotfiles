@@ -1,5 +1,0 @@
-{
-  programs.neomutt = {
-    enable = true;
-  };
-}

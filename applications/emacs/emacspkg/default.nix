@@ -5,22 +5,13 @@
     defaultInitFile = true;
     package = pkgs.emacs-unstable-pgtk;
     alwaysTangle = true;
-    override = final: prev: {
-      withXwidgets = true;
-    };
+    override = final: prev: prev // (pkgs.nurEmacsPackages or { });
     extraEmacsPackages =
       epkgs:
-      let
-        packages = pkgs.callPackages ./package.nix { inherit epkgs pkgs; };
-        my_rustic = epkgs.rustic.overrideAttrs (
-          finalAttrs: previousAttrs: {
-            packagesRequires = previousAttrs.packageRequires ++ [ epkgs.flycheck ];
-          }
-        );
-      in
       with epkgs;
       [
         esup
+        exec-path-from-shell
         smooth-scroll
         modus-themes
         perfect-margin
@@ -53,18 +44,19 @@
         nix-ts-mode
         yaml-mode
         rust-mode
-        my_rustic
+        rustic
         python-mode
         lsp-pyright
         typst-ts-mode
-        packages.typst-preview
+        typst-preview
+        terraform-mode
         org-super-agenda
         org-modern
-        packages.org-modern-indent
-        packages.gcal
+        org-modern-indent
+        gcal
         org-roam
         org-roam-ui
-        packages.org-roam-review
+        org-roam-review
         citar
         diff-hl
         magit
@@ -87,7 +79,7 @@
         vterm
         vterm-toggle
         slack
-        packages.ol-emacs-slack
+        ol-emacs-slack
 
         (treesit-grammars.with-grammars (
           p: with p; [
@@ -97,6 +89,7 @@
             tree-sitter-rust
             tree-sitter-python
             tree-sitter-typst
+            tree-sitter-hcl # terraform
           ]
         ))
       ]

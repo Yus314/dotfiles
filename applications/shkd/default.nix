@@ -3,8 +3,9 @@
     enable = true;
     skhdConfig = ''
                                                         # launch application 
-                                    				#	alt - return : open -na "''${HOME}/Applications/Home Manager Apps/Alacritty.app"
-            											alt - e : open -na "/Users/kakinumayuusuke/.nix-profile/bin/emacs"
+                                    				#	alt - return : open -na "''${HOME}/Applications/Home Manager Apps/Alacritty.app
+            											alt - e : open -na  '/Users/kaki/Applications/Home Manager Apps/Emacs.app/Contents/MacOS/Emacs'
+	                											alt - q : open -na  '/Users/kaki/Applications/Home Manager Apps/qutebrowser.app/Contents/MacOS/qutebrowser'
                               							cmd + alt - s : yabai --load-sa
       			alt - e : emacs
 

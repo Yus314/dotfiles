@@ -4,9 +4,9 @@ return {
 		dir = "@orgmode@",
 		-- ft = { "org" },
 		config = function()
-			require('orgmode').setup({
-				org_agenda_files = '~/opgfiles/**/*',
-				org_default_notes_file = '~/opgfiles/refile.org',
+			require("orgmode").setup({
+				org_agenda_files = "~/opgfiles/**/*",
+				org_default_notes_file = "~/opgfiles/refile.org",
 				org_capture_templates = {
 					m = {
 						description = "メモ",
@@ -34,8 +34,7 @@ return {
 						template = "* %? %U \n",
 						target = "~/Dropbox/project/smash.org",
 					},
-
-				}
+				},
 			})
 		end,
 	},

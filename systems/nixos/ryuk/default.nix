@@ -9,7 +9,6 @@
   ...
 }:
 let
-  bizin-gothic-discord = pkgs.callPackage ../../../pkgs/bizin { };
   xremap = pkgs.callPackage ../../../pkgs/xremap { };
 in
 {
@@ -19,7 +18,7 @@ in
     ../common.nix
     ../services/dropbox
   ];
-  fonts.packages = [ bizin-gothic-discord ];
+  fonts.packages = [ pkgs.bizin-gothic-nf ];
   fonts.fontDir.enable = true;
   programs.gnupg.agent = {
     enable = true;
