@@ -25,12 +25,12 @@ in
   home-manager = {
     users.${username} = {
       imports = [ ../desktop.nix ];
-      extraSpecialArgs = {
-        inherit nixpkgs;
-        inherit system;
-        inherit org-babel emacs-overlay;
-      };
-      backupFileExtension = "hm-backup";
     };
+    extraSpecialArgs = {
+      inherit nixpkgs;
+      inherit system;
+      inherit org-babel emacs-overlay;
+    };
+    backupFileExtension = "hm-backup";
   };
 }
