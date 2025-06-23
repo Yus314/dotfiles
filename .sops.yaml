@@ -1,5 +1,5 @@
 keys:
-  - &admin_kaki D1070BA2EC9EFAFECDA9389101EC441050EDC406
+  - &admin_kaki B0F6B192E4253A5DBD33A7F2D2A9353AEDF9200A
   - &admin_yusuke age1zr08ellgzkyaudu2lmjtfp7ffgf3l2su8p3lntku9nr5l8n2ysqs5gcnmw
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
