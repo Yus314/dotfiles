@@ -22,6 +22,7 @@
     ../applications/wezterm
     ../applications/zsh
     ../applications/ssh
+    ../applications/gh
   ];
   services.gpg-agent = {
     enable = true;
@@ -31,6 +32,7 @@
     maxCacheTtlSsh = 60 * 60 * 24;
     enableSshSupport = true;
     enableExtraSocket = true;
+    pinentry.package = pkgs.pinentry-emacs;
   };
 
   programs.fish = {
