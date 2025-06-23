@@ -1885,9 +1885,9 @@ Waylandでペーストできるようにする設定
   ;  )
   ;(add-to-list 'tramp-remote-path "/run/current-system/sw/bin")
   (require 'tramp-sh)
-  ;(setq tramp-remote-path
-  ;     (append tramp-remote-path
-  ; 	      '(tramp-own-remote-path)))
+  (setq tramp-remote-path
+       (append tramp-remote-path
+   	      '(tramp-own-remote-path)))
 
 #+end_src
 * Dired

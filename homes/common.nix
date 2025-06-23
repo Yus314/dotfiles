@@ -21,6 +21,7 @@
     ../applications/offlineimap
     ../applications/wezterm
     ../applications/zsh
+    ../applications/ssh
   ];
   services.gpg-agent = {
     enable = true;
