@@ -1,5 +1,12 @@
 keymap:
-  - name: Singata
+  - mode: default
+    remap:
+      C-space: [C-space, {set_mode: shingeta}]
+  - mode: shingeta
+    remap:
+      C-space: [C-space, {set_mode: default}]
+  - name: shinyou
+    mode: shingeta
     remap:
       k:
         remap:
@@ -7,8 +14,8 @@ keymap:
           n: [d, i]
           l: [h, y, u]
           p: [r, y, u]
+        timeout_key: Key_MINUS
         timeout_millis: 50
-        timeout_key: [KEY_MINUS]
       y:
         remap:
           f: [x, y, a]
@@ -50,16 +57,16 @@ keymap:
       KEY_DOT:
         remap:
           t: [f, i]
-          n: [t, e, x, i]
+          n: [t, h, i]
           l: [k, y, u]
           p: [g, y, u]
         timeout_millis: 50
-        timeout_key: [KEY_COMMA]
+        timeout_key: KEY_COMMA
       # FIX IT
       KEY_EQUAL:
         remap:
           t: [f, e]
-          n: [d, e, x, i]
+          n: [d, h, i]
           l: [t, y, u]
           p: [n, y, u]
         timeout_millis: 50
@@ -128,7 +135,7 @@ keymap:
         timeout_key: [h, i]
       z:
         remap:
-          e: [u, x, o]
+          e: [w, h, o]
         timeout_millis: 50
         timeout_key: [g, e]
       # middle row
@@ -167,13 +174,13 @@ keymap:
           l: [y, o]
           p: [m, i]
           q: [w, e]
-          z: [u, x, o]
+          z: [w, h, o]
           d: [h, e]
-          s: [a]
+          s: a
           t: [r, e]
-          n: [o]
-          r: [e]
-          v: [SHIFT-KEY_1]
+          n: o
+          r: e
+          v: SHIFT-KEY_1
           w: [s, e]
           g: [n, e]
           m: [b, e]
@@ -207,7 +214,7 @@ keymap:
         timeout_key: [k, u]
       s:
         remap:
-          e: [a]
+          e: a
           i: [r, a]
           o: [b, y, u]
           y: [x, a]
@@ -231,17 +238,17 @@ keymap:
           KEY_APOSTROPHE: [m, u]
           KEY_SLASH: [f, o]
         timeout_millis: 50
-        timeout_key: [i]
+        timeout_key: i
       n:
         remap:
           k: [d, i]
           y: [m, e]
           o: [k, e]
-          KEY_DOT: [t, e, x, i]
-          KEY_EQUAL: [d, e, x, i]
+          KEY_DOT: [t, h, i]
+          KEY_EQUAL: [d, h, i]
           h: [w, o]
           i: [s, a]
-          e: [o]
+          e: o
           a: [r, i]
           u: [z, u]
           j: [z, e]
@@ -253,7 +260,7 @@ keymap:
         timeout_key: [s, i]
       r:
         remap:
-          e: [e]
+          e: e
           i: [s, o]
           o: [p, y, u]
           y: [x, e]
@@ -261,10 +268,10 @@ keymap:
         timeout_key: [n, a]
       v:
         remap:
-          e: [SHIFT-KEY_1]
-          i: [SHIFT-KEY_SLASH]
+          e: SHIFT-KEY_1
+          i: SHIFT-KEY_SLASH
         timeout_millis: 50
-        timeout_key: [q]
+        timeout_key: q
         # low column
       j:
         remap:
@@ -331,7 +338,7 @@ keymap:
           e: [p, u]
           i: [p, o]
         timeout_millis: 50
-        timeout_key: [KEY_DOT]
+        timeout_key: KEY_DOT
       x:
         remap:
           e: [v, u]
