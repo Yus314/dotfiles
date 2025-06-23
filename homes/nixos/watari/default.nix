@@ -39,9 +39,6 @@ in
       inherit emacs-overlay;
     };
     backupFileExtension = "hm-backup";
-    extraSpecialArgs = {
-      inherit org-babel;
-    };
 
   };
   #   }
