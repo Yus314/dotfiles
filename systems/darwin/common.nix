@@ -17,10 +17,22 @@ in
   system.stateVersion = 6;
   sops = {
     defaultSopsFile = ../../secrets/default.yaml;
-    age = {
-      keyFile = "/Users/kaki/.config/sops/age/keys.txt";
+    gnupg = {
+      home = "/Users/kaki/.gnupg";
+      sshKeyPaths = [ ];
     };
   };
+
+  # distributed builds fail with the following error
+  # fish: Unknown command: nix-store
+  # see the workaround
+  # https://github.com/NixOS/nix/issues/7508#issuecomment-2597403478
+  programs.fish.shellInit = ''
+    if test -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish' && test -n "$SSH_CONNECTION"
+      source '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish'
+    end
+  '';
+
   # nix.extraOptions = ''
   #   !include ${config.sops.templates."gh-token".path}
   # '';

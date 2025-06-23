@@ -7,10 +7,16 @@
         user = "kaki";
         port = 53;
         proxyCommand = "${pkgs.lib.getExe pkgs.cloudflared} access ssh --hostname test.mdip2home.com";
-        identityFile = [
-          "~/.ssh/id_ed25519"
-        ];
+        #       identityFile = [
+        #        "~/.ssh/id_ed25519"
+        #     ];
       };
     };
+    includes = [ "config.d/*" ];
+  };
+  programs.fish = {
+    interactiveShellInit = ''
+      set -x SSH_AUTH_SOCK $(gpgconf --list-dirs agent-ssh-socket)
+    '';
   };
 }

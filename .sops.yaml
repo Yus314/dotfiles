@@ -10,5 +10,7 @@ creation_rules:
           - *admin_yusuke 
   - path_regex: infra/*
     key_groups:
-      - age:
+      - pgp:
+          - *admin_kaki 
+        age:
           - *admin_yusuke 

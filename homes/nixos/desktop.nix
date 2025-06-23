@@ -21,19 +21,6 @@
     pinta
     nyxt
   ];
-  #  systemd.user.services.shingata = {
-
-  #    Install = {
-  #      WantedBy = [ "default.target" ];
-  #    };
-  #    Service = {
-  #
-  #      ExecStart = ''
-  #        	    ${pkgs.dbus}/bin/dbus-monitor "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged',path='/controller',arg0='org.fcitx.Fcitx.Controller1'"
-  #        	  '';
-  #    };
-  #  };
-
   programs.waybar = {
     enable = false;
     systemd.enable = true;
