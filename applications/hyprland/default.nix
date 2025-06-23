@@ -66,7 +66,7 @@
       };
     };
   };
-  #xdg.configFile = {
-  #  "xremap/config.yaml".source = ../../../hhkb.yaml;
-  #};
+  xdg.configFile = {
+    "xremap/config.yaml".source = ../../hhkb.yaml;
+  };
 }

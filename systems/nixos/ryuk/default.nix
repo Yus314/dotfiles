@@ -130,20 +130,6 @@ in
   };
   virtualisation.docker.daemon.settings.features.cdi = true;
   virtualisation.docker.rootless.daemon.settings.features.cdi = true;
-  # home-manager = {
-  #   users.kaki = {
-  #     home = {
-  #       username = "kaki";
-  #       homeDirectory = "/home/kaki";
-  #       stateVersion = "24.11";
-  #     };
-  #     nixpkgs.config.allowUnfree = true;
-  #   };
-  #   backupFileExtension = "buckup";
-  #   extraSpecialArgs = {
-  #     inherit xremap;
-  #   };
-  # };
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowBroken = true;
   boot.loader.systemd-boot.enable = true;
@@ -190,7 +176,6 @@ in
   # Select internationalisation properties.
   programs.fish.enable = true;
   programs.zsh.enable = true;
-  # users.users.kaki.shell = pkgs.bash;
   security.polkit.enable = true;
 
   services.meshcentral.enable = true;
@@ -257,5 +242,5 @@ in
     openssl
   ];
 
-  system.stateVersion = "24.11"; # Did you read the comment?
+  system.stateVersion = "25.05"; # Did you read the comment?
 }
