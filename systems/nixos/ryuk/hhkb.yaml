@@ -1,0 +1,39 @@
+modmap:
+    - name: HHKB
+      remap:
+          q: k
+          w: y
+          e: o
+          r: KEY_DOT
+          t: KEY_EQUAL
+          y: f
+          u: c
+          i: l
+          o: p
+          p: q
+          KEY_LEFTBRACE: z
+          # middle column
+          a: h
+          s: i
+          d: e
+          f: a
+          g: u
+          h: d
+          j: s
+          k: t
+          l: n
+          KEY_SEMICOLON: r
+          KEY_APOSTROPHE: v
+          # low column
+          z: j
+          x: KEY_SEMICOLON
+          c: KEY_COMMA
+          v: KEY_APOSTROPHE
+          b: KEY_SLASH
+          n: w
+          m: g
+          KEY_COMMA: m
+          KEY_DOT: b
+          KEY_SLASH: x
+            
+

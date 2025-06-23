@@ -145,7 +145,7 @@ in
       home = {
         username = "kaki";
         homeDirectory = "/home/kaki";
-        stateVersion = "24.11";
+        stateVersion = "25.05";
       };
       nixpkgs.config.allowUnfree = true;
     };
@@ -200,7 +200,6 @@ in
   # Select internationalisation properties.
   programs.fish.enable = true;
   programs.zsh.enable = true;
-  users.users.kaki.shell = pkgs.bash;
   security.polkit.enable = true;
 
   services.meshcentral.enable = true;
@@ -267,5 +266,5 @@ in
     openssl
   ];
 
-  system.stateVersion = "24.11"; # Did you read the comment?
+  system.stateVersion = "25.05"; # Did you read the comment?
 }
