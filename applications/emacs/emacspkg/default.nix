@@ -38,7 +38,7 @@
         cape
         ellama
         aidermacs
-        lsp-bridge
+        #lsp-bridge
         lsp-mode
         lsp-ui
         nix-ts-mode

@@ -736,8 +736,8 @@ Waylandでペーストできるようにする設定
 #+end_src
 * yasnippet
 #+begin_src emacs-lisp :tangle yes
-  (autoload-if-found '(yas-global-mode) "yasnippet" nil t)
-  (yas-global-mode)
+  ;(autoload-if-found '(yas-global-mode) "yasnippet" nil t)
+  ;(yas-global-mode)
 #+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes

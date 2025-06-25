@@ -13,8 +13,6 @@
 
     fzf.enable = true;
 
-    gh.enable = true;
-
     ripgrep.enable = true;
 
     starship = {
