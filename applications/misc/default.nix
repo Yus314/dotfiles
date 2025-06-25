@@ -52,6 +52,7 @@
     rclone # Rsync for cloud storage
     # xremap # Key remapper (commented out)
     nix-init
+    ghq
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings

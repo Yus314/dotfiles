@@ -20,9 +20,20 @@ provider "github" {
   token = data.sops_file.secret.data["token"]
 }
 
+
 resource "github_user_ssh_key" "default" {
   title = "shizhaoyoujie@gmail.com"
   key   = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAHvJKRmO1WHVDdcPTyc7E7t0nLA8QNLt6SqrYC0zCLPP71J7gul03nNwPObQV57H/so1Fgds/tA4NZCAOxDBPmjXwAZG1z6bi/uzUcvviFGZftuh8zB4+jNyZ7yoJZNIpOZNz0Miyo46qg+FSygVmAknxmabh/zvKyDIiv4lpW+8Iz2Vw=="
+}
+
+resource "github_user_ssh_key" "sub" {
+  title = "lab-main"
+  key   = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBABF3IhEIQiwFjYWAuZ+vug+YKI2IGCDMGe637XdOJcffcgdkdBc3wA3SglQNxr25NHS3Zbk5kaq3CV+r4jiksnVpgAQADghKpOZYbE9JZ6JpHAHzPUT4QGawlE3QCGg0D6iOG0Af+oneZSAGc5oIS1LMck5lbuOBwcdgX6mqEsJAyp4vQ=="
+}
+
+resource "github_user_ssh_key" "desktop" {
+  title = "mine"
+  key   = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGoH/MMMVf2dOmZdh6eppe3zmVmgBCw0CEXHs+VVl6pDWBsZCjBhmwszk6qRXO3hH8vNZlCeqZpTsMVoRxjrYm0xgBks/YXiC9cyPy5sVmvf3Qy4R2DdtgqkJiqei9cZ9ybvjtc92GdYAH5cS88TzLmAgKFFeuK30nchy+qgBHcZQ/bwA=="
 }
 
 resource "github_user_gpg_key" "main" {
