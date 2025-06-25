@@ -1,12 +1,28 @@
-{ config, pkgs, ... }:
 {
-  imports = [ ../common.nix ];
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
+let
+  inherit (inputs) xremap;
+  cskk = pkgs.callPackage ../../pkgs/cskk { };
+  #fcitx5-cskk = pkgs.libsForQt5.callPackage ../../pkgs/fcitx5-cskk { inherit cskk; };
+  #fcitx5-cskk-qt = fcitx5-cskk.override { enableQt = true; };
+in
+{
+  imports = [
+    ../common.nix
+    ./services/xremap
+  ];
+
   sops = {
     defaultSopsFile = ../../secrets/default.yaml;
-    age = {
-      keyFile = "/home/kaki/.config/sops/age/keys.txt";
-      generateKey = true;
-    };
+    #age.keyFile = null;
+    #gnupg = {
+    #  home = "/home/kaki/.gnupg";
+    #  sshKeyPaths = [ ];
+    #};
   };
   services.greetd = {
     enable = true;
@@ -17,6 +33,9 @@
       };
     };
   };
+
+  i18n.defaultLocale = "en_US.UTF-8";
+
   i18n.inputMethod = {
     type = "fcitx5";
     enable = true;
@@ -24,6 +43,8 @@
       pkgs.fcitx5-skk
       pkgs.fcitx5-mozc
       pkgs.fcitx5-gtk
+      #   fcitx5-cskk
+      #  fcitx5-cskk-qt
     ];
     fcitx5.waylandFrontend = true;
   };

@@ -9,7 +9,6 @@
   ...
 }:
 let
-  xremap = pkgs.callPackage ../../../pkgs/xremap { };
   inherit (inputs) org-babel emacs-overlay;
 in
 {
@@ -20,11 +19,14 @@ in
     ./nvidia.nix
     ../common.nix
     ./user.nix
-    #    ./home-manager/common/dropbox.nix
   ];
-  #hardware.bluetooth.enable = true;
-  #hardware.bluetooth.powerOnBoot = true;
-  #services.blueman.enable = true;
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+  services.blueman.enable = true;
+
+  services.openssh = {
+    enable = true;
+  };
   sops = {
     defaultSopsFile = ../../../secrets/default.yaml;
     age = {
@@ -35,19 +37,8 @@ in
     #  home = "home/kaki/.gnupg";
     #};
     secrets = {
-      gh-token = { };
       cachix-agent-token = {
         sopsFile = ../../../secrets/cachix.yaml;
-      };
-    };
-    templates = {
-      "gh-token" = {
-        owner = "kaki";
-        group = "users";
-        mode = "0440";
-        content = ''
-          	  access-tokens = github.com=${config.sops.placeholder."gh-token"}
-          	'';
       };
     };
 
@@ -65,9 +56,6 @@ in
         "yus314.cachix.org-1:VyHussCju8oVuLg52oE5RDOKMvWIInAvJumaJSvzWvk="
       ];
     };
-    extraOptions = ''
-      !include ${config.sops.templates."gh-token".path}
-    '';
   };
   networking.hostName = "toro";
   services.cachix-agent = {
@@ -81,26 +69,6 @@ in
     path = [ pkgs.mu ];
   };
   services.onedrive.enable = true;
-  # たぶんxremapのため
-  boot.kernelModules = [ "uinput" ];
-  services.udev.extraRules = ''
-    KERNEL=="uinput", GROUP="input", TAG+="uaccess"
-  '';
-
-  #  systemd.user.services.xremap = {
-  #    enable = true;
-  #    wantedBy = [ "default.target" ];
-  # after = [ "graphical-session.target" ];
-  #    serviceConfig = {
-  #      Type = "exec";
-  #      TimeOutStartSec = 30;
-  #      WorkingDirectory = "/home/kaki";
-  #      StandardOutput = "journal";
-  #      ExecStart = "${xremap}/bin/xremap /home/kaki/dotfiles/shingeta.yaml";
-  #      Restart = "always";
-  #    };
-
-  #  };
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -162,6 +130,7 @@ in
     mu
     sops
     age
+    pinentry-emacs
   ];
   programs.gnupg.agent = {
     enable = true;

@@ -23,7 +23,6 @@
         function fish_greeting; end
         function fish_title; end
       end
-      set -x SSH_AUTH_SOCK $(gpgconf --list-dirs agent-ssh-socket)
     '';
   };
 }

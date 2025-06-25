@@ -21,19 +21,6 @@ in
       home = "/Users/kaki/.gnupg";
       sshKeyPaths = [ ];
     };
-    secrets = {
-      gh-token = { };
-    };
-    templates = {
-      "gh-token" = {
-        owner = "kaki";
-        #group = "users";
-        mode = "0440";
-        content = ''
-          	  access-tokens = github.com=${config.sops.placeholder."gh-token"}
-          	'';
-      };
-    };
   };
 
   # distributed builds fail with the following error

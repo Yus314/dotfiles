@@ -1,0 +1,15 @@
+# launch application
+
+#	alt - return : open -na "''${HOME}/Applications/Home Manager Apps/Alacritty.app
+alt - e : open -na  '/Users/kaki/Applications/Home Manager Apps/Emacs.app/Contents/MacOS/Emacs'
+alt - q : open -na  '/Users/kaki/Applications/Home Manager Apps/qutebrowser.app/Contents/MacOS/qutebrowser'
+
+cmd + alt - s : yabai --load-sa
+alt - e : emacs
+
+# focus window
+
+alt - d: yabai -m window --focus west || yabai -m display --focus west
+alt - n: yabai -m window --focus east || yabai -m display --focus east
+alt - t: yabai -m window --focus south || yabai -m display --focus south
+alt - s: yabai -m window --focus north || yabai -m display --focus north
