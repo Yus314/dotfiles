@@ -62,7 +62,7 @@
       };
 
       flake = {
-        overlays = import ./overlays { inherit inputs; };
+        # overlays = import ./overlays { inherit inputs; };
       };
 
       perSystem =
@@ -79,8 +79,8 @@
             overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
           };
           packages = rec {
-            cskk = pkgs.callPackage ./pkgs/cskk { };
-            fcitx5-cskk = pkgs.libsForQt5.callPackage ./pkgs/fcitx5-cskk { inherit cskk; };
+            # cskk = pkgs.callPackage ./pkgs/cskk { };
+            #fcitx5-cskk = pkgs.libsForQt5.callPackage ./pkgs/fcitx5-cskk { inherit cskk; };
           };
           pre-commit = {
             check.enable = true;
