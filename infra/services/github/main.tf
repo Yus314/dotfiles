@@ -25,6 +25,11 @@ resource "github_user_ssh_key" "default" {
   key   = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAHvJKRmO1WHVDdcPTyc7E7t0nLA8QNLt6SqrYC0zCLPP71J7gul03nNwPObQV57H/so1Fgds/tA4NZCAOxDBPmjXwAZG1z6bi/uzUcvviFGZftuh8zB4+jNyZ7yoJZNIpOZNz0Miyo46qg+FSygVmAknxmabh/zvKyDIiv4lpW+8Iz2Vw=="
 }
 
+resource "github_user_ssh_key" "desktop" {
+  title = "mine"
+  key   = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGoH/MMMVf2dOmZdh6eppe3zmVmgBCw0CEXHs+VVl6pDWBsZCjBhmwszk6qRXO3hH8vNZlCeqZpTsMVoRxjrYm0xgBks/YXiC9cyPy5sVmvf3Qy4R2DdtgqkJiqei9cZ9ybvjtc92GdYAH5cS88TzLmAgKFFeuK30nchy+qgBHcZQ/bwA=="
+}
+
 resource "github_user_gpg_key" "main" {
   armored_public_key = <<EOT
 -----BEGIN PGP PUBLIC KEY BLOCK-----
