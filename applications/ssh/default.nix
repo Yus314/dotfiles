@@ -4,7 +4,7 @@
     enable = true;
     matchBlocks = {
       "ryuk" = {
-        hostnema = "test.mdip2home.com";
+        hostname = "test.mdip2home.com";
         user = "kaki";
         port = 53;
         proxyCommand = "${pkgs.lib.getExe pkgs.cloudflared} access ssh --hostname test.mdip2home.com";
@@ -13,7 +13,7 @@
         #     ];
       };
       "rem" = {
-        hostnema = "sub.mdip2home.com";
+        hostname = "sub.mdip2home.com";
         user = "kaki";
         port = 53;
         proxyCommand = "${pkgs.lib.getExe pkgs.cloudflared} access ssh --hostname sub.mdip2home.com";
