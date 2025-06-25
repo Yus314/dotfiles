@@ -32,7 +32,7 @@
     maxCacheTtlSsh = 60 * 60 * 24;
     enableSshSupport = true;
     enableExtraSocket = true;
-    pinentry.package = pkgs.pinentry-emacs;
+    pinentry.package = pkgs.pinentry-tty;
   };
 
   programs.fish = {
