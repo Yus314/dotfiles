@@ -3,10 +3,20 @@
   programs.ssh = {
     enable = true;
     matchBlocks = {
-      "127.0.0.53" = {
+      "ryuk" = {
+        hostnema = "test.mdip2home.com";
         user = "kaki";
         port = 53;
         proxyCommand = "${pkgs.lib.getExe pkgs.cloudflared} access ssh --hostname test.mdip2home.com";
+        #       identityFile = [
+        #        "~/.ssh/id_ed25519"
+        #     ];
+      };
+      "rem" = {
+        hostnema = "sub.mdip2home.com";
+        user = "kaki";
+        port = 53;
+        proxyCommand = "${pkgs.lib.getExe pkgs.cloudflared} access ssh --hostname sub.mdip2home.com";
         #       identityFile = [
         #        "~/.ssh/id_ed25519"
         #     ];

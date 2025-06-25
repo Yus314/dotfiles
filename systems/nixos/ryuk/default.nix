@@ -111,6 +111,7 @@ in
       trusted-public-keys = [
         "yus314.cachix.org-1:VyHussCju8oVuLg52oE5RDOKMvWIInAvJumaJSvzWvk="
       ];
+      max-jobs = 4;
     };
   };
   #boot.kernelModules = ["uinput"];
@@ -157,7 +158,7 @@ in
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
-  networking.hostName = "lab-main"; # Define your hostname.
+  networking.hostName = "ryuk"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary

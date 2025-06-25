@@ -11,18 +11,18 @@ let
   inherit (specialArgs) username;
 in
 {
+  imports = [
+    ../modules/nix
+    ../applications/nix/buildMachines.nix
+  ];
+  programs.nix.target.system = true;
+
   nixpkgs.overlays = [
     emacs-overlay.overlays.default
     nur-packages.overlays.default
   ] ++ lib.attrValues self.overlays;
 
   nixpkgs.config.allowUnfree = true;
-
-  nix.settings.trusted-users = [
-    "root"
-    "@wheel"
-    "@admin"
-  ];
 
   environment.shells = [ pkgs.fish ];
   programs.fish.enable = true;

@@ -43,24 +43,10 @@ in
     };
 
   };
-  nix = {
-    settings = {
-      experimental-features = [
-        "nix-command"
-        "flakes"
-      ];
-      substituters = [
-        "https://yus314.cachix.org"
-      ];
-      trusted-public-keys = [
-        "yus314.cachix.org-1:VyHussCju8oVuLg52oE5RDOKMvWIInAvJumaJSvzWvk="
-      ];
-    };
-  };
-  networking.hostName = "toro";
+  networking.hostName = "watari";
   services.cachix-agent = {
     enable = true;
-    name = "toro";
+    name = "watari";
     credentialsFile = config.sops.secrets.cachix-agent-token.path;
   };
 
