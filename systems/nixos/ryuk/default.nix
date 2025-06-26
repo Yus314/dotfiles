@@ -50,21 +50,6 @@ in
     '';
   };
 
-  systemd.user.services.remap = {
-    enable = true;
-    wantedBy = [ "default.target" ];
-    # after = [ "graphical-session.target" ];
-    serviceConfig = {
-      Type = "exec";
-      TimeOutStartSec = 30;
-      WorkingDirectory = "/home/kaki";
-      StandardOutput = "journal";
-      ExecStart = "${xremap}/bin/xremap /home/kaki/.config/xremap/config.yaml";
-
-      Restart = "always";
-    };
-  };
-
   services.cloudflared = {
     enable = true;
     tunnels."d2bb7add-9929-4016-a839-0e03a71bdb14" = {
