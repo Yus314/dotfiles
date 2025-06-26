@@ -12,12 +12,13 @@
 {
   imports = [
     # Include the results of the hardware scan.
-    # ./host/lab-sub-hardware-configuration.nix
+    ./lab-sub-hardware-configuration.nix
     # ./keymap.nix
     # ./font.nix
     # ./nvidia.nix
     # ./cloudflare.nix
     # ./networks.nix
+    ../common.nix
   ];
 
   # Use the systemd-boot EFI boot loader.
@@ -53,7 +54,6 @@
   users.users.kaki = {
     isNormalUser = true;
     description = "kaki";
-    shell = pkgs.bash;
     extraGroups = [
       "networkmanager"
       "wheel"
