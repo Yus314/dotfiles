@@ -25,33 +25,12 @@ in
   };
   sops = {
     secrets = {
-      "dropbox/token/access_token" = { };
-      "dropbox/token/token_type" = { };
-      "dropbox/token/refresh_token" = { };
-      "dropbox/token/expiry" = { };
       cachix-agent-token = {
         sopsFile = ../../../secrets/cachix.yaml;
       };
       cloudflared-tunnel-cert = {
       };
       cloudflared-tunnel-cred = {
-      };
-    };
-    templates = {
-
-      "dropbox.conf" = {
-        owner = "kaki";
-        group = "users";
-        mode = "0440";
-        content = ''
-          [dropbox]
-          type = dropbox
-          token = {"access_token":"${config.sops.placeholder."dropbox/token/access_token"}","token_type":"${
-            config.sops.placeholder."dropbox/token/token_type"
-          }","refresh_token":"${config.sops.placeholder."dropbox/token/refresh_token"}","expiry":"${
-            config.sops.placeholder."dropbox/token/expiry"
-          }"}
-        '';
       };
     };
   };
