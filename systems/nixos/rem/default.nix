@@ -18,7 +18,7 @@
     # ./nvidia.nix
     # ./cloudflare.nix
     # ./networks.nix
-    ./common.nix
+    ../common.nix
   ];
 
   # Use the systemd-boot EFI boot loader.
