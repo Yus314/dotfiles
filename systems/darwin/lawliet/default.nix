@@ -14,16 +14,12 @@ in
     pkgs.gnupg
     pkgs.pinentry_mac
     pkgs.cloudflared
-    #pkgs.brewCasks.dropbox
   ];
   ids.gids.nixbld = 350;
   system.primaryUser = "kaki";
 
   networking.hostName = "lawliet";
 
-  # Auto upgrade nix package and the daemon service.
-  nix.package = pkgs.nix;
-  # nixpkgs.hostPlatform = "aarch64-darwin";
   fonts.packages = [
     pkgs.bizin-gothic-nf
   ];
@@ -62,8 +58,4 @@ in
       };
     });
   };
-  #nix-homebrew = {
-  # enable = true;
-  # enableRosetta = true;
-  #};
 }

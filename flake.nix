@@ -4,7 +4,6 @@
   inputs = {
     nixpkgs.url = "git+https://github.com/nixos/nixpkgs?shallow=1&ref=nixos-unstable";
     nixpkgs-stable.url = "git+https://github.com/nixos/nixpkgs?shallow=1&ref=nixos-24.05";
-    #nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-24.11-darwin";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -63,7 +62,7 @@
       };
 
       flake = {
-        overlays = import ./overlays { inherit inputs; };
+        # overlays = import ./overlays { inherit inputs; };
       };
 
       perSystem =
@@ -80,8 +79,8 @@
             overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
           };
           packages = rec {
-            cskk = pkgs.callPackage ./pkgs/cskk { };
-            fcitx5-cskk = pkgs.libsForQt5.callPackage ./pkgs/fcitx5-cskk { inherit cskk; };
+            # cskk = pkgs.callPackage ./pkgs/cskk { };
+            #fcitx5-cskk = pkgs.libsForQt5.callPackage ./pkgs/fcitx5-cskk { inherit cskk; };
           };
           pre-commit = {
             check.enable = true;

@@ -16,7 +16,7 @@ in
     withWlroots = true;
     yamlConfig =
       let
-        remapFiles = [ ./shingeta.yml ] ++ lib.optional (config.networking.hostName == "ryuk") ./hhkb.yml;
+        remapFiles = [ ./shingeta.yml ] ++ lib.optional (config.networking.hostName == "ryuk") ./hhkb.yaml;
         remapContents = map builtins.readFile remapFiles;
       in
       lib.concatStringsSep "\n" remapContents;
