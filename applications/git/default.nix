@@ -13,6 +13,7 @@
       core = {
         editor = "nvim";
       };
+      ghq.user = "Yus314";
       pull.rebase = false;
     };
     ignores = [
