@@ -9,7 +9,6 @@
   ...
 }:
 let
-  xremap = pkgs.callPackage ../../../pkgs/xremap { };
 in
 {
   imports = [
@@ -71,20 +70,20 @@ in
     '';
   };
 
-  systemd.user.services.remap = {
-    enable = true;
-    wantedBy = [ "default.target" ];
-    # after = [ "graphical-session.target" ];
-    serviceConfig = {
-      Type = "exec";
-      TimeOutStartSec = 30;
-      WorkingDirectory = "/home/kaki";
-      StandardOutput = "journal";
-      ExecStart = "${xremap}/bin/xremap /home/kaki/.config/xremap/config.yaml";
+  #  systemd.user.services.remap = {
+  #    enable = true;
+  #    wantedBy = [ "default.target" ];
+  #    # after = [ "graphical-session.target" ];
+  #    serviceConfig = {
+  #      Type = "exec";
+  #      TimeOutStartSec = 30;
+  #      WorkingDirectory = "/home/kaki";
+  #      StandardOutput = "journal";
+  #      ExecStart = "${xremap}/bin/xremap /home/kaki/.config/xremap/config.yaml";
 
-      Restart = "always";
-    };
-  };
+  #      Restart = "always";
+  #    };
+  #  };
 
   services.cloudflared = {
     enable = true;
@@ -157,7 +156,7 @@ in
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
-  networking.hostName = "lab-main"; # Define your hostname.
+  networking.hostName = "ryuk"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
