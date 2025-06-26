@@ -12,7 +12,7 @@
 {
   imports = [
     # Include the results of the hardware scan.
-    ./host/lab-sub-hardware-configuration.nix
+    ./lab-sub-hardware-configuration.nix
     # ./keymap.nix
     # ./font.nix
     # ./nvidia.nix
