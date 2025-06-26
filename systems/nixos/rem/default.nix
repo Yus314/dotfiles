@@ -54,7 +54,6 @@
   users.users.kaki = {
     isNormalUser = true;
     description = "kaki";
-    shell = pkgs.bash;
     extraGroups = [
       "networkmanager"
       "wheel"
