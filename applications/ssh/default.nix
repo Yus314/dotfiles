@@ -11,6 +11,16 @@
         #        "~/.ssh/id_ed25519"
         #     ];
       };
+      "rem" = {
+        host = "rem";
+        address = "sub.mdip2home.com";
+        user = "kaki";
+        port = 53;
+        proxyCommand = "${pkgs.lib.getExe pkgs.cloudflared} access ssh --hostname sub.mdip2home.com";
+        #       identityFile = [
+        #        "~/.ssh/id_ed25519"
+        #     ];
+      };
     };
     includes = [ "config.d/*" ];
   };
