@@ -1649,6 +1649,24 @@ Waylandでペーストできるようにする設定
       (add-to-list 'flycheck-checkers 'textlint)
       )
 #+end_src
+* Project
+** projectile
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(projectile-mode
+                       projectile-clear-known-projects
+                       projectile-cleanup-known-projects) "projectile" nil t)
+
+  (add-hook 'emacs-startup-hook #'projectile-mode)
+  ( add-hook 'emacs-startup-hook #'my/update-projectile-known-projects )
+  (defun my/update-projectile-known-projects ()
+    (interactive)
+    (projectile-clear-known-projects)
+    (projectile-cleanup-known-projects)
+    (setopt projectile-known-projects (mapcar
+                                       (lambda (x)
+                                         (abbreviate-file-name (concat x "/")))
+                                       (split-string (shell-command-to-string "ghq list --full-path")))))
+#+end_src
 * PDF
 #+begin_src emacs-lisp :tangle yes
   					;(with-delayed-execution
