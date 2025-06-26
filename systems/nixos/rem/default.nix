@@ -12,12 +12,13 @@
 {
   imports = [
     # Include the results of the hardware scan.
-    # ./host/lab-sub-hardware-configuration.nix
+    ./host/lab-sub-hardware-configuration.nix
     # ./keymap.nix
     # ./font.nix
     # ./nvidia.nix
     # ./cloudflare.nix
     # ./networks.nix
+    ./common.nix
   ];
 
   # Use the systemd-boot EFI boot loader.
