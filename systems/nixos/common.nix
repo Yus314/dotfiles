@@ -14,6 +14,7 @@ in
   imports = [
     ../common.nix
     ./services/xremap
+    inputs.sops-nix.nixosModules.sops
   ];
 
   sops = {
