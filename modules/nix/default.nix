@@ -39,7 +39,8 @@ in
             "root"
             "@wheel"
           ] ++ optional pkgs.stdenv.isDarwin "@admin";
-          sandbox = if pkgs.stdenv.isDarwin then "relaxed" else true;
+          # https://github.com/NixOS/nix/issues/4119
+          sandbox = if pkgs.stdenv.isDarwin then false else true;
           warn-dirty = false;
         };
         extraOptions = ''
