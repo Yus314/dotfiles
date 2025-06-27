@@ -177,6 +177,7 @@ Waylandでペーストできるようにする設定
     (setq perfect-margin-ignore-regexps  nil)
     (setq perfect-margin-visible-width  108)
     (setq split-width-threshold  107)
+    (add-to-list 'perfect-margin-ignore-regexps "*which-key")
     )
 #+end_src
 ** icon
@@ -322,7 +323,7 @@ Waylandでペーストできるようにする設定
        '("B" . meow-back-symbol)
        '("c" . meow-swap-grab)
        '("C" . mc/mark-next-like-this)
-       '("p" . meow-delete)
+       '("p" . projectile-command-map)
        '("P" . meow-backward-delete)
        '("e" . meow-line)
        '("E" . meow-goto-line)
