@@ -23,6 +23,7 @@
     ../applications/zsh
     ../applications/ssh
     ../applications/gh
+    ../applications/gnupg
   ];
   services.gpg-agent = {
     enable = true;
@@ -33,6 +34,8 @@
     enableSshSupport = true;
     enableExtraSocket = true;
   };
+
+  home.preferXdgDirectories = true;
 
   programs.fish = {
     interactiveShellInit = ''
