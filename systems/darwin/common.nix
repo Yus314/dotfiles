@@ -18,7 +18,7 @@ in
   sops = {
     defaultSopsFile = ../../secrets/default.yaml;
     gnupg = {
-      home = "/Users/kaki/.gnupg";
+      home = "${config.xdg.dataHome}/.gnupg";
       sshKeyPaths = [ ];
     };
   };
