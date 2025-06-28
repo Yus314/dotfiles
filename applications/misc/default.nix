@@ -1,5 +1,6 @@
 { inputs, pkgs, ... }:
 {
+  ext.xdg.enable = true;
   programs = {
     bat.enable = true;
     direnv = {
@@ -66,4 +67,5 @@
     cachix
     nvfetcher
   ];
+  xdg.enable = true;
 }
