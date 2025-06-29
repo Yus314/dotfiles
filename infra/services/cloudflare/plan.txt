@@ -1,0 +1,744 @@
+[0m[1mcloudflare_account.example: Refreshing state... [id=c520dd48e37449e2095be798f993e318][0m
+[0m[1mcloudflare_zero_trust_tunnel_cloudflared.rem2: Refreshing state... [id=533cec7a-befd-4e76-b914-3acfbd34d96e][0m
+[0m[1mcloudflare_zero_trust_tunnel_cloudflared.rem: Refreshing state... [id=9010acdf-2105-43ec-984d-8684dd0124bb][0m
+[0m[1mcloudflare_zero_trust_tunnel_cloudflared.lab_ryuk: Refreshing state... [id=d2bb7add-9929-4016-a839-0e03a71bdb14][0m
+[0m[1mcloudflare_zero_trust_tunnel_cloudflared_config.rem: Refreshing state... [id=9010acdf-2105-43ec-984d-8684dd0124bb][0m
+[0m[1mcloudflare_zero_trust_tunnel_cloudflared_config.rem2: Refreshing state... [id=533cec7a-befd-4e76-b914-3acfbd34d96e][0m
+[0m[1mcloudflare_zero_trust_tunnel_cloudflared_config.lab_ryuk: Refreshing state... [id=d2bb7add-9929-4016-a839-0e03a71bdb14][0m
+[0m[1mcloudflare_zero_trust_tunnel_cloudflared.example: Refreshing state... [id=d2bb7add-9929-4016-a839-0e03a71bdb14][0m
+[0m[1mcloudflare_zero_trust_access_application.rem: Refreshing state... [id=1f8cfa1e-287d-4f10-8698-61f666bf5b18][0m
+[0m[1mcloudflare_zero_trust_access_application.example: Refreshing state... [id=c0595588-9819-4496-b27f-d54bdd7cd62f][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_cb18a1bcb254b6b19638c7afeca3d5ea: Refreshing state... [id=cb18a1bcb254b6b19638c7afeca3d5ea][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_4659b34b812822ba62283e1b3ad5a444: Refreshing state... [id=4659b34b812822ba62283e1b3ad5a444][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_1b275f3c3eeefd6aa22d85fcfe17ab75: Refreshing state... [id=1b275f3c3eeefd6aa22d85fcfe17ab75][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_5d5fd57db61f1e383db4977a37134c84: Refreshing state... [id=5d5fd57db61f1e383db4977a37134c84][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_4c458435db651a2ed14c5d67a3266192: Refreshing state... [id=4c458435db651a2ed14c5d67a3266192][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_a3e1fd39808fc3ed55defcc2a7a93d93: Refreshing state... [id=a3e1fd39808fc3ed55defcc2a7a93d93][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_228b2239c370762f2390cc583dfb20de: Refreshing state... [id=228b2239c370762f2390cc583dfb20de][0m
+[0m[1mcloudflare_dns_record.mdip2home["sub"]: Refreshing state... [id=f479cc7ea93c132c6b8ad2146c3ed721][0m
+[0m[1mcloudflare_dns_record.mdip2home["spf"]: Refreshing state... [id=bf52dbc33906df02fde7bb7e5f5157dc][0m
+[0m[1mcloudflare_dns_record.mdip2home["sma"]: Refreshing state... [id=0d9ab2ea4d67415b02bb3789521840c3][0m
+[0m[1mcloudflare_dns_record.mdip2home["test"]: Refreshing state... [id=9b6e523e4756f727f8459bdf3dff2cd0][0m
+[0m[1mcloudflare_dns_record.mdip2home["ollama"]: Refreshing state... [id=bacfcda92833957504a98cf29bb60753][0m
+[0m[1mcloudflare_dns_record.mdip2home["mx_google"]: Refreshing state... [id=92bf0cde6cc3c024bf2e1ed7fafdfaec][0m
+[0m[1mcloudflare_dns_record.mdip2home["root"]: Refreshing state... [id=64f932c85da1765c11244bde65d22d24][0m
+[0m[1mcloudflare_dns_record.mdip2home["www"]: Refreshing state... [id=ce5e714292d12823edd467af022e07ba][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_9e6cab8074faf112c680d4bea78556fb: Refreshing state... [id=9e6cab8074faf112c680d4bea78556fb][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_d5cd48562fee55a6817281d518be13cc: Refreshing state... [id=d5cd48562fee55a6817281d518be13cc][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_8ccaaaa117c430fc2db34d34479fc190: Refreshing state... [id=8ccaaaa117c430fc2db34d34479fc190][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_d56f7a9dba6ccd7fd0a8e6e9758a6f59: Refreshing state... [id=d56f7a9dba6ccd7fd0a8e6e9758a6f59][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_0548b86f6617d30f54a8a3c7a35c8967: Refreshing state... [id=0548b86f6617d30f54a8a3c7a35c8967][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_1f980cd226e0af8507fc50e1a9721ee5: Refreshing state... [id=1f980cd226e0af8507fc50e1a9721ee5][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_cb37ef5dbc99e1d4d939058fd471914b: Refreshing state... [id=cb37ef5dbc99e1d4d939058fd471914b][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_1a9d7fe4dad1ed07bbbc5832727bb643: Refreshing state... [id=1a9d7fe4dad1ed07bbbc5832727bb643][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_615b09527d328adf34fe1c5b9b1e6eb0: Refreshing state... [id=615b09527d328adf34fe1c5b9b1e6eb0][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_a1f3fb9d428e086886afccca35dbd02a: Refreshing state... [id=a1f3fb9d428e086886afccca35dbd02a][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_0bc7195d0a5e8d5fdaac2aebe0b773aa: Refreshing state... [id=0bc7195d0a5e8d5fdaac2aebe0b773aa][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_7d4373110ea22af7a37ce75ac60126d1: Refreshing state... [id=7d4373110ea22af7a37ce75ac60126d1][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_27f7142bf88168608aa9ca08ab2ff69e: Refreshing state... [id=27f7142bf88168608aa9ca08ab2ff69e][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_cff77a1e3109ff09c2420ef8d0610aff: Refreshing state... [id=cff77a1e3109ff09c2420ef8d0610aff][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_f9256144dd3527f8e7e0fe98361edc39: Refreshing state... [id=f9256144dd3527f8e7e0fe98361edc39][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_ec1740974518a52342fa7653f1f407ea: Refreshing state... [id=ec1740974518a52342fa7653f1f407ea][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_160acdd4702b77a7bcc2e3f062655fc4: Refreshing state... [id=160acdd4702b77a7bcc2e3f062655fc4][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_5074d7f4289869be9ad88d3c5ed44115: Refreshing state... [id=5074d7f4289869be9ad88d3c5ed44115][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_c2a6e55ab42e0071900f42409f8be2ac: Refreshing state... [id=c2a6e55ab42e0071900f42409f8be2ac][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_59e60cc59d08a96011b6901f7bc70bdc: Refreshing state... [id=59e60cc59d08a96011b6901f7bc70bdc][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_4995cd224e0abc184efc1dedd18490f4: Refreshing state... [id=4995cd224e0abc184efc1dedd18490f4][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_a95d8ca6b4a33829650a910e108edd4a: Refreshing state... [id=a95d8ca6b4a33829650a910e108edd4a][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_3cb9a12d15cb39f75c47f3d47617ab68: Refreshing state... [id=3cb9a12d15cb39f75c47f3d47617ab68][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_fb5d503666b0bfe21dcc2f6b6010c030: Refreshing state... [id=fb5d503666b0bfe21dcc2f6b6010c030][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_e60b18174ed1cf0c15223096cb730ccb: Refreshing state... [id=e60b18174ed1cf0c15223096cb730ccb][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_eeb8f6ba0d5240b608426ac15e5929ef: Refreshing state... [id=eeb8f6ba0d5240b608426ac15e5929ef][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_6b1a9d409153d1947a9379a1591b3b7a: Refreshing state... [id=6b1a9d409153d1947a9379a1591b3b7a][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_cd696ee0d303685ce9670b636a0bec99: Refreshing state... [id=cd696ee0d303685ce9670b636a0bec99][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_4f18e2a0eed4f9178539e3691c20e628: Refreshing state... [id=4f18e2a0eed4f9178539e3691c20e628][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_98e600ddb2bffd5202e553f2c41e1e8e: Refreshing state... [id=98e600ddb2bffd5202e553f2c41e1e8e][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_98860d410d7ba0907d6a9e9b17193100: Refreshing state... [id=98860d410d7ba0907d6a9e9b17193100][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_be2207a31f7b46867c23d29c45e4fe94: Refreshing state... [id=be2207a31f7b46867c23d29c45e4fe94][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_2d5a42019911526fd2185cef40d578f8: Refreshing state... [id=2d5a42019911526fd2185cef40d578f8][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_c2bc4a316ed9ba7e7231bbe233b48864: Refreshing state... [id=c2bc4a316ed9ba7e7231bbe233b48864][0m
+[0m[1mcloudflare_dns_record.terraform_managed_resource_4c5bb1fa5e87598175e99763a7de1623: Refreshing state... [id=4c5bb1fa5e87598175e99763a7de1623][0m
+[0m[1mcloudflare_zero_trust_access_policy.common: Refreshing state... [id=28e9c3fb-52e7-4119-8765-f4ca14c08407][0m
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  [32m+[0m create[0m
+  [33m~[0m update in-place[0m
+  [31m-[0m destroy[0m
+
+Terraform will perform the following actions:
+
+[1m  # cloudflare_account.example[0m will be [1m[31mdestroyed[0m
+  # (because cloudflare_account.example is not in configuration)
+[0m  [31m-[0m[0m resource "cloudflare_account" "example" {
+      [31m-[0m[0m created_on = "2024-06-25T03:38:48Z" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m name       = "Shizhaoyoujie@gmail.com's Account" [90m-> null[0m[0m
+      [31m-[0m[0m settings   = {
+          [31m-[0m[0m enforce_twofactor = false [90m-> null[0m[0m
+        } [90m-> null[0m[0m
+    }
+
+[1m  # cloudflare_dns_record.mdip2home["mx_google"][0m will be updated in-place
+[0m  [33m~[0m[0m resource "cloudflare_dns_record" "mdip2home" {
+      [32m+[0m[0m comment_modified_on = (known after apply)
+      [33m~[0m[0m created_on          = "2025-06-26T06:51:25Z" -> (known after apply)
+        id                  = "92bf0cde6cc3c024bf2e1ed7fafdfaec"
+      [33m~[0m[0m meta                = jsonencode({}) -> (known after apply)
+      [33m~[0m[0m modified_on         = "2025-06-26T06:51:25Z" -> (known after apply)
+      [33m~[0m[0m name                = "mail.mdip2home.com" [33m->[0m[0m "mail"
+      [33m~[0m[0m proxiable           = false -> (known after apply)
+      [33m~[0m[0m settings            = {
+          [32m+[0m[0m flatten_cname = (known after apply)
+          [32m+[0m[0m ipv4_only     = (known after apply)
+          [32m+[0m[0m ipv6_only     = (known after apply)
+        } -> (known after apply)
+      [33m~[0m[0m tags                = [] -> (known after apply)
+      [32m+[0m[0m tags_modified_on    = (known after apply)
+        [90m# (6 unchanged attributes hidden)[0m[0m
+    }
+
+[1m  # cloudflare_dns_record.mdip2home["ollama"][0m will be updated in-place
+[0m  [33m~[0m[0m resource "cloudflare_dns_record" "mdip2home" {
+      [32m+[0m[0m comment_modified_on = (known after apply)
+      [33m~[0m[0m created_on          = "2025-06-26T06:51:25Z" -> (known after apply)
+        id                  = "bacfcda92833957504a98cf29bb60753"
+      [33m~[0m[0m meta                = jsonencode({}) -> (known after apply)
+      [33m~[0m[0m modified_on         = "2025-06-26T06:51:25Z" -> (known after apply)
+      [33m~[0m[0m name                = "ollama.mdip2home.com" [33m->[0m[0m "ollama"
+      [33m~[0m[0m proxiable           = true -> (known after apply)
+      [33m~[0m[0m settings            = {
+          [32m+[0m[0m flatten_cname = (known after apply)
+          [32m+[0m[0m ipv4_only     = (known after apply)
+          [32m+[0m[0m ipv6_only     = (known after apply)
+        } -> (known after apply)
+      [33m~[0m[0m tags                = [] -> (known after apply)
+      [32m+[0m[0m tags_modified_on    = (known after apply)
+        [90m# (5 unchanged attributes hidden)[0m[0m
+    }
+
+[1m  # cloudflare_dns_record.mdip2home["sma"][0m will be updated in-place
+[0m  [33m~[0m[0m resource "cloudflare_dns_record" "mdip2home" {
+      [32m+[0m[0m comment_modified_on = (known after apply)
+      [33m~[0m[0m created_on          = "2025-06-26T06:47:57Z" -> (known after apply)
+        id                  = "0d9ab2ea4d67415b02bb3789521840c3"
+      [33m~[0m[0m meta                = jsonencode({}) -> (known after apply)
+      [33m~[0m[0m modified_on         = "2025-06-26T06:51:25Z" -> (known after apply)
+      [33m~[0m[0m name                = "sma.mdip2home.com" [33m->[0m[0m "sma"
+      [33m~[0m[0m proxiable           = true -> (known after apply)
+      [33m~[0m[0m settings            = {
+          [32m+[0m[0m flatten_cname = (known after apply)
+          [32m+[0m[0m ipv4_only     = (known after apply)
+          [32m+[0m[0m ipv6_only     = (known after apply)
+        } -> (known after apply)
+      [33m~[0m[0m tags                = [] -> (known after apply)
+      [32m+[0m[0m tags_modified_on    = (known after apply)
+        [90m# (5 unchanged attributes hidden)[0m[0m
+    }
+
+[1m  # cloudflare_dns_record.mdip2home["sub"][0m will be updated in-place
+[0m  [33m~[0m[0m resource "cloudflare_dns_record" "mdip2home" {
+      [32m+[0m[0m comment_modified_on = (known after apply)
+      [33m~[0m[0m created_on          = "2025-06-26T06:51:25Z" -> (known after apply)
+        id                  = "f479cc7ea93c132c6b8ad2146c3ed721"
+      [33m~[0m[0m meta                = jsonencode({}) -> (known after apply)
+      [33m~[0m[0m modified_on         = "2025-06-26T06:51:25Z" -> (known after apply)
+      [33m~[0m[0m name                = "sub.mdip2home.com" [33m->[0m[0m "sub"
+      [33m~[0m[0m proxiable           = true -> (known after apply)
+      [33m~[0m[0m settings            = {
+          [32m+[0m[0m flatten_cname = (known after apply)
+          [32m+[0m[0m ipv4_only     = (known after apply)
+          [32m+[0m[0m ipv6_only     = (known after apply)
+        } -> (known after apply)
+      [33m~[0m[0m tags                = [] -> (known after apply)
+      [32m+[0m[0m tags_modified_on    = (known after apply)
+        [90m# (5 unchanged attributes hidden)[0m[0m
+    }
+
+[1m  # cloudflare_dns_record.mdip2home["test"][0m will be updated in-place
+[0m  [33m~[0m[0m resource "cloudflare_dns_record" "mdip2home" {
+      [32m+[0m[0m comment_modified_on = (known after apply)
+      [33m~[0m[0m created_on          = "2025-06-26T06:47:57Z" -> (known after apply)
+        id                  = "9b6e523e4756f727f8459bdf3dff2cd0"
+      [33m~[0m[0m meta                = jsonencode({}) -> (known after apply)
+      [33m~[0m[0m modified_on         = "2025-06-26T06:51:25Z" -> (known after apply)
+      [33m~[0m[0m name                = "test.mdip2home.com" [33m->[0m[0m "test"
+      [33m~[0m[0m proxiable           = true -> (known after apply)
+      [33m~[0m[0m settings            = {
+          [32m+[0m[0m flatten_cname = (known after apply)
+          [32m+[0m[0m ipv4_only     = (known after apply)
+          [32m+[0m[0m ipv6_only     = (known after apply)
+        } -> (known after apply)
+      [33m~[0m[0m tags                = [] -> (known after apply)
+      [32m+[0m[0m tags_modified_on    = (known after apply)
+        [90m# (5 unchanged attributes hidden)[0m[0m
+    }
+
+[1m  # cloudflare_dns_record.mdip2home["www"][0m will be updated in-place
+[0m  [33m~[0m[0m resource "cloudflare_dns_record" "mdip2home" {
+      [32m+[0m[0m comment_modified_on = (known after apply)
+      [33m~[0m[0m created_on          = "2025-06-26T06:47:57Z" -> (known after apply)
+        id                  = "ce5e714292d12823edd467af022e07ba"
+      [33m~[0m[0m meta                = jsonencode({}) -> (known after apply)
+      [33m~[0m[0m modified_on         = "2025-06-26T06:51:25Z" -> (known after apply)
+      [33m~[0m[0m name                = "www.mdip2home.com" [33m->[0m[0m "www"
+      [33m~[0m[0m proxiable           = true -> (known after apply)
+      [33m~[0m[0m settings            = {
+          [32m+[0m[0m flatten_cname = (known after apply)
+          [32m+[0m[0m ipv4_only     = (known after apply)
+          [32m+[0m[0m ipv6_only     = (known after apply)
+        } -> (known after apply)
+      [33m~[0m[0m tags                = [] -> (known after apply)
+      [32m+[0m[0m tags_modified_on    = (known after apply)
+        [90m# (5 unchanged attributes hidden)[0m[0m
+    }
+
+[1m  # cloudflare_zero_trust_access_application.example[0m will be [1m[31mdestroyed[0m
+  # (because cloudflare_zero_trust_access_application.example is not in configuration)
+[0m  [31m-[0m[0m resource "cloudflare_zero_trust_access_application" "example" {
+      [31m-[0m[0m account_id                 = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m allowed_idps               = [] [90m-> null[0m[0m
+      [31m-[0m[0m app_launcher_visible       = true [90m-> null[0m[0m
+      [31m-[0m[0m aud                        = "4b21ebbbb3b3390d19e41fe31db299b69226279e3c21a6a370cd64289fd6d025" [90m-> null[0m[0m
+      [31m-[0m[0m auto_redirect_to_identity  = false [90m-> null[0m[0m
+      [31m-[0m[0m created_at                 = "2024-06-28T06:26:03Z" [90m-> null[0m[0m
+      [31m-[0m[0m destinations               = [
+          [31m-[0m[0m {
+              [31m-[0m[0m type = "public" [90m-> null[0m[0m
+              [31m-[0m[0m uri  = "test.mdip2home.com" [90m-> null[0m[0m
+            },
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m domain                     = "test.mdip2home.com" [90m-> null[0m[0m
+      [31m-[0m[0m enable_binding_cookie      = false [90m-> null[0m[0m
+      [31m-[0m[0m http_only_cookie_attribute = true [90m-> null[0m[0m
+      [31m-[0m[0m id                         = "c0595588-9819-4496-b27f-d54bdd7cd62f" [90m-> null[0m[0m
+      [31m-[0m[0m name                       = "example" [90m-> null[0m[0m
+      [31m-[0m[0m options_preflight_bypass   = false [90m-> null[0m[0m
+      [31m-[0m[0m policies                   = [
+          [31m-[0m[0m {
+              [31m-[0m[0m decision   = "allow" [90m-> null[0m[0m
+              [31m-[0m[0m exclude    = [] [90m-> null[0m[0m
+              [31m-[0m[0m id         = "7d6ef652-5a08-457c-8350-ab537ac1beaf" [90m-> null[0m[0m
+              [31m-[0m[0m include    = [
+                  [31m-[0m[0m {
+                      [31m-[0m[0m geo = {
+                          [31m-[0m[0m country_code = "JP" [90m-> null[0m[0m
+                        } [90m-> null[0m[0m
+                    },
+                ] [90m-> null[0m[0m
+              [31m-[0m[0m name       = "example" [90m-> null[0m[0m
+              [31m-[0m[0m precedence = 1 [90m-> null[0m[0m
+              [31m-[0m[0m require    = [] [90m-> null[0m[0m
+            },
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m self_hosted_domains        = [
+          [31m-[0m[0m "test.mdip2home.com",
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m session_duration           = "730h" [90m-> null[0m[0m
+      [31m-[0m[0m tags                       = [] [90m-> null[0m[0m
+      [31m-[0m[0m type                       = "self_hosted" [90m-> null[0m[0m
+      [31m-[0m[0m updated_at                 = "2025-04-30T07:58:38Z" [90m-> null[0m[0m
+    }
+
+[1m  # cloudflare_zero_trust_access_application.main["example"][0m will be created
+[0m  [32m+[0m[0m resource "cloudflare_zero_trust_access_application" "main" {
+      [32m+[0m[0m account_id                   = "c520dd48e37449e2095be798f993e318"
+      [32m+[0m[0m app_launcher_visible         = true
+      [32m+[0m[0m aud                          = (known after apply)
+      [32m+[0m[0m auto_redirect_to_identity    = false
+      [32m+[0m[0m created_at                   = (known after apply)
+      [32m+[0m[0m destinations                 = [
+          [32m+[0m[0m {
+              [32m+[0m[0m type = "public"
+              [32m+[0m[0m uri  = "test.mdip2home.com"
+            },
+        ]
+      [32m+[0m[0m domain                       = "test.mdip2home.com"
+      [32m+[0m[0m enable_binding_cookie        = false
+      [32m+[0m[0m http_only_cookie_attribute   = true
+      [32m+[0m[0m id                           = (known after apply)
+      [32m+[0m[0m landing_page_design          = (known after apply)
+      [32m+[0m[0m name                         = "example"
+      [32m+[0m[0m options_preflight_bypass     = false
+      [32m+[0m[0m path_cookie_attribute        = false
+      [32m+[0m[0m policies                     = (known after apply)
+      [32m+[0m[0m saas_app                     = (known after apply)
+      [32m+[0m[0m self_hosted_domains          = (known after apply)
+      [32m+[0m[0m session_duration             = "730h"
+      [32m+[0m[0m skip_app_launcher_login_page = false
+      [32m+[0m[0m tags                         = (known after apply)
+      [32m+[0m[0m type                         = "self_hosted"
+      [32m+[0m[0m updated_at                   = (known after apply)
+    }
+
+[1m  # cloudflare_zero_trust_access_application.main["subssh"][0m will be created
+[0m  [32m+[0m[0m resource "cloudflare_zero_trust_access_application" "main" {
+      [32m+[0m[0m account_id                   = "c520dd48e37449e2095be798f993e318"
+      [32m+[0m[0m app_launcher_visible         = true
+      [32m+[0m[0m aud                          = (known after apply)
+      [32m+[0m[0m auto_redirect_to_identity    = false
+      [32m+[0m[0m created_at                   = (known after apply)
+      [32m+[0m[0m destinations                 = [
+          [32m+[0m[0m {
+              [32m+[0m[0m type = "public"
+              [32m+[0m[0m uri  = "sub.mdip2home.com"
+            },
+        ]
+      [32m+[0m[0m domain                       = "sub.mdip2home.com"
+      [32m+[0m[0m enable_binding_cookie        = false
+      [32m+[0m[0m http_only_cookie_attribute   = true
+      [32m+[0m[0m id                           = (known after apply)
+      [32m+[0m[0m landing_page_design          = (known after apply)
+      [32m+[0m[0m name                         = "subssh"
+      [32m+[0m[0m options_preflight_bypass     = false
+      [32m+[0m[0m path_cookie_attribute        = false
+      [32m+[0m[0m policies                     = (known after apply)
+      [32m+[0m[0m saas_app                     = (known after apply)
+      [32m+[0m[0m self_hosted_domains          = (known after apply)
+      [32m+[0m[0m session_duration             = "730h"
+      [32m+[0m[0m skip_app_launcher_login_page = false
+      [32m+[0m[0m tags                         = (known after apply)
+      [32m+[0m[0m type                         = "self_hosted"
+      [32m+[0m[0m updated_at                   = (known after apply)
+    }
+
+[1m  # cloudflare_zero_trust_access_application.rem[0m will be [1m[31mdestroyed[0m
+  # (because cloudflare_zero_trust_access_application.rem is not in configuration)
+[0m  [31m-[0m[0m resource "cloudflare_zero_trust_access_application" "rem" {
+      [31m-[0m[0m account_id                 = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m allowed_idps               = [] [90m-> null[0m[0m
+      [31m-[0m[0m app_launcher_visible       = true [90m-> null[0m[0m
+      [31m-[0m[0m aud                        = "5be076992a9c720377c31d7644f51ce89fa6d2320d511b880c9fa5fcf9359389" [90m-> null[0m[0m
+      [31m-[0m[0m auto_redirect_to_identity  = false [90m-> null[0m[0m
+      [31m-[0m[0m created_at                 = "2024-07-05T10:06:26Z" [90m-> null[0m[0m
+      [31m-[0m[0m destinations               = [
+          [31m-[0m[0m {
+              [31m-[0m[0m type = "public" [90m-> null[0m[0m
+              [31m-[0m[0m uri  = "sub.mdip2home.com" [90m-> null[0m[0m
+            },
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m domain                     = "sub.mdip2home.com" [90m-> null[0m[0m
+      [31m-[0m[0m enable_binding_cookie      = false [90m-> null[0m[0m
+      [31m-[0m[0m http_only_cookie_attribute = true [90m-> null[0m[0m
+      [31m-[0m[0m id                         = "1f8cfa1e-287d-4f10-8698-61f666bf5b18" [90m-> null[0m[0m
+      [31m-[0m[0m name                       = "subssh" [90m-> null[0m[0m
+      [31m-[0m[0m options_preflight_bypass   = false [90m-> null[0m[0m
+      [31m-[0m[0m policies                   = [
+          [31m-[0m[0m {
+              [31m-[0m[0m decision   = "allow" [90m-> null[0m[0m
+              [31m-[0m[0m exclude    = [] [90m-> null[0m[0m
+              [31m-[0m[0m id         = "28e9c3fb-52e7-4119-8765-f4ca14c08407" [90m-> null[0m[0m
+              [31m-[0m[0m include    = [
+                  [31m-[0m[0m {
+                      [31m-[0m[0m geo = {
+                          [31m-[0m[0m country_code = "JP" [90m-> null[0m[0m
+                        } [90m-> null[0m[0m
+                    },
+                ] [90m-> null[0m[0m
+              [31m-[0m[0m name       = "tmp" [90m-> null[0m[0m
+              [31m-[0m[0m precedence = 1 [90m-> null[0m[0m
+              [31m-[0m[0m require    = [] [90m-> null[0m[0m
+            },
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m self_hosted_domains        = [
+          [31m-[0m[0m "sub.mdip2home.com",
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m session_duration           = "24h" [90m-> null[0m[0m
+      [31m-[0m[0m tags                       = [] [90m-> null[0m[0m
+      [31m-[0m[0m type                       = "self_hosted" [90m-> null[0m[0m
+      [31m-[0m[0m updated_at                 = "2024-07-05T10:06:26Z" [90m-> null[0m[0m
+    }
+
+[1m  # cloudflare_zero_trust_access_policy.common[0m will be [1m[31mdestroyed[0m
+  # (because resource uses count or for_each)
+[0m  [31m-[0m[0m resource "cloudflare_zero_trust_access_policy" "common" {
+      [31m-[0m[0m account_id = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m app_count  = 1 [90m-> null[0m[0m
+      [31m-[0m[0m created_at = "2024-07-05T10:06:26Z" [90m-> null[0m[0m
+      [31m-[0m[0m decision   = "allow" [90m-> null[0m[0m
+      [31m-[0m[0m exclude    = [] [90m-> null[0m[0m
+      [31m-[0m[0m id         = "28e9c3fb-52e7-4119-8765-f4ca14c08407" [90m-> null[0m[0m
+      [31m-[0m[0m include    = [
+          [31m-[0m[0m {
+              [31m-[0m[0m geo = {
+                  [31m-[0m[0m country_code = "JP" [90m-> null[0m[0m
+                } [90m-> null[0m[0m
+            },
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m name       = "tmp" [90m-> null[0m[0m
+      [31m-[0m[0m require    = [] [90m-> null[0m[0m
+      [31m-[0m[0m reusable   = false [90m-> null[0m[0m
+      [31m-[0m[0m updated_at = "2024-07-05T10:06:26Z" [90m-> null[0m[0m
+    }
+
+[1m  # cloudflare_zero_trust_access_policy.common["example"][0m will be created
+[0m  [32m+[0m[0m resource "cloudflare_zero_trust_access_policy" "common" {
+      [32m+[0m[0m account_id       = "c520dd48e37449e2095be798f993e318"
+      [32m+[0m[0m app_count        = (known after apply)
+      [32m+[0m[0m created_at       = (known after apply)
+      [32m+[0m[0m decision         = "allow"
+      [32m+[0m[0m exclude          = (known after apply)
+      [32m+[0m[0m id               = (known after apply)
+      [32m+[0m[0m include          = [
+          [32m+[0m[0m {
+              [32m+[0m[0m geo = {
+                  [32m+[0m[0m country_code = "JP"
+                }
+            },
+        ]
+      [32m+[0m[0m name             = "common"
+      [32m+[0m[0m require          = (known after apply)
+      [32m+[0m[0m reusable         = (known after apply)
+      [32m+[0m[0m session_duration = "24h"
+      [32m+[0m[0m updated_at       = (known after apply)
+    }
+
+[1m  # cloudflare_zero_trust_access_policy.common["subssh"][0m will be created
+[0m  [32m+[0m[0m resource "cloudflare_zero_trust_access_policy" "common" {
+      [32m+[0m[0m account_id       = "c520dd48e37449e2095be798f993e318"
+      [32m+[0m[0m app_count        = (known after apply)
+      [32m+[0m[0m created_at       = (known after apply)
+      [32m+[0m[0m decision         = "allow"
+      [32m+[0m[0m exclude          = (known after apply)
+      [32m+[0m[0m id               = (known after apply)
+      [32m+[0m[0m include          = [
+          [32m+[0m[0m {
+              [32m+[0m[0m geo = {
+                  [32m+[0m[0m country_code = "JP"
+                }
+            },
+        ]
+      [32m+[0m[0m name             = "common"
+      [32m+[0m[0m require          = (known after apply)
+      [32m+[0m[0m reusable         = (known after apply)
+      [32m+[0m[0m session_duration = "24h"
+      [32m+[0m[0m updated_at       = (known after apply)
+    }
+
+[1m  # cloudflare_zero_trust_tunnel_cloudflared.example[0m will be [1m[31mdestroyed[0m
+  # (because cloudflare_zero_trust_tunnel_cloudflared.example is not in configuration)
+[0m  [31m-[0m[0m resource "cloudflare_zero_trust_tunnel_cloudflared" "example" {
+      [31m-[0m[0m account_id      = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m account_tag     = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m connections     = [
+          [31m-[0m[0m {
+              [31m-[0m[0m client_id            = "70750e12-6c6c-465e-91d6-30317b4a1d70" [90m-> null[0m[0m
+              [31m-[0m[0m client_version       = "2025.6.1" [90m-> null[0m[0m
+              [31m-[0m[0m colo_name            = "nrt12" [90m-> null[0m[0m
+              [31m-[0m[0m id                   = "ad1e983b-e944-43d5-a03b-21d076849d66" [90m-> null[0m[0m
+              [31m-[0m[0m is_pending_reconnect = false [90m-> null[0m[0m
+              [31m-[0m[0m opened_at            = "2025-06-26T02:42:38Z" [90m-> null[0m[0m
+              [31m-[0m[0m origin_ip            = "202.17.21.1" [90m-> null[0m[0m
+              [31m-[0m[0m uuid                 = "ad1e983b-e944-43d5-a03b-21d076849d66" [90m-> null[0m[0m
+            },
+          [31m-[0m[0m {
+              [31m-[0m[0m client_id            = "70750e12-6c6c-465e-91d6-30317b4a1d70" [90m-> null[0m[0m
+              [31m-[0m[0m client_version       = "2025.6.1" [90m-> null[0m[0m
+              [31m-[0m[0m colo_name            = "nrt08" [90m-> null[0m[0m
+              [31m-[0m[0m id                   = "88baf96c-b08b-44c9-a75f-7f0e899f930c" [90m-> null[0m[0m
+              [31m-[0m[0m is_pending_reconnect = false [90m-> null[0m[0m
+              [31m-[0m[0m opened_at            = "2025-06-26T02:42:38Z" [90m-> null[0m[0m
+              [31m-[0m[0m origin_ip            = "202.17.21.1" [90m-> null[0m[0m
+              [31m-[0m[0m uuid                 = "88baf96c-b08b-44c9-a75f-7f0e899f930c" [90m-> null[0m[0m
+            },
+          [31m-[0m[0m {
+              [31m-[0m[0m client_id            = "70750e12-6c6c-465e-91d6-30317b4a1d70" [90m-> null[0m[0m
+              [31m-[0m[0m client_version       = "2025.6.1" [90m-> null[0m[0m
+              [31m-[0m[0m colo_name            = "nrt07" [90m-> null[0m[0m
+              [31m-[0m[0m id                   = "5fdfa860-ed9e-49e8-a978-8a4d31364cc9" [90m-> null[0m[0m
+              [31m-[0m[0m is_pending_reconnect = false [90m-> null[0m[0m
+              [31m-[0m[0m opened_at            = "2025-06-26T02:42:39Z" [90m-> null[0m[0m
+              [31m-[0m[0m origin_ip            = "202.17.21.1" [90m-> null[0m[0m
+              [31m-[0m[0m uuid                 = "5fdfa860-ed9e-49e8-a978-8a4d31364cc9" [90m-> null[0m[0m
+            },
+          [31m-[0m[0m {
+              [31m-[0m[0m client_id            = "70750e12-6c6c-465e-91d6-30317b4a1d70" [90m-> null[0m[0m
+              [31m-[0m[0m client_version       = "2025.6.1" [90m-> null[0m[0m
+              [31m-[0m[0m colo_name            = "nrt05" [90m-> null[0m[0m
+              [31m-[0m[0m id                   = "386bd472-ee19-4c25-a839-c72b9e2b20db" [90m-> null[0m[0m
+              [31m-[0m[0m is_pending_reconnect = false [90m-> null[0m[0m
+              [31m-[0m[0m opened_at            = "2025-06-26T02:42:40Z" [90m-> null[0m[0m
+              [31m-[0m[0m origin_ip            = "202.17.21.1" [90m-> null[0m[0m
+              [31m-[0m[0m uuid                 = "386bd472-ee19-4c25-a839-c72b9e2b20db" [90m-> null[0m[0m
+            },
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m conns_active_at = "2025-06-26T02:42:38Z" [90m-> null[0m[0m
+      [31m-[0m[0m created_at      = "2024-06-28T00:27:13Z" [90m-> null[0m[0m
+      [31m-[0m[0m id              = "d2bb7add-9929-4016-a839-0e03a71bdb14" [90m-> null[0m[0m
+      [31m-[0m[0m metadata        = jsonencode({})
+      [31m-[0m[0m name            = "lab2home" [90m-> null[0m[0m
+      [31m-[0m[0m remote_config   = true [90m-> null[0m[0m
+      [31m-[0m[0m status          = "healthy" [90m-> null[0m[0m
+      [31m-[0m[0m tun_type        = "cfd_tunnel" [90m-> null[0m[0m
+    }
+
+[1m  # cloudflare_zero_trust_tunnel_cloudflared.lab_ryuk[0m will be [1m[31mdestroyed[0m
+  # (because cloudflare_zero_trust_tunnel_cloudflared.lab_ryuk is not in configuration)
+[0m  [31m-[0m[0m resource "cloudflare_zero_trust_tunnel_cloudflared" "lab_ryuk" {
+      [31m-[0m[0m account_id      = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m account_tag     = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m connections     = [
+          [31m-[0m[0m {
+              [31m-[0m[0m client_id            = "70750e12-6c6c-465e-91d6-30317b4a1d70" [90m-> null[0m[0m
+              [31m-[0m[0m client_version       = "2025.6.1" [90m-> null[0m[0m
+              [31m-[0m[0m colo_name            = "nrt12" [90m-> null[0m[0m
+              [31m-[0m[0m id                   = "ad1e983b-e944-43d5-a03b-21d076849d66" [90m-> null[0m[0m
+              [31m-[0m[0m is_pending_reconnect = false [90m-> null[0m[0m
+              [31m-[0m[0m opened_at            = "2025-06-26T02:42:38Z" [90m-> null[0m[0m
+              [31m-[0m[0m origin_ip            = "202.17.21.1" [90m-> null[0m[0m
+              [31m-[0m[0m uuid                 = "ad1e983b-e944-43d5-a03b-21d076849d66" [90m-> null[0m[0m
+            },
+          [31m-[0m[0m {
+              [31m-[0m[0m client_id            = "70750e12-6c6c-465e-91d6-30317b4a1d70" [90m-> null[0m[0m
+              [31m-[0m[0m client_version       = "2025.6.1" [90m-> null[0m[0m
+              [31m-[0m[0m colo_name            = "nrt08" [90m-> null[0m[0m
+              [31m-[0m[0m id                   = "88baf96c-b08b-44c9-a75f-7f0e899f930c" [90m-> null[0m[0m
+              [31m-[0m[0m is_pending_reconnect = false [90m-> null[0m[0m
+              [31m-[0m[0m opened_at            = "2025-06-26T02:42:38Z" [90m-> null[0m[0m
+              [31m-[0m[0m origin_ip            = "202.17.21.1" [90m-> null[0m[0m
+              [31m-[0m[0m uuid                 = "88baf96c-b08b-44c9-a75f-7f0e899f930c" [90m-> null[0m[0m
+            },
+          [31m-[0m[0m {
+              [31m-[0m[0m client_id            = "70750e12-6c6c-465e-91d6-30317b4a1d70" [90m-> null[0m[0m
+              [31m-[0m[0m client_version       = "2025.6.1" [90m-> null[0m[0m
+              [31m-[0m[0m colo_name            = "nrt07" [90m-> null[0m[0m
+              [31m-[0m[0m id                   = "5fdfa860-ed9e-49e8-a978-8a4d31364cc9" [90m-> null[0m[0m
+              [31m-[0m[0m is_pending_reconnect = false [90m-> null[0m[0m
+              [31m-[0m[0m opened_at            = "2025-06-26T02:42:39Z" [90m-> null[0m[0m
+              [31m-[0m[0m origin_ip            = "202.17.21.1" [90m-> null[0m[0m
+              [31m-[0m[0m uuid                 = "5fdfa860-ed9e-49e8-a978-8a4d31364cc9" [90m-> null[0m[0m
+            },
+          [31m-[0m[0m {
+              [31m-[0m[0m client_id            = "70750e12-6c6c-465e-91d6-30317b4a1d70" [90m-> null[0m[0m
+              [31m-[0m[0m client_version       = "2025.6.1" [90m-> null[0m[0m
+              [31m-[0m[0m colo_name            = "nrt05" [90m-> null[0m[0m
+              [31m-[0m[0m id                   = "386bd472-ee19-4c25-a839-c72b9e2b20db" [90m-> null[0m[0m
+              [31m-[0m[0m is_pending_reconnect = false [90m-> null[0m[0m
+              [31m-[0m[0m opened_at            = "2025-06-26T02:42:40Z" [90m-> null[0m[0m
+              [31m-[0m[0m origin_ip            = "202.17.21.1" [90m-> null[0m[0m
+              [31m-[0m[0m uuid                 = "386bd472-ee19-4c25-a839-c72b9e2b20db" [90m-> null[0m[0m
+            },
+        ] [90m-> null[0m[0m
+      [31m-[0m[0m conns_active_at = "2025-06-26T02:42:38Z" [90m-> null[0m[0m
+      [31m-[0m[0m created_at      = "2024-06-28T00:27:13Z" [90m-> null[0m[0m
+      [31m-[0m[0m id              = "d2bb7add-9929-4016-a839-0e03a71bdb14" [90m-> null[0m[0m
+      [31m-[0m[0m metadata        = jsonencode({})
+      [31m-[0m[0m name            = "lab2home" [90m-> null[0m[0m
+      [31m-[0m[0m remote_config   = true [90m-> null[0m[0m
+      [31m-[0m[0m status          = "healthy" [90m-> null[0m[0m
+      [31m-[0m[0m tun_type        = "cfd_tunnel" [90m-> null[0m[0m
+    }
+
+[1m  # cloudflare_zero_trust_tunnel_cloudflared.main["lab-ryuk"][0m will be created
+[0m  [32m+[0m[0m resource "cloudflare_zero_trust_tunnel_cloudflared" "main" {
+      [32m+[0m[0m account_id        = "c520dd48e37449e2095be798f993e318"
+      [32m+[0m[0m account_tag       = (known after apply)
+      [32m+[0m[0m config_src        = "local"
+      [32m+[0m[0m connections       = (known after apply)
+      [32m+[0m[0m conns_active_at   = (known after apply)
+      [32m+[0m[0m conns_inactive_at = (known after apply)
+      [32m+[0m[0m created_at        = (known after apply)
+      [32m+[0m[0m deleted_at        = (known after apply)
+      [32m+[0m[0m id                = (known after apply)
+      [32m+[0m[0m metadata          = (known after apply)
+      [32m+[0m[0m name              = "lab-ryuk"
+      [32m+[0m[0m remote_config     = (known after apply)
+      [32m+[0m[0m status            = (known after apply)
+      [32m+[0m[0m tun_type          = (known after apply)
+    }
+
+[1m  # cloudflare_zero_trust_tunnel_cloudflared.main["sub_mdip2home"][0m will be created
+[0m  [32m+[0m[0m resource "cloudflare_zero_trust_tunnel_cloudflared" "main" {
+      [32m+[0m[0m account_id        = "c520dd48e37449e2095be798f993e318"
+      [32m+[0m[0m account_tag       = (known after apply)
+      [32m+[0m[0m config_src        = "local"
+      [32m+[0m[0m connections       = (known after apply)
+      [32m+[0m[0m conns_active_at   = (known after apply)
+      [32m+[0m[0m conns_inactive_at = (known after apply)
+      [32m+[0m[0m created_at        = (known after apply)
+      [32m+[0m[0m deleted_at        = (known after apply)
+      [32m+[0m[0m id                = (known after apply)
+      [32m+[0m[0m metadata          = (known after apply)
+      [32m+[0m[0m name              = "sub_mdip2home"
+      [32m+[0m[0m remote_config     = (known after apply)
+      [32m+[0m[0m status            = (known after apply)
+      [32m+[0m[0m tun_type          = (known after apply)
+    }
+
+[1m  # cloudflare_zero_trust_tunnel_cloudflared.rem[0m will be [1m[31mdestroyed[0m
+  # (because cloudflare_zero_trust_tunnel_cloudflared.rem is not in configuration)
+[0m  [31m-[0m[0m resource "cloudflare_zero_trust_tunnel_cloudflared" "rem" {
+      [31m-[0m[0m account_id        = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m account_tag       = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m connections       = [] [90m-> null[0m[0m
+      [31m-[0m[0m conns_inactive_at = "2024-08-12T06:16:55Z" [90m-> null[0m[0m
+      [31m-[0m[0m created_at        = "2024-07-13T15:21:04Z" [90m-> null[0m[0m
+      [31m-[0m[0m id                = "9010acdf-2105-43ec-984d-8684dd0124bb" [90m-> null[0m[0m
+      [31m-[0m[0m metadata          = jsonencode({})
+      [31m-[0m[0m name              = "sma" [90m-> null[0m[0m
+      [31m-[0m[0m remote_config     = true [90m-> null[0m[0m
+      [31m-[0m[0m status            = "down" [90m-> null[0m[0m
+      [31m-[0m[0m tun_type          = "cfd_tunnel" [90m-> null[0m[0m
+    }
+
+[1m  # cloudflare_zero_trust_tunnel_cloudflared.rem2[0m will be [1m[31mdestroyed[0m
+  # (because cloudflare_zero_trust_tunnel_cloudflared.rem2 is not in configuration)
+[0m  [31m-[0m[0m resource "cloudflare_zero_trust_tunnel_cloudflared" "rem2" {
+      [31m-[0m[0m account_id        = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m account_tag       = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m connections       = [] [90m-> null[0m[0m
+      [31m-[0m[0m conns_inactive_at = "2025-06-26T03:13:00Z" [90m-> null[0m[0m
+      [31m-[0m[0m created_at        = "2024-07-06T04:40:57Z" [90m-> null[0m[0m
+      [31m-[0m[0m id                = "533cec7a-befd-4e76-b914-3acfbd34d96e" [90m-> null[0m[0m
+      [31m-[0m[0m metadata          = jsonencode({})
+      [31m-[0m[0m name              = "sub_mdip2home" [90m-> null[0m[0m
+      [31m-[0m[0m remote_config     = true [90m-> null[0m[0m
+      [31m-[0m[0m status            = "down" [90m-> null[0m[0m
+      [31m-[0m[0m tun_type          = "cfd_tunnel" [90m-> null[0m[0m
+    }
+
+[1m  # cloudflare_zero_trust_tunnel_cloudflared_config.lab_ryuk[0m will be [1m[31mdestroyed[0m
+  # (because cloudflare_zero_trust_tunnel_cloudflared_config.lab_ryuk is not in configuration)
+[0m  [31m-[0m[0m resource "cloudflare_zero_trust_tunnel_cloudflared_config" "lab_ryuk" {
+      [31m-[0m[0m account_id = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m config     = {
+          [31m-[0m[0m ingress      = [
+              [31m-[0m[0m {
+                  [31m-[0m[0m hostname       = "test.mdip2home.com" [90m-> null[0m[0m
+                  [31m-[0m[0m origin_request = {} [90m-> null[0m[0m
+                  [31m-[0m[0m service        = "ssh://localhost:22" [90m-> null[0m[0m
+                },
+              [31m-[0m[0m {
+                  [31m-[0m[0m service = "http_status:404" [90m-> null[0m[0m
+                },
+            ] [90m-> null[0m[0m
+          [31m-[0m[0m warp_routing = {
+              [31m-[0m[0m enabled = false [90m-> null[0m[0m
+            } [90m-> null[0m[0m
+        } [90m-> null[0m[0m
+      [31m-[0m[0m created_at = "2025-03-15T17:57:23Z" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "d2bb7add-9929-4016-a839-0e03a71bdb14" [90m-> null[0m[0m
+      [31m-[0m[0m source     = "cloudflare" [90m-> null[0m[0m
+      [31m-[0m[0m tunnel_id  = "d2bb7add-9929-4016-a839-0e03a71bdb14" [90m-> null[0m[0m
+      [31m-[0m[0m version    = 9 [90m-> null[0m[0m
+    }
+
+[1m  # cloudflare_zero_trust_tunnel_cloudflared_config.main["lab-ryuk"][0m will be created
+[0m  [32m+[0m[0m resource "cloudflare_zero_trust_tunnel_cloudflared_config" "main" {
+      [32m+[0m[0m account_id = "c520dd48e37449e2095be798f993e318"
+      [32m+[0m[0m config     = {
+          [32m+[0m[0m ingress      = [
+              [32m+[0m[0m {
+                  [32m+[0m[0m hostname = "test.mdip2home.com"
+                  [32m+[0m[0m service  = "ssh://localhost:22"
+                },
+              [32m+[0m[0m {
+                  [32m+[0m[0m service = "http_status:404"
+                },
+            ]
+          [32m+[0m[0m warp_routing = (known after apply)
+        }
+      [32m+[0m[0m created_at = (known after apply)
+      [32m+[0m[0m id         = (known after apply)
+      [32m+[0m[0m source     = (known after apply)
+      [32m+[0m[0m tunnel_id  = (known after apply)
+      [32m+[0m[0m version    = (known after apply)
+    }
+
+[1m  # cloudflare_zero_trust_tunnel_cloudflared_config.main["sub_mdip2home"][0m will be created
+[0m  [32m+[0m[0m resource "cloudflare_zero_trust_tunnel_cloudflared_config" "main" {
+      [32m+[0m[0m account_id = "c520dd48e37449e2095be798f993e318"
+      [32m+[0m[0m config     = {
+          [32m+[0m[0m ingress      = [
+              [32m+[0m[0m {
+                  [32m+[0m[0m hostname = "sub.mdip2home.com"
+                  [32m+[0m[0m service  = "ssh://localhost:22"
+                },
+              [32m+[0m[0m {
+                  [32m+[0m[0m service = "http_status:404"
+                },
+            ]
+          [32m+[0m[0m warp_routing = (known after apply)
+        }
+      [32m+[0m[0m created_at = (known after apply)
+      [32m+[0m[0m id         = (known after apply)
+      [32m+[0m[0m source     = (known after apply)
+      [32m+[0m[0m tunnel_id  = (known after apply)
+      [32m+[0m[0m version    = (known after apply)
+    }
+
+[1m  # cloudflare_zero_trust_tunnel_cloudflared_config.rem[0m will be [1m[31mdestroyed[0m
+  # (because cloudflare_zero_trust_tunnel_cloudflared_config.rem is not in configuration)
+[0m  [31m-[0m[0m resource "cloudflare_zero_trust_tunnel_cloudflared_config" "rem" {
+      [31m-[0m[0m account_id = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m config     = {
+          [31m-[0m[0m ingress      = [
+              [31m-[0m[0m {
+                  [31m-[0m[0m hostname = "sma.mdip2home.com" [90m-> null[0m[0m
+                  [31m-[0m[0m service  = "http://localhost:8080" [90m-> null[0m[0m
+                },
+              [31m-[0m[0m {
+                  [31m-[0m[0m service = "http_status:404" [90m-> null[0m[0m
+                },
+            ] [90m-> null[0m[0m
+          [31m-[0m[0m warp_routing = {
+              [31m-[0m[0m enabled = false [90m-> null[0m[0m
+            } [90m-> null[0m[0m
+        } [90m-> null[0m[0m
+      [31m-[0m[0m created_at = "2024-07-13T15:21:58Z" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "9010acdf-2105-43ec-984d-8684dd0124bb" [90m-> null[0m[0m
+      [31m-[0m[0m source     = "cloudflare" [90m-> null[0m[0m
+      [31m-[0m[0m tunnel_id  = "9010acdf-2105-43ec-984d-8684dd0124bb" [90m-> null[0m[0m
+      [31m-[0m[0m version    = 1 [90m-> null[0m[0m
+    }
+
+[1m  # cloudflare_zero_trust_tunnel_cloudflared_config.rem2[0m will be [1m[31mdestroyed[0m
+  # (because cloudflare_zero_trust_tunnel_cloudflared_config.rem2 is not in configuration)
+[0m  [31m-[0m[0m resource "cloudflare_zero_trust_tunnel_cloudflared_config" "rem2" {
+      [31m-[0m[0m account_id = "c520dd48e37449e2095be798f993e318" [90m-> null[0m[0m
+      [31m-[0m[0m config     = {
+          [31m-[0m[0m ingress      = [
+              [31m-[0m[0m {
+                  [31m-[0m[0m hostname       = "sub.mdip2home.com" [90m-> null[0m[0m
+                  [31m-[0m[0m origin_request = {} [90m-> null[0m[0m
+                  [31m-[0m[0m service        = "ssh://localhost:22" [90m-> null[0m[0m
+                },
+              [31m-[0m[0m {
+                  [31m-[0m[0m service = "http_status:404" [90m-> null[0m[0m
+                },
+            ] [90m-> null[0m[0m
+          [31m-[0m[0m warp_routing = {
+              [31m-[0m[0m enabled = false [90m-> null[0m[0m
+            } [90m-> null[0m[0m
+        } [90m-> null[0m[0m
+      [31m-[0m[0m created_at = "2024-07-06T04:50:06Z" [90m-> null[0m[0m
+      [31m-[0m[0m id         = "533cec7a-befd-4e76-b914-3acfbd34d96e" [90m-> null[0m[0m
+      [31m-[0m[0m source     = "cloudflare" [90m-> null[0m[0m
+      [31m-[0m[0m tunnel_id  = "533cec7a-befd-4e76-b914-3acfbd34d96e" [90m-> null[0m[0m
+      [31m-[0m[0m version    = 1 [90m-> null[0m[0m
+    }
+
+[1mPlan:[0m 8 to add, 6 to change, 11 to destroy.
+[0m[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mResource Destruction Considerations[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mApplying this resource destruction will remove the resource from the
+[33m│[0m [0mTerraform state but will not change it in the API. If you would like to
+[33m│[0m [0mdestroy or reset this resource in the API, refer to the documentation for how
+[33m│[0m [0mto do it manually.
+[33m╵[0m[0m
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mResource Destruction Considerations[0m
+[33m│[0m [0m
+[33m│[0m [0m[0m  with cloudflare_zero_trust_tunnel_cloudflared_config.main["lab-ryuk"],
+[33m│[0m [0m  on tunnels.tf line 19, in resource "cloudflare_zero_trust_tunnel_cloudflared_config" "main":
+[33m│[0m [0m  19: resource "cloudflare_zero_trust_tunnel_cloudflared_config" "main" [4m{[0m[0m
+[33m│[0m [0m
+[33m│[0m [0mThis resource cannot be destroyed from Terraform. If you create this
+[33m│[0m [0mresource, it will be present in the API until manually deleted.
+[33m╵[0m[0m
+[90m
+─────────────────────────────────────────────────────────────────────────────[0m
+
+Note: You didn't use the -out option to save this plan, so Terraform can't
+guarantee to take exactly these actions if you run "terraform apply" now.
