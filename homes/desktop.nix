@@ -5,7 +5,7 @@
     ../applications/kitty
     ../applications/vivaldi
     ../applications/google-chrome
-    ../applications/qutebrowser
+    #../applications/qutebrowser
   ];
   home.packages = with pkgs; [
     zoom-us
