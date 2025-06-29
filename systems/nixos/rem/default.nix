@@ -17,7 +17,7 @@
     # ./font.nix
     # ./nvidia.nix
     # ./cloudflare.nix
-    # ./networks.nix
+     ./networks.nix
     ../common.nix
   ];
 
