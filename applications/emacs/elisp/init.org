@@ -62,7 +62,6 @@
   ;; config
   (setopt epg-pinentry-mode 'loopback))
 #+end_src
-
 * 一般設定
 #+begin_src emacs-lisp :tangle yes
   (add-hook 'emacs-startup-hook #'smooth-scroll-mode)
