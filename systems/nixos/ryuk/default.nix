@@ -70,6 +70,7 @@ in
       trusted-public-keys = [
         "yus314.cachix.org-1:VyHussCju8oVuLg52oE5RDOKMvWIInAvJumaJSvzWvk="
       ];
+      max-jobs = 4;
     };
   };
   #boot.kernelModules = ["uinput"];
