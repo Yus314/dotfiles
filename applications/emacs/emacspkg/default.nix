@@ -61,6 +61,7 @@
         diff-hl
         magit
         flycheck
+        projectile
         pdf-tools
         mistty
         helpful

@@ -14,12 +14,16 @@ in
   imports = [
     ../common.nix
     ./services/xremap
+    ./services/dropbox
     inputs.sops-nix.nixosModules.sops
   ];
 
   sops = {
     defaultSopsFile = ../../secrets/default.yaml;
     #age.keyFile = null;
+    age = {
+      keyFile = "/home/kaki/.config/sops/age/keys.txt";
+    };
     #gnupg = {
     #  home = "/home/kaki/.gnupg";
     #  sshKeyPaths = [ ];

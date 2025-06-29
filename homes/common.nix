@@ -23,6 +23,7 @@
     ../applications/zsh
     ../applications/ssh
     ../applications/gh
+    ../applications/gnupg
   ];
   services.gpg-agent = {
     enable = true;
@@ -32,8 +33,9 @@
     maxCacheTtlSsh = 60 * 60 * 24;
     enableSshSupport = true;
     enableExtraSocket = true;
-    pinentry.package = pkgs.pinentry-tty;
   };
+
+  home.preferXdgDirectories = true;
 
   programs.fish = {
     interactiveShellInit = ''

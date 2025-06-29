@@ -9,7 +9,6 @@
   ...
 }:
 let
-  xremap = pkgs.callPackage ../../../pkgs/xremap { };
 in
 {
   imports = [
@@ -25,10 +24,6 @@ in
   };
   sops = {
     secrets = {
-      "dropbox/token/access_token" = { };
-      "dropbox/token/token_type" = { };
-      "dropbox/token/refresh_token" = { };
-      "dropbox/token/expiry" = { };
       cachix-agent-token = {
         sopsFile = ../../../secrets/cachix.yaml;
       };
@@ -37,29 +32,8 @@ in
       cloudflared-tunnel-cred = {
       };
     };
-    templates = {
-
-      "dropbox.conf" = {
-        owner = "kaki";
-        group = "users";
-        mode = "0440";
-        content = ''
-          [dropbox]
-          type = dropbox
-          token = {"access_token":"${config.sops.placeholder."dropbox/token/access_token"}","token_type":"${
-            config.sops.placeholder."dropbox/token/token_type"
-          }","refresh_token":"${config.sops.placeholder."dropbox/token/refresh_token"}","expiry":"${
-            config.sops.placeholder."dropbox/token/expiry"
-          }"}
-        '';
-      };
-    };
   };
 
-  users.users.Cloudflared = {
-    group = "wheel";
-    isSystemUser = true;
-  };
   services.onedrive.enable = true;
   services.postgresql = {
     enable = true;
@@ -69,21 +43,6 @@ in
             #type database  DBuser  auth-method
       	  local  all       all   trust
     '';
-  };
-
-  systemd.user.services.remap = {
-    enable = true;
-    wantedBy = [ "default.target" ];
-    # after = [ "graphical-session.target" ];
-    serviceConfig = {
-      Type = "exec";
-      TimeOutStartSec = 30;
-      WorkingDirectory = "/home/kaki";
-      StandardOutput = "journal";
-      ExecStart = "${xremap}/bin/xremap /home/kaki/.config/xremap/config.yaml";
-
-      Restart = "always";
-    };
   };
 
   services.cloudflared = {
@@ -111,6 +70,7 @@ in
       trusted-public-keys = [
         "yus314.cachix.org-1:VyHussCju8oVuLg52oE5RDOKMvWIInAvJumaJSvzWvk="
       ];
+      max-jobs = 4;
     };
   };
   #boot.kernelModules = ["uinput"];
@@ -157,7 +117,7 @@ in
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
-  networking.hostName = "lab-main"; # Define your hostname.
+  networking.hostName = "ryuk"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
