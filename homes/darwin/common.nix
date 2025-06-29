@@ -17,10 +17,12 @@ in
     users.${username} = {
       imports = [
         ../common.nix
+        ../../modules/nix
       ];
       home = {
         inherit username;
       };
+      programs.nix.target.user = true;
       #home.file.".gnupg/gpg-agent.conf".text = ''
 
       #pinentry-program ${pkgs.pinentry_mac}/Applications/pinentry-mac.app/Contents/MacOS/pinentry-mac

@@ -41,11 +41,28 @@
   (setq custom-file (locate-user-emacs-file "custom.el"))
 #+end_src
 * GPG
+** epa-file
 #+begin_src emacs-lisp :tangle yes
-  ; (setq epa-pinentry-mode 'loopback)
-  (custom-set-variables '(epg-gpg-program "/run/current-system/sw/bin/gpg"))
-  (setq auth-sources '("~/dotfiles/home-manager/common/emacs/.authinfo.gpg"))
+  (autoload-if-found '(epa-file-enable) "epa-file" nil t)
+
+(add-hook 'emacs-startup-hook #'epa-file-enable)
+
+(fset 'epg-wait-for-status 'ignore)
+
+(with-eval-after-load 'epa-hook
+  ;; config
+  (setopt epa-file-encrypt-to '("49B685E0425E0EA4BADADA84AAEBE97A7B2544C0")))
+
+(with-eval-after-load 'epa-file
+  ;; config
+  (setopt epa-file-select-keys 'silent)
+  (setopt epa-file-cache-passphrase-for-symmetric-encryption t))
+
+(with-eval-after-load 'epg-config
+  ;; config
+  (setopt epg-pinentry-mode 'loopback))
 #+end_src
+
 * 一般設定
 #+begin_src emacs-lisp :tangle yes
   (add-hook 'emacs-startup-hook #'smooth-scroll-mode)
@@ -160,6 +177,7 @@ Waylandでペーストできるようにする設定
     (setq perfect-margin-ignore-regexps  nil)
     (setq perfect-margin-visible-width  108)
     (setq split-width-threshold  107)
+    (add-to-list 'perfect-margin-ignore-regexps "*which-key")
     )
 #+end_src
 ** icon
@@ -305,7 +323,7 @@ Waylandでペーストできるようにする設定
        '("B" . meow-back-symbol)
        '("c" . meow-swap-grab)
        '("C" . mc/mark-next-like-this)
-       '("p" . meow-delete)
+       '("p" . projectile-command-map)
        '("P" . meow-backward-delete)
        '("e" . meow-line)
        '("E" . meow-goto-line)
@@ -640,25 +658,11 @@ Waylandでペーストできるようにする設定
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
   )
 #+end_src
-** company
-#+begin_src emacs-lisp :tangle yes
- ; (leaf company
- ;   :custom
- ;   (company-minimum-prefix-length . 1)
- ;   (company-idle-delay . 0)
- ;   :config
- ;   ;(global-company-mode)
- ;   :ensure t)
-#+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
-  ;(leaf cape
-   ; :ensure t
-   ; :init
-   ; (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
-   ; (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
-   ; )
-
+  (require 'cape)
+  (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
+  (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
 #+end_src
 * キーバインディング
 #+begin_src emacs-lisp :tangle yes
@@ -1648,6 +1652,24 @@ Waylandでペーストできるようにする設定
     :modes (text-mode markdown-mode gfm-mode LaTeX-mode japanese-latex-mode))
       (add-to-list 'flycheck-checkers 'textlint)
       )
+#+end_src
+* Project
+** projectile
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(projectile-mode
+                       projectile-clear-known-projects
+                       projectile-cleanup-known-projects) "projectile" nil t)
+
+  (add-hook 'emacs-startup-hook #'projectile-mode)
+  ( add-hook 'emacs-startup-hook #'my/update-projectile-known-projects )
+  (defun my/update-projectile-known-projects ()
+    (interactive)
+    (projectile-clear-known-projects)
+    (projectile-cleanup-known-projects)
+    (setopt projectile-known-projects (mapcar
+                                       (lambda (x)
+                                         (abbreviate-file-name (concat x "/")))
+                                       (split-string (shell-command-to-string "ghq list --full-path")))))
 #+end_src
 * PDF
 #+begin_src emacs-lisp :tangle yes
