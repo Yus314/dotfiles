@@ -31,9 +31,9 @@
         "nix-command"
         "flakes"
       ];
+      max-jobs = 4;
     };
   };
-  nixpkgs.config.allowUnfree = true;
   services.openssh.enable = true;
   # home-manager = {
 
@@ -65,7 +65,7 @@
     ];
   };
 
-  networking.hostName = "lab-sub"; # Define your hostname.
+  networking.hostName = "rem"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   # networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.

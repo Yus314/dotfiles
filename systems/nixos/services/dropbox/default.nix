@@ -3,26 +3,11 @@
   programs.fuse.userAllowOther = true;
   sops = {
     secrets = {
-      "dropbox/token/access_token" = { };
-      "dropbox/token/token_type" = { };
-      "dropbox/token/refresh_token" = { };
-      "dropbox/token/expiry" = { };
-    };
-    templates = {
-
-      "dropbox.conf" = {
+      dropbox-token-env = {
+        sopsFile = ./secrets.yaml;
         owner = "kaki";
         group = "users";
-        mode = "0440";
-        content = ''
-          [dropbox]
-          type = dropbox
-          token = {"access_token":"${config.sops.placeholder."dropbox/token/access_token"}","token_type":"${
-            config.sops.placeholder."dropbox/token/token_type"
-          }","refresh_token":"${config.sops.placeholder."dropbox/token/refresh_token"}","expiry":"${
-            config.sops.placeholder."dropbox/token/expiry"
-          }"}
-        '';
+        mode = "0640";
       };
     };
   };
@@ -31,14 +16,17 @@
     after = [ "network-online.target" ];
     serviceConfig = {
       Type = "notify";
-      ExecStartPre = "/run/current-system/sw/bin/mkdir -p %h/dropbox";
-      ExecStart = "${pkgs.rclone}/bin/rclone --config=${
-        config.sops.templates."dropbox.conf".path
-      } --vfs-cache-mode writes --ignore-checksum mount \"dropbox:\" \"dropbox\" --allow-other";
-      ExecStop = "/run/wrappers/bin/fusermount -u %h/dropbox/%i";
+      ExecStartPre = "${pkgs.coreutils-full}/bin/mkdir -p %h/dropbox";
+      ExecStart = ''
+        ${pkgs.rclone}/bin/rclone \
+        --vfs-cache-mode writes \
+        --ignore-checksum mount "dropbox:" "%h/dropbox" \
+        --allow-other
+      '';
+      ExecStop = "${pkgs.fuse}/bin/fusermount -u %h/dropbox";
       Environment = [ "PATH=/run/wrappers/bin/:$PATH" ];
+      EnvironmentFile = "${config.sops.secrets.dropbox-token-env.path}";
     };
     wantedBy = [ "default.target" ];
-
   };
 }
