@@ -21,6 +21,9 @@ in
   sops = {
     defaultSopsFile = ../../secrets/default.yaml;
     #age.keyFile = null;
+    age = {
+      keyFile = "/home/kaki/.config/sops/age/keys.txt";
+    };
     #gnupg = {
     #  home = "/home/kaki/.gnupg";
     #  sshKeyPaths = [ ];
