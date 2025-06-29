@@ -657,25 +657,11 @@ Waylandでペーストできるようにする設定
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
   )
 #+end_src
-** company
-#+begin_src emacs-lisp :tangle yes
- ; (leaf company
- ;   :custom
- ;   (company-minimum-prefix-length . 1)
- ;   (company-idle-delay . 0)
- ;   :config
- ;   ;(global-company-mode)
- ;   :ensure t)
-#+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
-  ;(leaf cape
-   ; :ensure t
-   ; :init
-   ; (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
-   ; (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
-   ; )
-
+  (require 'cape)
+  (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
+  (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
 #+end_src
 * キーバインディング
 #+begin_src emacs-lisp :tangle yes

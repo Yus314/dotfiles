@@ -118,6 +118,7 @@
                   p.null
                   p.sops
                 ]))
+                cf-terraforming
               ];
               shellHook = config.pre-commit.installationScript;
             };

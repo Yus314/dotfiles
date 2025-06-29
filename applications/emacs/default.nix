@@ -16,11 +16,10 @@ in
     enable = true;
     package = emacsPkg.emacs-unstable;
   };
+  xdg.configFile."emacs/init.el".text = tangle (builtins.readFile ./elisp/init.org);
+  xdg.configFile."emacs/early-init.el".text = tangle (builtins.readFile ./elisp/early-init.org);
+
   home = {
-    file = {
-      ".emacs.d/init.el".text = tangle (builtins.readFile ./elisp/init.org);
-      ".emacs.d/early-init.el".text = tangle (builtins.readFile ./elisp/early-init.org);
-    };
     packages = with pkgs; [
       nil
       nixfmt-rfc-style
