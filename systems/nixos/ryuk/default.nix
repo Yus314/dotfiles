@@ -34,10 +34,6 @@ in
     };
   };
 
-  users.users.Cloudflared = {
-    group = "wheel";
-    isSystemUser = true;
-  };
   services.onedrive.enable = true;
   services.postgresql = {
     enable = true;
