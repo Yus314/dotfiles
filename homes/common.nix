@@ -33,6 +33,10 @@
     maxCacheTtlSsh = 60 * 60 * 24;
     enableSshSupport = true;
     enableExtraSocket = true;
+    extraConfig = ''
+      allow-emacs-pinentry
+      allow-loopback-pinentry
+    '';
   };
 
   home.preferXdgDirectories = true;
