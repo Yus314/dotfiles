@@ -15,11 +15,11 @@
 #+end_src
 * exec-path-from-shell[macOS]
 #+begin_src emacs-lisp :tangle yes
-  (autoload-if-found '(exec-path-from-shell-initialize) "exec-path-from-shell")
-  (when (memq window-system '(mac ns x))
-    (dolist (var '("GNUPGHOME"))
-    (add-to-list 'exec-path-from-shell-variables var))
-    (exec-path-from-shell-initialize))
+    (when (memq window-system '(mac ns x))
+      (require 'exec-path-from-shell)
+      (dolist (var '("GNUPGHOME"))
+      (add-to-list 'exec-path-from-shell-variables var))
+      (exec-path-from-shell-initialize))
 #+end_src
 * パッケージを読み込まないようにする
 #+begin_src emacs-lisp :tangle yes
@@ -736,6 +736,10 @@ Waylandでペーストできるようにする設定
     ;(setenv "GEMINI_API_KEY" (funcall(plist-get (nth 0 (auth-source-search :host "gemini")) :secret)))
     )
   )
+#+end_src
+* claude-code-ide
+#+begin_src emacs-lisp :tangle yes
+  (require 'claude-code-ide)
 #+end_src
 * emigo
 #+begin_src emacs-lisp :tangle yes
