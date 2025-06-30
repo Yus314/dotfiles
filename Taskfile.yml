@@ -3,7 +3,7 @@ vars:
   HOST:
     sh: uname -n
   NIX_PROFILE: /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-  NIX: nom
+  NIX: '{{.NIX | default "nom"}}'
   JOBS_X86_64-LINUX: '{{if eq .OS "darwin"}} -j0 {{end}}'
   JOBS_AARCH64-DARWIN: '{{if eq .OS "linux"}} -j0 {{end}}'
 tasks:
@@ -36,6 +36,6 @@ tasks:
     desc: Determinate Systemsのインストーラを使ってNixをインストールします
     status:
       - test -f {{.NIX_PROFILE}}
-  uninstal_nix:
+  uninstall_nix:
     cmds:
       - /nix/nix-installer uninstall

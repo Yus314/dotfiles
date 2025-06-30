@@ -1,4 +1,4 @@
-name: build and cache
+name: Build Linux Systems
 on:
   pull_request:
     branches:
@@ -6,17 +6,13 @@ on:
   push:
     branches:
       - main
+
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-14]
-    steps: # Corrected indentation: steps is now directly under build
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
       # workaround for "No space left on device"
       - name: Collect garbage
-        if: matrix.os == 'ubuntu-latest'
         uses: easimon/maximize-build-space@fc881a613ad2a34aca9c9624518214ebc21dfc0c # v10
         with:
           root-reserve-mb: 8192
@@ -27,8 +23,11 @@ jobs:
           remove-haskell: 'true'
           remove-codeql: 'true'
           remove-docker-images: 'true'
+      
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      
       - uses: nixbuild/nix-quick-install-action@5bb6a3b3abe66fd09bbf250dce8ada94f856a703 # v30
+      
       - name: Setup cachix
         uses: cachix/cachix-action@0fc020193b5a1fa3ac4575aa3a7d3aa6a35435ad # v16
         with:
@@ -36,13 +35,14 @@ jobs:
           signingKey: ${{ secrets.CACHIX_SIGNING_KEY }}
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           extraPullNames: nix-community
-      - name: Create /run for darwin
-        if: matrix.os == 'macos-14'
+      
+      - name: Install Task
         run: |
-          printf "run\tprivate/var/run\n" | sudo tee -a /etc/synthetic.conf
-          /System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -t || true
-      - name: build
+          sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+      
+      - name: Build Linux systems
+        env:
+          NIX: nix
         run: |
-          export MAKEFLAGS="NIX:=nix"
-          make
+          task linux
           df -h
