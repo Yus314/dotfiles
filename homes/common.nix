@@ -24,6 +24,9 @@
     ../applications/ssh
     ../applications/gh
     ../applications/gnupg
+    ../applications/bash
+    ../applications/less
+    ../applications/vim
   ];
   services.gpg-agent = {
     enable = true;
