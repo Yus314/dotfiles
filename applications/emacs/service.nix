@@ -1,6 +1,6 @@
 { pkgs, ... }:
 let
-  sources = pkgs.callPackage ../../sources/genarated.nix;
+  sources = pkgs.callPackage ../../sources/generated.nix;
   emacsPkg = import ./emacspkg { inherit pkgs sources; };
 in
 {
