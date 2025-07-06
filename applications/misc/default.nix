@@ -66,6 +66,7 @@
     aider-chat # AI pair programming tool in your terminal
     cachix
     nvfetcher
+    claude-code
   ];
   xdg.enable = true;
 }

@@ -38,6 +38,7 @@
         cape
         ellama
         aidermacs
+        claude-code-ide
         #lsp-bridge
         lsp-mode
         lsp-ui
