@@ -11,7 +11,7 @@
     };
     extraConfig = {
       core = {
-        editor = "nvim";
+        editor = "emacs";
       };
       ghq.user = "Yus314";
       pull.rebase = false;

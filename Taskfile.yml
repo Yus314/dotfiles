@@ -3,9 +3,9 @@ vars:
   HOST:
     sh: uname -n
   NIX_PROFILE: /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-  NIX: nom
-  JOBS_X86_64-LINUX: '{{if eq .OS "darwin"}} -j0 {{end}}'
-  JOBS_AARCH64-DARWIN: '{{if eq .OS "linux"}} -j0 {{end}}'
+  NIX: '{{.NIX | default "nom"}}'
+  JOBS_X86_64_LINUX: '{{if eq .OS "darwin"}} -j0 {{end}}'
+  JOBS_AARCH64_DARWIN: '{{if eq .OS "linux"}} -j0 {{end}}'
 tasks:
   switch:
     cmds:
@@ -22,19 +22,18 @@ tasks:
   linux:
     desc: Linux (x86_64) 向けのビルド
     cmds:
-      # YAMLの `|` を使うと複数行のコマンドが見やすく書ける
+      # CI環境ではメインシステム（watari）のみビルドしてリソース制約を回避
       - |
-        {{.NIX}} build --impure --keep-going --no-link --show-trace --system x86_64-linux {{.JOBS_X86_64-LINUX}} \
-          .#nixosConfigurations.home.config.system.build.toplevel \
-          .#nixosConfigurations.lab-main.config.system.build.toplevel
+        {{.NIX}} build --impure --keep-going --no-link --show-trace --system x86_64-linux {{.JOBS_X86_64_LINUX}} \
+          .#nixosConfigurations.watari.config.system.build.toplevel
   darwin:
     desc: macOS (aarch64) 向けのビルド
     cmds:
-      - "{{.NIX}} build --keep-going --no-link --show-trace --system aarch64-darwin {{.JOBS_AARCH64-DARWIN}} --option extra-sandbox-paths /nix/store \\\n  .#darwinConfigurations.KakinumanoMacBook-Air.system\n  \n"
+      - "{{.NIX}} build --keep-going --no-link --show-trace --system aarch64-darwin {{.JOBS_AARCH64_DARWIN}} --option extra-sandbox-paths /nix/store \\\n  .#darwinConfigurations.lawliet.system\n  \n"
   install_nix:
     desc: Determinate Systemsのインストーラを使ってNixをインストールします
     status:
       - test -f {{.NIX_PROFILE}}
-  uninstal_nix:
+  uninstall_nix:
     cmds:
       - /nix/nix-installer uninstall
