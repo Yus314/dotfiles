@@ -48,7 +48,7 @@
     unzip # ZIP archive utility
     cloudflared # Cloudflare Tunnel daemon
     marp-cli # Markdown presentation ecosystem CLI
-    vimgolf # Vim code golf client
+    #vimgolf # Vim code golf client
     carapace # Command argument completion generator
     gdrive3 # Google Drive CLI Client (consider using rclone instead?)
     # drive # Another Google Drive CLI Client (choose one or use rclone)
