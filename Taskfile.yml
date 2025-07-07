@@ -26,12 +26,13 @@ tasks:
       - linux
       - darwin
   linux:
-    desc: Linux (x86_64) 向けのビルド
+    desc: 全てのLinux (x86_64) ホスト向けのビルド
     cmds:
-      # CI環境ではメインシステム（watari）のみビルドしてリソース制約を回避
       - |
         {{.NIX}} build --impure --keep-going --no-link --show-trace --system x86_64-linux {{.JOBS_X86_64_LINUX}} \
-          .#nixosConfigurations.watari.config.system.build.toplevel
+          .#nixosConfigurations.watari.config.system.build.toplevel \
+          .#nixosConfigurations.ryuk.config.system.build.toplevel \
+          .#nixosConfigurations.rem.config.system.build.toplevel
   darwin:
     desc: macOS (aarch64) 向けのビルド
     cmds:
