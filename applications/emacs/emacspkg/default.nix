@@ -51,6 +51,7 @@
         typst-ts-mode
         typst-preview
         terraform-mode
+        plantuml-mode
         org-super-agenda
         org-modern
         org-modern-indent
@@ -58,6 +59,7 @@
         org-roam
         org-roam-ui
         org-roam-review
+        org-nix-shell
         citar
         diff-hl
         magit
@@ -109,6 +111,7 @@
         pkgs.xapian
         pkgs.gmime
         pkgs.adwaita-icon-theme
+        pkgs.pinentry-emacs
       ];
   };
 }

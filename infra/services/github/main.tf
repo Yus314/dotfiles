@@ -71,3 +71,9 @@ F8TkrjHoD1xclctqoCVlsZS6Xut3xrdfZ4qL
 -----END PGP PUBLIC KEY BLOCK-----
 EOT
 }
+
+resource "github_actions_secret" "cachix_auth_token" {
+  repository      = "dotfiles"
+  secret_name     = "CACHIX_AUTH_TOKEN"
+  plaintext_value = data.sops_file.secret.data["cachix_auth_token"]
+}

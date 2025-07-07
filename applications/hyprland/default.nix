@@ -12,7 +12,6 @@
                                                                  	env = __GLX_VENDOR_LIBRARY_NAME,nvidia-drm
                monitor=DVI-D-1,1920x1080@60.00000,0x0,1
                monitor=HDMI-A-1,1920x1080@74.97300,1920x0,1
-                     exec-once = waybar
       	       exec-once = fcitx5 -d
     '';
 

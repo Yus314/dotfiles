@@ -17,7 +17,7 @@
 #+begin_src emacs-lisp :tangle yes
     (when (memq window-system '(mac ns x))
       (require 'exec-path-from-shell)
-      (dolist (var '("GNUPGHOME"))
+      (dolist (var '("GNUPGHOME" "NIX_PATH"))
       (add-to-list 'exec-path-from-shell-variables var))
       (exec-path-from-shell-initialize))
 #+end_src
@@ -64,7 +64,6 @@
   ;; config
   (setopt epg-pinentry-mode 'loopback))
 #+end_src
-
 * 一般設定
 #+begin_src emacs-lisp :tangle yes
   (add-hook 'emacs-startup-hook #'smooth-scroll-mode)
@@ -615,28 +614,6 @@ Waylandでペーストできるようにする設定
 * 入力補完
 ** corfu
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package corfu
-  ;  :custom
-  ;  (corfu-auto  t)
-  ;  (corfu-auto-delay  0)
-  ;  (corfu-popupinfo-delay  0)
-  ;  (corfu-quit-no-match  'separator)
-  ;  (corfu-auto-prefix  1)
-  ;  (corfu-cycle  t)
-  ;  (text-mode-ispell-word-completion  nil)
-  ;  (tab-awlays-indent  'complete)
-  ;  :config 
-  ;  (global-corfu-mode)
-  ;  (corfu-popupinfo-mode)
-  ;  (keymap-unset corfu-map "RET")
-  ;  (keymap-unset corfu-map "<up>")
-  ;  (keymap-unset corfu-map "<remap> <next-line>")
-  ;  (keymap-unset corfu-map "<remap> <previous-line>")
-  ;  (keymap-unset corfu-map "<down>")
-  ;  (keymap-set corfu-map "C-n" 'corfu-next)
-  ;  (keymap-set corfu-map "C-p" 'corfu-previous)
-  ;  )
-
   (require 'corfu)
   (require 'corfu-popupinfo)
   (with-eval-after-load 'corfu
@@ -647,7 +624,7 @@ Waylandでペーストできるようにする設定
   (setq corfu-auto-prefix  1)
   (setq corfu-cycle  t)
   (setq text-mode-ispell-word-completion  nil)
-  (setq tab-awlays-indent  'complete)
+  (setq tab-always-indent  'complete)
   (global-corfu-mode)
   (corfu-popupinfo-mode)
   (keymap-unset corfu-map "RET")
@@ -662,7 +639,8 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
-  (require 'cape)
+  ((autoload-if-found '(cape-file
+                     cape-keyword) "cape" nil t))
   (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
   (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
 #+end_src
@@ -949,6 +927,11 @@ Waylandでペーストできるようにする設定
   (with-eval-after-load 'terraform-mode
     (add-hook 'torraform-mode-hook 'lsp)
    )
+#+end_src
+** plantuml
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(plantuml-mode) "plantuml-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.pu$" . plantuml-mode))
 #+end_src
 * org
 ** org
@@ -1417,7 +1400,18 @@ Waylandでペーストできるようにする設定
   	    #'(lambda ()
   		(org-babel-do-load-languages 'org-babel-load-languages
   					     '((emacs-lisp . t)
-  					       (org . t))))))
+  					       (org . t)
+  					       (shell . t)
+  					       (plantuml . t)
+  					       )))))
+  (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+#+end_src
+*** org-nix-shell
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(org-nix-shell-mode) "org-nix-shell" nil t)
+
+  (with-eval-after-load 'org
+    (add-hook 'org-mode-hook #'org-nix-shell-mode))
 #+end_src
 ** org-roam
 #+begin_src emacs-lisp :tangle yes
@@ -1813,12 +1807,12 @@ Waylandでペーストできるようにする設定
 #+end_src
 * reformatter
 #+begin_src emacs-lisp :tangle yes
-  (use-package reformatter
-     )
-    (reformatter-define nixfmt
-      :program "nixfmt"
-      :args '("-")
-      )
+  ;(use-package reformatter
+  ;   )
+  ;  (reformatter-define nixfmt
+  ;    :program "nixfmt"
+  ;    :args '("-")
+  ;    )
   ;  (reformatter-define ruff
   ;    :program "ruff format"
   ;    :args '("-")
@@ -1992,7 +1986,7 @@ bufferが溜ったり、設定が更新されなかったり、ssh先が保存�
    ;  :custom
    ;  (desktop-save-mode . 1)
    ;  )
-   (profiler-report) ;; Profiler report removed
-   (profiler-stop) ;; Profiler stop removed
+   ;(profiler-report) ;; Profiler report removed
+   ;(profiler-stop) ;; Profiler stop removed
   (setq file-name-handler-alist my-saved-file-name-handler-alist)
 #+end_src
