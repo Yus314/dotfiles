@@ -26,5 +26,5 @@ in
 
   environment.shells = [ pkgs.fish ];
   programs.fish.enable = true;
-  users.users.${username}.shell = pkgs.fish;
+  users.users.${username}.shell = pkgs.bash;
 }
