@@ -9,7 +9,7 @@ tasks:
     desc: 現在のホスト向けにシステム設定を切り替えます
     cmds:
       - |
-        {{if eq .OS "darwin"}}
+        {{if eq OS "darwin"}}
         sudo darwin-rebuild switch --flake .#{{.HOST}} --show-trace
         {{else}}
         sudo nixos-rebuild switch --flake .#{{.HOST}} --show-trace
