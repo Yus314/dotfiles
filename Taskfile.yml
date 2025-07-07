@@ -17,7 +17,7 @@ tasks:
   build:
     desc: 現在のシステム向けのNix Configurationをビルドします
     deps:
-      - task: '{{.OS}}'
+      - task: '{{OS}}'
   build-all:
     desc: 全てのシステムのNix Configurationをビルドします
     deps:
