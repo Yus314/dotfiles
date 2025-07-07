@@ -6,6 +6,9 @@ locals {
     "subssh" = {
       domain = "sub.mdip2home.com"
     }
+    "sma" = {
+      domain = "sma.mdip2home.com"
+    }
   }
 }
 
@@ -27,19 +30,13 @@ resource "cloudflare_zero_trust_access_application" "main" {
   http_only_cookie_attribute = true
   options_preflight_bypass   = false
   policies = [{
-    name     = "Allow-From-Japan" # ポリシーの共通名
-    decision = "allow"
-    include = [
-      {
-        geo = { country_code = "JP" } # 日本からのアクセスを許可
-      }
-    ]
+    id         = "da481d3f-1301-4dbe-bb5e-cf82e0c86f0b"
+    precedence = 1
   }]
 }
-resource "cloudflare_zero_trust_access_policy" "common" {
-  for_each   = cloudflare_zero_trust_access_application.main
+resource "cloudflare_zero_trust_access_policy" "Allow-From-Japan" {
   account_id = var.cloudflare_account_id
-  name       = "common"
+  name       = "Allow-From-Japan"
   decision   = "allow"
   include = [
     {
