@@ -7,12 +7,12 @@
     ../../applications/i3
     ../../applications/tofi
     ../../applications/foot
+    ../../applications/waybar
   ];
   home.packages = with pkgs; [
     xfce.thunar
     xfce.tumbler
     gscreenshot
-    waybar
     wl-clipboard
     #swaylock
     #swayidle
@@ -20,8 +20,4 @@
     pinta
     nyxt
   ];
-  programs.waybar = {
-    enable = false;
-    systemd.enable = true;
-  };
 }

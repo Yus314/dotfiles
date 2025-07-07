@@ -111,6 +111,7 @@
         pkgs.xapian
         pkgs.gmime
         pkgs.adwaita-icon-theme
+        pkgs.pinentry-emacs
       ];
   };
 }
