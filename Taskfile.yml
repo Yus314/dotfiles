@@ -8,8 +8,14 @@ vars:
   JOBS_AARCH64_DARWIN: '{{if eq .OS "linux"}} -j0 {{end}}'
 tasks:
   switch:
+    desc: 現在のホスト向けにシステム設定を切り替えます
     cmds:
-      - sudo darwin-rebuild  switch --flake .#{{.HOST}} --show-trace
+      - |
+        {{if eq .OS "darwin"}}
+        sudo darwin-rebuild switch --flake .#{{.HOST}} --show-trace
+        {{else}}
+        sudo nixos-rebuild switch --flake .#{{.HOST}} --show-trace
+        {{end}}
   build:
     desc: 現在のシステム向けのNix Configurationをビルドします
     deps:
