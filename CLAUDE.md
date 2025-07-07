@@ -111,3 +111,16 @@ Secrets are managed using SOPS with age encryption. Key files:
 - `secrets/default.yaml`: Main secrets file
 - Age key location: `/home/kaki/.config/sops/age/keys.txt` (Linux)
 - GPG home for Darwin: `${config.xdg.dataHome}/.gnupg`
+
+## Code Quality and Formatting
+
+This repository uses pre-commit hooks for automated code formatting and quality checks:
+
+- **Automatic formatting**: Files are automatically formatted on commit using treefmt-nix
+- **Pre-commit integration**: git-hooks.nix ensures code quality before commits
+- **CI/CD validation**: GitHub Actions runs checks and builds on all changes
+
+When committing changes, pre-commit hooks may automatically format files. If this happens:
+1. The formatted changes will be applied automatically
+2. Accept these formatting changes as they maintain code consistency
+3. The commit will proceed with the formatted code
