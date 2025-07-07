@@ -26,6 +26,7 @@ in
       imports = [
         ../desktop.nix
       ];
+      home.packages = with pkgs; [ bluetui ];
     };
     extraSpecialArgs = {
       inherit nixpkgs;

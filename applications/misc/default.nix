@@ -43,10 +43,12 @@
     tldr # Simplified man pages
     pandoc # Universal document converter
     just # Command runner
+    go-task # Task runner
+    nix-output-monitor # Nix build output monitor
     unzip # ZIP archive utility
     cloudflared # Cloudflare Tunnel daemon
     marp-cli # Markdown presentation ecosystem CLI
-    vimgolf # Vim code golf client
+    #vimgolf # Vim code golf client
     carapace # Command argument completion generator
     gdrive3 # Google Drive CLI Client (consider using rclone instead?)
     # drive # Another Google Drive CLI Client (choose one or use rclone)
@@ -54,6 +56,7 @@
     # xremap # Key remapper (commented out)
     nix-init
     ghq
+    plantuml
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
