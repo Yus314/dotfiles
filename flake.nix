@@ -24,10 +24,7 @@
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
     nur-packages.url = "github:Yus314/nur-packages";
     nur-packages.inputs.nixpkgs.follows = "nixpkgs";
-    xremap = {
-      url = "github:xremap/nix-flake";
-      inputs.xremap.url = "github:Yus314/xremap/fix-issue-492";
-    };
+    xremap.url = "github:xremap/nix-flake";
   };
   outputs =
     {
