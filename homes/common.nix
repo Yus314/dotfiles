@@ -24,6 +24,9 @@
     ../applications/ssh
     ../applications/gh
     ../applications/gnupg
+    ../applications/bash
+    ../applications/less
+    ../applications/vim
   ];
   services.gpg-agent = {
     enable = true;
@@ -33,6 +36,10 @@
     maxCacheTtlSsh = 60 * 60 * 24;
     enableSshSupport = true;
     enableExtraSocket = true;
+    extraConfig = ''
+      allow-emacs-pinentry
+      allow-loopback-pinentry
+    '';
   };
 
   home.preferXdgDirectories = true;

@@ -19,16 +19,12 @@
     sops-nix.url = "github:Mic92/sops-nix";
     impermanence.url = "github:nix-community/impermanence";
     flake-parts.url = "github:hercules-ci/flake-parts";
-    cachix-deploy-flake.url = "github:cachix/cachix-deploy-flake";
     git-hooks.url = "github:cachix/git-hooks.nix";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
     nur-packages.url = "github:Yus314/nur-packages";
     nur-packages.inputs.nixpkgs.follows = "nixpkgs";
-    xremap = {
-      url = "github:xremap/nix-flake";
-      inputs.xremap.url = "github:Yus314/xremap/fix-issue-492";
-    };
+    xremap.url = "github:xremap/nix-flake";
   };
   outputs =
     {
