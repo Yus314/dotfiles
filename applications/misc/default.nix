@@ -56,6 +56,7 @@
     # xremap # Key remapper (commented out)
     nix-init
     ghq
+    pinentry-curses
     plantuml
     nh
 
