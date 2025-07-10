@@ -1,10 +1,10 @@
 {
-  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: [
-    'config:recommended'
-  ]
-    timezone: 'Asia/Tokyo',
-    	lockFileMaintenance: {
+	$schema: 'https://docs.renovatebot.com/renovate-schema.json',
+	extends: [
+		'config:best-practices',
+	],
+	timezone: 'Asia/Tokyo',
+	lockFileMaintenance: {
 		enabled: true,
 		schedule: [
 			'before 3:00am',
