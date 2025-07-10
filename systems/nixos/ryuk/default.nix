@@ -34,7 +34,6 @@ in
     };
   };
 
-  services.onedrive.enable = true;
   services.postgresql = {
     enable = true;
     package = pkgs.postgresql_16;
@@ -188,6 +187,9 @@ in
       gh
       lshw
       tldr
+    ];
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIBfs+3qrkded/Rui5MiVyNGxB7TvzrnuP2TNOrX263+ root"
     ];
   };
   services.xserver.xkb.layout = "us";
