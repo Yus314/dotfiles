@@ -23,8 +23,8 @@
 #+end_src
 * パッケージを読み込まないようにする
 #+begin_src emacs-lisp :tangle yes
-  (require 'profiler) ;; Profiler start removed
-  (profiler-start 'cpu) ;; Profiler start removed
+ ; (require 'profiler) ;; Profiler start removed
+ ; (profiler-start 'cpu) ;; Profiler start removed
   (setq debug-on-error t)
   (defconst my-saved-file-name-handler-alist file-name-handler-alist)
   (setq file-name-handler-alist nil)
@@ -52,7 +52,6 @@
 (fset 'epg-wait-for-status 'ignore)
 
 (with-eval-after-load 'epa-hook
-  ;; config
   (setopt epa-file-encrypt-to '("49B685E0425E0EA4BADADA84AAEBE97A7B2544C0")))
 
 (with-eval-after-load 'epa-file
@@ -639,8 +638,8 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
-  ((autoload-if-found '(cape-file
-                     cape-keyword) "cape" nil t))
+  (autoload-if-found '(cape-file
+                     cape-keyword) "cape" nil t)
   (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
   (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
 #+end_src
