@@ -54,6 +54,7 @@
     # xremap # Key remapper (commented out)
     nix-init
     ghq
+    pinentry-curses
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
