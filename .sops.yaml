@@ -20,3 +20,9 @@ creation_rules:
           - *admin_kaki 
         age:
           - *admin_yusuke 
+  - path_regex: systems/nixos/rem/secrets.yaml$
+    key_groups:
+      - pgp:
+          - *admin_kaki 
+        age:
+          - *admin_yusuke 
