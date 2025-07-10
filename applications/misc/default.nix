@@ -57,6 +57,7 @@
     nix-init
     ghq
     plantuml
+    nh
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
