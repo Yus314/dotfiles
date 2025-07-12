@@ -37,6 +37,10 @@
       enableZshIntegration = true;
       enableNushellIntegration = true;
     };
+    nh = {
+      enable = true;
+      flake = "~/ghq/github.com/Yus314/dotfiles";
+    };
   };
   home.packages = with pkgs; [
     # --- CLI Utilities ---
@@ -58,7 +62,6 @@
     ghq
     pinentry-curses
     plantuml
-    nh
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
