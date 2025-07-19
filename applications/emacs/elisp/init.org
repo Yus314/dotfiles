@@ -23,8 +23,8 @@
 #+end_src
 * パッケージを読み込まないようにする
 #+begin_src emacs-lisp :tangle yes
-  (require 'profiler) ;; Profiler start removed
-  (profiler-start 'cpu) ;; Profiler start removed
+  ;(require 'profiler) ;; Profiler start removed
+  ;(profiler-start 'cpu) ;; Profiler start removed
   (setq debug-on-error t)
   (defconst my-saved-file-name-handler-alist file-name-handler-alist)
   (setq file-name-handler-alist nil)
@@ -639,8 +639,8 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
-  ((autoload-if-found '(cape-file
-                     cape-keyword) "cape" nil t))
+  (autoload-if-found '(cape-file
+                     cape-keyword) "cape" nil t)
   (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
   (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
 #+end_src
