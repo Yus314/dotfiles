@@ -9,6 +9,7 @@
       noto-fonts-emoji
       nerd-fonts.hack
       arkpandora_ttf
+      bizin-gothic-nf
     ];
     fontDir.enable = true;
     fontconfig = {
