@@ -17,13 +17,39 @@
     # ./font.nix
     # ./nvidia.nix
     # ./cloudflare.nix
-    # ./networks.nix
+    ./networks.nix
     ../common.nix
   ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+
+  sops = {
+    secrets = {
+      cachix-agent-token = {
+        sopsFile = ../../../secrets/cachix.yaml;
+      };
+      cloudflared-tunnel-cert = {
+      };
+      cloudflared-tunnel-cred = {
+        sopsFile = ./secrets.yaml;
+
+      };
+    };
+  };
+
+  services.cloudflared = {
+    enable = true;
+    tunnels."7fd731b9-305c-4bf5-8e75-1d333b53fec9" = {
+      credentialsFile = "${config.sops.secrets.cloudflared-tunnel-cred.path}";
+      default = "http_status:404";
+      ingress = {
+        "sub.mdip2home.com" = "ssh://localhost:22";
+      };
+    };
+    certificateFile = "${config.sops.secrets.cloudflared-tunnel-cert.path}";
+  };
 
   nix = {
     settings = {
