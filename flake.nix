@@ -28,6 +28,8 @@
       url = "github:xremap/nix-flake";
       inputs.xremap.url = "github:Yus314/xremap/fix-issue-492";
     };
+    disko.url = "github:nix-community/disko";
+    disko.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs =
     {
@@ -50,7 +52,8 @@
           system = "x86_64-linux";
         };
         lawliet = {
-          system = "aarch64-darwin";
+          system = "x86_64-linux";
+          #system = "aarch64-darwin";
         };
         ryuk = {
           system = "x86_64-linux";

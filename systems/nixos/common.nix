@@ -16,6 +16,7 @@ in
     ./services/xremap
     ./services/dropbox
     inputs.sops-nix.nixosModules.sops
+    inputs.disko.nixosModules.disko
   ];
 
   sops = {
