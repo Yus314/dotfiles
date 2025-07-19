@@ -37,6 +37,10 @@
       enableZshIntegration = true;
       enableNushellIntegration = true;
     };
+    nh = {
+      enable = true;
+      flake = "~/ghq/github.com/Yus314/dotfiles";
+    };
   };
   home.packages = with pkgs; [
     # --- CLI Utilities ---
@@ -56,6 +60,7 @@
     # xremap # Key remapper (commented out)
     nix-init
     ghq
+    pinentry-curses
     plantuml
     nh
 
