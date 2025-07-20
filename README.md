@@ -72,7 +72,7 @@ dotfiles/
 ├── secrets/        # SOPS暗号化された秘密情報
 ├── infra/          # Infrastructure as Code（Terraform）
 ├── flake.nix       # メインFlake設定
-└── Taskfile.yml    # タスクランナー設定
+└── Makefile       # ビルドツール設定
 ```
 
 ## セットアップ・使用方法
@@ -80,16 +80,16 @@ dotfiles/
 ### 必要な前提条件
 
 - Nix（Flakes有効）
-- go-task（推奨）
+- make（標準で利用可能）
 
 ### 基本コマンド
 
 ```bash
 # 現在のシステム設定をビルド
-task build
+make build
 
 # 全システム設定をビルド
-task build-all
+make build-all
 
 # システム設定を適用
 nh os switch -H {hostname}        # NixOS用
@@ -109,10 +109,10 @@ nix flake check
 
 ```bash
 # Linux (x86_64) システムのビルド
-task linux
+make x86_64-linux
 
 # macOS (aarch64) システムのビルド  
-task darwin
+make aarch64-darwin
 ```
 
 ## 設定の特徴
