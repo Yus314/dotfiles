@@ -7,8 +7,8 @@
 let
   inherit (inputs) xremap;
   cskk = pkgs.callPackage ../../pkgs/cskk { };
-  #fcitx5-cskk = pkgs.libsForQt5.callPackage ../../pkgs/fcitx5-cskk { inherit cskk; };
-  #fcitx5-cskk-qt = fcitx5-cskk.override { enableQt = true; };
+  fcitx5-cskk = pkgs.libsForQt5.callPackage ../../pkgs/fcitx5-cskk { inherit cskk; };
+  fcitx5-cskk-qt = fcitx5-cskk.override { enableQt = true; };
 in
 {
   imports = [
@@ -49,8 +49,8 @@ in
       pkgs.fcitx5-skk
       pkgs.fcitx5-mozc
       pkgs.fcitx5-gtk
-      #   fcitx5-cskk
-      #  fcitx5-cskk-qt
+      fcitx5-cskk
+      fcitx5-cskk-qt
     ];
     fcitx5.waylandFrontend = true;
   };

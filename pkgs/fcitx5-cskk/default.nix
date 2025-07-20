@@ -42,7 +42,7 @@ stdenv.mkDerivation rec {
       qtbase
     ];
 
-  dontWrapQtApps = true;
+  #dontWrapQtApps = true;
 
   cmakeFlags = [
     "-DENABLE_QT=${toString enableQt}"

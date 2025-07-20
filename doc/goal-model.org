@@ -1250,7 +1250,7 @@
 
 *** 17. 鍵を共有する
 - エージェント: kaki
-- インターフェース:GPG、ssh、各ホスト(watari、lawliet、ryuk、rem)
+- インターフェース:GPG、ssh、各ホスト(lawliet、watari、ryuk、rem)
 - 入力: 鍵ペア生成要求、共有対象ホスト
 - 出力: 共有された鍵、認証設定
 
@@ -1499,7 +1499,7 @@
 
 ** 17. 鍵を共有する
 - エージェント: kaki
-- インターフェース:GPG、ssh、各ホスト(watari、lawliet、ryuk、rem)
+- インターフェース:GPG、ssh、各ホスト(lawliet、watari、ryuk、rem)
 - 入力: 鍵ペア生成要求、共有対象ホスト
 - 出力: 共有された鍵、認証設定
 - 事前条件: 
