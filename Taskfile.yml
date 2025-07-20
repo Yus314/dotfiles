@@ -28,13 +28,13 @@ tasks:
     cmds:
       - |
         {{.NIX}} build --impure --keep-going --no-link --show-trace --system x86_64-linux \
-          .#nixosConfigurations.watari.config.system.build.toplevel \
+          .#nixosConfigurations.lawliet.config.system.build.toplevel \
           .#nixosConfigurations.ryuk.config.system.build.toplevel \
           .#nixosConfigurations.rem.config.system.build.toplevel
   darwin:
     desc: macOS (aarch64) 向けのビルド
     cmds:
-      - "{{.NIX}} build --keep-going --no-link --show-trace --system aarch64-darwin --option extra-sandbox-paths /nix/store \\\n  .#darwinConfigurations.lawliet.system\n  \n"
+      - "{{.NIX}} build --keep-going --no-link --show-trace --system aarch64-darwin --option extra-sandbox-paths /nix/store \\\n  .#darwinConfigurations.watari.system\n  \n"
   install_nix:
     desc: Determinate Systemsのインストーラを使ってNixをインストールします
     status:
