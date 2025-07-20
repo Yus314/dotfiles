@@ -14,12 +14,17 @@ in
 {
   imports = [
     # Include the results of the hardware scan.
-    ./hardware-configuration.nix
     ./font.nix
     ./nvidia.nix
     ../common.nix
     ./user.nix
   ];
+  inherit
+    (pkgs.callPackage ./disko-config.nix {
+      disks = [ "/dev/disk/by-id/nvme-Samsung_SSD_980_1TB_S78HNL0Y701814D" ];
+    })
+    disko
+    ;
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
   services.blueman.enable = true;
@@ -36,19 +41,14 @@ in
     #gnupg = {
     #  home = "home/kaki/.gnupg";
     #};
-    secrets = {
-      cachix-agent-token = {
-        sopsFile = ../../../secrets/cachix.yaml;
-      };
-    };
+    #secrets = {
+    #  cachix-agent-token = {
+    #    sopsFile = ../../../secrets/cachix.yaml;
+    #  };
+    #};
 
   };
-  networking.hostName = "watari";
-  services.cachix-agent = {
-    enable = true;
-    name = "watari";
-    credentialsFile = config.sops.secrets.cachix-agent-token.path;
-  };
+  networking.hostName = "lawliet";
 
   services.offlineimap = {
     enable = true;

@@ -31,8 +31,8 @@
 #+end_src
 * じかん計測
 #+begin_src emacs-lisp :tangle yes
-  ;(require 'esup)
-  ;(setq esup-depth 0)
+    ;(require 'esup)
+  ;;;;;;;;;;;;;;;;;;(setq esup-depth 0)
 #+end_src
 * builtin properties
 #+begin_src emacs-lisp :tangle yes
@@ -1583,10 +1583,9 @@ Waylandでペーストできるようにする設定
 #+end_src
 * apheleia
 #+begin_src emacs-lisp :tangle yes
-  (require 'apheleia)
   (autoload 'apheleia-global-mode "apheleia")
   (apheleia-global-mode)
-  (setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)
+  (setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)  
 #+end_src
 * aggressive-inden
 * プログラミング支援

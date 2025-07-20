@@ -63,6 +63,7 @@
         citar
         diff-hl
         magit
+        forge
         flycheck
         projectile
         pdf-tools

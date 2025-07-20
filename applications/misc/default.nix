@@ -67,6 +67,7 @@
     nvfetcher
     claude-code
     gemini-cli
+    nh
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings

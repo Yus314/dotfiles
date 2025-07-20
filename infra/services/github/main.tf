@@ -77,3 +77,21 @@ resource "github_actions_secret" "cachix_auth_token" {
   secret_name     = "CACHIX_AUTH_TOKEN"
   plaintext_value = data.sops_file.secret.data["cachix_auth_token"]
 }
+
+resource "github_actions_secret" "cachix_auth_token_for_nur" {
+  repository      = "nur-packages"
+  secret_name     = "CACHIX_AUTH_TOKEN"
+  plaintext_value = data.sops_file.secret.data["cachix_auth_token"]
+}
+
+resource "github_actions_secret" "nur_update_packages_app_id" {
+  repository      = "nur-packages"
+  secret_name     = "APP_ID"
+  plaintext_value = data.sops_file.secret.data["app_id"]
+}
+
+resource "github_actions_secret" "nur_update_packages_app_key" {
+  repository      = "nur-packages"
+  secret_name     = "APP_PRIVATE_KEY"
+  plaintext_value = data.sops_file.secret.data["app_private_key"]
+}
