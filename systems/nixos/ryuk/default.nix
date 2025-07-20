@@ -33,17 +33,6 @@ in
       };
     };
   };
-
-  services.postgresql = {
-    enable = true;
-    package = pkgs.postgresql_16;
-    ensureDatabases = [ "diesel_demo" ];
-    authentication = pkgs.lib.mkOverride 10 ''
-            #type database  DBuser  auth-method
-      	  local  all       all   trust
-    '';
-  };
-
   services.cloudflared = {
     enable = true;
     tunnels."ac395291-86ed-4f00-bcd2-77f2a9ae7845" = {
@@ -55,6 +44,17 @@ in
     };
     certificateFile = "${config.sops.secrets.cloudflared-tunnel-cert.path}";
   };
+
+  services.postgresql = {
+    enable = true;
+    package = pkgs.postgresql_16;
+    ensureDatabases = [ "diesel_demo" ];
+    authentication = pkgs.lib.mkOverride 10 ''
+            #type database  DBuser  auth-method
+      	  local  all       all   trust
+    '';
+  };
+
   # Bootloader
   nix = {
     settings = {
