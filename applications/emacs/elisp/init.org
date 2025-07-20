@@ -546,15 +546,14 @@ Waylandでペーストできるようにする設定
 * ミニバッファ補完
 ** vercico
 #+begin_src emacs-lisp :tangle yes
-    (autoload 'vertico-mode "vertico-autoloads" nil t)
+  (autoload 'vertico-mode "vertico-autoloads" nil t)
 
-    (add-hook 'emacs-startup-hook #'vertico-mode)
+  (add-hook 'emacs-startup-hook #'vertico-mode)
 
-    (with-eval-after-load 'vertico
-
-    (setopt vertico-count 8)
-    (setopt vertico-cycle t)
-    (keymap-set vertico-map "DEL" 'vertico-directory-delete-char))
+  (with-eval-after-load 'vertico
+  (setopt vertico-count 8)
+  (setopt vertico-cycle t)
+  (keymap-set vertico-map "DEL" 'vertico-directory-delete-char))
 #+end_src
 ** marginalia
 #+begin_src emacs-lisp :tangle yes
@@ -613,8 +612,11 @@ Waylandでペーストできるようにする設定
 * 入力補完
 ** corfu
 #+begin_src emacs-lisp :tangle yes
-  (require 'corfu)
-  (require 'corfu-popupinfo)
+  (autoload-if-found '(global-corfu-mode) "corfu" nil t)
+  (autoload-if-found '(corfu-popupinfo-mode) "corfu-popupinfo" nil t)
+  		   
+  (add-hook 'emacs-startup-hook #'global-corfu-mode)
+
   (with-eval-after-load 'corfu
   (setq corfu-auto  t)
   (setq corfu-auto-delay  0)
@@ -622,9 +624,9 @@ Waylandでペーストできるようにする設定
   (setq corfu-quit-no-match  'separator)
   (setq corfu-auto-prefix  1)
   (setq corfu-cycle  t)
+  (setq corfu-quit-at-boundary nil)
   (setq text-mode-ispell-word-completion  nil)
   (setq tab-always-indent  'complete)
-  (global-corfu-mode)
   (corfu-popupinfo-mode)
   (keymap-unset corfu-map "RET")
   (keymap-unset corfu-map "<up>")
@@ -638,10 +640,12 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
-  (autoload-if-found '(cape-file
-                     cape-keyword) "cape" nil t)
-  (add-to-list 'completion-at-point-functions #'cape-file); ディレクトリやファイルなどを補完
-  (add-to-list 'completion-at-point-functions #'cape-keyword); falseみたいなキーワードをmodeごとに補完
+  (autoload-if-found '(cape-file cape-keyword) "cape" nil t)
+
+  (with-eval-after-load 'minibuffer
+    (add-to-list 'completion-at-point-functions #'cape-file)
+    ;(add-to-list 'completion-at-point-functions #'cape-keyword)
+    )
 #+end_src
 * キーバインディング
 #+begin_src emacs-lisp :tangle yes
@@ -755,20 +759,28 @@ Waylandでペーストできるようにする設定
   (autoload-if-found '(lsp-headerline-breadcrumb-mode) "lsp-headerline" nil t)
   (autoload-if-found '(lsp-diagnostics-mode) "lsp-diagnostics" nil t)
 
-  (use-package lsp-mode
-    :custom
-    (lsp-keymap-prefix  "M-p")
-    (lsp-log-in  nil) ;パフォーマンスに大きく影響するらしい
-    :hook
-    (lsp-mode-hook . lsp-enable-which-key-integration)
-    補完をorderlessで絞れるようにする
-    (lsp-completion-mode-hook . (lambda ()
-  				(setq-local completion-category-defaults
-  					    (assoc-delete-all 'lsp-capf completion-category-defaults))))
-    )
-  (setq lsp-completion-provider :none)
-  (autoload 'lsp-lens-mode "lsp-lens" nil t)
-  (autoload 'lsp-lens--enable "lsp-lens" nil t)
+   (with-eval-after-load 'lsp-mode
+     (setq lsp-completion-provider :none)
+     (autoload 'lsp-lens-mode "lsp-lens" nil t)
+     (autoload 'lsp-lens--enable "lsp-lens" nil t)
+          (defun my-lsp-mode-setup ()
+         "LSP利用時に追加の補完設定を行う"
+         (add-hook 'completion-at-point-functions #'cape-file nil t))
+  	     (add-hook 'lsp-mode-hook #'my-lsp-mode-setup)
+   )
+
+  ;(use-package lsp-mode
+  ;  :custom
+  ;  (lsp-keymap-prefix  "M-p")
+  ;  (lsp-log-in  nil) ;パフォーマンスに大きく影響するらしい
+  ;  :hook
+  ;  (lsp-mode-hook . lsp-enable-which-key-integration)
+  ;         ( lsp-mode-hook . my-lsp-mode-setup)
+  ;  補完をorderlessで絞れるようにする
+  ;  ;(lsp-completion-mode-hook . (lambda ()
+  ;				(setq-local completion-category-defaults
+  ;					    (assoc-delete-all 'lsp-capf completion-category-defaults))))
+  ;  )
 
   (defun lsp-booster--advice-json-parse (old-fn &rest args)
   					; "Try to parse bytecode instead of json."
@@ -829,7 +841,6 @@ Waylandでペーストできるようにする設定
   (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
   (autoload 'nix-ts-mode "nix-ts-mode" nil t)
   (with-eval-after-load 'nix-ts-mode
-  (add-hook 'nix-ts-mode-hook 'nixfmt-on-save-mode)
     (add-hook 'nix-ts-mode-hook 'lsp)
    )
 #+end_src
@@ -935,79 +946,43 @@ Waylandでペーストできるようにする設定
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package org
-  ;  :custom
-  ;  (org-todo-keywords
-  ;    '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)")
-  ;       )
-  ;   )
-  ;  (org-startup-truncated  nil)
-  ;  (org-hide-emphasis-markers  t);boldなどの*を隠す
-  ;  (org-emphasis-regexp-components  '("[:alnum:][:nonascii:][:punct:]" "[:alnum:][:nonascii:][:punct:]" "[:space:]" "." 1));*の前後にspaceが要らないように
+  (with-eval-after-load 'org
+    (setq org-directory  "~/dropbox")
 
+    (setq org-todo-keywords '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)") ))
 
-  ;  (org-todo-keyword-faces
-  ;    '(("TODO" . (:foreground "white" :background "red" :weight bold))
-  ;       ("WAIT" . org-warning)
-  ;       ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
-  ;       ("DONE(d)" . "yellow")
-  ;       ("CANCEL" . org-warning)
-  ;       ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
-  ;       ))
-  ;  (org-startup-folded  t)
-  ;  (org-tag-alist
-  ;    '(("HOME" . ?h)
-  ;       ("LAB" . ?l)
-  ;       ("PC" . ?p)
-  ;       ("desk" . ?d)
-  ;       ("smartphone" . ?s)
-  ;       ("anywhere" . ?a)
-  ;       ("movie" . ?m)
-  ;       ("Kana" . ?k)
-  ;       ))
-  ;  (org-directory  "~/dropbox")
-  ;  (org-return-follows-link  t)
-  ;  :config
-  ;  )
-  ;(regexp-opt '("Tasks" "Notes"))
-
-  (with-eval-after-load'org
-   (setq org-directory  "~/dropbox")
-
-   (setq org-todo-keywords '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)") ))
-
-  		      (setq org-startup-folded  t)
+    (setq org-startup-folded  t)
     (setq org-startup-truncated  nil)
     (setq org-hide-emphasis-markers  t);boldなどの*を隠す
-    (setq  org-emphasis-regexp-components  '("[:alnum:][:nonascii:][:punct:]" "[:alnum:][:nonascii:][:punct:]" "[:space:]" "." 1));*の前後にspaceが要らないように
+    ;(setq  org-emphasis-regexp-components  '("[:alnum:][:nonascii:][:punct:]" "[:alnum:][:nonascii:][:punct:]" "[:space:]" "." 1));*の前後にspaceが要らないように
 
 
     (setq org-todo-keyword-faces
-      '(("TODO" . (:foreground "white" :background "red" :weight bold))
-         ("WAIT" . org-warning)
-         ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
-         ("DONE(d)" . "yellow")
-         ("CANCEL" . org-warning)
-         ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
-         ))
-      (setq org-tag-alist
-      '(("HOME" . ?h)
-         ("LAB" . ?l)
-         ("PC" . ?p)
-         ("desk" . ?d)
-         ("smartphone" . ?s)
-         ("anywhere" . ?a)
-         ("movie" . ?m)
-         ("Kana" . ?k)
-         ))
-      (setq org-return-follows-link  t)
-      (regexp-opt '("Tasks" "Notes"))
+  	'(("TODO" . (:foreground "white" :background "red" :weight bold))
+  	  ("WAIT" . org-warning)
+  	  ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
+  	  ("DONE(d)" . "yellow")
+  	  ("CANCEL" . org-warning)
+  	  ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
+  	  ))
+    (setq org-tag-alist
+  	'(("HOME" . ?h)
+  	  ("LAB" . ?l)
+  	  ("PC" . ?p)
+  	  ("desk" . ?d)
+  	  ("smartphone" . ?s)
+  	  ("anywhere" . ?a)
+  	  ("movie" . ?m)
+  	  ("Kana" . ?k)
+  	  ))
+    (setq org-return-follows-link  t)
+    (regexp-opt '("Tasks" "Notes"))
 
 
-      ;habit周り
-      (setq org-habit-show-habits-only-for-today  t)
-      (add-to-list 'org-modules 'org-habit t)
-      )
+  					;habit周り
+    (setq org-habit-show-habits-only-for-today  t)
+    (add-to-list 'org-modules 'org-habit t)
+    )
 #+end_src
 ** org-clock
 #+begin_src emacs-lisp :tangle yes
@@ -1022,21 +997,6 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** org-agenda
 #+begin_src emacs-lisp :tangle yes
-   ;(use-package org-agenda
-   ;  :bind
-   ;   (:map org-agenda-mode-map
-   ;    ("t" . org-agenda-previous-item)
-   ;    ("s" . org-agenda-next-item)
-   ;    ("e" . org-agenda-todo)
-       ;以下の関数は割り当てていない
-       ;org-agenda-set-effort
-   					;org-save-all-org-buffers
-   ;    )
-   ;  :custom
-   ;  (org-agenda-start-on-weekday  nil); agendaの日々の始まりを今日に
-   ;  (org-agenda-start-day  "today")
-   ;  (org-agenda-skip-scheduled-if-done  '("DONE" "CANCEL"));スケジュールでDONEとCANCELを無視するようにする
-   ;  )
   (autoload 'org-agenda "org-agenda" nil t)
 
   (with-eval-after-load 'org-agenda
@@ -1174,118 +1134,67 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** org-capture
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package org-capture
-  ;  :bind
-  ;  ("C-c c" . org-capture)
-  ;  :config
-  ;  (let* ((current-time (current-time))
-  ;         ;; 現在の日付から土曜日までの日数を計算
-  ;         (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
-  ;         ;; 今週の土曜日を計算
-  ;         (start-of-week (time-add
-  ;                         (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
-  ;         ;; 翌週の金曜日を計算
-  ;         (end-of-week (time-add start-of-week (days-to-time 6)))
-  ;         ;; フォーマットされた日付
-  ;         (start-day (format-time-string "%m%d" start-of-week))
-  ;         (end-day (format-time-string "%m%d" end-of-week))
-  ;         ;; 年を取得
-  ;         (year (format-time-string "%Y" start-of-week))
-  ;         ;; アーカイブディレクトリとファイル名
-  ;         (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
-  ;         (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
-
-  ;    (setq weekly-dir   archive-file)
-  ;    (setq org-archive-location (format "%s::** やったこと" archive-file))
-  ;    )
-  ;  (setq taskfile  "~/dropbox/inbox/inbox.org")
-  ;  :custom
-  ;  (org-capture-templates
-  ;   '(
-  ;     ("t" "ToDo" entry (file taskfile )
-  ;      "* TODO %^{title}\n %?")
-  ;    ("h" "Habit" entry (file "~/dropbox/habit.org")
-  ;      "* TODO %^{title}\n:PROPERTIES:\n:STYLE: habit\n:END:\n%?")
-  ;     ("p" "Project" entry (file+headline taskfile "プロジェクト" )
-  ;      "* PROJECT %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
-  ;     ("w" "Weekly Report" entry (file weekly-dir)
-  ;      "* 今週のこと
-  ;** やったこと
-  ;** 時間計測
-  ;#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
-  ;#+END:
-  ;** 考えたこと
-  ;%?
-  ;* 来週のこと
-  ;** 予定
-  ;%(my/org-agenda-to-string \"a\")
-  ;** TODOリスト
-  ;%(my/org-agenda-to-string \"d\")
-  ;** 考えていること
-  ;")))
-  ;  )
-
-  (defun my/org-agenda-to-string (agenda-type)
-    "Generate agenda string for the current week using a temporary file."
-    (let ((temp-agenda-file (make-temp-file "org-agenda-"))
-          (org-agenda-buffer nil)) ; 読み取り専用バッファを使わないようにする
-      (save-window-excursion
-        (org-agenda nil agenda-type) ; Agenda ビューを生成
-       (org-agenda-write temp-agenda-file)) ; 一時ファイルに書き出し
-      (with-temp-buffer
-        (insert-file-contents temp-agenda-file) ; 一時ファイルの内容を読み込む
+(defun my/org-agenda-to-string (agenda-type)
+      "Generate agenda string for the current week using a temporary file."
+      (let ((temp-agenda-file (make-temp-file "org-agenda-"))
+            (org-agenda-buffer nil)) ; 読み取り専用バッファを使わないようにする
+        (save-window-excursion
+          (org-agenda nil agenda-type) ; Agenda ビューを生成
+          (org-agenda-write temp-agenda-file)) ; 一時ファイルに書き出し
+        (with-temp-buffer
+          (insert-file-contents temp-agenda-file) ; 一時ファイルの内容を読み込む
           (goto-char (point-min))
-        ;; 不要な部分を整形 (例: ヘッダー削除)
-        (kill-whole-line)
-        (buffer-string)))) ; 最終的な文字列として返す
+          ;; 不要な部分を整形 (例: ヘッダー削除)
+          (kill-whole-line)
+          (buffer-string)))) ; 最終的な文字列として返す
 
-  (keymap-global-set "C-c c" 'org-capture)
-  (autoload 'org-capture "org-capture" nil t)
-  (with-eval-after-load 'org-capture
-    (let* ((current-time (current-time))
-           ;; 現在の日付から土曜日までの日数を計算
-           (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
-           ;; 今週の土曜日を計算
-           (start-of-week (time-add
-                           (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
-           ;; 翌週の金曜日を計算
-           (end-of-week (time-add start-of-week (days-to-time 6)))
-           ;; フォーマットされた日付
-           (start-day (format-time-string "%m%d" start-of-week))
-           (end-day (format-time-string "%m%d" end-of-week))
-           ;; 年を取得
-           (year (format-time-string "%Y" start-of-week))
-           ;; アーカイブディレクトリとファイル名
-           (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
-           (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
+    (keymap-global-set "C-c c" 'org-capture)
+    (autoload 'org-capture "org-capture" nil t)
+    (with-eval-after-load 'org-capture
+      (let* ((current-time (current-time))
+             ;; 現在の日付から土曜日までの日数を計算
+             (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
+             ;; 今週の土曜日を計算
+             (start-of-week (time-add
+                             (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
+             ;; 翌週の金曜日を計算
+             (end-of-week (time-add start-of-week (days-to-time 6)))
+             ;; フォーマットされた日付
+             (start-day (format-time-string "%m%d" start-of-week))
+             (end-day (format-time-string "%m%d" end-of-week))
+             ;; 年を取得
+             (year (format-time-string "%Y" start-of-week))
+             ;; アーカイブディレクトリとファイル名
+             (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
+             (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
 
-      (setq weekly-dir   archive-file)
-      (setq org-archive-location (format "%s::** やったこと" archive-file))
-      )
-    (setq taskfile  "~/dropbox/inbox/inbox.org")
-    (setq org-capture-templates
-     '(
-       ("t" "ToDo" entry (file taskfile )
-        "* TODO %^{title}\n %?")
-       ("h" "Habit" entry (file "~/dropbox/habit.org")
-        "* TODO %^{title}\n:PROPERTIES:\n:STYLE: habit\n:END:\n%?")
-       ("p" "Project" entry (file+headline taskfile "プロジェクト" )
-        "* PROJECT %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
-       ("w" "Weekly Report" entry (file weekly-dir)
-        "* 今週のこと
-  ,** やったこと
-  ,** 時間計測
-  ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
-  ,#+END:
-  ,** 考えたこと
-  %?
-  ,* 来週のこと
-  ,** 予定
-  %(my/org-agenda-to-string \"a\")
-  ,** TODOリスト
-  %(my/org-agenda-to-string \"d\")
-  ,** 考えていること
-  "))))
+        (setq weekly-dir   archive-file)
+        (setq org-archive-location (format "%s::** やったこと" archive-file))
+        )
+      (setq taskfile  "~/dropbox/inbox/inbox.org")
+      (setq org-capture-templates
+    	'(
+    	  ("t" "ToDo" entry (file taskfile )
+    	   "* TODO %^{title}\n %?")
+    	  ("h" "Habit" entry (file "~/dropbox/habit.org")
+    	   "* TODO %^{title}\n:PROPERTIES:\n:STYLE: habit\n:END:\n%?")
+    	  ("p" "Project" entry (file+headline taskfile "プロジェクト" )
+    	   "* PROJECT %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
+    	  ("w" "Weekly Report" entry (file weekly-dir)
+    	   "* 今週のこと
+    ,** やったこと
+    ,** 時間計測
+    ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
+    ,#+END:
+    ,** 考えたこと
+    %?
+    ,* 来週のこと
+    ,** 予定
+    %(my/org-agenda-to-string \"a\")
+    ,** TODOリスト
+    %(my/org-agenda-to-string \"d\")
+    ,** 考えていること
+    "))))
 #+end_src
 ** org-refile
 #+begin_src emacs-lisp :tangle yes
@@ -1304,30 +1213,11 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** org-indent
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package org-indent
-  ;  :init
-  ;  (add-hook 'org-mode-hook 'org-indent-mode)
-  ;  )
   (with-eval-after-load 'org
     (add-hook 'org-mode-hook #'org-indent-mode))
 #+end_src
 ** org-modern
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package org-modern
-  ;  :custom
-  ; (
-  ;   (org-insert-heading-respect-content  t)
-  ;   (org-modern-star  "◉○●◈◇◆✸✳")
-  ;   (org-modern-todo-faces
-  ;      (quote (("SOMEDAY" :background "pink" :foreground "white" :weight bold)
-  ;               ("PROJECT" :background "purple" :foreground "white" :weight bold)
-  ;               ))
-
-  ;    )
-  ;   )
-  ;  :config
-  ;  (with-eval-after-load ' org ( global-org-modern-mode))
-  ;  )
     (autoload 'global-org-modern-mode "org-modern" nil t)
   (with-eval-after-load 'org
     (global-org-modern-mode))
@@ -1414,52 +1304,6 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** org-roam
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package org-roam
-  ;  :bind
-  ;  ("C-c n l" . org-roam-buffer-toggle)
-  ;  ("C-c n f" . org-roam-node-find)
-  ;  ("C-c n i" . org-roam-node-insert)
-  ;  :custom
-  ;  (org-roam-directory  "~/dropbox/zk")
-  ;  (find-file-visit-truename   t)
-  ;  (org-roam-capture-templates
-  ;    '(("d" "default" plain "%?" :if-new
-  ;        (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}")
-  ;        :unnarrowed t
-  ;        :jump-to-captured t)
-
-  ;         ("p" "paper" plain "%?" :if-new
-  ;          (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
-  ;#+filetags: :reference:paper:
-  ;#+bibliography: ~/dropbox/ref.bib")
-  ;        :unnarrowed t
-  ;        :jump-to-captured t)
-  ;         ("b" "book" plain "%?" :if-new
-  ;          (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
-  ;#+filetags: :reference:book:
-  ;#+bibliography: ~/dropbox/ref.bib")
-  ;        :unnarrowed t
-  ;        :jump-to-captured t)
-  ;         ("a" "anime" plain "%?" :if-new
-  ;          (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
-  ;#+filetags: :reference:anime:
-  ;#+bibliography: ~/dropbox/ref.bib")
-  ;        :unnarrowed t
-  ;        :jump-to-captured t)
-  ;         ("m" "movie" plain "%?" :if-new
-  ;          (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
-  ;#+filetags: :reference:movie:
-  ;#+bibliography: ~/dropbox/ref.bib")
-  ;        :unnarrowed t
-  ;        :jump-to-captured t)
-  ;       )
-  ;   )
-  ;  :config
-  ;  (setq org-roam-node-display-template
-  ;	(concat "${title:*} "
-  ;		(propertize "${tags:10}" 'face 'org-tag)))
-  ;  (org-roam-db-autosync-mode)
-  ;  )
   (keymap-global-set "C-c n l"  'org-roam-buffer-toggle)
   (keymap-global-set "C-c n f" 'org-roam-node-find)
   (keymap-global-set "C-c n i" 'org-roam-node-insert)
@@ -1509,15 +1353,6 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** org-roam-ui
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package org-roam-ui
-  ;  :custom
-  ;  (org-roam-ui-sync-theme  t)
-  ;  (org-roam-ui-follow   t)
-  ;  (org-roam-ui-update-on-save  t)
-  ;  (org-roam-ui-open-on-start  t)
-  ;  :bind
-  ;  ("C-c n u" . org-roam-ui-open)
-  ;)
   (keymap-global-set "C-c n u" 'org-roam-ui-open)
   (autoload 'org-roam-ui-open "org-roam-ui" nil t)
   (with-eval-after-load 'org-roam
@@ -1529,24 +1364,6 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** org-roam-review
 #+begin_src emacs-lisp :tangle yes
-  ;  (use-package org-roam-review
-  ;    :commands (org-roam-review
-  ;               org-roam-review-list-by-maturity
-  ;               org-roam-review-list-recently-added)
-  ;    :hook (org-roam-capture-new-node-hook . org-roam-review-set-seedling)
-  ;    :bind (:map org-mode-map
-  ;           ("C-c r r" . org-roam-review-accept )
-  ;           ("C-c r f" . org-roam-review-forgot)
-  ;           ("C-c r u" . org-roam-review-bury)
-  ;           ("C-c r m" . org-roam-review-set-memorise)
-  ;           ("C-c r x" . org-roam-review-set-excluded)
-  ;           ("C-c r b" . org-roam-review-set-budding)
-  ;           ("C-c r s" . org-roam-review-set-seedling)
-  ;           ("C-c r e" . org-roam-review-set-evergreen)
-  ;           )
-  ;    (  	 ("C-c n r" . org-roam-review)
-  ;)
-  ;    )
   (keymap-global-set "C-c n r" 'org-roam-review)
   (autoload 'org-roam-review "org-roam-review" nil t)
   (autoload 'org-roam-review-list-by-maturity "org-roam-review" nil t)
@@ -1565,68 +1382,36 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** citer
 #+begin_src emacs-lisp :tangle yes
-      ;(use-package citar
-      ;  :custom
-      ;  (citar-bibliography  '("~/dropbox/ref.bib"))
-      ;  :config
-      ;  (keymap-setminibuffer-local-map (kbd "s-j") 'icomplete-fido-exit)
-      ;  )
-      (autoload 'org-cite-insert "citar" nil t)
-      (with-eval-after-load 'citar
-        (setq citar-bibliography  '("~/dropbox/ref.bib"))
-        (keymap-set minibuffer-local-completion-map "s-j" 'icomplete-fido-exit)
-        )
+  (autoload 'org-cite-insert "citar" nil t)
+  (with-eval-after-load 'citar
+    (setq citar-bibliography  '("~/dropbox/ref.bib"))
+    (keymap-set minibuffer-local-completion-map "s-j" 'icomplete-fido-exit)
+    )
 #+end_src
 * Git
 ** diff-hl
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package diff-hl
-  ;  :custom
-  ;  (global-diff-hl-mode  t)
-  ;  (diff-hl-flydiff-mode  t)
-  ;  (diff-hl-draw-borders  nil)
-  ;  )
   (add-hook 'emacs-startup-hook 'global-diff-hl-mode)
   (autoload 'global-diff-hl-mode "diff-hl" nil t)
   (with-eval-after-load 'diff-hl
-      (setq diff-hl-flydiff-mode  t)
-      (setq diff-hl-draw-borders  nil)
-      )
+    (setq diff-hl-flydiff-mode  t)
+    (setq diff-hl-draw-borders  nil)
+    )
 #+end_src
 ** magit
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package magit
-  ;  :bind
-  ;  ("C-x g" . magit-status)
-  ;  )
   (autoload 'magit-status "magit" nil t)
   (keymap-global-set "C-x g" 'magit-status)
 #+end_src
+** forge
+#+begin_src emacs-lisp :tangle yes
+#+end_src
 * flycheck
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package flycheck
-  ;  :config
-  ;  (flycheck-define-checker textlint
-  ;  "textlint."
-  ;  :command ("textlint" "--format" "unix"
-  ;            source-inplace)
-  ;  :error-patterns
-  ;  ((warning line-start (file-name) ":" line ":" column ": "
-  ;            (id (one-or-more (not (any " "))))
-  ;            (message (one-or-more not-newline)
-  ;                     (zero-or-more "\n" (any " ") (one-or-more not-newline)))
-  ;            line-end))
-  ;  :modes (text-mode markdown-mode gfm-mode LaTeX-mode japanese-latex-mode))
-  ;(add-to-list 'flycheck-checkers 'textlint)
-
-  ;  )
-  ;(add-hook 'after-init-hook #'global-flycheck-mode)
-
-  	   
   (use-package flycheck-posframe
-      :after flycheck posframe
-      :config(flycheck-posframe-mode)
-      )
+    :after flycheck posframe
+    :config(flycheck-posframe-mode)
+    )
   (autoload 'flycheck-mode "flycheck" nil t)
   (dolist (hook
   	 '(emacs-lisp-mode-hook
@@ -1638,19 +1423,19 @@ Waylandでペーストできるようにする設定
   	   ))
     (add-hook hook #'flycheck-mode))
   (with-eval-after-load "flycheck"
-      (flycheck-define-checker textlint
-    "textlint."
-    :command ("textlint" "--format" "unix"
-              source-inplace)
-    :error-patterns
-    ((warning line-start (file-name) ":" line ":" column ": "
-              (id (one-or-more (not (any " "))))
-              (message (one-or-more not-newline)
-                       (zero-or-more "\n" (any " ") (one-or-more not-newline)))
-              line-end))
-    :modes (text-mode markdown-mode gfm-mode LaTeX-mode japanese-latex-mode))
-      (add-to-list 'flycheck-checkers 'textlint)
-      )
+    (flycheck-define-checker textlint
+      "textlint."
+      :command ("textlint" "--format" "unix"
+                source-inplace)
+      :error-patterns
+      ((warning line-start (file-name) ":" line ":" column ": "
+                (id (one-or-more (not (any " "))))
+                (message (one-or-more not-newline)
+                         (zero-or-more "\n" (any " ") (one-or-more not-newline)))
+                line-end))
+      :modes (text-mode markdown-mode gfm-mode LaTeX-mode japanese-latex-mode))
+    (add-to-list 'flycheck-checkers 'textlint)
+    )
 #+end_src
 * Project
 ** projectile
@@ -1672,13 +1457,6 @@ Waylandでペーストできるようにする設定
 #+end_src
 * PDF
 #+begin_src emacs-lisp :tangle yes
-  					;(with-delayed-execution
-  					;  (use-package pdf-tools
-  					;    :config
-  					;    (pdf-tools-install)
-  					;    )
-  					;  (add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
-  					;  )
   (autoload 'pdf-tools-install "pdf-tools" nil t)
   (autoload 'pdf-occur-global-minor-mode "pdf-occur" nil t)
   					;    (add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
@@ -1755,26 +1533,11 @@ Waylandでペーストできるようにする設定
 #+end_src
 * ace-window
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package ace-window
-  ;  :bind
-  ;  ("C-x o" . ace-window)
-  ;)
   (keymap-global-set "C-x o" 'ace-window)
   (autoload 'ace-window "ace-window" nil t)
 #+end_src
 * embark
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package embark
-  ;  :bind(
-  ; 	("C-." . embark-act)
-  ;	("C-;" . embark-dwim)
-  ;	"C-h B" . embark-bindings))
-  ;  :custom
-  ;  (prefix-help-command #'embark-prefix-help-command)
-  ;  )
-  ;(use-package embark-consult
-  ;  :after consult
-  ;  )
   (autoload 'embark-act "embark" nil t)
   (with-eval-after-load 'embark
     (setq prefix-help-command #'embark-prefix-help-command)
@@ -1820,10 +1583,10 @@ Waylandでペーストできるようにする設定
 #+end_src
 * apheleia
 #+begin_src emacs-lisp :tangle yes
-  ;(require 'apheleia)
-  ;(autoload 'apheleia-global-mode "apheleia")
-  ;(apheleia-global-mode)
-  ;(setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)  
+  (require 'apheleia)
+  (autoload 'apheleia-global-mode "apheleia")
+  (apheleia-global-mode)
+  (setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)
 #+end_src
 * aggressive-inden
 * プログラミング支援
@@ -1905,6 +1668,7 @@ Waylandでペーストできるようにする設定
   ;  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
   ;  )
   ;(add-to-list 'tramp-remote-path "/run/current-system/sw/bin")
+  (setq tramp-verbose 6)
   (require 'tramp-sh)
   (setq tramp-remote-path
        (append tramp-remote-path
@@ -1935,21 +1699,6 @@ Waylandでペーストできるようにする設定
 #+end_src
 * vterm
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package vterm
-  ;  :custom
-  ;  (vterm-keymap-exceptions
-  ;    '("C-c" "C-y" "M-v" "M-x"))
-  ;  (vterm-tramp-shells  '(("ssh" "'fish'") ("scp" login-shell) ("docker" "/bin/;sh")))
-  ;  :bind
-  ;  ("M-v" . vterm-toggle)
-  ;  (:map vterm-mode-map
-  ;   ("C-c C-c" . 'vterm--self-insert)
-  ;   )
-  ;  )
-  ;  (use-package vterm-toggle
-;    :custom
-;    (vterm-toggle-scope  'project)
-;    )
   (setq vterm-keymap-exceptions '("C-c" "C-y" "M-v" "M-x"))
   (autoload 'vterm-toggle "vterm-toggle" nil t)
   (with-eval-after-load 'vterm-toggle
