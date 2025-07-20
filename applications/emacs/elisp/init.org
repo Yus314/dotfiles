@@ -31,8 +31,8 @@
 #+end_src
 * じかん計測
 #+begin_src emacs-lisp :tangle yes
-  ;(require 'esup)
-  ;(setq esup-depth 0)
+    ;(require 'esup)
+  ;;;;;;;;;;;;;;;;;;(setq esup-depth 0)
 #+end_src
 * builtin properties
 #+begin_src emacs-lisp :tangle yes
@@ -829,7 +829,6 @@ Waylandでペーストできるようにする設定
   (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
   (autoload 'nix-ts-mode "nix-ts-mode" nil t)
   (with-eval-after-load 'nix-ts-mode
-  (add-hook 'nix-ts-mode-hook 'nixfmt-on-save-mode)
     (add-hook 'nix-ts-mode-hook 'lsp)
    )
 #+end_src
@@ -1755,10 +1754,6 @@ Waylandでペーストできるようにする設定
 #+end_src
 * ace-window
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package ace-window
-  ;  :bind
-  ;  ("C-x o" . ace-window)
-  ;)
   (keymap-global-set "C-x o" 'ace-window)
   (autoload 'ace-window "ace-window" nil t)
 #+end_src
@@ -1820,10 +1815,9 @@ Waylandでペーストできるようにする設定
 #+end_src
 * apheleia
 #+begin_src emacs-lisp :tangle yes
-  ;(require 'apheleia)
-  ;(autoload 'apheleia-global-mode "apheleia")
-  ;(apheleia-global-mode)
-  ;(setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)  
+  (autoload 'apheleia-global-mode "apheleia")
+  (apheleia-global-mode)
+  (setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)  
 #+end_src
 * aggressive-inden
 * プログラミング支援
