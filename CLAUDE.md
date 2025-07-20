@@ -124,3 +124,36 @@ When committing changes, pre-commit hooks may automatically format files. If thi
 1. The formatted changes will be applied automatically
 2. Accept these formatting changes as they maintain code consistency
 3. The commit will proceed with the formatted code
+
+## Commit Message Convention
+
+This repository follows [Conventional Commits](https://www.conventionalcommits.org/) specification for commit messages:
+
+### Format
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Types
+- **feat**: A new feature
+- **fix**: A bug fix
+- **docs**: Documentation only changes
+- **style**: Changes that do not affect the meaning of the code (white-space, formatting, etc)
+- **refactor**: A code change that neither fixes a bug nor adds a feature
+- **perf**: A code change that improves performance
+- **test**: Adding missing tests or correcting existing tests
+- **build**: Changes that affect the build system or external dependencies
+- **ci**: Changes to CI configuration files and scripts
+- **chore**: Other changes that don't modify src or test files
+
+### Examples
+```
+feat(applications): add neovim LSP configuration
+fix(systems): resolve SSH key permission issue
+docs: update installation instructions
+chore(deps): update flake.lock dependencies
+```
