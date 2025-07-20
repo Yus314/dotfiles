@@ -49,11 +49,6 @@ in
 
   };
   networking.hostName = "watari";
-  services.cachix-agent = {
-    enable = false;
-    name = "watari";
-    credentialsFile = config.sops.secrets.cachix-agent-token.path;
-  };
 
   services.offlineimap = {
     enable = true;

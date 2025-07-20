@@ -36,19 +36,9 @@ in
     #gnupg = {
     #  home = "home/kaki/.gnupg";
     #};
-    secrets = {
-      cachix-agent-token = {
-        sopsFile = ../../../secrets/cachix.yaml;
-      };
-    };
 
   };
   networking.hostName = "watari";
-  services.cachix-agent = {
-    enable = true;
-    name = "watari";
-    credentialsFile = config.sops.secrets.cachix-agent-token.path;
-  };
 
   services.offlineimap = {
     enable = true;
