@@ -92,9 +92,6 @@ task build
 task build-all
 
 # システム設定を適用
-task switch
-
-# nhコマンドでシステム設定を適用（推奨）
 nh os switch -H {hostname}        # NixOS用
 nh darwin switch -H {hostname}    # macOS用
 

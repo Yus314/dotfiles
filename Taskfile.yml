@@ -5,15 +5,6 @@ vars:
   NIX_PROFILE: /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
   NIX: '{{.NIX | default "nom"}}'
 tasks:
-  switch:
-    desc: 現在のホスト向けにシステム設定を切り替えます
-    cmds:
-      - |
-        {{if eq OS "darwin"}}
-        sudo darwin-rebuild switch --flake .#{{.HOST}} --show-trace
-        {{else}}
-        sudo nixos-rebuild switch --flake .#{{.HOST}} --show-trace
-        {{end}}
   build:
     desc: 現在のシステム向けのNix Configurationをビルドします
     deps:

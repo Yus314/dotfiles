@@ -53,10 +53,7 @@ task darwin   # aarch64-darwinシステムをビルド
 ### システム管理
 
 ```bash
-# 現在のホスト向けにシステム設定を切り替え
-task switch
-
-# nhコマンドを使用したシステム切り替え (推奨)
+# システム設定を切り替え
 nh os switch -H {hostname}        # NixOS用 例: nh os switch -H lawliet
 nh darwin switch -H {hostname}    # macOS/Darwin用 例: nh darwin switch -H watari
 
