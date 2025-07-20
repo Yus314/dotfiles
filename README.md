@@ -54,8 +54,8 @@ goal-modelで定義された4つの主要ゴールを技術的に実現する特
 
 ### 管理対象ホスト
 
-- **watari**: x86_64-linux デスクトップシステム
-- **lawliet**: aarch64-darwin (macOS) システム  
+- **lawliet**: x86_64-linux デスクトップシステム
+- **watari**: aarch64-darwin (macOS) システム  
 - **ryuk**: x86_64-linux ラボメインシステム
 - **rem**: x86_64-linux ラボサブシステム
 

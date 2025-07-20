@@ -12,8 +12,8 @@
 - **flake-module.nix**: `hosts`属性セットからシステム設定を動的に生成するカスタムflakeモジュール
 - **Taskfile.yml**: 一般的な操作のためのタスクランナー設定
 - **hosts** flake.nixでの定義は実際のシステム設定にマップされます：
-  - `watari`: x86_64-linux デスクトップシステム
-  - `lawliet`: x86_64-linux （現在はLinux、元々はaarch64-darwin macOSシステム）
+  - `lawliet`: x86_64-linux デスクトップシステム
+  - `watari`: aarch64-darwin macOSシステム
   - `ryuk`: x86_64-linux lab-main システム
   - `rem`: x86_64-linux lab-sub システム
 
@@ -80,13 +80,14 @@ nix flake check
 
 ```bash
 # 特定のホスト設定をビルド
-nom build .#nixosConfigurations.watari.config.system.build.toplevel
 nom build .#nixosConfigurations.lawliet.config.system.build.toplevel
-nom build .#darwinConfigurations.lawliet.system  # Darwin設定（現在は無効）
+nom build .#darwinConfigurations.watari.system
+nom build .#nixosConfigurations.ryuk.config.system.build.toplevel
+nom build .#nixosConfigurations.rem.config.system.build.toplevel
 
 # 切り替えずにビルドとテスト
-sudo nixos-rebuild build --flake .#watari
 sudo nixos-rebuild build --flake .#lawliet
+sudo darwin-rebuild build --flake .#watari
 ```
 
 ## 主要技術
@@ -100,7 +101,7 @@ sudo nixos-rebuild build --flake .#lawliet
 - **disko**: 宣言的ディスクパーティション管理
 - **xremap**: キーマッピング設定
 - **impermanence**: 永続化設定管理
-- **nix-darwin**: macOS用Nix設定（現在は未使用）
+- **nix-darwin**: macOS用Nix設定
 
 ## ホスト固有の注意点
 

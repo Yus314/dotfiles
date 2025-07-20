@@ -48,7 +48,7 @@ in
     #};
 
   };
-  networking.hostName = "watari";
+  networking.hostName = "lawliet";
 
   services.offlineimap = {
     enable = true;

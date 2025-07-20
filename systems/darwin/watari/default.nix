@@ -17,7 +17,7 @@ in
   ids.gids.nixbld = 350;
   system.primaryUser = "kaki";
 
-  networking.hostName = "lawliet";
+  networking.hostName = "watari";
 
   fonts.packages = [
     pkgs.bizin-gothic-nf
