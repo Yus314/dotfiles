@@ -56,6 +56,10 @@ task darwin   # aarch64-darwinシステムをビルド
 # 現在のホスト向けにシステム設定を切り替え
 task switch
 
+# nhコマンドを使用したシステム切り替え (推奨)
+nh os switch -H {hostname}        # NixOS用 例: nh os switch -H lawliet
+nh darwin switch -H {hostname}    # macOS/Darwin用 例: nh darwin switch -H watari
+
 # Nixをインストール (存在しない場合)
 task install_nix
 
@@ -94,6 +98,7 @@ sudo darwin-rebuild build --flake .#watari
 
 - **Nix Flakes**: ロックされた依存関係を持つ宣言的システム設定
 - **Home Manager**: ユーザー環境とdotfiles管理
+- **nh**: 改良されたNixOS/nix-darwinヘルパーツール（システム切り替え用）
 - **SOPS**: age/gpg暗号化によるシークレット管理
 - **flake-parts**: モジュラーflake組織
 - **treefmt-nix**: 複数のフォーマッター (nixfmt, biome, shfmt, stylua, taplo, terraform, yamlfmt) によるコードフォーマット
