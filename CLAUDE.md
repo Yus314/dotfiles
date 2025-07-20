@@ -10,7 +10,7 @@
 
 - **flake.nix**: 入力、出力、ホスト設定を定義するメインのflake設定
 - **flake-module.nix**: `hosts`属性セットからシステム設定を動的に生成するカスタムflakeモジュール
-- **Taskfile.yml**: 一般的な操作のためのタスクランナー設定
+- **Makefile**: 一般的な操作のためのビルドツール設定
 - **hosts** flake.nixでの定義は実際のシステム設定にマップされます：
   - `lawliet`: x86_64-linux デスクトップシステム
   - `watari`: aarch64-darwin macOSシステム
@@ -40,14 +40,14 @@
 
 ```bash
 # 現在のシステム設定をビルド
-task build
+make build
 
 # すべてのシステム設定をビルド
-task build-all
+make build-all
 
 # 特定のプラットフォームをビルド
-task linux    # x86_64-linuxシステムをビルド
-task darwin   # aarch64-darwinシステムをビルド
+make x86_64-linux    # x86_64-linuxシステムをビルド
+make aarch64-darwin  # aarch64-darwinシステムをビルド
 ```
 
 ### システム管理
@@ -58,10 +58,10 @@ nh os switch -H {hostname}        # NixOS用 例: nh os switch -H lawliet
 nh darwin switch -H {hostname}    # macOS/Darwin用 例: nh darwin switch -H watari
 
 # Nixをインストール (存在しない場合)
-task install_nix
+make install_nix
 
 # Nixをアンインストール
-task uninstall_nix
+make uninstall_nix
 ```
 
 ### 開発
