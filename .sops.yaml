@@ -5,24 +5,24 @@ creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
       - pgp:
-          - *admin_kaki 
+          - *admin_kaki
         age:
-          - *admin_yusuke 
+          - *admin_yusuke
   - path_regex: infra/*
     key_groups:
       - pgp:
-          - *admin_kaki 
+          - *admin_kaki
         age:
-          - *admin_yusuke 
+          - *admin_yusuke
   - path_regex: systems/nixos/services/dropbox/secrets.yaml$
     key_groups:
       - pgp:
-          - *admin_kaki 
+          - *admin_kaki
         age:
-          - *admin_yusuke 
+          - *admin_yusuke
   - path_regex: systems/nixos/rem/secrets.yaml$
     key_groups:
       - pgp:
-          - *admin_kaki 
+          - *admin_kaki
         age:
-          - *admin_yusuke 
+          - *admin_yusuke

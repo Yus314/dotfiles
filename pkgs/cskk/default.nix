@@ -4,7 +4,6 @@
   cargo-c,
   rust-bindgen,
   libxkbcommon,
-  libiconv, # add
 }:
 rustPlatform.buildRustPackage rec {
   pname = "cskk";
@@ -21,7 +20,6 @@ rustPlatform.buildRustPackage rec {
 
   buildInputs = [
     libxkbcommon.dev
-    libiconv
   ];
   nativeBuildInputs = [
     cargo-c

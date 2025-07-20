@@ -24,6 +24,8 @@
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
     nur-packages.url = "github:Yus314/nur-packages";
     nur-packages.inputs.nixpkgs.follows = "nixpkgs";
+    disko.url = "github:nix-community/disko";
+    disko.inputs.nixpkgs.follows = "nixpkgs";
     xremap.url = "github:xremap/nix-flake";
   };
   outputs =
@@ -44,10 +46,10 @@
       ];
       hosts = {
         watari = {
-          system = "x86_64-linux";
+          system = "aarch64-darwin";
         };
         lawliet = {
-          system = "aarch64-darwin";
+          system = "x86_64-linux";
         };
         ryuk = {
           system = "x86_64-linux";
@@ -58,7 +60,7 @@
       };
 
       flake = {
-        # overlays = import ./overlays { inherit inputs; };
+        overlays = import ./overlays { inherit inputs; };
       };
 
       perSystem =
@@ -75,7 +77,7 @@
             overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
           };
           packages = rec {
-            # cskk = pkgs.callPackage ./pkgs/cskk { };
+            #cskk = pkgs.callPackage ./pkgs/cskk { };
             #fcitx5-cskk = pkgs.libsForQt5.callPackage ./pkgs/fcitx5-cskk { inherit cskk; };
           };
           pre-commit = {

@@ -54,8 +54,8 @@ goal-modelで定義された4つの主要ゴールを技術的に実現する特
 
 ### 管理対象ホスト
 
-- **watari**: x86_64-linux デスクトップシステム
-- **lawliet**: aarch64-darwin (macOS) システム  
+- **lawliet**: x86_64-linux デスクトップシステム
+- **watari**: aarch64-darwin (macOS) システム  
 - **ryuk**: x86_64-linux ラボメインシステム
 - **rem**: x86_64-linux ラボサブシステム
 
@@ -72,7 +72,7 @@ dotfiles/
 ├── secrets/        # SOPS暗号化された秘密情報
 ├── infra/          # Infrastructure as Code（Terraform）
 ├── flake.nix       # メインFlake設定
-└── Taskfile.yml    # タスクランナー設定
+└── Makefile       # ビルドツール設定
 ```
 
 ## セットアップ・使用方法
@@ -80,19 +80,20 @@ dotfiles/
 ### 必要な前提条件
 
 - Nix（Flakes有効）
-- go-task（推奨）
+- make（標準で利用可能）
 
 ### 基本コマンド
 
 ```bash
 # 現在のシステム設定をビルド
-task build
+make build
 
 # 全システム設定をビルド
-task build-all
+make build-all
 
-# macOSでシステム設定を適用
-task switch
+# システム設定を適用
+nh os switch -H {hostname}        # NixOS用
+nh darwin switch -H {hostname}    # macOS用
 
 # 開発環境シェルに入る
 nix develop
@@ -108,10 +109,10 @@ nix flake check
 
 ```bash
 # Linux (x86_64) システムのビルド
-task linux
+make x86_64-linux
 
 # macOS (aarch64) システムのビルド  
-task darwin
+make aarch64-darwin
 ```
 
 ## 設定の特徴

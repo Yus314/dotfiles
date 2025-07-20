@@ -1,125 +1,135 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、このリポジトリでコードを扱う際のClaude Code (claude.ai/code) へのガイダンスを提供します。
 
-## Architecture Overview
+## アーキテクチャ概要
 
-This is a NixOS/Nix-Darwin dotfiles repository using Nix Flakes with a modular configuration structure. The repository manages system configurations for multiple hosts across Linux (NixOS) and macOS (Darwin) systems.
+これは、モジュラー設定構造を持つNix Flakesを使用したNixOS/Nix-Darwin dotfilesリポジトリです。このリポジトリは、Linux (NixOS) とmacOS (Darwin) システム間の複数のホストに対するシステム設定を管理します。
 
-### Key Configuration Structure
+### 主要な設定構造
 
-- **flake.nix**: Main flake configuration defining inputs, outputs, and host configurations
-- **flake-module.nix**: Custom flake module that dynamically generates system configurations from the `hosts` attribute set
-- **Taskfile.yml**: Task runner configuration for common operations
-- **hosts** definition in flake.nix maps to actual system configurations:
-  - `watari`: x86_64-linux desktop system
-  - `lawliet`: aarch64-darwin (macOS) system  
-  - `ryuk`: x86_64-linux lab-main system
-  - `rem`: x86_64-linux lab-sub system
+- **flake.nix**: 入力、出力、ホスト設定を定義するメインのflake設定
+- **flake-module.nix**: `hosts`属性セットからシステム設定を動的に生成するカスタムflakeモジュール
+- **Makefile**: 一般的な操作のためのビルドツール設定
+- **hosts** flake.nixでの定義は実際のシステム設定にマップされます：
+  - `lawliet`: x86_64-linux デスクトップシステム
+  - `watari`: aarch64-darwin macOSシステム
+  - `ryuk`: x86_64-linux lab-main システム
+  - `rem`: x86_64-linux lab-sub システム
 
-### Directory Structure
+### ディレクトリ構造
 
-- `applications/`: Application-specific configurations (emacs, neovim, git, etc.)
-- `homes/`: Home Manager configurations split by platform (darwin/nixos) and common configs
-- `systems/`: System-level configurations split by platform (darwin/nixos) and host-specific configs
-- `modules/`: Reusable modules for home-manager, darwin, and nix configurations
-- `pkgs/`: Custom package definitions
-- `overlays/`: Nixpkgs overlays
-- `secrets/`: SOPS-encrypted secrets
-- `infra/`: Infrastructure as code (Terraform configurations for Cloudflare, GitHub)
+- `applications/`: アプリケーション固有の設定 (emacs, neovim, git, etc.)
+- `homes/`: プラットフォーム (darwin/nixos) と共通設定で分割されたHome Manager設定
+- `systems/`: プラットフォーム (darwin/nixos) とホスト固有の設定で分割されたシステムレベル設定
+- `modules/`: home-manager、darwin、nix設定のための再利用可能なモジュール
+- `pkgs/`: カスタムパッケージ定義
+- `overlays/`: Nixpkgsオーバーレイ
+- `secrets/`: SOPS暗号化されたシークレット
+- `infra/`: Infrastructure as code (Cloudflare、GitHub用Terraform設定)
 
-### Configuration Hierarchy
+### 設定階層
 
-1. **System level**: `systems/{platform}/common.nix` → `systems/{platform}/{hostname}/`
-2. **Home Manager level**: `homes/common.nix` → `homes/{platform}/common.nix` → `homes/{platform}/{hostname}/`
-3. **Applications**: Individual application configs in `applications/` imported by home configurations
+1. **システムレベル**: `systems/{platform}/common.nix` → `systems/{platform}/{hostname}/`
+2. **Home Managerレベル**: `homes/common.nix` → `homes/{platform}/common.nix` → `homes/{platform}/{hostname}/`
+3. **アプリケーション**: `applications/`内の個別アプリケーション設定がhome設定でインポートされる
 
-## Common Commands
+## 共通コマンド
 
-### Building Configurations
+### 設定のビルド
 
 ```bash
-# Build current system configuration
-task build
+# 現在のシステム設定をビルド
+make build
 
-# Build all system configurations  
-task build-all
+# すべてのシステム設定をビルド
+make build-all
 
-# Build specific platforms
-task linux    # Build x86_64-linux systems
-task darwin   # Build aarch64-darwin systems
+# 特定のプラットフォームをビルド
+make x86_64-linux    # x86_64-linuxシステムをビルド
+make aarch64-darwin  # aarch64-darwinシステムをビルド
 ```
 
-### System Management
+### システム管理
 
 ```bash
-# Switch system configuration (macOS)
-task switch
+# システム設定を切り替え
+nh os switch -H {hostname}        # NixOS用 例: nh os switch -H lawliet
+nh darwin switch -H {hostname}    # macOS/Darwin用 例: nh darwin switch -H watari
 
-# Install Nix (if not present)
-task install_nix
+# Nixをインストール (存在しない場合)
+make install_nix
 
-# Uninstall Nix
-task uninstal_nix
+# Nixをアンインストール
+make uninstall_nix
 ```
 
-### Development
+### 開発
 
 ```bash
-# Enter development shell with tools
+# ツール付きの開発シェルに入る
 nix develop
 
-# Format code
+# コードをフォーマット
 nix fmt
 
-# Run pre-commit hooks
+# pre-commitフックを実行
 nix flake check
 ```
 
-### Direct Nix Commands
+### 直接的なNixコマンド
 
 ```bash
-# Build specific host configurations
-nom build .#nixosConfigurations.watari.config.system.build.toplevel
-nom build .#darwinConfigurations.lawliet.system
+# 特定のホスト設定をビルド
+nom build .#nixosConfigurations.lawliet.config.system.build.toplevel
+nom build .#darwinConfigurations.watari.system
+nom build .#nixosConfigurations.ryuk.config.system.build.toplevel
+nom build .#nixosConfigurations.rem.config.system.build.toplevel
 
-# Build and test without switching
-sudo nixos-rebuild build --flake .#watari
-darwin-rebuild build --flake .#lawliet
+# 切り替えずにビルドとテスト
+sudo nixos-rebuild build --flake .#lawliet
+sudo darwin-rebuild build --flake .#watari
 ```
 
-## Key Technologies
+## 主要技術
 
-- **Nix Flakes**: Declarative system configuration with locked dependencies
-- **Home Manager**: User environment and dotfiles management
-- **SOPS**: Secrets management with age/gpg encryption
-- **flake-parts**: Modular flake organization
-- **treefmt-nix**: Code formatting with multiple formatters (nixfmt, biome, shfmt, etc.)
-- **git-hooks.nix**: Pre-commit hooks integration
+- **Nix Flakes**: ロックされた依存関係を持つ宣言的システム設定
+- **Home Manager**: ユーザー環境とdotfiles管理
+- **nh**: 改良されたNixOS/nix-darwinヘルパーツール（システム切り替え用）
+- **SOPS**: age/gpg暗号化によるシークレット管理
+- **flake-parts**: モジュラーflake組織
+- **treefmt-nix**: 複数のフォーマッター (nixfmt, biome, shfmt, stylua, taplo, terraform, yamlfmt) によるコードフォーマット
+- **git-hooks.nix**: Pre-commitフック統合
+- **disko**: 宣言的ディスクパーティション管理
+- **xremap**: キーマッピング設定
+- **impermanence**: 永続化設定管理
+- **nix-darwin**: macOS用Nix設定
 
-## Host-Specific Notes
+## ホスト固有の注意点
 
-- **Default username**: `kaki` across all systems
-- **Fish shell**: Primary shell configured across all hosts
-- **GPG/SSH**: GPG agent configured for SSH authentication
-- **Input methods**: fcitx5 with SKK/Mozc for Japanese input (Linux only)
-- **Distributed builds**: Configured for cross-platform building (see buildMachines.nix)
+- **デフォルトユーザー名**: すべてのシステムで`kaki`
+- **Fish shell**: すべてのホストで設定されるプライマリシェル
+- **GPG/SSH**: SSH認証用に設定されたGPGエージェント
+- **入力メソッド**: 日本語入力用のfcitx5とcskk/SKK/Mozc (Linuxのみ)
+- **分散ビルド**: クロスプラットフォームビルド用に設定 (buildMachines.nixを参照)
+- **カスタムパッケージ**: cskk（カナ漢字変換）、fcitx5-cskk（入力メソッド）
 
-## Secrets Management
+## シークレット管理
 
-Secrets are managed using SOPS with age encryption. Key files:
-- `secrets/default.yaml`: Main secrets file
-- Age key location: `/home/kaki/.config/sops/age/keys.txt` (Linux)
-- GPG home for Darwin: `${config.xdg.dataHome}/.gnupg`
+シークレットはage暗号化を使用したSOPSで管理されます。キーファイル：
+- `secrets/default.yaml`: メインシークレットファイル
+- Ageキーの場所: `/home/kaki/.config/sops/age/keys.txt` (Linux)
+- Darwin用GPGホーム: `${config.xdg.dataHome}/.gnupg`
 
-## Code Quality and Formatting
+## コード品質とフォーマット
 
-This repository uses pre-commit hooks for automated code formatting and quality checks:
+このリポジトリは、自動化されたコードフォーマットと品質チェックのためにpre-commitフックを使用します：
 
-- **Automatic formatting**: Files are automatically formatted on commit using treefmt-nix
-- **Pre-commit integration**: git-hooks.nix ensures code quality before commits
-- **CI/CD validation**: GitHub Actions runs checks and builds on all changes
+- **自動フォーマット**: treefmt-nixを使用してコミット時にファイルが自動的にフォーマットされます
+- **Pre-commit統合**: git-hooks.nixはコミット前にコード品質を確保します
+- **CI/CD検証**: GitHub Actionsはすべての変更に対してチェックとビルドを実行します
 
+<<<<<<< HEAD
 When committing changes, pre-commit hooks may automatically format files. If this happens:
 1. The formatted changes will be applied automatically
 2. Accept these formatting changes as they maintain code consistency
@@ -130,6 +140,18 @@ When committing changes, pre-commit hooks may automatically format files. If thi
 This repository follows [Conventional Commits](https://www.conventionalcommits.org/) specification for commit messages:
 
 ### Format
+=======
+変更をコミットする際、pre-commitフックが自動的にファイルをフォーマットする場合があります。この場合：
+1. フォーマットされた変更が自動的に適用されます
+2. コードの一貫性を保つため、これらのフォーマット変更を受け入れてください
+3. フォーマットされたコードでコミットが続行されます
+
+## コミットメッセージ規約
+
+このリポジトリでは**Conventional Commits**規約を採用しています：
+
+### 基本形式
+>>>>>>> 1f5a47d5913f1e194407ef5d38c9a49f527acb21
 ```
 <type>[optional scope]: <description>
 
@@ -138,6 +160,7 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
 [optional footer(s)]
 ```
 
+<<<<<<< HEAD
 ### Types
 - **feat**: A new feature
 - **fix**: A bug fix
@@ -157,3 +180,34 @@ fix(systems): resolve SSH key permission issue
 docs: update installation instructions
 chore(deps): update flake.lock dependencies
 ```
+=======
+### 主要なタイプ
+- **feat**: 新機能
+- **fix**: バグ修正
+- **docs**: ドキュメントのみの変更
+- **style**: コードの意味に影響しない変更（空白、フォーマット、セミコロンの欠落など）
+- **refactor**: バグ修正でも機能追加でもないコード変更
+- **perf**: パフォーマンスを向上させるコード変更
+- **test**: 不足しているテストの追加や既存テストの修正
+- **chore**: ビルドプロセスやドキュメント生成などの補助ツールやライブラリの変更
+
+### 例
+```bash
+feat(applications): add neovim skkeleton plugin
+fix(systems/nixos): resolve fcitx5 input method issue
+docs: update README with new installation steps
+chore(flake): update nixpkgs to latest unstable
+```
+
+### スコープの例
+- `applications`: アプリケーション設定
+- `homes`: Home Manager設定
+- `systems`: システム設定
+- `modules`: カスタムモジュール
+- `pkgs`: カスタムパッケージ
+- `infra`: インフラストラクチャ設定
+
+### 重要な注意事項
+- **共著者の記載**: このリポジトリではClaude Codeを共著者として記載しません
+- コミットメッセージには「🤖 Generated with Claude Code」や「Co-Authored-By: Claude」などの記載を追加しないでください
+>>>>>>> 1f5a47d5913f1e194407ef5d38c9a49f527acb21

@@ -15,6 +15,7 @@
       };
       ghq.user = "Yus314";
       pull.rebase = false;
+      github.user = "Yus314";
     };
     ignores = [
       ".DS_Store"

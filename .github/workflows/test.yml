@@ -12,6 +12,7 @@ on:
       - 'flake.nix'
       - 'homes/**'
       - 'lib/**'
+      - 'Makefile'
       - 'modules/**'
       - 'overlays/**'
       - 'pkgs/**'
@@ -28,6 +29,7 @@ on:
       - 'flake.nix'
       - 'homes/**'
       - 'lib/**'
+      - 'Makefile'
       - 'modules/**'
       - 'overlays/**'
       - 'pkgs/**'
@@ -72,14 +74,9 @@ jobs:
         run: |
           printf "run\tprivate/var/run\n" | sudo tee -a /etc/synthetic.conf
           /System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -t || true
-      - name: Install Task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: build
         env:
           NIX: nix
         run: |-
-          task build
+          make build
           df -h

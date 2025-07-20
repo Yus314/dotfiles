@@ -17,22 +17,12 @@
                         	if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
                         		source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh 
                         	fi
-                  			if [ -f ${"ZDOTDIR:-~"}/.p10k.zsh ]; then
-                               source ${"ZDOTDIR:-~"}/.p10k.zsh
-                  			fi
             				  eval "$(zoxide init zsh)"
       					  EDITOR=nvim
     '';
     sessionVariables = {
       EDITOR = "nvim";
     };
-    plugins = [
-      {
-        name = "powerlevel10k";
-        src = pkgs.zsh-powerlevel10k;
-        file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
-      }
-    ];
+    plugins = [ ];
   };
-  home.file."${config.xdg.configHome}/zsh/.p10k.zsh".text = builtins.readFile ./.p10k.zsh;
 }

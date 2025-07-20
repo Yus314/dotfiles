@@ -24,9 +24,6 @@ in
   };
   sops = {
     secrets = {
-      cachix-agent-token = {
-        sopsFile = ../../../secrets/cachix.yaml;
-      };
       cloudflared-tunnel-cert = {
       };
       cloudflared-tunnel-cred = {
