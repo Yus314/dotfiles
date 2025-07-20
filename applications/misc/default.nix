@@ -62,6 +62,11 @@
     ghq
     pinentry-curses
     plantuml
+    aider-chat # AI pair programming tool in your terminal
+    cachix
+    nvfetcher
+    claude-code
+    gemini-cli
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
@@ -71,10 +76,6 @@
 
     anki-bin # Spaced repetition flashcard program (binary version)
     mpv # Feature-rich media player
-    aider-chat # AI pair programming tool in your terminal
-    cachix
-    nvfetcher
-    claude-code
   ];
   xdg.enable = true;
 }
