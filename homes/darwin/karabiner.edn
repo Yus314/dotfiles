@@ -166,19 +166,37 @@
                  [:#Sslash [:b :u]]
                  ]}
         {;; ルール1: JIS配列から自作配列への変換
-         :des "JIS配列から自作配列への変換"
+	 :des "JIS配列から自作配列への変換"
          :rules [
+                 ;; 数字行
+                 [:#CTOFQWERP1 :!S1] ; !
+                 [:#CTOFQWERP2 :!S6] ; &  
+                 [:#CTOFQWERP3 :!S4] ; $
+                 [:#CTOFQWERP4 :close_bracket] ; [ 
+                 [:#CTOFQWERP5 :!Scomma] ; <
+                 [:#CTOFQWERP6 :!Speriod] ; >
+                 [:#CTOFQWERP7 :backslash] ; ]
+                 [:#CTOFQWERP8 :slash] ; /
+                 [:#CTOFQWERP9 :!Ssemicolon] ; + 
+                 [:#CTOFQWERP0 :!S3] ; #
+                 [:#CTOFQWERPhyphen :open_bracket] ;
+		 [:#CTOFQWERPequal_sign :!Sequal_sign] ; ~
+                 
+                 ;; 上段
                  [:##q :k]
                  [:##w :y]
                  [:##e :o]
-                 [:##r :period]
-                 [:##t :hyphen]
+                 [:#CTOFQWERPr :period]
+                 [:#CTOFQWERPt :!Shyphen] ; =
                  [:##y :f]
                  [:##u :c]
                  [:##i :l]
                  [:##o :p]
                  [:##p :q]
                  [:##open_bracket :z]
+                 [:#CTOFQWERPclose_bracket :!S5] ; %
+                 
+                 ;; 中段
                  [:##a :h]
                  [:##s :i]
                  [:##d :e]
@@ -190,18 +208,74 @@
                  [:##l :n]
                  [:##semicolon :r]
                  [:##quote :v]
+                 [:#CTOFQWERPbackslash :!Sinternational3] ; |
+                 
+                 ;; 下段
                  [:##z :j]
-                 [:##x :semicolon]
-                 [:##c :comma]
-                 [:##v :!S7] ; Shift+7
-                 [:##b :slash]
+                 [:#CTOFQWERPx :hyphen]
+                 [:#CTOFQWERPc :comma]
+                 [:#CTOFQWERPv :!S8] ; (
+                 [:#CTOFQWERPb :!S2]
                  [:##n :w]
                  [:##m :g]
                  [:##comma :m]
                  [:##period :b]
                  [:##slash :x]
+		 [:#CTOFQWERPinternational1 :!S9]
+                 
+                 ;; Shiftの際のレイヤー
+                 [:!S1 :7] ; 7
+                 [:!S2 :5] ; 5  
+                 [:!S3 :3] ; 3
+                 [:!S4 :1] ; 1
+                 [:!S5 :9] ; 9
+                 [:!S6 :8] ; 8
+                 [:!S7 :0] ; 0
+                 [:!S8 :2] ; 2
+                 [:!S9 :4] ; 4
+                 [:!S0 :6] ; 6
+                 [:!Shyphen :!S1] ; ! 
+                 [:!Sequal_sign :!Sopen_bracket] ; `
+                 
+          
+                 [:!Sq :!Sk] ; K
+                 [:!Sw :!Sy] ; Y
+                 [:!Se :!So] ; O
+                 [:!Sr :semicolon] ; ;
+                 [:!St :quote] ; :
+                 [:!Sy :!Sf] ; F
+                 [:!Su :!Sc] ; C
+                 [:!Si :!Sl] ; L
+                 [:!So :!Sp] ; P
+                 [:!Sp :!Sq] ; Q
+                 [:!Sopen_bracket :!Sz] ; Z
+                 [:!Sclose_bracket :equal_sign] ; ^
+                 
+                 [:!Sa :!Sh] ; H
+                 [:!Ss :!Si] ; I
+                 [:!Sd :!Se] ; E
+                 [:!Sf :!Sa] ; A
+                 [:!Sg :!Su] ; U
+                 [:!Sh :!Sd] ; D
+                 [:!Sj :!Ss] ; S
+                 [:!Sk :!St] ; T
+                 [:!Sl :!Sn] ; N
+                 [:!Ssemicolon :!Sr] ; R
+                 [:!Squote :!Sv] ; V
+                 [:!Sbackslash :!Einternational3] ; \
+                 
+                 [:!Sz :!Sj] ; J
+                 [:!Sx :!Squote] ; *
+                 [:!Sc :international1] ; _
+                 [:!Sv :!Sclose_bracket] ; {
+                 [:!Sb :!S7] ; '
+                 [:!Sn :!Sw] ; W
+                 [:!Sm :!Sg] ; G
+                 [:!Scomma :!Sm] ; M
+                 [:!Speriod :!Sb] ; B
+                 [:!Sslash :!Sx] ; X
+                 [:!Sinternational1 :!Sbackslash] ; } 
 		 
-		 [:##hyphen :quote]
 		 ]} 
 
 		 ]}
