@@ -12,6 +12,7 @@ let
 in
 {
   imports = [
+    ../../modules/nixos
     ../common.nix
     ./services/xremap
     ./services/dropbox
