@@ -1,0 +1,2 @@
+[default]
+extend_ignore-words-re = ["noice"]

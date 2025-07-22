@@ -86,21 +86,51 @@
               src = ./.;
               hooks = {
                 nil.enable = true;
+                lua-ls = {
+                  enable = true;
+                  excludes = [
+                    "applications/neovim/.*\\.lua$"
+                  ];
+                };
+                tflint.enable = true;
                 shellcheck.enable = true;
+                biome.enable = true;
+                yamllint = {
+                  enable = true;
+                  excludes = [
+                    "secrets/default.yaml"
+                    "secrets.yaml"
+                  ];
+                  settings.configData = "{rules: {document-start: {present: false}}}";
+                };
+                typos = {
+                  enable = true;
+                  excludes = [
+                    "secrets.yaml"
+                    "secrets/defualt.yaml"
+                  ];
+                  settings.configPath = "typos.toml";
+                };
+                check-toml.enable = true;
                 treefmt.enable = true;
+                detect-private-keys.enable = true;
+                end-of-file-fixer.enable = true;
+                trim-trailing-whitespace.enable = true;
+                fix-byte-order-marker.enable = true;
+                actionlint.enable = true;
               };
             };
           };
           treefmt = {
             projectRootFile = "flake.nix";
             programs = {
-              biome.enable = true;
               nixfmt.enable = true;
-              shfmt.enable = true;
               stylua.enable = true;
-              taplo.enable = true;
               terraform.enable = true;
+              shfmt.enable = true;
+              biome.enable = true;
               yamlfmt.enable = true;
+              taplo.enable = true;
             };
           };
           devShells = {
@@ -108,7 +138,7 @@
               packages = with pkgs; [
                 nix-fast-build
                 sops
-                go-task
+                qmk
                 (terraform.withPlugins (p: [
                   p.cloudflare
                   p.external
