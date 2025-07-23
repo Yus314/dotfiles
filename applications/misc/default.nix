@@ -68,6 +68,7 @@
     claude-code
     gemini-cli
     nh
+    nix-search-cli
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
