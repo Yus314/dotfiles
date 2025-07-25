@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 {
   imports = [
     ../desktop.nix
@@ -20,5 +20,6 @@
     wlogout
     pinta
     nyxt
+    inputs.claude-desktop.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 }
