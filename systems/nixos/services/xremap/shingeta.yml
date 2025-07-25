@@ -2,6 +2,7 @@ keymap:
   - mode: default
     remap:
       C-space: [C-space, {set_mode: shingeta}]
+      KEY_F23: KPLEFTPAREN
   - mode: shingeta
     remap:
       C-space: [C-space, {set_mode: default}]
@@ -81,8 +82,8 @@ keymap:
         timeout_key: [g, u]
       c:
         remap:
-          e: [p, a]
           i: [p, e]
+          e: [p, a]
           o: [s, y, o]
           y: [s, y, u]
         timeout_millis: 50
@@ -100,10 +101,10 @@ keymap:
           a: [k, y, o]
           u: [t, y, o]
           j: [h, y, a]
-          #KEY_SEMICOLON: []
+          #KEY_MINUS: []
           KEY_COMMA: [s, y, a]
-          KEY_APOSTROPHE: [k, y, a]
-          KEY_SLASH: [c, y, a]
+          KEY_F23: [k, y, a]
+          KEY_APOSTROPHE: [c, y, a]
         timeout_millis: 50
         timeout_key: [k, o]
       p:
@@ -119,10 +120,10 @@ keymap:
           a: [g, y, o]
           u: [n, y, o]
           j: [r, y, a]
-          #KEY_SEMICOLON: []
+          #KEY_MINUS: []
           KEY_COMMA: [j, y, a]
-          KEY_APOSTROPHE: [g, y, a]
-          KEY_SLASH: [n, y, a]
+          KEY_F23: [g, y, a]
+          KEY_APOSTROPHE: [n, y, a]
         timeout_millis: 50
         timeout_key: [g, a]
       q:
@@ -233,10 +234,10 @@ keymap:
           a: [m, o]
           u: [y, u]
           j: [d, u]
-          KEY_SEMICOLON: [z, o]
+          KEY_MINUS: [z, o]
           KEY_COMMA: [b, o]
-          KEY_APOSTROPHE: [m, u]
-          KEY_SLASH: [f, o]
+          KEY_F23: [m, u]
+          KEY_APOSTROPHE: [f, o]
         timeout_millis: 50
         timeout_key: i
       n:
@@ -252,10 +253,10 @@ keymap:
           a: [r, i]
           u: [z, u]
           j: [z, e]
-          KEY_SEMICOLON: [z, a]
+          KEY_MINUS: [z, a]
           KEY_COMMA: [g, i]
-          KEY_APOSTROPHE: [r, o]
-          KEY_SLASH: [n, u]
+          KEY_F23: [r, o]
+          KEY_APOSTROPHE: [n, u]
         timeout_millis: 50
         timeout_key: [s, i]
       r:
@@ -281,7 +282,7 @@ keymap:
           p: [r, y, a]
         timeout_millis: 50
         timeout_key: [s, u]
-      KEY_SEMICOLON:
+      KEY_MINUS:
         remap:
           t: [z, o]
           n: [z, a]
@@ -295,7 +296,7 @@ keymap:
           p: [j, y, a]
         timeout_millis: 50
         timeout_key: [k, i]
-      KEY_APOSTROPHE:
+      KEY_F23:
         remap:
           t: [m, u]
           n: [r, o]
@@ -303,7 +304,7 @@ keymap:
           p: [g, y, a]
         timeout_millis: 50
         timeout_key: [r, u]
-      KEY_SLASH:
+      KEY_APOSTROPHE:
         remap:
           t: [f, o]
           n: [n, u]
