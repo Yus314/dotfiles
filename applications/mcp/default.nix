@@ -13,6 +13,9 @@ let
         enable = true;
         envFile = config.sops.secrets.gh-token-for-mcp.path;
       };
+      git = {
+        enable = true;
+      };
     };
   };
 in
