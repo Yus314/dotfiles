@@ -1,4 +1,3 @@
 [default]
-extend-ignore-words = ["MisTTY", "Mis"]
 extend-words = { edn = "edn" }
 extend_ignore-words-re = ["noice"]
