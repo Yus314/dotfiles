@@ -15,20 +15,20 @@
  :main [
 	{;; ルール2: AquaSKK関連の修飾キー設定
          :des "AquqSKKで日本語が有効化の際に英数で変更できるようにする"
-		 
+
          :rules [[:##japanese_eisuu :right_control]
                  [:##japanese_kana :left_shift]
-                 
+
                  [:##left_control :l [:jp]]
-		 
+
                  [:##left_control :japanese_kana [:en]]
                  ]}
 
-         {;; ルール3: 新下駄配列の実装 
+         {;; ルール3: 新下駄配列の実装
          :des "新下駄配列の実装"
          :rules [:jp
                  [{:sim[:k :q]:modi {:optional [:left_shift]}} [:f :a]]
-                 [{:sim[:k :w]:modi {:optional [:left_shift]}} [:g :o]] 
+                 [{:sim[:k :w]:modi {:optional [:left_shift]}} [:g :o]]
                  [{:sim[:k :e]:modi {:optional [:left_shift]}} [:f :u]]
                  [{:sim[:k :r]:modi {:optional [:left_shift]}} [:f :i]]
                  [{:sim[:k :t]:modi {:optional [:left_shift]}} [:f :e]]
@@ -130,7 +130,7 @@
                  [{:sim[:o :c] :modi {:optional [:left_shift]}} [:j :a]]
                  [{:sim[:o :v] :modi {:optional [:left_shift]}} [:g :y :a]]
                  [{:sim [:o :b] :modi {:optional [:left_shift]}} [:n :y :a]]
-                 
+
                  ;; 単体キーのルール
                  [:#Sq :hyphen]
                  [:#Sw [:n :i]]
@@ -170,7 +170,7 @@
          :rules [
                  ;; 数字行
                  [:#CTOFQWERP1 :!S1] ; !
-                 [:#CTOFQWERP2 :!S6] ; &  
+                 [:#CTOFQWERP2 :!S6] ; &
                  [:#CTOFQWERP3 :!Scomma] ; <
                  [:#CTOFQWERP4 :close_bracket] ; [
                  [:#CTOFQWERP5 :!S8] ; (
@@ -181,7 +181,7 @@
                  [:#CTOFQWERP0 :!S4] ; $
                  [:#CTOFQWERPhyphen :!S3] ; #
 		 [:#CTOFQWERPequal_sign :open_bracket] ; @
-                 
+
                  ;; 上段
                  [:##q :k]
                  [:##w :y]
@@ -195,12 +195,12 @@
                  [:##p :q]
                  [:##open_bracket :z]
                  [:#CTOFQWERPclose_bracket :!S5] ; %
-                 
+
                  ;; 中段
                  [:##a :h]
                  [:##s :i]
                  [:##d :e]
-                 [:##f :a] 
+                 [:##f :a]
                  [:##g :u]
                  [:##h :d]
                  [:##j :s]
@@ -209,12 +209,12 @@
                  [:##semicolon :r]
                  [:##quote :v]
                  [:#CTOFQWERPbackslash :!Sinternational3] ; |
-                 
+
                  ;; 下段
                  [:##z :j]
-                 [:#CTOFQWERPx :hyphen] 
+                 [:#CTOFQWERPx :hyphen]
                  [:#CTOFQWERPc :comma]
-		 [:#CTOFQWERPv :!Sclose_bracket] ; { 
+		 [:#CTOFQWERPv :!Sclose_bracket] ; {
                  [:#CTOFQWERPb :!S7] ; '
                  [:##n :w]
                  [:##m :g]
@@ -222,10 +222,10 @@
                  [:##period :b]
                  [:##slash :x]
 		 [:#CTOFQWERPinternational1 :!Sbackslash] ; )
-                 
+
                  ;; Shiftの際のレイヤー
                  [:!S1 :9] ; 9
-                 [:!S2 :7] ; 7  
+                 [:!S2 :7] ; 7
                  [:!S3 :5] ; 5
                  [:!S4 :3] ; 3
                  [:!S5 :1] ; 1
@@ -234,10 +234,10 @@
                  [:!S8 :2] ; 2
                  [:!S9 :4] ; 4
                  [:!S0 :6] ; 6
-                 [:!Shyphen :!S1] ; ! 
+                 [:!Shyphen :!S1] ; !
                  [:!Sequal_sign :!Sopen_bracket] ; `
-                 
-          
+
+
                  [:!Sq :!Sk] ; K
                  [:!Sw :!Sy] ; Y
                  [:!Se :!So] ; O
@@ -250,7 +250,7 @@
                  [:!Sp :!Sq] ; Q
                  [:!Sopen_bracket :!Sz] ; Z
                  [:!Sclose_bracket :equal_sign] ; ^
-                 
+
                  [:!Sa :!Sh] ; H
                  [:!Ss :!Si] ; I
                  [:!Sd :!Se] ; E
@@ -263,7 +263,7 @@
                  [:!Ssemicolon :!Sr] ; R
                  [:!Squote :!Sv] ; V
                  [:!Sbackslash :!Einternational3] ; \
-                 
+
                  [:!Sz :!Sj] ; J
                  [:!Sx :!Squote] ; *
                  [:!Sc :international1] ; _
@@ -275,7 +275,7 @@
                  [:!Speriod :!Sb] ; B
                  [:!Sslash :!Sx] ; X
                  [:!Sinternational1 :slash] ; /
-		 
-		 ]} 
+
+		 ]}
 
 		 ]}

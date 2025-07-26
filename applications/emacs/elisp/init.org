@@ -168,8 +168,8 @@ Waylandでペーストできるようにする設定
   	)
         )
 #+end_src
-** perfect-mergin
-#+begin_src emacs-lisp :tangle yes 
+** perfect-margin
+#+begin_src emacs-lisp :tangle yes
   (add-hook 'emacs-startup-hook #'perfect-margin-mode)
   (autoload 'perfect-margin-mode "perfect-margin" nil t)
   (with-eval-after-load 'perfect-margin
@@ -356,7 +356,7 @@ Waylandでペーストできるようにする設定
        '("U" . meow-undo-in-selection)
                                          ;'("v" . meow-visit)
        '("v i" . meow-inner-of-thing) ;; Inner
-     '("v a" . meow-bounds-of-thing) ;; Arround
+     '("v a" . meow-bounds-of-thing) ;; Around
       '("v b" . meow-block) ;; Block
       '("v c" . puni-mark-list-around-point) ;; Contents
        '("v x" . puni-mark-sexp-around-point) ;; eXpression
@@ -379,7 +379,7 @@ Waylandでペーストできるようにする設定
     (meow-global-mode)
     )
   ;(add-hook 'emacs-startup-hook #'meow-global-mode)
-  ;     
+  ;
   ;(autoload 'meow-global-mode "meow" nil t)
   ;(with-eval-after-load 'meow
   ;   (meow-normal-define-key
@@ -463,7 +463,7 @@ Waylandでペーストできるようにする設定
   ;       '("U" . meow-undo-in-selection)
                                            ;'("v" . meow-visit)
   ;       '("v i" . meow-inner-of-thing) ;; Inner
-  ;     '("v a" . meow-bounds-of-thing) ;; Arround
+  ;     '("v a" . meow-bounds-of-thing) ;; Around
   ;      '("v b" . meow-block) ;; Block
   ;      '("v c" . puni-mark-list-around-point) ;; Contents
   ;       '("v x" . puni-mark-sexp-around-point) ;; eXpression
@@ -480,7 +480,7 @@ Waylandでペーストできるようにする設定
   ;       '("z" . meow-pop-selection)
   ;       '("'" . repeat)
         ;'("g" . avy-goto-char-timer)
-  ;       )   
+  ;       )
   ;  )
 #+end_src
 ** puni
@@ -511,7 +511,7 @@ Waylandでペーストできるようにする設定
     (keymap-set vundo-mode-map "s" 'vundo-next)
     (keymap-set vundo-mode-map "t" 'vundo-previous)
     (keymap-set vundo-mode-map "b" 'vundo-diff)
-    ) 
+    )
 
 #+end_src
 ** dmacro
@@ -614,7 +614,7 @@ Waylandでペーストできるようにする設定
 #+begin_src emacs-lisp :tangle yes
   (autoload-if-found '(global-corfu-mode) "corfu" nil t)
   (autoload-if-found '(corfu-popupinfo-mode) "corfu-popupinfo" nil t)
-  		   
+
   (add-hook 'emacs-startup-hook #'global-corfu-mode)
 
   (with-eval-after-load 'corfu
@@ -1003,17 +1003,17 @@ Waylandでペーストできるようにする設定
     (setq org-agenda-start-on-weekday  nil); agendaの日々の始まりを今日に
     (setq org-agenda-start-day  "today")
     (setq org-agenda-skip-scheduled-if-done  '("DONE" "CANCEL"));スケジュールでDONEとCANCELを無視するようにする
-    
+
     (defun my/org-archive-to-trash ()
       "Move the current subtree to ~/dropbox/trash.org instead of the default archive location"
       (interactive)
       (let ((org-archive-location "~/dropbox/trash.org::"))
         (org-agenda-archive)))
-    
+
     (keymap-set org-agenda-mode-map "t" 'org-agenda-previous-item)
     (keymap-set org-agenda-mode-map "s" 'org-agenda-next-item)
     (keymap-set org-agenda-mode-map "e" 'org-agenda-todo)
-    (define-key org-agenda-mode-map (kbd "#") 'my/org-archive-to-trash)  
+    (define-key org-agenda-mode-map (kbd "#") 'my/org-archive-to-trash)
     )
 #+end_src
 ** org-super-agenda
@@ -1462,7 +1462,7 @@ Waylandでペーストできるようにする設定
   					;    (add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
   (add-hook 'emacs-startup-hook #'pdf-tools-install)
   #+end_src
-* MisTTY
+* mistty
 #+begin_src emacs-lisp :tangle yes
     (use-package mistty
       :custom
@@ -1560,7 +1560,7 @@ Waylandでペーストできるようにする設定
   					;	 ("C-t" . gt-do-translate)
   					;	 )
       )
-    
+
 #+end_src
 * reinbow-delimiters
 #+begin_src emacs-lisp :tangle yes
@@ -1585,7 +1585,7 @@ Waylandでペーストできるようにする設定
 #+begin_src emacs-lisp :tangle yes
   (autoload 'apheleia-global-mode "apheleia")
   (apheleia-global-mode)
-  (setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)  
+  (setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)
 #+end_src
 * aggressive-inden
 * プログラミング支援
@@ -1704,7 +1704,7 @@ Waylandでペーストできるようにする設定
     (setq vterm-toggle-scope 'project)
     )
   (with-eval-after-load 'vterm
-    (setq vterm-tramp-shells  '(("ssh" "'fish'") ("scp" login-shell) ("docker" "/bin/sh")))  
+    (setq vterm-tramp-shells  '(("ssh" "'fish'") ("scp" login-shell) ("docker" "/bin/sh")))
     (keymap-set vterm-mode-map "C-c C-c" 'vterm--self-insert)
     )
   (keymap-global-set "M-v" #'vterm-toggle)

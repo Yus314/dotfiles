@@ -55,7 +55,7 @@ goal-modelで定義された4つの主要ゴールを技術的に実現する特
 ### 管理対象ホスト
 
 - **lawliet**: x86_64-linux デスクトップシステム
-- **watari**: aarch64-darwin (macOS) システム  
+- **watari**: aarch64-darwin (macOS) システム
 - **ryuk**: x86_64-linux ラボメインシステム
 - **rem**: x86_64-linux ラボサブシステム
 
@@ -111,7 +111,7 @@ nix flake check
 # Linux (x86_64) システムのビルド
 make x86_64-linux
 
-# macOS (aarch64) システムのビルド  
+# macOS (aarch64) システムのビルド
 make aarch64-darwin
 ```
 
@@ -128,7 +128,7 @@ make aarch64-darwin
 ### 主要アプリケーション
 
 - **エディタ**: Emacs（org-mode設定）, Neovim
-- **ターミナル**: Kitty, Wezterm, Alacritty  
+- **ターミナル**: Kitty, Wezterm, Alacritty
 - **ブラウザ**: Qutebrowser, Google Chrome, Vivaldi
 - **Git**: lazygit統合
 - **シェル**: Fish + Starship プロンプト
