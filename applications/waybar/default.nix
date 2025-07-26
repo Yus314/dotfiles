@@ -1,7 +1,7 @@
 { pkgs, config, ... }:
 {
   programs.waybar = {
-    enable = false;
+    enable = true;
 
     # Waybarをsystemdユーザーサービスとして有効化
     systemd.enable = true;
