@@ -29,6 +29,12 @@ in
   hardware.bluetooth.powerOnBoot = true;
   services.blueman.enable = true;
 
+  # for bluetooth receiver
+  hardware.enableRedistributableFirmware = true;
+  hardware.firmware = [ pkgs.rtl8761b-firmware ];
+
+  fileSystems."/persistent".neededForBoot = true;
+
   services.openssh = {
     enable = true;
   };
