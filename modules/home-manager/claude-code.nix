@@ -10,6 +10,20 @@ let
   settingsFormat = pkgs.formats.json { };
 
   settingsFile = settingsFormat.generate "settings.json" cfg.settings;
+
+  # シンプルな読み込み処理
+  loadCommands =
+    dir:
+    let
+      entries = builtins.readDir dir;
+      markdownFiles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".md" name) entries;
+    in
+    lib.mapAttrs' (file: _: {
+      name = lib.removeSuffix ".md" file;
+      value = builtins.readFile (dir + "/${file}");
+    }) markdownFiles;
+
+  allCommands = loadCommands cfg.commandsDirectory;
 in
 {
   options.my.programs.claude-code = {
@@ -103,18 +117,13 @@ in
       description = "Settings for claude-code.";
     };
 
-    commands = lib.mkOption {
-      type = lib.types.attrsOf lib.types.str;
-      default = { };
-      description = "Slash commands for claude-code (.claude/commands/*.md)";
-      example = {
-        "git-status" = ''
-          ---
-          description: Check git status
-          ---
-          Current git status: !`git status`
-        '';
-      };
+    commandsDirectory = lib.mkOption {
+      type = lib.types.path;
+      description = ''
+        Directory containing markdown files for slash commands.
+        All .md files will be loaded as commands.
+      '';
+      example = ./commands;
     };
   };
 
@@ -151,7 +160,7 @@ in
         lib.nameValuePair ".claude/commands/${name}.md" {
           text = content;
         }
-      ) cfg.commands)
+      ) allCommands)
     ];
   };
 }
