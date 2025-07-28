@@ -4,8 +4,15 @@
   { pkgs ? import <nixpkgs> {} }:
   pkgs.mkShell { buildInputs = with pkgs; [ plantuml jdk]; }
   #+END_SRC
+  #+begin_src shell :nix-shell tmp-shell :results output
+    echo $(which plantuml)
+  #+end_src
+
+  #+RESULTS:
+  : /nix/store/crq5hjas8w133cx8zf9pim5sy4pw096n-plantuml-1.2025.4/bin/plantuml
+
 #+begin_src elisp :nix-shell tmp-shell :results output
-  (setq org-plantuml-jar-path "/nix/store/03nh9m73gwwj477yralnsw70igwswfi5-plantuml-1.2025.3/lib/plantuml.jar")
+  (setq org-plantuml-jar-path "/nix/store/crq5hjas8w133cx8zf9pim5sy4pw096n-plantuml-1.2025.4/lib/plantuml.jar")
 #+end_src
 * ゴールモデル
 
