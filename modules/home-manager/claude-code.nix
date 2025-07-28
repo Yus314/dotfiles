@@ -102,6 +102,20 @@ in
       default = { };
       description = "Settings for claude-code.";
     };
+
+    commands = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      default = { };
+      description = "Slash commands for claude-code (.claude/commands/*.md)";
+      example = {
+        "git-status" = ''
+          ---
+          description: Check git status
+          ---
+          Current git status: !`git status`
+        '';
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -116,12 +130,28 @@ in
       })
     ];
 
-    home.file.".claude/settings.json" = lib.mkIf (cfg.settings != { }) {
-      source = settingsFile;
-    };
+    home.file = lib.mkMerge [
+      # Settings file
+      (lib.mkIf (cfg.settings != { }) {
+        ".claude/settings.json" = {
+          source = settingsFile;
+        };
+      })
 
-    home.file.".claude/CLAUDE.md" = lib.mkIf (cfg.userMemory != null) {
-      text = cfg.userMemory;
-    };
+      # User memory file
+      (lib.mkIf (cfg.userMemory != null) {
+        ".claude/CLAUDE.md" = {
+          text = cfg.userMemory;
+        };
+      })
+
+      # Slash commands
+      (lib.mapAttrs' (
+        name: content:
+        lib.nameValuePair ".claude/commands/${name}.md" {
+          text = content;
+        }
+      ) cfg.commands)
+    ];
   };
 }
