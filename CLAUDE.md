@@ -53,9 +53,12 @@ make aarch64-darwin  # aarch64-darwinシステムをビルド
 ### システム管理
 
 ```bash
-# システム設定を切り替え
-nh os switch -H {hostname}        # NixOS用 例: nh os switch -H lawliet
-nh darwin switch -H {hostname}    # macOS/Darwin用 例: nh darwin switch -H watari
+# システム設定を切り替え（sudoによる権限昇格が必要）
+nh os switch . -H {hostname}        # NixOS用 例: nh os switch . -H lawliet
+nh darwin switch . -H {hostname}    # macOS/Darwin用 例: nh darwin switch . -H watari
+
+# 注意: switchコマンドは実行中にsudoによる管理者権限が必要になります
+# Claude Codeからは権限昇格ができないため、ユーザーが手動で実行してください
 
 # Nixをインストール (存在しない場合)
 make install_nix
