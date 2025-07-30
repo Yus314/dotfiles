@@ -4,6 +4,7 @@
     enableTelemetry = true;
     otelMetricsExporter = "prometheus";
     settings = {
+      apiKeyHelper = "";
       includeCoAuthoredBy = false;
       permissions = {
         allow = [ ];
