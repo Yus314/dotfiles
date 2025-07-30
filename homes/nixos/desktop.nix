@@ -8,6 +8,7 @@
     ../../applications/tofi
     ../../applications/foot
     ../../applications/waybar
+    ../../applications/dunst
     ../../applications/rclone
   ];
   home.packages = with pkgs; [
