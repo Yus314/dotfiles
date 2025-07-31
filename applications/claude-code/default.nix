@@ -17,7 +17,7 @@
             hooks = [
               {
                 type = "command";
-                command = "dunstify -a 'claude-code' 'System Alert' 'Claude Code system notification'";
+                command = "dunstify -a 'claude-code' 'コマンド実行の確認' 'Claudeがコマンドの実行を確認したいようです'";
               }
             ];
           }
@@ -28,7 +28,7 @@
             hooks = [
               {
                 type = "command";
-                command = "dunstify -a 'claude-code' 'Task Completed' 'Claude has finished processing your request'";
+                command = "dunstify -a 'claude-code' 'タスク完了' 'Claudeがあなたの依頼を完了させました!'";
               }
             ];
           }

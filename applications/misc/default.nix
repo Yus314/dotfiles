@@ -72,7 +72,6 @@
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
-    # nyxt # Another keyboard-focused browser (commented out)
     kakoune # Modal editor with multiple selections
     zotero # Reference management software
 
