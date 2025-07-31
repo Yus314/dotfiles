@@ -123,6 +123,9 @@ in
     sops
     age
     pinentry-emacs
+    # アイコンテーマ (dunst通知用)
+    adwaita-icon-theme
+    papirus-icon-theme
   ];
   programs.gnupg.agent = {
     enable = true;
