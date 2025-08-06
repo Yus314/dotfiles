@@ -100,6 +100,9 @@ in
     xwayland.enable = true;
     withUWSM = true;
   };
+  programs.niri = {
+    enable = true;
+  };
   # for use waybar
   services.pipewire = {
     enable = true;
