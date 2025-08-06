@@ -1,7 +1,17 @@
-{ pkgs, config, ... }:
+{
+  pkgs,
+  config,
+  inputs,
+  ...
+}:
 {
   programs.waybar = {
     enable = true;
+
+    # CFFI機能付きWaybarパッケージを使用
+    package = pkgs.waybar.overrideAttrs (oldAttrs: {
+      mesonFlags = oldAttrs.mesonFlags ++ [ "-Dexperimental=true" ];
+    });
 
     # Waybarをsystemdユーザーサービスとして有効化
     systemd.enable = true;
@@ -9,6 +19,8 @@
     settings = [
       # バーが一つでも、リストの要素として記述します
       {
+        mainBar.layer = "top";
+
         height = 30;
         spacing = 4;
 
@@ -34,7 +46,8 @@
         ];
 
         "modules-left" = [
-          "niri/workspaces"
+          "cffi/niri-taskbar"
+          #"niri/workspaces"  # フォールバック：CFFI失敗時に表示
         ];
 
         # --- 各モジュールの詳細設定 ---
@@ -181,10 +194,15 @@
           "on-click" = "activate";
           "all-outputs" = true;
         };
-        
+
         "niri/window" = {
           "format" = "{title}";
           "max-length" = 50;
+        };
+
+        # niri-taskbar CFFI統合設定（完全構成）
+        "cffi/niri-taskbar" = {
+          module_path = "${inputs.self.packages.${pkgs.system}.niri-taskbar}/lib/libniri_taskbar.so";
         };
       }
     ];
@@ -193,6 +211,36 @@
                 background-color: green;
                 box-shadow: inset 0 -3px #ffffff;
             }
+
+      /* niri-taskbar専用スタイル */
+      #cffi-niri-taskbar {
+        padding: 0 4px;
+        margin: 0 4px;
+      }
+
+      #cffi-niri-taskbar .unread {
+        background-color: #f39c12;
+        color: #ffffff;
+        font-weight: bold;
+      }
+
+      #cffi-niri-taskbar .notification {
+        background-color: #e74c3c;
+        color: #ffffff;
+        animation: pulse 1s infinite;
+      }
+
+      #cffi-niri-taskbar .special {
+        background-color: #9b59b6;
+        color: #ffffff;
+        font-style: italic;
+      }
+
+      @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+      }
 
       * {
           /* `otf-font-awesome` is required to be installed for icons */
