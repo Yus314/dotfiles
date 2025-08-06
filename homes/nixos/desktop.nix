@@ -11,6 +11,7 @@
     ../../applications/waybar
     ../../applications/dunst
     ../../applications/rclone
+    ../../applications/nyxt
   ];
   home.packages = with pkgs; [
     xfce.thunar
@@ -21,7 +22,6 @@
     #swayidle
     wlogout
     pinta
-    nyxt
     # Temporarily disabled due to CI issues
     # inputs.claude-desktop.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
