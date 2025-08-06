@@ -1,5 +1,6 @@
 (defvar *my-search-engines*
   (list
+   '("hm" "https://home-manager-options.extranix.com/?query=~a&release=master" "https://home-manager-options.extranix.com")
    '("en" "https://google.com/search?lr=lang_en&q=~a" "https://google.com")
    '("g" "https://google.com/search?q=~a" "https://google.com"))
   "List of search engines.")
