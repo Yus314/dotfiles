@@ -35,7 +35,7 @@ in
     })
     (mkIf cfg.zsh.enable {
       programs.zsh = {
-        dotDir = ".config/zsh";
+        dotDir = "${config.xdg.configHome}/zsh";
         history.path = "${config.xdg.stateHome}/zsh/history";
         envExtra = ''
           	  export SHELL_SESSIONS_DISABLE=1
