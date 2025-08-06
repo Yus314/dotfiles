@@ -7,7 +7,7 @@
     enable = true;
     settings = {
       # フォント
-      font = "Fira Code"; # 更新: 指定された値
+      font = "Bizin Gothic Discord NF"; # 更新: 指定された値
       # フォントサイズ
       font-size = 18;
       # テキストの色
@@ -75,7 +75,7 @@
       # ディスプレイのスケーリング設定に従うか
       scale = true;
       # ランチャーの表示位置 (center, top, bottom, left, right, top-left など)
-      anchor = "center";
+      anchor = "top";
     };
   };
   xdg.desktopEntries.wlogout = {
