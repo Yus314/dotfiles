@@ -17,7 +17,3 @@ data "sops_file" "cloudflare-secret" {
 provider "cloudflare" {
   api_token = data.sops_file.cloudflare-secret.data["api_token"]
 }
-
-
-
-
