@@ -6,7 +6,8 @@
 			"Bash(ls:*)",
 			"WebFetch(domain:github.com)",
 			"WebFetch(domain:raw.githubusercontent.com)",
-			"Bash(grep:*)"
+			"Bash(grep:*)",
+			"Bash(TERM=dumb fish -c 'echo \"\"Hello from dumb terminal\"\"')"
 		],
 		"deny": []
 	}
