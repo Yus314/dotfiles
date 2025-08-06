@@ -1,4 +1,14 @@
+{ pkgs, ... }:
+
+let
+  smartMove = import ./smart-move.nix { inherit pkgs; };
+in
 {
+  home.packages = [
+    smartMove.hyprland-smart-move-left
+    smartMove.hyprland-smart-move-right
+  ];
+
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
@@ -44,8 +54,8 @@
         "$mainMod, D, movefocus, l"
         "$mainMod, H, movefocus, d"
         "$mainMod, T, movefocus, u"
-        "$mainMod SHIFT, N, movewindow, r"
-        "$mainMod SHIFT, D, movewindow, l"
+        "$mainMod SHIFT, N, exec, hyprland-smart-move-right"
+        "$mainMod SHIFT, D, exec, hyprland-smart-move-left"
         "$mainMod SHIFT, H, movewindow, d"
         "$mainMod SHIFT, T, movewindow, u"
         "$mainMod SHIFT, Q, killactive"
@@ -58,6 +68,17 @@
         "$mainMod, 7, workspace, 7"
         "$mainMod, 8, workspace, 8"
         "$mainMod, 9, workspace, 9"
+
+        "$mainMod SHIFT, 1, movetoworkspace, 1"
+        "$mainMod SHIFT, 2, movetoworkspace, 2"
+        "$mainMod SHIFT, 3, movetoworkspace, 3"
+        "$mainMod SHIFT, 4, movetoworkspace, 4"
+        "$mainMod SHIFT, 5, movetoworkspace, 5"
+        "$mainMod SHIFT, 6, movetoworkspace, 6"
+        "$mainMod SHIFT, 7, movetoworkspace, 7"
+        "$mainMod SHIFT, 8, movetoworkspace, 8"
+        "$mainMod SHIFT, 9, movetoworkspace, 9"
+
       ];
       debug = {
         disable_logs = false;

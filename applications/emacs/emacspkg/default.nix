@@ -39,7 +39,7 @@
         ellama
         aidermacs
         claude-code-ide
-        #lsp-bridge
+        lsp-bridge
         lsp-mode
         lsp-ui
         nix-ts-mode
