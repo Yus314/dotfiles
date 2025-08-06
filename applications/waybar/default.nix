@@ -4,6 +4,9 @@
   inputs,
   ...
 }:
+let
+  niri-taskbar = pkgs.callPackage ../../pkgs/niri-taskbar { };
+in
 {
   programs.waybar = {
     enable = true;
@@ -202,7 +205,7 @@
 
         # niri-taskbar CFFI統合設定（完全構成）
         "cffi/niri-taskbar" = {
-          module_path = "${inputs.self.packages.${pkgs.system}.niri-taskbar}/lib/libniri_taskbar.so";
+          module_path = "${niri-taskbar}/lib/libniri_taskbar.so";
         };
       }
     ];
