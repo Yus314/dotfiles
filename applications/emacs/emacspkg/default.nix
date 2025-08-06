@@ -48,6 +48,7 @@
         rustic
         python-mode
         lsp-pyright
+        sly
         typst-ts-mode
         typst-preview
         terraform-mode

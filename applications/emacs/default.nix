@@ -29,6 +29,8 @@ in
       ruff
       tinymist
       terraform-ls
+      # Common Lisp
+      sbcl
     ];
   };
 }

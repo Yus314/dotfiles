@@ -923,6 +923,14 @@ Waylandでペーストできるようにする設定
   ;  (setq lsp-pyright-langserver-command "pyright")
   ;  )
 #+end_src
+** Common Lisp
+#+begin_src emacs-lisp :tangle yes
+  (require 'sly-autoloads)
+
+  (with-eval-after-load 'sly
+    (setopt inferior-lisp-program "sbcl")
+    (setopt sly-command-switch-to-existing-lisp 'always))
+#+end_src
 ** typst
 #+begin_src emacs-lisp :tangle yes
   (setq typst-ts-mode-watch-option "--open")
