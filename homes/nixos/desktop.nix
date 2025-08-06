@@ -3,6 +3,7 @@
   imports = [
     ../desktop.nix
     ../../applications/hyprland
+    ../../applications/niri
     ../../applications/sway
     ../../applications/i3
     ../../applications/tofi
