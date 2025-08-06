@@ -68,18 +68,20 @@
   "Mod+Up".action.focus-window-up = { };
   "Mod+Right".action.focus-column-right = { };
   "Mod+D".action.focus-column-left = { };
-  "Mod+S".action.focus-window-down = { };
-  "Mod+T".action.focus-window-up = { };
+  #"Mod+S".action.focus-window-down = { };
+  #"Mod+T".action.focus-window-up = { };
+  "Mod+S".action.focus-workspace-down = { };
+  "Mod+T".action.focus-workspace-up = { };
   "Mod+N".action.focus-column-right = { };
 
   "Mod+Ctrl+Left".action.move-column-left = { };
   "Mod+Ctrl+Down".action.move-window-down = { };
   "Mod+Ctrl+Up".action.move-window-up = { };
   "Mod+Ctrl+Right".action.move-column-right = { };
-  "Mod+Ctrl+D".action.move-column-left = { };
+  "Mod+Shift+D".action.move-column-left = { };
   "Mod+Ctrl+S".action.move-window-down = { };
   "Mod+Ctrl+T".action.move-window-up = { };
-  "Mod+Ctrl+N".action.move-column-right = { };
+  "Mod+Shift+N".action.move-column-right = { };
 
   # Alternative commands that move across workspaces when reaching
   # the first or last window in a column.
@@ -97,19 +99,19 @@
   "Mod+Shift+Down".action.focus-monitor-down = { };
   "Mod+Shift+Up".action.focus-monitor-up = { };
   "Mod+Shift+Right".action.focus-monitor-right = { };
-  "Mod+Shift+D".action.focus-monitor-left = { };
-  "Mod+Shift+S".action.focus-monitor-down = { };
-  "Mod+Shift+T".action.focus-monitor-up = { };
-  "Mod+Shift+N".action.focus-monitor-right = { };
+  "Mod+I".action.focus-monitor-left = { };
+  #"Mod+Shift+S".action.focus-monitor-down = { };
+  #"Mod+Shift+".action.focus-monitor-up = { };
+  "Mod+U".action.focus-monitor-right = { };
 
   "Mod+Shift+Ctrl+Left".action.move-column-to-monitor-left = { };
   "Mod+Shift+Ctrl+Down".action.move-column-to-monitor-down = { };
   "Mod+Shift+Ctrl+Up".action.move-column-to-monitor-up = { };
   "Mod+Shift+Ctrl+Right".action.move-column-to-monitor-right = { };
-  "Mod+Shift+Ctrl+D".action.move-column-to-monitor-left = { };
+  "Mod+Shift+I".action.move-column-to-monitor-left = { };
   "Mod+Shift+Ctrl+S".action.move-column-to-monitor-down = { };
   "Mod+Shift+Ctrl+T".action.move-column-to-monitor-up = { };
-  "Mod+Shift+Ctrl+N".action.move-column-to-monitor-right = { };
+  "Mod+Shift+U".action.move-column-to-monitor-right = { };
 
   # Alternatively, there are commands to move just a single window:
   # Mod+Shift+Ctrl+Left  { move-window-to-monitor-left; }
@@ -121,8 +123,8 @@
 
   "Mod+Page_Down".action.focus-workspace-down = { };
   "Mod+Page_Up".action.focus-workspace-up = { };
-  "Mod+U".action.focus-workspace-down = { };
-  "Mod+I".action.focus-workspace-up = { };
+  #"Mod+U".action.focus-workspace-down = { };
+  #"Mod+I".action.focus-workspace-up = { };
   "Mod+Ctrl+Page_Down".action.move-column-to-workspace-down = { };
   "Mod+Ctrl+Page_Up".action.move-column-to-workspace-up = { };
   "Mod+Ctrl+U".action.move-column-to-workspace-down = { };
@@ -134,8 +136,8 @@
 
   "Mod+Shift+Page_Down".action.move-workspace-down = { };
   "Mod+Shift+Page_Up".action.move-workspace-up = { };
-  "Mod+Shift+U".action.move-workspace-down = { };
-  "Mod+Shift+I".action.move-workspace-up = { };
+  #"Mod+Shift+U".action.move-workspace-down = { };
+  #"Mod+Shift+I".action.move-workspace-up = { };
 
   # You can bind mouse wheel scroll ticks using the following syntax.
   # These binds will change direction based on the natural-scroll setting.

@@ -1,7 +1,11 @@
-{ pkgs, inputs, ... }:
+{
+  pkgs,
+  inputs,
+  lib,
+  ...
+}:
 let
   defaultKeyBind = import ./defaultKeyBind.nix;
-  luncher = "tofi-drun --drun-launch=true";
 in
 {
   imports = [
@@ -53,6 +57,7 @@ in
 
       environment = {
         "NIXOS_OZONE_WL" = "1";
+        "DISPLAY" = ":0";
       };
 
       # 自動起動プログラム
@@ -64,9 +69,10 @@ in
           ];
         }
         {
-          command = [ "waybar" ];
+          command = [ "${lib.getExe pkgs.xwayland-satellite}" ];
         }
       ];
+      prefer-no-csd = true;
     };
   };
 }
