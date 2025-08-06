@@ -4,8 +4,15 @@
   { pkgs ? import <nixpkgs> {} }:
   pkgs.mkShell { buildInputs = with pkgs; [ plantuml jdk]; }
   #+END_SRC
+  #+begin_src shell :nix-shell tmp-shell :results output
+    echo $(which plantuml)
+  #+end_src
+
+  #+RESULTS:
+  : /nix/store/crq5hjas8w133cx8zf9pim5sy4pw096n-plantuml-1.2025.4/bin/plantuml
+
 #+begin_src elisp :nix-shell tmp-shell :results output
-  (setq org-plantuml-jar-path "/nix/store/03nh9m73gwwj477yralnsw70igwswfi5-plantuml-1.2025.3/lib/plantuml.jar")
+  (setq org-plantuml-jar-path "/nix/store/crq5hjas8w133cx8zf9pim5sy4pw096n-plantuml-1.2025.4/lib/plantuml.jar")
 #+end_src
 * ゴールモデル
 
@@ -1043,13 +1050,20 @@
 
 ***** 問題点、改善案、タスク、アイディアを管理する
 - 目的、意図:
-   発見された問題や改善アイデアを体系的に管理し、継続的な改善サイクルを実現する。
+   日々の作業中にEmacsで発見された問題や改善アイデアを、思考を中断することなく即座に捉え、体系的に管理することを目指す。具体的には、使い慣れた`org-capture`を用いてタスクを記録し、それを自動的にGitHub Issueとして登録する。これにより、Emacs内でのタスク管理と、プロジェクト全体の課題管理をシームレスに連携させ、継続的な改善サイクルを実現する。
 - 達成基準:
-  - 課題の体系的な分類と管理
-  - 進捗状況の可視化
+  - Emacsの`org-capture`でこのリポジトリに関するタスクをキャプチャした際、対応するGitHub Issueが自動的に作成される。
+  - orgファイル内のタスクのTODOステータス（例: `TODO`, `IN_PROGRESS`, `DONE`）を変更すると、連携するGitHub Issueのステータス（例: `open`, `closed`）やラベルが自動的に更新される。
+  - orgタスクとGitHub Issueの間に双方向のリンクが設定され、相互に参照・ナビゲーションが可能になる。
+  - Emacsから離れることなく、タスクの登録から進捗管理までを一貫して行える。
 - 現在の状況:
   - 達成状況: 未達成
-  - 現状: GitHub Issuesの基本的な活用はあるが、体系的な運用は未整備
+  - 現状: GitHub Issuesの基本的な活用はあるが、Emacsとの連携は確立されておらず、タスクの登録や進捗の同期は手動で行っている。体系的な運用は未整備。
+- 実装方針案:
+  - Emacs Lispを用いて`org-capture`のテンプレートとフックをカスタマイズする。
+  - `forge` (Magitのコンポーネント) や `gh.el` といったパッケージを利用して、GitHub APIとの連携を行う。
+  - `org-capture`完了後のフックで、Issue作成用の非同期関数を呼び出す。
+  - `org-after-todo-state-change-hook`を利用して、ステータス変更時にGitHub Issueを更新する処理を実装する。
 
 **** 設計と知見を記録し、道筋を見失わないようにする
 - 目的、意図:
@@ -1090,7 +1104,7 @@
 - 現在の状況:
   - 達成状況: 部分的達成
   - 現状: 基本的な記録体制は存在するが、体系化が不十分
-    
+
 * エージェント分析
 ** エージェント分類
 
@@ -1151,7 +1165,7 @@
 *** Claude Code
 - 担当ゴール: 32. ディレクトリを読ませる
 
-*** Github Issue
+*** Emacs (org-capture, forge/gh.el) & GitHub Issues
 - 担当ゴール: 35. 問題点、改善案、タスク、アイディアを管理する
 
 
@@ -1328,10 +1342,18 @@
 - 出力: 更新通知、メール、Issue作成
 
 *** 37. 問題点、改善案、タスク、アイディアを管理する
-- エージェント: Github Issue
-- インターフェース：org-capture、GitHub
-- 入力: 問題報告、改善アイデア、タスク要求、プロジェクト情報
-- 出力: 管理されたIssue、タスクリスト、進捗状況
+- エージェント: Emacs (org-capture, forge/gh.el) & GitHub Issues
+- インターフェース：org-capture UI、GitHub API
+- 入力: org-captureによるタスク情報（タイトル、本文、プロパティ）、TODOステートの変更
+- 出力: 作成・更新されたGitHub Issue、orgファイル内のタスクに付与されたIssueリンク
+- 事前条件: GitHub Issuesは存在するが、Emacsからのタスク登録や状態同期は手動。
+- 事後条件: Emacsでキャプチャしたタスクが自動でGitHub Issueとして登録され、orgファイル上のTODOステータスの変更がIssueの状態に自動で反映される。
+- 手順:
+  1. `org-capture`のテンプレートを設定し、Issue作成に必要な情報をプロパティとして入力できるようにする。
+  2. `org-capture-after-finalize-hook`に関数を追加し、キャプチャ完了時に`forge`や`gh.el`を通じて非同期でGitHub Issueを作成する。
+  3. 作成されたIssueのURLやIDを、キャプチャしたorgタスクのプロパティに自動で追記する。
+  4. `org-after-todo-state-change-hook`に関数を追加し、ステータス変更を検知する。
+  5. フック関数内で、タスクのプロパティから対応するGitHub Issueを特定し、状態（open/closed）やラベルをAPI経由で更新する。
 
 *** 38. 要求を文書化する
 - エージェント: kaki

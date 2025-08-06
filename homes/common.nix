@@ -1,13 +1,19 @@
 {
+  inputs,
   pkgs,
+  config,
   ...
 }:
+let
+  inherit (inputs) sops-nix;
+in
 {
   programs.home-manager.enable = true;
   home = {
     stateVersion = "25.05";
   };
   imports = [
+    sops-nix.homeManagerModules.sops
     ../modules/home-manager
     ../applications/emacs
     ../applications/emacs/service.nix
@@ -26,6 +32,8 @@
     ../applications/gnupg
     ../applications/bash
     ../applications/less
+    ../applications/claude-code
+    ../applications/mcp
     ../applications/vim
   ];
   services.gpg-agent = {
@@ -42,6 +50,7 @@
     '';
   };
 
+  sops.age.keyFile = "${config.xdg.configHome}/sops/age/keys.txt";
   home.preferXdgDirectories = true;
 
   programs.fish = {

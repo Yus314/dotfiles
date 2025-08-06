@@ -39,7 +39,7 @@
         ellama
         aidermacs
         claude-code-ide
-        #lsp-bridge
+        lsp-bridge
         lsp-mode
         lsp-ui
         nix-ts-mode
@@ -48,6 +48,7 @@
         rustic
         python-mode
         lsp-pyright
+        sly
         typst-ts-mode
         typst-preview
         terraform-mode

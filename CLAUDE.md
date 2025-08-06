@@ -53,9 +53,12 @@ make aarch64-darwin  # aarch64-darwinシステムをビルド
 ### システム管理
 
 ```bash
-# システム設定を切り替え
-nh os switch -H {hostname}        # NixOS用 例: nh os switch -H lawliet
-nh darwin switch -H {hostname}    # macOS/Darwin用 例: nh darwin switch -H watari
+# システム設定を切り替え（sudoによる権限昇格が必要）
+nh os switch . -H {hostname}        # NixOS用 例: nh os switch . -H lawliet
+nh darwin switch . -H {hostname}    # macOS/Darwin用 例: nh darwin switch . -H watari
+
+# 注意: switchコマンドは実行中にsudoによる管理者権限が必要になります
+# Claude Codeからは権限昇格ができないため、ユーザーが手動で実行してください
 
 # Nixをインストール (存在しない場合)
 make install_nix
@@ -130,17 +133,6 @@ sudo darwin-rebuild build --flake .#watari
 - **CI/CD検証**: GitHub Actionsはすべての変更に対してチェックとビルドを実行します
 
 <<<<<<< HEAD
-When committing changes, pre-commit hooks may automatically format files. If this happens:
-1. The formatted changes will be applied automatically
-2. Accept these formatting changes as they maintain code consistency
-3. The commit will proceed with the formatted code
-
-## Commit Message Convention
-
-This repository follows [Conventional Commits](https://www.conventionalcommits.org/) specification for commit messages:
-
-### Format
-=======
 変更をコミットする際、pre-commitフックが自動的にファイルをフォーマットする場合があります。この場合：
 1. フォーマットされた変更が自動的に適用されます
 2. コードの一貫性を保つため、これらのフォーマット変更を受け入れてください
@@ -151,7 +143,10 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
 このリポジトリでは**Conventional Commits**規約を採用しています：
 
 ### 基本形式
+<<<<<<< HEAD
 >>>>>>> 1f5a47d5913f1e194407ef5d38c9a49f527acb21
+=======
+>>>>>>> 5f17e8edd2b159c048d5e9e457ac38fda977ecfa
 ```
 <type>[optional scope]: <description>
 
@@ -161,26 +156,6 @@ This repository follows [Conventional Commits](https://www.conventionalcommits.o
 ```
 
 <<<<<<< HEAD
-### Types
-- **feat**: A new feature
-- **fix**: A bug fix
-- **docs**: Documentation only changes
-- **style**: Changes that do not affect the meaning of the code (white-space, formatting, etc)
-- **refactor**: A code change that neither fixes a bug nor adds a feature
-- **perf**: A code change that improves performance
-- **test**: Adding missing tests or correcting existing tests
-- **build**: Changes that affect the build system or external dependencies
-- **ci**: Changes to CI configuration files and scripts
-- **chore**: Other changes that don't modify src or test files
-
-### Examples
-```
-feat(applications): add neovim LSP configuration
-fix(systems): resolve SSH key permission issue
-docs: update installation instructions
-chore(deps): update flake.lock dependencies
-```
-=======
 ### 主要なタイプ
 - **feat**: 新機能
 - **fix**: バグ修正
@@ -206,8 +181,11 @@ chore(flake): update nixpkgs to latest unstable
 - `modules`: カスタムモジュール
 - `pkgs`: カスタムパッケージ
 - `infra`: インフラストラクチャ設定
+<<<<<<< HEAD
 
 ### 重要な注意事項
 - **共著者の記載**: このリポジトリではClaude Codeを共著者として記載しません
 - コミットメッセージには「🤖 Generated with Claude Code」や「Co-Authored-By: Claude」などの記載を追加しないでください
 >>>>>>> 1f5a47d5913f1e194407ef5d38c9a49f527acb21
+=======
+>>>>>>> 5f17e8edd2b159c048d5e9e457ac38fda977ecfa

@@ -78,7 +78,8 @@ in
               specialArgs = {
                 inherit self inputs;
                 inherit (cfg) username;
-              } // cfg.specialArgs;
+              }
+              // cfg.specialArgs;
             }
             // {
               inherit (cfg) system;

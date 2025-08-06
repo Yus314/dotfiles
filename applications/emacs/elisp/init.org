@@ -168,8 +168,8 @@ Waylandでペーストできるようにする設定
   	)
         )
 #+end_src
-** perfect-mergin
-#+begin_src emacs-lisp :tangle yes 
+** perfect-margin
+#+begin_src emacs-lisp :tangle yes
   (add-hook 'emacs-startup-hook #'perfect-margin-mode)
   (autoload 'perfect-margin-mode "perfect-margin" nil t)
   (with-eval-after-load 'perfect-margin
@@ -356,7 +356,7 @@ Waylandでペーストできるようにする設定
        '("U" . meow-undo-in-selection)
                                          ;'("v" . meow-visit)
        '("v i" . meow-inner-of-thing) ;; Inner
-     '("v a" . meow-bounds-of-thing) ;; Arround
+     '("v a" . meow-bounds-of-thing) ;; Around
       '("v b" . meow-block) ;; Block
       '("v c" . puni-mark-list-around-point) ;; Contents
        '("v x" . puni-mark-sexp-around-point) ;; eXpression
@@ -379,7 +379,7 @@ Waylandでペーストできるようにする設定
     (meow-global-mode)
     )
   ;(add-hook 'emacs-startup-hook #'meow-global-mode)
-  ;     
+  ;
   ;(autoload 'meow-global-mode "meow" nil t)
   ;(with-eval-after-load 'meow
   ;   (meow-normal-define-key
@@ -463,7 +463,7 @@ Waylandでペーストできるようにする設定
   ;       '("U" . meow-undo-in-selection)
                                            ;'("v" . meow-visit)
   ;       '("v i" . meow-inner-of-thing) ;; Inner
-  ;     '("v a" . meow-bounds-of-thing) ;; Arround
+  ;     '("v a" . meow-bounds-of-thing) ;; Around
   ;      '("v b" . meow-block) ;; Block
   ;      '("v c" . puni-mark-list-around-point) ;; Contents
   ;       '("v x" . puni-mark-sexp-around-point) ;; eXpression
@@ -480,7 +480,7 @@ Waylandでペーストできるようにする設定
   ;       '("z" . meow-pop-selection)
   ;       '("'" . repeat)
         ;'("g" . avy-goto-char-timer)
-  ;       )   
+  ;       )
   ;  )
 #+end_src
 ** puni
@@ -511,7 +511,7 @@ Waylandでペーストできるようにする設定
     (keymap-set vundo-mode-map "s" 'vundo-next)
     (keymap-set vundo-mode-map "t" 'vundo-previous)
     (keymap-set vundo-mode-map "b" 'vundo-diff)
-    ) 
+    )
 
 #+end_src
 ** dmacro
@@ -612,40 +612,40 @@ Waylandでペーストできるようにする設定
 * 入力補完
 ** corfu
 #+begin_src emacs-lisp :tangle yes
-  (autoload-if-found '(global-corfu-mode) "corfu" nil t)
-  (autoload-if-found '(corfu-popupinfo-mode) "corfu-popupinfo" nil t)
-  		   
-  (add-hook 'emacs-startup-hook #'global-corfu-mode)
+;  (autoload-if-found '(global-corfu-mode) "corfu" nil t)
+;  (autoload-if-found '(corfu-popupinfo-mode) "corfu-popupinfo" nil t)
 
-  (with-eval-after-load 'corfu
-  (setq corfu-auto  t)
-  (setq corfu-auto-delay  0)
-  (setq corfu-popupinfo-delay  0)
-  (setq corfu-quit-no-match  'separator)
-  (setq corfu-auto-prefix  1)
-  (setq corfu-cycle  t)
-  (setq corfu-quit-at-boundary nil)
-  (setq text-mode-ispell-word-completion  nil)
-  (setq tab-always-indent  'complete)
-  (corfu-popupinfo-mode)
-  (keymap-unset corfu-map "RET")
-  (keymap-unset corfu-map "<up>")
-  (keymap-unset corfu-map "<remap> <next-line>")
-  (keymap-unset corfu-map "<remap> <previous-line>")
-  (keymap-unset corfu-map "<down>")
-  (keymap-set corfu-map "C-n" 'corfu-next)
-  (keymap-set corfu-map "C-p" 'corfu-previous)
-  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
-  )
+;  (add-hook 'emacs-startup-hook #'global-corfu-mode)
+
+;  (with-eval-after-load 'corfu
+;  (setq corfu-auto  t)
+;  (setq corfu-auto-delay  0)
+;  (setq corfu-popupinfo-delay  0)
+;  (setq corfu-quit-no-match  'separator)
+;  (setq corfu-auto-prefix  1)
+;  (setq corfu-cycle  t)
+;  (setq corfu-quit-at-boundary nil)
+;  (setq text-mode-ispell-word-completion  nil)
+;  (setq tab-always-indent  'complete)
+;  (corfu-popupinfo-mode)
+;  (keymap-unset corfu-map "RET")
+;  (keymap-unset corfu-map "<up>")
+;  (keymap-unset corfu-map "<remap> <next-line>")
+;  (keymap-unset corfu-map "<remap> <previous-line>")
+;  (keymap-unset corfu-map "<down>")
+;  (keymap-set corfu-map "C-n" 'corfu-next)
+;  (keymap-set corfu-map "C-p" 'corfu-previous)
+;  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+;  )
 #+end_src
 ** cape
 #+begin_src emacs-lisp :tangle yes
-  (autoload-if-found '(cape-file cape-keyword) "cape" nil t)
+;  (autoload-if-found '(cape-file cape-keyword) "cape" nil t)
 
-  (with-eval-after-load 'minibuffer
-    (add-to-list 'completion-at-point-functions #'cape-file)
+;  (with-eval-after-load 'minibuffer
+;    (add-to-list 'completion-at-point-functions #'cape-file)
     ;(add-to-list 'completion-at-point-functions #'cape-keyword)
-    )
+;    )
 #+end_src
 * キーバインディング
 #+begin_src emacs-lisp :tangle yes
@@ -732,42 +732,42 @@ Waylandでペーストできるようにする設定
 #+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes
-   ; (add-hook 'emacs-startup-hook #'global-lsp-bridge-mode)
-   ; (autoload 'global-lsp-bridge-mode "lsp-bridge")
-   ; (with-eval-after-load 'lsp-bridge
-   ;   (yas-global-mode)
-   ;   (setq lsp-bridge-nix-lsp-server "nil")
-   ;   (setq lsp-bridge-enable-with-tramp t)
-   ;   (setq lsp-bridge-remote-start-automatically t)
-   ;   (setq lsp-bridge-enable-search-words nil)
-   ;   (setq lsp-bridge-auto-format-code t)
-   ;   (setq lsp-bridge-auto-format-code-idle 10)
-   ;   (setq lsp-bridge-enable-org-babel t)
-   ;   (setq lsp-bridge-enable-hover-diagnostic t)
-   ;   (setq acm-enable-tabnine nil)
-   ;   (setq acm-enable-search-file-words nil)
-   ;   (setq acm-enable-ctag nil)
-   ;   (setq acm-enable-telega nil)
+    (add-hook 'emacs-startup-hook #'global-lsp-bridge-mode)
+    (autoload 'global-lsp-bridge-mode "lsp-bridge")
+    (with-eval-after-load 'lsp-bridge
+      (yas-global-mode)
+      (setq lsp-bridge-nix-lsp-server "nil")
+      (setq lsp-bridge-enable-with-tramp t)
+      (setq lsp-bridge-remote-start-automatically t)
+      (setq lsp-bridge-enable-search-words nil)
+      (setq lsp-bridge-auto-format-code t)
+      (setq lsp-bridge-auto-format-code-idle 10)
+      (setq lsp-bridge-enable-org-babel t)
+      (setq lsp-bridge-enable-hover-diagnostic t)
+      (setq acm-enable-tabnine nil)
+      (setq acm-enable-search-file-words nil)
+      (setq acm-enable-ctag nil)
+      (setq acm-enable-telega nil)
    ;   (setq lsp-bridge-log-level "debug")
-   ;   )
+      )
 #+end_src
 * lsp-mode
 #+begin_src emacs-lisp :tangle yes
-  (autoload-if-found '(lsp lsp-deferred lsp-org lsp-register-client make-lsp-client) "lsp-mode" nil t)
-  (autoload-if-found '(lsp-lens-mode lsp-lens-refresh lsp-lens--enable) "lsp-lens" nil t)
-  (autoload-if-found '(lsp-modeline-workspace-status-mode lsp-modeline-code-actions-mode) "lsp-modeline" nil t)
-  (autoload-if-found '(lsp-headerline-breadcrumb-mode) "lsp-headerline" nil t)
-  (autoload-if-found '(lsp-diagnostics-mode) "lsp-diagnostics" nil t)
+;  (autoload-if-found '(lsp lsp-deferred lsp-org lsp-register-client make-lsp-client) "lsp-mode" nil t)
+;  (autoload-if-found '(lsp-lens-mode lsp-lens-refresh lsp-lens--enable) "lsp-lens" nil t)
+;  (autoload-if-found '(lsp-modeline-workspace-status-mode lsp-modeline-code-actions-mode) "lsp-modeline" nil t)
+;  (autoload-if-found '(lsp-headerline-breadcrumb-mode) "lsp-headerline" nil t)
+;  (autoload-if-found '(lsp-diagnostics-mode) "lsp-diagnostics" nil t)
 
-   (with-eval-after-load 'lsp-mode
-     (setq lsp-completion-provider :none)
-     (autoload 'lsp-lens-mode "lsp-lens" nil t)
-     (autoload 'lsp-lens--enable "lsp-lens" nil t)
-          (defun my-lsp-mode-setup ()
-         "LSP利用時に追加の補完設定を行う"
-         (add-hook 'completion-at-point-functions #'cape-file nil t))
-  	     (add-hook 'lsp-mode-hook #'my-lsp-mode-setup)
-   )
+;   (with-eval-after-load 'lsp-mode
+;     (setq lsp-completion-provider :none)
+;     (autoload 'lsp-lens-mode "lsp-lens" nil t)
+;     (autoload 'lsp-lens--enable "lsp-lens" nil t)
+;          (defun my-lsp-mode-setup ()
+;         "LSP利用時に追加の補完設定を行う"
+;         (add-hook 'completion-at-point-functions #'cape-file nil t))
+;  	     (add-hook 'lsp-mode-hook #'my-lsp-mode-setup)
+;   )
 
   ;(use-package lsp-mode
   ;  :custom
@@ -779,45 +779,45 @@ Waylandでペーストできるようにする設定
   ;  補完をorderlessで絞れるようにする
   ;  ;(lsp-completion-mode-hook . (lambda ()
   ;				(setq-local completion-category-defaults
-  ;					    (assoc-delete-all 'lsp-capf completion-category-defaults))))
+  ;					    (assoc-delete-all 'lsp-capf completion-category-defaults)));)
   ;  )
 
-  (defun lsp-booster--advice-json-parse (old-fn &rest args)
+;  (defun lsp-booster--advice-json-parse (old-fn &rest args)
   					; "Try to parse bytecode instead of json."
-    (or
-     (when (equal (following-char) ?#)
-       (let ((bytecode (read (current-buffer))))
-         (when (byte-code-function-p bytecode)
-           (funcall bytecode))))
-     (apply old-fn args)))
-  (advice-add (if (progn (require 'json)
-                         (fboundp 'json-parse-buffer))
-                  'json-parse-buffer
-                'json-read)
-              :around
-              #'lsp-booster--advice-json-parse);
+;    (or
+;     (when (equal (following-char) ?#)
+;       (let ((bytecode (read (current-buffer))))
+;         (when (byte-code-function-p bytecode)
+;           (funcall bytecode))))
+;     (apply old-fn args)))
+;  (advice-add (if (progn (require 'json)
+;                         (fboundp 'json-parse-buffer))
+;                  'json-parse-buffer
+;                'json-read)
+;              :around
+;              #'lsp-booster--advice-json-parse);
 
-  (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
-    "Prepend emacs-lsp-booster command to lsp CMD."
-    (let ((orig-result (funcall old-fn cmd test?)))
-      (if (and (not test?)                             ;; for check lsp-server-present?
-               (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
-               lsp-use-plists
-               (not (functionp 'json-rpc-connection))  ;; native json-rpc
-               (executable-find "emacs-lsp-booster"))
-          (progn
-            (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
-              (setcar orig-result command-from-exec-path))
-            (message "Using emacs-lsp-booster for %s!" orig-result)
-            (cons "emacs-lsp-booster" orig-result))
-        orig-result)))
-  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+;  (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+;    "Prepend emacs-lsp-booster command to lsp CMD."
+;    (let ((orig-result (funcall old-fn cmd test?)))
+;      (if (and (not test?)                             ;; for check lsp-server-present?
+;               (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+;               lsp-use-plists
+;               (not (functionp 'json-rpc-connection))  ;; native json-rpc
+;               (executable-find "emacs-lsp-booster"))
+;          (progn
+;            (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
+;              (setcar orig-result command-from-exec-path))
+;            (message "Using emacs-lsp-booster for %s!" orig-result)
+;            (cons "emacs-lsp-booster" orig-result))
+;        orig-result)))
+;  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 #+end_src
 * lsp-ui
 #+begin_src emacs-lisp :tangle yes
-  (autoload 'lsp-ui-mode "lsp-ui" nil t)
-  (with-eval-after-load 'lsp-mode
-    (add-hook 'lsp-mode-hook #'lsp-ui-mode))
+;  (autoload 'lsp-ui-mode "lsp-ui" nil t)
+;  (with-eval-after-load 'lsp-mode
+;    (add-hook 'lsp-mode-hook #'lsp-ui-mode))
 #+end_src
 * tmampのread-only問題への対処
 #+begin_src emacs-lisp :tangle yes
@@ -840,9 +840,9 @@ Waylandでペーストできるようにする設定
   ;  )
   (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
   (autoload 'nix-ts-mode "nix-ts-mode" nil t)
-  (with-eval-after-load 'nix-ts-mode
-    (add-hook 'nix-ts-mode-hook 'lsp)
-   )
+ ; (with-eval-after-load 'nix-ts-mode
+ ;   (add-hook 'nix-ts-mode-hook 'lsp)
+ ;  )
 #+end_src
 ** yaml
 #+begin_src emacs-lisp :tangle yes
@@ -868,32 +868,32 @@ Waylandでペーストできるようにする設定
         ;(rust-mode-hook  lsp)
     ;    )
     ; (add-hook 'rust-mode-hook 'eglot-ensure)
-     (defun my/find-rust-project-root (dir)
-        (when-let ((root (locate-dominating-file dir "Cargo.toml")))
-          (list 'vc 'Git root)))
+;     (defun my/find-rust-project-root (dir)
+;        (when-let ((root (locate-dominating-file dir "Cargo.toml")))
+;          (list 'vc 'Git root)))
 
-     (defun my/rust-mode-hook ()
-       (setq-local project-find-functions (list #'my/find-rust-project-root)))
+;     (defun my/rust-mode-hook ()
+;       (setq-local project-find-functions (list #'my/find-rust-project-root)))
 
-     (add-hook 'rustic-mode-hook #'my/rust-mode-hook)
+;     (add-hook 'rustic-mode-hook #'my/rust-mode-hook)
     ;(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
     ;(require 'rust-mode)
     ;(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
     ;(setq rust-mode-treesitter-derive t)
     ;(with-eval-after-load 'rust-mode
-    (require 'rust-mode)
-    (require 'inheritenv)
-    (setq rust-mode-treesitter-derive t)
-    (with-eval-after-load 'inheritenv
-     (inheritenv-add-advice #'rustic-compilation)
-      (require 'rustic nil t)
-      (require 'flycheck)
-      (setq rustic-format-on-save t)
-      (setq rustic-lsp-client nil)
-      (add-hook 'rustic-mode-hook 'lsp)
-      (push 'rustic-clippy flycheck-checkers)
-  (add-hook 'rustic-mode-hook 'flycheck-mode)
-      )
+  ;  (require 'rust-mode)
+  ;  (require 'inheritenv)
+  ;  (setq rust-mode-treesitter-derive t)
+  ;  (with-eval-after-load 'inheritenv
+  ;   (inheritenv-add-advice #'rustic-compilation)
+  ;    (require 'rustic nil t)
+  ;    (require 'flycheck)
+  ;    (setq rustic-format-on-save t)
+  ;    (setq rustic-lsp-client nil)
+  ;    ;(add-hook 'rustic-mode-hook 'lsp)
+  ;    (push 'rustic-clippy flycheck-checkers)
+  ;(add-hook 'rustic-mode-hook 'flycheck-mode)
+  ;    )
 #+end_src
 ** Python
 #+begin_src emacs-lisp :tangle yes
@@ -906,7 +906,7 @@ Waylandでペーストできるようにする設定
  ;  (autoload 'python-mode "python-mode" nil t)
  ; (autoload 'python-ts-mode "python-mode" nil t)
  ;  (add-to-list 'auto-mode-alist '("\\.py$" . python-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+ ; (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
   ; (add-hook 'python-ts-mode-hook (lambda ()
   ; 				  (require 'lsp-pyright)
   ; 				  (lsp)))
@@ -915,13 +915,21 @@ Waylandでペーストできるようにする設定
   ;   :hook (python-ts-mode . (lambda ()
   ;                           (require 'lsp-pyright)
   ;                           (lsp))))  ; or lsp-deferred
-    (add-hook 'python-ts-mode-hook
-  	    (lambda ()
-  	      (require 'lsp-pyright)
-  	      (lsp)))
-  (with-eval-after-load 'lsp-pyright
-    (setq lsp-pyright-langserver-command "pyright")
-    )
+  ;  (add-hook 'python-ts-mode-hook
+ ; 	    (lambda ()
+  ;	      (require 'lsp-pyright)
+  ;	      (lsp)))
+  ;(with-eval-after-load 'lsp-pyright
+  ;  (setq lsp-pyright-langserver-command "pyright")
+  ;  )
+#+end_src
+** Common Lisp
+#+begin_src emacs-lisp :tangle yes
+  (require 'sly-autoloads)
+
+  (with-eval-after-load 'sly
+    (setopt inferior-lisp-program "sbcl")
+    (setopt sly-command-switch-to-existing-lisp 'always))
 #+end_src
 ** typst
 #+begin_src emacs-lisp :tangle yes
@@ -935,7 +943,7 @@ Waylandでペーストできるようにする設定
   (add-to-list 'auto-mode-alist '("\\.tf\\'" . terraform-mode))
   (autoload 'terraform-mode "terraform-mode" nil t)
   (with-eval-after-load 'terraform-mode
-    (add-hook 'torraform-mode-hook 'lsp)
+  ;  (add-hook 'torraform-mode-hook 'lsp)
    )
 #+end_src
 ** plantuml
@@ -1003,17 +1011,17 @@ Waylandでペーストできるようにする設定
     (setq org-agenda-start-on-weekday  nil); agendaの日々の始まりを今日に
     (setq org-agenda-start-day  "today")
     (setq org-agenda-skip-scheduled-if-done  '("DONE" "CANCEL"));スケジュールでDONEとCANCELを無視するようにする
-    
+
     (defun my/org-archive-to-trash ()
       "Move the current subtree to ~/dropbox/trash.org instead of the default archive location"
       (interactive)
       (let ((org-archive-location "~/dropbox/trash.org::"))
         (org-agenda-archive)))
-    
+
     (keymap-set org-agenda-mode-map "t" 'org-agenda-previous-item)
     (keymap-set org-agenda-mode-map "s" 'org-agenda-next-item)
     (keymap-set org-agenda-mode-map "e" 'org-agenda-todo)
-    (define-key org-agenda-mode-map (kbd "#") 'my/org-archive-to-trash)  
+    (define-key org-agenda-mode-map (kbd "#") 'my/org-archive-to-trash)
     )
 #+end_src
 ** org-super-agenda
@@ -1462,7 +1470,7 @@ Waylandでペーストできるようにする設定
   					;    (add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
   (add-hook 'emacs-startup-hook #'pdf-tools-install)
   #+end_src
-* MisTTY
+* mistty
 #+begin_src emacs-lisp :tangle yes
     (use-package mistty
       :custom
@@ -1560,7 +1568,7 @@ Waylandでペーストできるようにする設定
   					;	 ("C-t" . gt-do-translate)
   					;	 )
       )
-    
+
 #+end_src
 * reinbow-delimiters
 #+begin_src emacs-lisp :tangle yes
@@ -1585,7 +1593,7 @@ Waylandでペーストできるようにする設定
 #+begin_src emacs-lisp :tangle yes
   (autoload 'apheleia-global-mode "apheleia")
   (apheleia-global-mode)
-  (setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)  
+  (setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)
 #+end_src
 * aggressive-inden
 * プログラミング支援
@@ -1661,12 +1669,13 @@ Waylandでペーストできるようにする設定
   ;  (inheritenv-add-advice #'rustic-compilation))
 #+end_src
 
-** tramp
+* tramp
 #+begin_src emacs-lisp :tangle yes
   ;(with-eval-after-load "tramp"
   ;  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
   ;  )
   ;(add-to-list 'tramp-remote-path "/run/current-system/sw/bin")
+  (customize-set-variable 'tramp-use-connection-share nil)
   (setq tramp-verbose 6)
   (require 'tramp-sh)
   (setq tramp-remote-path
@@ -1704,7 +1713,7 @@ Waylandでペーストできるようにする設定
     (setq vterm-toggle-scope 'project)
     )
   (with-eval-after-load 'vterm
-    (setq vterm-tramp-shells  '(("ssh" "'fish'") ("scp" login-shell) ("docker" "/bin/sh")))  
+    (setq vterm-tramp-shells  '(("ssh" "'fish'") ("scp" login-shell) ("docker" "/bin/sh")))
     (keymap-set vterm-mode-map "C-c C-c" 'vterm--self-insert)
     )
   (keymap-global-set "M-v" #'vterm-toggle)

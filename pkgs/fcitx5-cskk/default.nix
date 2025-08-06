@@ -30,17 +30,17 @@ stdenv.mkDerivation rec {
     extra-cmake-modules
     pkg-config
     gettext
-  ] ++ lib.optional enableQt wrapQtAppsHook;
+  ]
+  ++ lib.optional enableQt wrapQtAppsHook;
 
-  buildInputs =
-    [
-      fcitx5
-      cskk
-    ]
-    ++ lib.optionals enableQt [
-      fcitx5-qt
-      qtbase
-    ];
+  buildInputs = [
+    fcitx5
+    cskk
+  ]
+  ++ lib.optionals enableQt [
+    fcitx5-qt
+    qtbase
+  ];
 
   #dontWrapQtApps = true;
 

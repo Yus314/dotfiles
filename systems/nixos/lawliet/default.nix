@@ -29,6 +29,12 @@ in
   hardware.bluetooth.powerOnBoot = true;
   services.blueman.enable = true;
 
+  # for bluetooth receiver
+  hardware.enableRedistributableFirmware = true;
+  hardware.firmware = [ pkgs.rtl8761b-firmware ];
+
+  fileSystems."/persistent".neededForBoot = true;
+
   services.openssh = {
     enable = true;
   };
@@ -94,6 +100,9 @@ in
     xwayland.enable = true;
     withUWSM = true;
   };
+  programs.niri = {
+    enable = true;
+  };
   # for use waybar
   services.pipewire = {
     enable = true;
@@ -117,6 +126,9 @@ in
     sops
     age
     pinentry-emacs
+    # アイコンテーマ (dunst通知用)
+    adwaita-icon-theme
+    papirus-icon-theme
   ];
   programs.gnupg.agent = {
     enable = true;

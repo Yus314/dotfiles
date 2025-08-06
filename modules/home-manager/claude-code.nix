@@ -10,6 +10,20 @@ let
   settingsFormat = pkgs.formats.json { };
 
   settingsFile = settingsFormat.generate "settings.json" cfg.settings;
+
+  # シンプルな読み込み処理
+  loadCommands =
+    dir:
+    let
+      entries = builtins.readDir dir;
+      markdownFiles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".md" name) entries;
+    in
+    lib.mapAttrs' (file: _: {
+      name = lib.removeSuffix ".md" file;
+      value = builtins.readFile (dir + "/${file}");
+    }) markdownFiles;
+
+  allCommands = loadCommands cfg.commandsDirectory;
 in
 {
   options.my.programs.claude-code = {
@@ -102,6 +116,15 @@ in
       default = { };
       description = "Settings for claude-code.";
     };
+
+    commandsDirectory = lib.mkOption {
+      type = lib.types.path;
+      description = ''
+        Directory containing markdown files for slash commands.
+        All .md files will be loaded as commands.
+      '';
+      example = ./commands;
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -116,12 +139,28 @@ in
       })
     ];
 
-    home.file.".claude/settings.json" = lib.mkIf (cfg.settings != { }) {
-      source = settingsFile;
-    };
+    home.file = lib.mkMerge [
+      # Settings file
+      (lib.mkIf (cfg.settings != { }) {
+        ".claude/settings.json" = {
+          source = settingsFile;
+        };
+      })
 
-    home.file.".claude/CLAUDE.md" = lib.mkIf (cfg.userMemory != null) {
-      text = cfg.userMemory;
-    };
+      # User memory file
+      (lib.mkIf (cfg.userMemory != null) {
+        ".claude/CLAUDE.md" = {
+          text = cfg.userMemory;
+        };
+      })
+
+      # Slash commands
+      (lib.mapAttrs' (
+        name: content:
+        lib.nameValuePair ".claude/commands/${name}.md" {
+          text = content;
+        }
+      ) allCommands)
+    ];
   };
 }

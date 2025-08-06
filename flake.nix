@@ -27,6 +27,12 @@
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
     xremap.url = "github:xremap/nix-flake";
+    mcp-servers.url = "github:natsukium/mcp-servers-nix";
+    mcp-servers.inputs.nixpkgs.follows = "nixpkgs";
+    claude-desktop.url = "github:k3d3/claude-desktop-linux-flake";
+    claude-desktop.inputs.nixpkgs.follows = "nixpkgs";
+    niri.url = "github:sodiboo/niri-flake";
+    niri.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs =
     {
@@ -79,6 +85,7 @@
           packages = rec {
             #cskk = pkgs.callPackage ./pkgs/cskk { };
             #fcitx5-cskk = pkgs.libsForQt5.callPackage ./pkgs/fcitx5-cskk { inherit cskk; };
+            niri-taskbar = pkgs.callPackage ./pkgs/niri-taskbar { };
           };
           pre-commit = {
             check.enable = true;

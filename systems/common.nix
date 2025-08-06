@@ -20,7 +20,8 @@ in
   nixpkgs.overlays = [
     emacs-overlay.overlays.default
     nur-packages.overlays.default
-  ] ++ lib.attrValues self.overlays;
+  ]
+  ++ lib.attrValues self.overlays;
 
   nixpkgs.config.allowUnfree = true;
 
@@ -28,19 +29,18 @@ in
   programs.fish.enable = true;
   users.users.${username}.shell = pkgs.fish;
 
-  nix.gc =
-    {
-      automatic = true;
-      options = "--delete-older-than 7d";
-    }
-    // lib.optionalAttrs pkgs.stdenv.isLinux { dates = "weekly"; }
-    // lib.optionalAttrs pkgs.stdenv.isDarwin {
-      interval = {
-        Weekday = 0;
-        Hour = 0;
-        Minute = 0;
-      };
+  nix.gc = {
+    automatic = true;
+    options = "--delete-older-than 7d";
+  }
+  // lib.optionalAttrs pkgs.stdenv.isLinux { dates = "weekly"; }
+  // lib.optionalAttrs pkgs.stdenv.isDarwin {
+    interval = {
+      Weekday = 0;
+      Hour = 0;
+      Minute = 0;
     };
+  };
 
   nix.optimise.automatic = true;
 

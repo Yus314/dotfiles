@@ -39,7 +39,8 @@ in
             "root"
             "@wheel"
             "kaki"
-          ] ++ optional pkgs.stdenv.isDarwin "@admin";
+          ]
+          ++ optional pkgs.stdenv.isDarwin "@admin";
           # https://github.com/NixOS/nix/issues/4119
           sandbox = if pkgs.stdenv.isDarwin then false else true;
           warn-dirty = false;

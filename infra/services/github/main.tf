@@ -7,13 +7,13 @@ terraform {
       source = "carlpett/sops"
     }
   }
-  
+
   backend "oci" {
     bucket    = "terraform-states"
     key       = "github/terraform.tfstate"
-    namespace = "nr8pzcksrfds" 
+    namespace = "nr8pzcksrfds"
     region    = "ap-tokyo-1"
-    
+
     # OCI認証情報は環境変数から設定
     # TF_VAR_tenancy_ocid
     # TF_VAR_user_ocid
