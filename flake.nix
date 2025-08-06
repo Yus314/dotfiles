@@ -145,6 +145,7 @@
                   p.github
                   p.null
                   p.sops
+                  p.oci
                 ]))
                 cf-terraforming
               ];
