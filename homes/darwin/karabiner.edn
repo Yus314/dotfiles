@@ -173,9 +173,9 @@
                  [:#CTOFQWERP2 :!S6] ; &
                  [:#CTOFQWERP3 :!Scomma] ; <
                  [:#CTOFQWERP4 :close_bracket] ; [
-                 [:#CTOFQWERP5 :!S8] ; (
+                 [:#CTOFQWERP5 :!Sclose_bracket] ; {
 		 [:#CTOFQWERP6 :!Sequal_sign] ; ~
-		 [:#CTOFQWERP7 :!S9] ; )
+		 [:#CTOFQWERP7 :!Sbackslash] ; }
                  [:#CTOFQWERP8 :backslash] ; ]
                  [:#CTOFQWERP9 :!Speriod] ; >
                  [:#CTOFQWERP0 :!S4] ; $
@@ -214,14 +214,14 @@
                  [:##z :j]
                  [:#CTOFQWERPx :hyphen]
                  [:#CTOFQWERPc :comma]
-		 [:#CTOFQWERPv :!Sclose_bracket] ; {
+		 [:#CTOFQWERPv :!S8] ; (
                  [:#CTOFQWERPb :!S7] ; '
                  [:##n :w]
                  [:##m :g]
                  [:##comma :m]
                  [:##period :b]
                  [:##slash :x]
-		 [:#CTOFQWERPinternational1 :!Sbackslash] ; )
+		 [:#CTOFQWERPinternational1 :!S9] ; )
 
                  ;; Shiftの際のレイヤー
                  [:!S1 :9] ; 9

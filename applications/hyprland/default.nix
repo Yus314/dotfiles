@@ -27,7 +27,7 @@ in
 
     # 				env = WLR_DRM_DEVICES,/dev/dri/card0
     #
-    #                     								monitor = , preffered, auto, 1
+    #                     								monitor = , preferred, auto, 1
     #               									monitor = HDMI-A-1,1920x1080@60.00000,0x0,1
     #               									monitor = DP-1,1920x1080@60.00000,1920x0,1
     #               									monitor = DP-3,1920x1080@60.00000,3840x0,1

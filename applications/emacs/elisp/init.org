@@ -1682,19 +1682,6 @@ Waylandでペーストできるようにする設定
        (append tramp-remote-path
    	      '(tramp-own-remote-path)))
 
-  ;; TRAMPにbashを強制的に使用させるプロファイルを作成
-  (connection-local-set-profile-variables
-   'tramp-force-bash
-   '((shell-file-name. "/bin/sh")
-     ;; bash用の正しいスイッチも提供する必要がある
-     (shell-command-switch. "-c")
-     (shell-interactive-switch. "-i")
-     (shell-login-switch. "-l")))
-
-  ; このプロファイルを特定のホストに適用
-  (connection-local-set-profiles
-   '(:application tramp :machine "rem")
-   'tramp-force-bash)
 #+end_src
 * Dired
 ** dired-narrow
