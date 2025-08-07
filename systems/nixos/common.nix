@@ -31,15 +31,6 @@ in
     #  sshKeyPaths = [ ];
     #};
   };
-  services.greetd = {
-    enable = true;
-    settings = {
-      default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd --remember --remember-session niri-session";
-        user = "kaki";
-      };
-    };
-  };
 
   i18n.defaultLocale = "en_US.UTF-8";
 
