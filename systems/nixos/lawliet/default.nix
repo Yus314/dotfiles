@@ -18,6 +18,7 @@ in
     ./nvidia.nix
     ../common.nix
     ./user.nix
+    ../desktop.nix
   ];
   inherit
     (pkgs.callPackage ./disko-config.nix {

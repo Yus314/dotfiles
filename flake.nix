@@ -66,7 +66,9 @@
       };
 
       flake = {
-        overlays = import ./overlays { inherit inputs; };
+        overlays = import ./overlays { inherit inputs; } // {
+          custom-packages = import ./pkgs;
+        };
       };
 
       perSystem =
@@ -85,6 +87,7 @@
           packages = rec {
             #cskk = pkgs.callPackage ./pkgs/cskk { };
             #fcitx5-cskk = pkgs.libsForQt5.callPackage ./pkgs/fcitx5-cskk { inherit cskk; };
+            nx-rbw = pkgs.nx-rbw;
           };
           pre-commit = {
             check.enable = true;

@@ -6,9 +6,22 @@
   "List of search engines.")
 
 (define-configuration buffer
-    "Go through the search engines above and make-search-engine out of them."
-  ((search-engines
-    (append
-     %slot-default%
-     (mapcar (lambda (engine) (apply 'make-search-engine engine))
-             *my-search-engines*)))))
+		      "Go through the search engines above and make-search-engine out of them."
+		      ((search-engines
+			(append
+			 %slot-default%
+			 (mapcar (lambda (engine) (apply 'make-search-engine engine))
+				 *my-search-engines*)))))
+
+(define-configuration input-buffer
+		      ((override-map
+			(let ((map (make-keymap "override-map")))
+			  (define-key map
+				      "M-x" 'execute-command
+				      "C-space" 'nothing)))))
+
+(define-nyxt-user-system-and-load "nyxt-user/rbw"
+				  :depends-on ("nx-rbw"))
+
+(define-configuration :password-mode
+		      ((password-interface (make-instance 'nx-rbw:rbw-interface))))
