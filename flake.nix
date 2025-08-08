@@ -85,10 +85,6 @@
             overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
           };
           packages = rec {
-            #cskk = pkgs.callPackage ./pkgs/cskk { };
-            #fcitx5-cskk = pkgs.libsForQt5.callPackage ./pkgs/fcitx5-cskk { inherit cskk; };
-            #nx-rbw = pkgs.nx-rbw;
-            #nx-zotero = pkgs.nx-zotero;
           };
           pre-commit = {
             check.enable = true;
@@ -118,6 +114,8 @@
                   excludes = [
                     "secrets.yaml"
                     "secrets/defualt.yaml"
+                    "applications/neovim/lua/plugins/skkeleton.lua"
+                    "applications/neovim/SKK-JISYO.L"
                   ];
                   settings.configPath = "typos.toml";
                 };
