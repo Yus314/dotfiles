@@ -12,6 +12,7 @@
     ../../applications/dunst
     ../../applications/rclone
     ../../applications/nyxt
+    ../../applications/fcitx5-cskk
   ];
   home.packages = with pkgs; [
     xfce.thunar

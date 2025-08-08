@@ -720,7 +720,7 @@ Waylandでペーストできるようにする設定
 #+end_src
 * claude-code-ide
 #+begin_src emacs-lisp :tangle yes
-  (require 'claude-code-ide)
+   (require 'claude-code-ide)
 #+end_src
 * emigo
 #+begin_src emacs-lisp :tangle yes

@@ -1,3 +1,9 @@
 [default]
-extend-words = { edn = "edn" }
+extend-words = { edn = "edn", ba = "ba", ths = "ths", shs = "shs", nd = "nd", noice = "noice", pn = "pn", thn = "thn", unparented = "unparented" }
 extend_ignore-words-re = ["noice"]
+
+[files]
+extend-exclude = [
+  "infra/services/cloudflare/*.tf",
+  "applications/neovim/lua/**/*.lua",
+]

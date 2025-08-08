@@ -8,7 +8,7 @@ let fish_completer = {|spans|
 }
  let carapace_completer = {|spans|
      carapace $spans.0 nushell ...$spans | from json
-} 
+}
 let external_completer = {|spans|
 	match $spans.0 {
 		_ => fish_completer
@@ -16,7 +16,7 @@ let external_completer = {|spans|
 }
 $env.config = {
 	show_banner: false
-	completions: { 
+	completions: {
 		algorithm: "fuzzy"
 		external: {
 			enable: true
@@ -42,10 +42,10 @@ $env.config = {
     }
     source: { |buffer, position|
 				fd -t d
-				| fzf --tac  
+				| fzf --tac
 				| lines
-				| each { |v|  { value: ($v | str trim) } } 
-		
+				| each { |v|  { value: ($v | str trim) } }
+
     }
 }
 		{
@@ -65,9 +65,9 @@ $env.config = {
     }
     source: { |buffer, position|
 				 rg --hidden --no-ignore --line-number --no-heading --regexp '^\s*title: ' --glob '*.md' ~/OneDrive/zettelkasten/permanent
-					| fzf --select-1 --exit-0 | split column ":" | get column1 | $in.0 | str trim 
-					
-				# Extract the file and line number 
+					| fzf --select-1 --exit-0 | split column ":" | get column1 | $in.0 | str trim
+
+				# Extract the file and line number
 
 				# send the file to the next menu
 

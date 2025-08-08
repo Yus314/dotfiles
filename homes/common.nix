@@ -35,6 +35,7 @@ in
     ../applications/claude-code
     ../applications/mcp
     ../applications/vim
+    ../applications/rbw
   ];
   services.gpg-agent = {
     enable = true;
