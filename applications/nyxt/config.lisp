@@ -1,6 +1,7 @@
 (defvar *my-search-engines*
   (list
    '("hm" "https://home-manager-options.extranix.com/?query=~a&release=master" "https://home-manager-options.extranix.com")
+   '("no" "https://search.nixos.org/options?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=~a" "https://search.nixos.org")
    '("en" "https://google.com/search?lr=lang_en&q=~a" "https://google.com")
    '("g" "https://google.com/search?q=~a" "https://google.com"))
   "List of search engines.")
