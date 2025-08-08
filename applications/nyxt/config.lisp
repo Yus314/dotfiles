@@ -25,3 +25,11 @@
 
 (define-configuration :password-mode
 		      ((password-interface (make-instance 'nx-rbw:rbw-interface))))
+
+(nyxt:define-nyxt-user-system-and-load "nyxt-user/nx-zotero-proxy"
+				       :description "This proxy system saves us if nx-zotero fails to load.
+Otherwise it will break all the config loading."
+				       :depends-on ("nx-zotero"))
+(define-configuration web-buffer
+		      ((default-modes
+			(pushnew 'zotero-mode %slot-value%))))
