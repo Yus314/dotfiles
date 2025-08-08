@@ -19,6 +19,7 @@ in
     ../common.nix
     ./user.nix
     ../desktop.nix
+    ./root-ssh.nix
   ];
   inherit
     (pkgs.callPackage ./disko-config.nix {
@@ -127,6 +128,7 @@ in
     sops
     age
     pinentry-emacs
+    cloudflared
     # アイコンテーマ (dunst通知用)
     adwaita-icon-theme
     papirus-icon-theme
