@@ -13,12 +13,14 @@
 			 (mapcar (lambda (engine) (apply 'make-search-engine engine))
 				 *my-search-engines*)))))
 
-(define-configuration input-buffer
+(define-configuration web-buffer
 		      ((override-map
 			(let ((map (make-keymap "override-map")))
 			  (define-key map
 				      "M-x" 'execute-command
-				      "C-space" 'nothing)))))
+				      "C-space" 'nothing
+				      "f" 'search-buffer
+				      "s" 'follow-hint)))))
 
 (define-nyxt-user-system-and-load "nyxt-user/rbw"
 				  :depends-on ("nx-rbw"))
