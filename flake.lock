@@ -959,11 +959,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1754623637,
-        "narHash": "sha256-ndMFZ/E//yIh+qJZ/OSRWqhjDeAq2bGq+0W1ZpGtCkk=",
+        "lastModified": 1754625756,
+        "narHash": "sha256-tP/0oljuQDsutYLNOFqtvXp4W97DxFwp+1HCs97K9Lo=",
         "owner": "Yus314",
         "repo": "nur-packages",
-        "rev": "df4f11eb119d1048bbc3307983bde3efbcb8f114",
+        "rev": "3a4eff0b430a3f24db511701f8441245555690e4",
         "type": "github"
       },
       "original": {
