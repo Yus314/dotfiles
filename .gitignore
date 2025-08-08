@@ -4,3 +4,7 @@
 .terraform/
 *.tfstate*
 .pre-commit-config.yaml
+
+# OCI API Keys
+infra/oci_api_key.pem
+infra/oci_api_key_public.pem
