@@ -4,7 +4,7 @@
     enable = true;
     settings = {
       email = "shizhaoyoujie@gmail.com";
-      pinentry = pkgs.pinentry-gnome3;
+      pinentry = if pkgs.stdenv.isDarwin then pkgs.pinentry-mac else pkgs.pinentry-gnome3;
       lock_timeout = 3600; # 1 hour
     };
   };
