@@ -20,7 +20,7 @@ locals {
 resource "cloudflare_dns_record" "mdip2home" {
   for_each = local.mdip2home_records
 
-  zone_id  = "e0efbea3c4dd17f3b289f18516dc5593"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.mdip2home"]
   type     = each.value.type
   name     = each.value.name
   content  = each.value.content

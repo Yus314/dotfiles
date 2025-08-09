@@ -4,7 +4,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_eeb8f6ba0d5240b6084
   proxied  = true
   ttl      = 1
   type     = "A"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -14,7 +14,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_5d5fd57db61f1e383db
   proxied  = true
   ttl      = 1
   type     = "A"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -24,7 +24,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_d56f7a9dba6ccd7fd0a
   proxied  = true
   ttl      = 1
   type     = "CNAME"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -34,7 +34,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_2d5a42019911526fd21
   proxied  = true
   ttl      = 1
   type     = "CNAME"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -45,7 +45,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_0bc7195d0a5e8d5fdaa
   proxied  = false
   ttl      = 1
   type     = "MX"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -56,7 +56,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_a95d8ca6b4a33829650
   proxied  = false
   ttl      = 1
   type     = "MX"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -66,7 +66,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_4f18e2a0eed4f917853
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -76,7 +76,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_98860d410d7ba0907d6
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -86,7 +86,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_4659b34b812822ba622
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -96,7 +96,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_cff77a1e3109ff09c24
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -106,7 +106,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_cb18a1bcb254b6b1963
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -116,7 +116,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_be2207a31f7b46867c2
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -126,7 +126,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_615b09527d328adf34f
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -136,7 +136,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_fb5d503666b0bfe21dc
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -146,7 +146,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_59e60cc59d08a96011b
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -156,7 +156,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_f9256144dd3527f8e7e
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -166,7 +166,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_ec1740974518a52342f
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -176,7 +176,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_4995cd224e0abc184ef
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -186,7 +186,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_cd696ee0d303685ce96
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -196,7 +196,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_8ccaaaa117c430fc2db
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -206,7 +206,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_6b1a9d409153d1947a9
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -216,7 +216,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_98e600ddb2bffd5202e
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -226,7 +226,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_27f7142bf88168608aa
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -236,7 +236,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_e60b18174ed1cf0c152
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -246,7 +246,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_4c458435db651a2ed14
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -256,7 +256,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_5074d7f4289869be9ad
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -266,7 +266,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_a3e1fd39808fc3ed55d
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -276,7 +276,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_1f980cd226e0af8507f
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -286,7 +286,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_d5cd48562fee55a6817
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -296,7 +296,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_1a9d7fe4dad1ed07bbb
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -306,7 +306,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_7d4373110ea22af7a37
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -316,7 +316,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_228b2239c370762f239
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -326,7 +326,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_cb37ef5dbc99e1d4d93
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -336,7 +336,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_0548b86f6617d30f54a
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -346,7 +346,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_3cb9a12d15cb39f75c4
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -356,7 +356,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_9e6cab8074faf112c68
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -366,7 +366,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_160acdd4702b77a7bcc
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -376,7 +376,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_c2a6e55ab42e0071900
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -386,7 +386,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_c2bc4a316ed9ba7e723
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -396,7 +396,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_a1f3fb9d428e086886a
   proxied  = false
   ttl      = 1
   type     = "NS"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -406,7 +406,7 @@ resource "cloudflare_dns_record" "terraform_managed_resource_4c5bb1fa5e87598175e
   proxied  = false
   ttl      = 1
   type     = "TXT"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
 
@@ -416,6 +416,6 @@ resource "cloudflare_dns_record" "terraform_managed_resource_1b275f3c3eeefd6aa22
   proxied  = false
   ttl      = 1
   type     = "TXT"
-  zone_id  = "3cd2cb8c57aee21c5baa152222e8657f"
+  zone_id  = data.sops_file.cloudflare-secret.data["zone_ids.lab2home"]
   settings = {}
 }
