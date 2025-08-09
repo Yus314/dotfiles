@@ -179,3 +179,37 @@ chore(flake): update nixpkgs to latest unstable
 ### 重要な注意事項
 - **共著者の記載**: このリポジトリではClaude Codeを共著者として記載しません
 - コミットメッセージには「🤖 Generated with Claude Code」や「Co-Authored-By: Claude」などの記載を追加しないでください
+
+## Terraform Infrastructure
+
+`infra/`ディレクトリでOracle Cloud Infrastructure (OCI)バックエンドを使用したEnterprise-grade infrastructure管理を行います。
+
+### クイックスタート
+
+```bash
+# 初回セットアップ
+cd infra && scripts/install-tf-wrapper.sh
+
+# 基本操作
+cd services/cloudflare
+tf init && tf plan && tf apply
+
+cd ../github
+tf init && tf plan && tf apply
+```
+
+### 📚 詳細ドキュメント
+
+インフラ運用の詳細は以下を参照してください：
+
+- **[🚀 運用ガイド](infra/docs/OPERATIONS.md)** - セットアップ、ワークフロー、検証手順
+- **[🛡️ セキュリティ](infra/docs/SECURITY.md)** - SOPS管理、機密情報の取扱いポリシー
+- **[🚨 トラブルシューティング](infra/docs/TROUBLESHOOTING.md)** - よくある問題と解決方法
+- **[🔥 緊急時対応](infra/docs/EMERGENCY.md)** - インシデント対応手順
+
+### アーキテクチャ概要
+
+- **OCI Native Backend**: 状態管理にOracle Cloud Object Storage使用
+- **SOPS暗号化**: Age + PGP二重保護による機密情報管理
+- **Zero-Touch認証**: 自動化tfラッパーによる認証フロー
+- **Enterprise Security**: 完全暗号化、監査証跡、ロールバック対応
