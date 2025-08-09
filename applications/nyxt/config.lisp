@@ -20,8 +20,7 @@
 			  (define-key map
 				      "M-x" 'execute-command
 				      "C-space" 'nothing
-				      "f" 'search-buffer
-				      "s" 'follow-hint)))))
+				      "C-s" 'follow-hint)))))
 
 (define-nyxt-user-system-and-load "nyxt-user/rbw"
 				  :depends-on ("nx-rbw"))
