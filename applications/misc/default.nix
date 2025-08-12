@@ -69,6 +69,8 @@
     gemini-cli
     nh
     nix-search-cli
+    jq
+    yq
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings

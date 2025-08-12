@@ -1,0 +1,297 @@
+#!/usr/bin/env bash
+# Terraform ゼロタッチ認証ラッパー
+#
+# 使用方法:
+#   tf init
+#   tf plan
+#   tf apply
+#   tf [任意のterraformコマンド]
+
+set -euo pipefail
+
+# ========================================
+# 設定値
+# ========================================
+readonly SCRIPT_NAME="$(basename "$0")"
+# スクリプトの実際の場所を取得（シンボリックリンク対応）
+readonly SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+readonly SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+readonly INFRA_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+readonly SECRETS_FILE="${INFRA_DIR}/secrets/infrastructure.yaml"
+
+# 一時ファイル設定
+readonly TMP_DIR="${TMPDIR:-/tmp}"
+readonly TMP_KEY_PREFIX="oci_terraform_"
+readonly TMP_KEY_SUFFIX=".pem"
+
+# カラー定義
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly NC='\033[0m'
+
+# ログレベル
+readonly LOG_LEVEL="${TF_LOG_LEVEL:-INFO}"
+
+# ========================================
+# ユーティリティ関数
+# ========================================
+log_error() { echo -e "${RED}❌ ERROR: $*${NC}" >&2; }
+log_warn()  { echo -e "${YELLOW}⚠️  WARN: $*${NC}" >&2; }
+log_info()  { [[ "$LOG_LEVEL" != "ERROR" ]] && echo -e "${BLUE}ℹ️  INFO: $*${NC}"; }
+log_success() { echo -e "${GREEN}✅ SUCCESS: $*${NC}"; }
+
+# ========================================
+# クリーンアップ処理
+# ========================================
+cleanup() {
+    local exit_code=$?
+
+    # 一時ファイル削除
+    if [[ -n "${TMP_KEY_FILE:-}" ]] && [[ -f "$TMP_KEY_FILE" ]]; then
+        log_info "一時秘密鍵ファイルを削除中: ${TMP_KEY_FILE}"
+        if command -v shred &>/dev/null; then
+            shred -vfz "$TMP_KEY_FILE" 2>/dev/null || rm -f "$TMP_KEY_FILE"
+        else
+            rm -f "$TMP_KEY_FILE"
+        fi
+    fi
+
+    # デバッグ用環境変数削除
+    unset TF_VAR_tenancy_ocid TF_VAR_user_ocid TF_VAR_fingerprint TF_VAR_private_key_path 2>/dev/null || true
+
+    exit $exit_code
+}
+
+# ========================================
+# 前提条件チェック
+# ========================================
+check_prerequisites() {
+    local missing_tools=()
+
+    # 必須ツールチェック
+    for tool in sops jq yq; do
+        if ! command -v "$tool" &>/dev/null; then
+            # nixツールの場合、nix runで実行可能か確認
+            if ! nix run "nixpkgs#$tool" -- --version &>/dev/null 2>&1; then
+                missing_tools+=("$tool")
+            fi
+        fi
+    done
+
+    # terraformチェック（特別扱い）
+    if ! command -v terraform &>/dev/null; then
+        if ! nix develop --command terraform --version &>/dev/null 2>&1; then
+            missing_tools+=("terraform")
+        fi
+    fi
+
+    if [[ ${#missing_tools[@]} -gt 0 ]]; then
+        log_error "必須ツールが見つかりません: ${missing_tools[*]}"
+        log_info "nix develop環境で実行するか、必要なツールをインストールしてください"
+        return 1
+    fi
+
+    # SOPS設定確認
+    if [[ ! -f "$SECRETS_FILE" ]]; then
+        log_error "シークレットファイルが見つかりません: $SECRETS_FILE"
+        return 1
+    fi
+
+    # Age鍵確認
+    local age_key_path="${SOPS_AGE_KEY_FILE:-$HOME/.config/sops/age/keys.txt}"
+    if [[ ! -f "$age_key_path" ]]; then
+        log_error "SOPS Age鍵が見つかりません: $age_key_path"
+        log_info "SOPS_AGE_KEY_FILE環境変数を設定するか、デフォルトパスに鍵を配置してください"
+        return 1
+    fi
+
+    return 0
+}
+
+# ========================================
+# 秘密鍵の取得と一時ファイル作成
+# ========================================
+setup_oci_private_key() {
+    log_info "OCI秘密鍵を準備中..."
+
+    # 一時ファイル作成（セキュアな権限で）
+    TMP_KEY_FILE=$(mktemp -t "${TMP_KEY_PREFIX}XXXXXX${TMP_KEY_SUFFIX}")
+    chmod 600 "$TMP_KEY_FILE"
+
+    # SOPSから直接秘密鍵を取得（Phase 2）
+    local private_key
+    if ! private_key=$(echo "$json_output" | jq -r '.terraform.backend.oci.private_key'); then
+        log_error "秘密鍵の取得に失敗しました"
+        return 1
+    fi
+
+    if [[ "$private_key" == "null" || -z "$private_key" ]]; then
+        log_error "秘密鍵が見つかりません（SOPS設定を確認してください）"
+        return 1
+    fi
+
+    # 秘密鍵を一時ファイルに書き込み
+    echo "$private_key" > "$TMP_KEY_FILE"
+    chmod 600 "$TMP_KEY_FILE"
+
+    log_info "一時秘密鍵ファイル作成完了: ${TMP_KEY_FILE}"
+    export TF_VAR_private_key_path="$TMP_KEY_FILE"
+}
+
+# ========================================
+# OCI環境変数設定
+# ========================================
+setup_oci_environment() {
+    log_info "OCI認証情報を設定中..."
+
+    # SOPSから認証情報を復号化して環境変数に設定
+    local sops_output
+    if ! sops_output=$(cd "$INFRA_DIR/secrets" && sops -d infrastructure.yaml 2>/dev/null); then
+        log_error "SOPS復号化に失敗しました"
+        return 1
+    fi
+
+    if [[ -z "$sops_output" ]]; then
+        log_error "SOPS復号化に失敗しました（空の出力）"
+        return 1
+    fi
+
+    # 環境変数設定（YAMLをJSONに変換してからjqでパース）
+    local json_output
+    if command -v yq &>/dev/null; then
+        json_output=$(echo "$sops_output" | yq -r '.')
+    else
+        json_output=$(echo "$sops_output" | nix run nixpkgs#yq -- -r '.')
+    fi
+
+    local oci_config
+    if ! oci_config=$(echo "$json_output" | jq -r '.terraform.backend.oci'); then
+        log_error "OCI設定のパースに失敗しました"
+        return 1
+    fi
+
+    export TF_VAR_tenancy_ocid=$(echo "$oci_config" | jq -r '.tenancy_ocid')
+    export TF_VAR_user_ocid=$(echo "$oci_config" | jq -r '.user_ocid')
+    export TF_VAR_fingerprint=$(echo "$oci_config" | jq -r '.fingerprint')
+
+    # 秘密鍵の一時ファイル設定（json_outputを使用するため、この位置で実行）
+    setup_oci_private_key
+
+    # 設定確認（デバッグモード時のみ）
+    if [[ "${TF_DEBUG:-0}" == "1" ]]; then
+        log_info "設定内容:"
+        echo "  TF_VAR_tenancy_ocid: ${TF_VAR_tenancy_ocid:0:20}..."
+        echo "  TF_VAR_user_ocid: ${TF_VAR_user_ocid:0:20}..."
+        echo "  TF_VAR_fingerprint: ${TF_VAR_fingerprint}"
+        echo "  TF_VAR_private_key_path: ${TF_VAR_private_key_path}"
+    fi
+
+    log_success "OCI環境設定完了"
+}
+
+# ========================================
+# Terraform実行
+# ========================================
+run_terraform() {
+    local tf_command="${1:-help}"
+    shift || true
+
+    # 特殊コマンド処理（認証なしで実行）
+    case "$tf_command" in
+        "--help"|"-h"|"help")
+            show_help
+            exit 0
+            ;;
+        "--version"|"-v")
+            if command -v terraform &>/dev/null; then
+                terraform version
+            else
+                nix develop --command terraform version
+            fi
+            exit 0
+            ;;
+        "version")
+            if command -v terraform &>/dev/null; then
+                terraform version
+            else
+                nix develop --command terraform version
+            fi
+            exit 0
+            ;;
+    esac
+
+    # Terraform実行
+    log_info "Terraform実行中: terraform $tf_command $*"
+    if command -v terraform &>/dev/null; then
+        terraform "$tf_command" "$@"
+    else
+        # 現在のディレクトリを保持してnix developを実行
+        local current_dir="$PWD"
+        (cd "$INFRA_DIR" && nix develop --command bash -c "cd '$current_dir' && terraform '$tf_command' \"\$@\"" -- "$@")
+    fi
+}
+
+# ========================================
+# ヘルプ表示
+# ========================================
+show_help() {
+    cat <<EOF
+Terraform ゼロタッチ認証ラッパー
+
+使用方法:
+    $SCRIPT_NAME [terraform-command] [options]
+
+例:
+    $SCRIPT_NAME init
+    $SCRIPT_NAME plan
+    $SCRIPT_NAME apply -auto-approve
+    $SCRIPT_NAME destroy
+
+環境変数:
+    TF_DEBUG=1         デバッグ情報を表示
+    TF_LOG_LEVEL=ERROR エラーのみ表示
+    SOPS_AGE_KEY_FILE  Age鍵ファイルパス（デフォルト: ~/.config/sops/age/keys.txt）
+
+機能:
+    - SOPSから自動的にOCI認証情報を取得
+    - 一時秘密鍵ファイルの自動生成と削除
+    - 環境変数の自動設定
+    - エラー時の安全なクリーンアップ
+
+EOF
+}
+
+# ========================================
+# メイン処理
+# ========================================
+main() {
+    # trapでクリーンアップを設定
+    trap cleanup EXIT INT TERM
+
+    local tf_command="${1:-help}"
+
+    # 認証不要なコマンドかチェック
+    case "$tf_command" in
+        "--help"|"-h"|"help"|"--version"|"-v"|"version")
+            # 認証設定なしで直接実行
+            run_terraform "$@"
+            exit 0
+            ;;
+    esac
+
+    # 前提条件チェック
+    check_prerequisites || exit 1
+
+    # OCI環境設定
+    setup_oci_environment || exit 1
+
+    # Terraform実行
+    run_terraform "$@"
+}
+
+# スクリプト実行
+if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
+    main "$@"
+fi

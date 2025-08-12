@@ -14,7 +14,7 @@ locals {
 
 resource "cloudflare_zero_trust_access_application" "main" {
   for_each             = local.access_apps
-  account_id           = var.cloudflare_account_id
+  account_id           = data.sops_file.cloudflare-secret.data["account_id"]
   name                 = each.key
   domain               = each.value.domain
   type                 = "self_hosted"
@@ -30,12 +30,12 @@ resource "cloudflare_zero_trust_access_application" "main" {
   http_only_cookie_attribute = true
   options_preflight_bypass   = false
   policies = [{
-    id         = "da481d3f-1301-4dbe-bb5e-cf82e0c86f0b"
+    id         = data.sops_file.cloudflare-secret.data["policies.allow_from_japan"]
     precedence = 1
   }]
 }
 resource "cloudflare_zero_trust_access_policy" "Allow-From-Japan" {
-  account_id = var.cloudflare_account_id
+  account_id = data.sops_file.cloudflare-secret.data["account_id"]
   name       = "Allow-From-Japan"
   decision   = "allow"
   include = [
