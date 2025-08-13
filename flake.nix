@@ -85,6 +85,7 @@
             overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
           };
           packages = rec {
+            tf-wrapper = pkgs.tf-wrapper;
           };
           pre-commit = {
             check.enable = true;
