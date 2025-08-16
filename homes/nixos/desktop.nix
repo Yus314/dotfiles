@@ -5,6 +5,8 @@
     ../../applications/hyprland
     ../../applications/niri
     ../../applications/sway
+    ../../applications/swww
+    ../../applications/spotlight-downloader
     ../../applications/i3
     ../../applications/tofi
     ../../applications/foot
