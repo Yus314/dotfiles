@@ -1593,7 +1593,7 @@ Waylandでペーストできるようにする設定
 #+begin_src emacs-lisp :tangle yes
   (autoload 'apheleia-global-mode "apheleia")
   (apheleia-global-mode)
-  (setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)
+  ;(setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)
 #+end_src
 * aggressive-inden
 * プログラミング支援
