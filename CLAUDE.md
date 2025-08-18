@@ -184,7 +184,61 @@ chore(flake): update nixpkgs to latest unstable
 
 `infra/`ディレクトリでOracle Cloud Infrastructure (OCI)バックエンドを使用したEnterprise-grade infrastructure管理を行います。
 
-### クイックスタート
+### tf-wrapper: 汎用Terraformラッパー（sops.nix統合版）
+
+#### 概要
+
+tf-wrapperはsops.nixとHome Managerの統合により、セキュアで自動化されたTerraform OCI バックエンド管理を提供します。一時ファイル不要でOCI認証情報を安全に管理し、任意のディレクトリからTerraformを実行できます。
+
+#### 基本使用
+
+```bash
+# Home Manager経由で自動インストール済み（sops.nixにより設定も自動配置）
+cd infra/services/cloudflare
+tf-wrapper plan
+tf-wrapper apply
+
+# 直接実行
+nix run .#tf-wrapper -- --version
+```
+
+#### 設定ファイル
+
+sops.nixにより以下の設定ファイルが自動生成・配置されます：
+
+- `~/.config/tf-wrapper/oci.yaml`: OCI認証設定（復号化済み）
+- `~/.config/tf-wrapper/backend.yaml`: Terraformバックエンド設定（復号化済み）
+- `~/.config/tf-wrapper/oci_private_key.pem`: OCI秘密鍵（復号化済み、権限600）
+- `~/.config/tf-wrapper/profiles.yaml`: プロファイル設定（将来対応）
+
+#### 他プロジェクトでの利用
+
+tf-wrapperは任意のTerraformプロジェクトで即座に利用可能：
+
+```bash
+# 設定は既にsops.nixにより配置済み、追加設定不要
+cd /path/to/other-terraform-project
+tf-wrapper init
+tf-wrapper apply
+```
+
+#### 環境変数
+
+- `TF_WRAPPER_CONFIG_DIR_OVERRIDE`: 設定ディレクトリの上書き
+- `TF_VAR_key`: Backend key（デフォルト: 自動生成）
+- `TF_DEBUG=1`: デバッグ情報表示
+- `TF_LOG_LEVEL=ERROR`: エラーのみ表示
+- `TF_WRAPPER_CLEANUP_ENV=1`: 終了時に環境変数をクリーンアップ
+
+#### セキュリティ機能
+
+- sops.nixによる暗号化設定管理
+- 一時ファイル不要（セキュリティリスク軽減）
+- 秘密鍵ファイルの厳格な権限管理（600）
+- 設定ファイルの自動復号化
+- Home Manager統合による一元管理
+
+### 従来の使用方法（互換性維持）
 
 ```bash
 # 初回セットアップ

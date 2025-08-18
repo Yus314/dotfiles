@@ -1023,13 +1023,12 @@ Waylandでペーストできるようにする設定
     (keymap-set org-agenda-mode-map "e" 'org-agenda-todo)
     (define-key org-agenda-mode-map (kbd "#") 'my/org-archive-to-trash)
     )
+  (keymap-global-set "C-c a"  'org-agenda)
 #+end_src
 ** org-super-agenda
 #+begin_src emacs-lisp :tangle yes
   (with-eval-after-load 'org
   (use-package org-super-agenda
-    :bind
-    ("C-c a" . #'org-agenda)
     :custom
     (org-agenda-files  '("~/dropbox/inbox/inbox.org" "~/dropbox/habit.org" "~/dropbox/kana.org"))
     (org-agenda-todo-ignore-scheduled  t)
