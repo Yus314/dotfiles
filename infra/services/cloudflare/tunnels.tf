@@ -12,6 +12,7 @@ locals {
 resource "cloudflare_zero_trust_tunnel_cloudflared" "main" {
   for_each = local.tunnels
 
+  config_src = "cloudflare"
   account_id = data.sops_file.cloudflare-secret.data["account_id"]
   name       = each.key
 }
