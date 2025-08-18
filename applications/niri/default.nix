@@ -2,10 +2,28 @@
   pkgs,
   inputs,
   lib,
+  config,
   ...
 }:
 let
   defaultKeyBind = import ./defaultKeyBind.nix;
+  wallPaperPath = "${config.xdg.dataHome}/SpotlightArchive/";
+
+  # ランダム壁紙選択スクリプト
+  randomWallpaper = pkgs.writeShellScriptBin "random-wallpaper" ''
+    WALLPAPER_DIR="${wallPaperPath}"
+
+    # ディレクトリが存在し、画像ファイルがあるか確認
+    if [ -d "$WALLPAPER_DIR" ]; then
+      # 画像ファイルをランダムに選択
+      WALLPAPER=$(find "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.gif" \) | shuf -n 1)
+
+      if [ -n "$WALLPAPER" ]; then
+        # swwwデーモンの起動を待つ
+        ${lib.getExe pkgs.swww} img "$WALLPAPER" --transition-type fade --transition-duration 2
+      fi
+    fi
+  '';
 in
 {
   imports = [
@@ -60,6 +78,31 @@ in
         "DISPLAY" = ":0";
       };
 
+      animations = {
+        enable = true;
+        horizontal-view-movement = {
+          enable = true;
+          kind = {
+            "spring" = {
+              damping-ratio = 0.8;
+              epsilon = 0.0001;
+              stiffness = 800;
+            };
+          };
+        };
+      };
+
+      layer-rules = [
+        {
+          matches = [ { namespace = "^wallpaper$"; } ];
+          place-within-backdrop = true;
+        }
+      ];
+
+      layout = {
+        background-color = "transparent";
+      };
+
       # 自動起動プログラム
       spawn-at-startup = [
         {
@@ -70,6 +113,10 @@ in
         }
         {
           command = [ "${lib.getExe pkgs.xwayland-satellite}" ];
+        }
+        {
+          # ランダム壁紙を設定
+          command = [ "${lib.getExe randomWallpaper}" ];
         }
       ];
       prefer-no-csd = true;

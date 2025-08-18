@@ -25,6 +25,11 @@ in
 
   nixpkgs.config.allowUnfree = true;
 
+  # for Spotlight Downloader
+  nixpkgs.config.permittedInsecurePackages = [
+    "dotnet-sdk-6.0.428"
+  ];
+
   environment.shells = [ pkgs.fish ];
   programs.fish.enable = true;
   #users.users.${username}.shell = pkgs.fish;

@@ -8,4 +8,5 @@ in
   #fcitx5-cskk-qt = self.fcitx-cskk-override { enableQt = true; };
   #nx-rbw = super.callPackage ./nx-rbw { };
   #nx-zotero = super.callPackage ./nx-zotero { };
+  tf-wrapper = super.callPackage ./tf-wrapper { };
 }

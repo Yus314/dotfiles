@@ -1,9 +1,12 @@
 # Root SSH configuration for distributed builds
 { config, pkgs, ... }:
 {
-  # Root SSH client configuration via environment.etc
-  environment.etc."ssh/ssh_config.d/90-root-distributed-builds.conf" = {
+  # Root-specific SSH configuration (not system-wide)
+  # This creates /root/.ssh/config directly for root user only
+  system.activationScripts.rootSshConfig = {
     text = ''
+      mkdir -p /root/.ssh
+      cat > /root/.ssh/config <<'EOF'
       # Distributed build hosts configuration for root user
       Host ryuk
         Hostname test.mdip2home.com
@@ -16,7 +19,7 @@
         ControlMaster auto
         ControlPath ~/.ssh/master-%r@%n:%p
         ControlPersist 10m
-      
+
       Host rem
         Hostname sub.mdip2home.com
         User kaki
@@ -28,15 +31,14 @@
         ControlMaster auto
         ControlPath ~/.ssh/master-%r@%n:%p
         ControlPersist 10m
-    '';
-    mode = "0644";
-  };
+      EOF
 
-  # Include the ssh_config.d directory in system-wide SSH config
-  programs.ssh.extraConfig = ''
-    # Include root-specific configurations for distributed builds
-    Include /etc/ssh/ssh_config.d/*.conf
-  '';
+      # Set proper permissions for SSH config
+      chmod 600 /root/.ssh/config
+      chown root:root /root/.ssh/config
+    '';
+    deps = [ ];
+  };
 
   # SOPS secret for root SSH private key only
   sops.secrets."root-ssh-key" = {
