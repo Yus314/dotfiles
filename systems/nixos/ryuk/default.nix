@@ -6,9 +6,11 @@
   inputs,
   config,
   pkgs,
+  specialArgs,
   ...
 }:
 let
+  inherit (specialArgs) username;
 in
 {
   imports = [
@@ -16,6 +18,7 @@ in
     ./lab-main-hardware-configuration.nix
     ../common.nix
     ../services/dropbox
+    ../desktop.nix
   ];
   fonts.packages = [ pkgs.bizin-gothic-nf ];
   fonts.fontDir.enable = true;
@@ -32,7 +35,7 @@ in
   };
   services.cloudflared = {
     enable = true;
-    tunnels."ac395291-86ed-4f00-bcd2-77f2a9ae7845" = {
+    tunnels."158b0be2-17c4-4ff0-a465-7fcc7e46c952" = {
       credentialsFile = "${config.sops.secrets.cloudflared-tunnel-cred.path}";
       default = "http_status:404";
       ingress = {
@@ -98,7 +101,7 @@ in
     "uinput"
   ];
   boot.initrd.kernelModules = [ "nvidia" ];
-  boot.loader.systemd-boot.configurationLimit = 14;
+  boot.loader.systemd-boot.configurationLimit = 4;
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
@@ -134,6 +137,10 @@ in
   security.polkit.enable = true;
 
   services.meshcentral.enable = true;
+
+  programs.niri = {
+    enable = true;
+  };
 
   # Enable the X11 windowing system.
 
@@ -187,6 +194,7 @@ in
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIBfs+3qrkded/Rui5MiVyNGxB7TvzrnuP2TNOrX263+ root"
     ];
+    shell = pkgs.zsh;
   };
   services.xserver.xkb.layout = "us";
   environment.systemPackages = with pkgs; [

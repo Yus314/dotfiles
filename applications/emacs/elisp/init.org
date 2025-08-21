@@ -925,11 +925,11 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** Common Lisp
 #+begin_src emacs-lisp :tangle yes
-  (require 'sly-autoloads)
+  ;(require 'sly-autoloads)
 
-  (with-eval-after-load 'sly
-    (setopt inferior-lisp-program "sbcl")
-    (setopt sly-command-switch-to-existing-lisp 'always))
+  ;(with-eval-after-load 'sly
+   ; (setopt inferior-lisp-program "sbcl")
+   ; (setopt sly-command-switch-to-existing-lisp 'always))
 #+end_src
 ** typst
 #+begin_src emacs-lisp :tangle yes
@@ -1637,7 +1637,7 @@ Waylandでペーストできるようにする設定
 #+begin_src emacs-lisp :tangle yes
   (autoload 'apheleia-global-mode "apheleia")
   (apheleia-global-mode)
-  (setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)
+  ;(setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)
 #+end_src
 * aggressive-inden
 * プログラミング支援

@@ -4,13 +4,13 @@ locals {
     test = {
       type    = "CNAME"
       name    = "test"
-      content = "ac395291-86ed-4f00-bcd2-77f2a9ae7845.cfargotunnel.com"
+      content = "${cloudflare_zero_trust_tunnel_cloudflared.main["lab_ryuk"].id}.cfargotunnel.com"
       proxied = true
     }
     sub = {
       type    = "CNAME"
       name    = "sub"
-      content = "7fd731b9-305c-4bf5-8e75-1d333b53fec9.cfargotunnel.com"
+      content = "${cloudflare_zero_trust_tunnel_cloudflared.main["sub_mdip2home"].id}.cfargotunnel.com"
       proxied = true
     }
   }
