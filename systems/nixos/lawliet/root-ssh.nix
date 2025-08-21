@@ -17,7 +17,7 @@
         StrictHostKeyChecking accept-new
         ConnectTimeout 10
         ControlMaster auto
-        ControlPath ~/.ssh/master-%r@%n:%p
+        ControlPath /root/.ssh/master-%r@%n:%p
         ControlPersist 10m
 
       Host rem
@@ -29,7 +29,7 @@
         StrictHostKeyChecking accept-new
         ConnectTimeout 10
         ControlMaster auto
-        ControlPath ~/.ssh/master-%r@%n:%p
+        ControlPath /root/.ssh/master-%r@%n:%p
         ControlPersist 10m
       EOF
 
