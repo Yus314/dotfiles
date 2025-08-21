@@ -1377,7 +1377,7 @@ Waylandでペーストできるようにする設定
   (autoload 'org-roam-review-list-recently-added "org-roam-review" nil t)
   (with-eval-after-load 'org-roam-review
     (add-hook 'org-roam-capture-new-node-hook #'org-roam-review-set-seedling)
-    
+
     ;; カスタム削除関数の定義
     (defun org-roam-review-delete ()
       "Delete the current org-roam node file being reviewed."
@@ -1386,11 +1386,11 @@ Waylandでペーストできるようにする設定
              (file-path (when node (org-roam-node-file node)))
              (title (when node (org-roam-node-title node)))
              (id (when node (org-roam-node-id node))))
-        
+
         ;; ファイルの存在確認
         (unless (and file-path (file-exists-p file-path))
           (error "No valid file found for current node"))
-        
+
         ;; バックリンクの確認（他のノートからリンクされているか）
         (let ((backlinks (org-roam-db-query
                          [:select [source]
@@ -1401,7 +1401,7 @@ Waylandでペーストできるようにする設定
             (unless (yes-or-no-p (format "'%s' has %d backlinks from other notes. Delete anyway? "
                                         title (length backlinks)))
               (user-error "Deletion cancelled"))))
-        
+
         ;; 削除確認
         (when (yes-or-no-p (format "Delete '%s' permanently? " title))
           ;; 該当ファイルのバッファを閉じる
@@ -1410,17 +1410,17 @@ Waylandでペーストできるようにする設定
               (with-current-buffer buffer
                 (set-buffer-modified-p nil)) ; 保存確認を避ける
               (kill-buffer buffer)))
-          
+
           ;; ファイル削除
           (delete-file file-path)
-          
-          
+
+
           (message "Deleted: %s" title)
-          
+
           ;; 次のレビューアイテムへ移動
   	(org-roam-review-refresh)
   	  )))
-    
+
     (keymap-set org-mode-map "C-c r r" 'org-roam-review-accept)
     (keymap-set org-mode-map "C-c r f"  org-roam-review-forgot)
     (keymap-set org-mode-map "C-c r u"  org-roam-review-bury)
