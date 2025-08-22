@@ -1823,6 +1823,9 @@ Waylandでペーストできるようにする設定
 #+end_src
 * Slack
 #+begin_src emacs-lisp :tangle yes
+  (setq auth-sources '("~/.config/emacs/.authinfo.gpg"))
+
+  (autoload 'slack-im-open "slack" nil t)
   (with-eval-after-load 'slack
     (slack-register-team
      :name "mdip"
@@ -1831,7 +1834,6 @@ Waylandでペーストできるようにする設定
      :default t
      )
     )
-  					; (require 'slack)
 #+end_src
 ** slack-org
 org-store-linkでリンクをコピーすることができる。
