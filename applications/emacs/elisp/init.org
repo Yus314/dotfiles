@@ -1684,12 +1684,12 @@ Waylandでペーストできるようにする設定
 
 ** envrc
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package envrc
+  (use-package envrc
    ; :custom
     ;(envrc-remote  t)
-   ; :config
-    ;(envrc-global-mode)
-  ;)
+    :config
+    (envrc-global-mode)
+  )
 #+end_src
 
 ** inheritenv
