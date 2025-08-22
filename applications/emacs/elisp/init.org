@@ -1837,15 +1837,15 @@ Waylandでペーストできるようにする設定
 #+end_src
 * Slack
 #+begin_src emacs-lisp :tangle yes
-  ;(with-eval-after-load 'slack
-   ; (slack-register-team
-   ;  :name "mdip"
-   ;  :token (funcall(plist-get (nth 0 (auth-source-search :host "slack")) :secret))
-   ;  :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
-   ;  :default t
-   ;  )
-   ; )
-   ; (require 'slack)
+  (with-eval-after-load 'slack
+    (slack-register-team
+     :name "mdip"
+     :token (funcall(plist-get (nth 0 (auth-source-search :machine "mdip.slack.com" :port "token")) :secret))
+     :cookie (funcall(plist-get (nth 0 (auth-source-search :machine "mdip.slack.com" :port "cookie")) :secret))
+     :default t
+     )
+    )
+  					; (require 'slack)
 #+end_src
 ** slack-org
 org-store-linkでリンクをコピーすることができる。
