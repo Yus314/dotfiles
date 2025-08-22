@@ -951,6 +951,29 @@ Waylandでペーストできるようにする設定
   (autoload-if-found '(plantuml-mode) "plantuml-mode" nil t)
   (add-to-list 'auto-mode-alist '("\\.pu$" . plantuml-mode))
 #+end_src
+** Tex
+#+begin_src emacs-lisp :tangle yes
+  (require 'auctex)
+  (setq TeX-default-mode  'japanese-latex-mode)
+  (setq TeX-auto-save  t)
+  (setq TeX-parse-self  t)
+  (setq TeX-master  nil)
+  (setq TeX-view-program-selection  '((output-pdf "PDF Tools")))
+  (setq japanese-TeX-engine-default  'platex)
+  (setq TeX-view-program-list  '(("PDF Tools" TeX-pdf-tools-sync-view)))
+  ;; 保存時に自動コンパイル
+  (add-hook 'TeX-after-compilation-finished-functions
+            #'TeX-revert-document-buffer)
+  ;(add-hook 'LaTeX-mode-hook
+  ;          (lambda ()
+  ;            (add-hook 'after-save-hook ('TeX-command-run-all nil))))
+  (setq TeX-PDF-from-DVI  '"Dvipdfmx")
+  (with-eval-after-load 'auctex
+    (require 'auctex-latexmk)
+    (auctex-latexmk-setup)
+    )
+#+end_src
+
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
@@ -1657,43 +1680,6 @@ Waylandでペーストできるようにする設定
   ;  :when (executable-find "emacs-lsp-booster")
   ;  :vc ( :url "https://github.com/jdtsmith/eglot-booster")
   ;  :global-minor-mode t)
-#+end_src
-
-** Tex
-#+begin_src emacs-lisp :tangle yes
-  ;(with-delayed-execution
-  ;  (use-package auctex
-  ;    :ensure t
-  ;    :custom
-  ;    (
-  ;   (TeX-default-mode  'japanese-latex-mode)
-  ;   (TeX-auto-save  t)
-  ;   (TeX-parse-self  t)
-  ;   (TeX-master  nil)
-  ;   )
-
-     ;(TeX-view-program-selection . '((output-pdf "PDF Tools")))
-  ;   (TeX-view-program-selection  '((output-pdf "Zathura")))
-  ;   (japanese-TeX-engine-default  'platex)
-     ;(TeX-view-program-list . '(("PDF Tools" TeX-pdf-tools-sync-view)))
-     ;; 保存時に自動コンパイル
-  ;(add-hook 'TeX-after-compilation-finished-functions
-  ;          #'TeX-revert-document-buffer)
-
-  ;(add-hook 'LaTeX-mode-hook
-   ;         (lambda ()
-   ;           (add-hook 'after-save-hook 'TeX-command-run-all nil t)))
-
-     ;(TeX-PDF-from-DVI . "Dvipdfmx")
-   ;   )
-   ; )
-  ;  (add-hook 'LaTeX-mode-hook 'japanese-LaTeX-mode)
-   ; (leaf auctex-latexmk
-    ;   :ensure t
-     ;  :after auctex
-      ; :config
-       ;(auctex-latexmk-setup)
-    ;)
 #+end_src
 
 ** envrc
