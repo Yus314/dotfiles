@@ -1,17 +1,33 @@
 modmap:
   - name: HHKB
     remap:
+      # number column
+      KEY_1: BTN_TRIGGER_HAPPY1
+      KEY_2: BTN_TRIGGER_HAPPY2
+      KEY_3: BTN_TRIGGER_HAPPY3
+      KEY_4: BTN_TRIGGER_HAPPY4
+      KEY_5: BTN_TRIGGER_HAPPY5
+      KEY_6: BTN_TRIGGER_HAPPY6
+      KEY_7: BTN_TRIGGER_HAPPY7
+      KEY_8: BTN_TRIGGER_HAPPY8
+      KEY_9: BTN_TRIGGER_HAPPY9
+      KEY_0: BTN_TRIGGER_HAPPY10
+      KEY_MINUS: BTN_TRIGGER_HAPPY11
+      KEY_EQUAL: BTN_TRIGGER_HAPPY12
+      KEY_BACKSLASH: BTN_TRIGGER_HAPPY13
+      KEY_GRAVE: BTN_TRIGGER_HAPPY14
       q: k
       w: y
       e: o
-      r: KEY_DOT
-      t: KEY_EQUAL
+      r: DOT
+      t: EQUAL
       y: f
       u: c
       i: l
       o: p
       p: q
       KEY_LEFTBRACE: z
+      KEY_RIGHTBRACE: KEY_KPRIGHTPAREN
       # middle column
       a: h
       s: i
@@ -26,10 +42,10 @@ modmap:
       KEY_APOSTROPHE: v
       # low column
       z: j
-      x: KEY_SEMICOLON
-      c: KEY_COMMA
-      v: KEY_APOSTROPHE
-      b: KEY_SLASH
+      x: MINUS
+      c: COMMA
+      v: KPLEFTPAREN
+      b: APOSTROPHE
       n: w
       m: g
       KEY_COMMA: m

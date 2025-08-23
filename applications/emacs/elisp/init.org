@@ -951,6 +951,29 @@ Waylandでペーストできるようにする設定
   (autoload-if-found '(plantuml-mode) "plantuml-mode" nil t)
   (add-to-list 'auto-mode-alist '("\\.pu$" . plantuml-mode))
 #+end_src
+** Tex
+#+begin_src emacs-lisp :tangle yes
+  (require 'auctex)
+  (setq TeX-default-mode  'japanese-latex-mode)
+  (setq TeX-auto-save  t)
+  (setq TeX-parse-self  t)
+  (setq TeX-master  nil)
+  (setq TeX-view-program-selection  '((output-pdf "PDF Tools")))
+  (setq japanese-TeX-engine-default  'platex)
+  (setq TeX-view-program-list  '(("PDF Tools" TeX-pdf-tools-sync-view)))
+  ;; 保存時に自動コンパイル
+  (add-hook 'TeX-after-compilation-finished-functions
+            #'TeX-revert-document-buffer)
+  ;(add-hook 'LaTeX-mode-hook
+  ;          (lambda ()
+  ;            (add-hook 'after-save-hook ('TeX-command-run-all nil))))
+  (setq TeX-PDF-from-DVI  '"Dvipdfmx")
+  (with-eval-after-load 'auctex
+    (require 'auctex-latexmk)
+    (auctex-latexmk-setup)
+    )
+#+end_src
+
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
@@ -1665,51 +1688,14 @@ Waylandでペーストできるようにする設定
   ;  :global-minor-mode t)
 #+end_src
 
-** Tex
-#+begin_src emacs-lisp :tangle yes
-  ;(with-delayed-execution
-  ;  (use-package auctex
-  ;    :ensure t
-  ;    :custom
-  ;    (
-  ;   (TeX-default-mode  'japanese-latex-mode)
-  ;   (TeX-auto-save  t)
-  ;   (TeX-parse-self  t)
-  ;   (TeX-master  nil)
-  ;   )
-
-     ;(TeX-view-program-selection . '((output-pdf "PDF Tools")))
-  ;   (TeX-view-program-selection  '((output-pdf "Zathura")))
-  ;   (japanese-TeX-engine-default  'platex)
-     ;(TeX-view-program-list . '(("PDF Tools" TeX-pdf-tools-sync-view)))
-     ;; 保存時に自動コンパイル
-  ;(add-hook 'TeX-after-compilation-finished-functions
-  ;          #'TeX-revert-document-buffer)
-
-  ;(add-hook 'LaTeX-mode-hook
-   ;         (lambda ()
-   ;           (add-hook 'after-save-hook 'TeX-command-run-all nil t)))
-
-     ;(TeX-PDF-from-DVI . "Dvipdfmx")
-   ;   )
-   ; )
-  ;  (add-hook 'LaTeX-mode-hook 'japanese-LaTeX-mode)
-   ; (leaf auctex-latexmk
-    ;   :ensure t
-     ;  :after auctex
-      ; :config
-       ;(auctex-latexmk-setup)
-    ;)
-#+end_src
-
 ** envrc
 #+begin_src emacs-lisp :tangle yes
-  ;(use-package envrc
+  (use-package envrc
    ; :custom
     ;(envrc-remote  t)
-   ; :config
-    ;(envrc-global-mode)
-  ;)
+    :config
+    (envrc-global-mode)
+  )
 #+end_src
 
 ** inheritenv
@@ -1843,15 +1829,17 @@ Waylandでペーストできるようにする設定
 #+end_src
 * Slack
 #+begin_src emacs-lisp :tangle yes
-  ;(with-eval-after-load 'slack
-   ; (slack-register-team
-   ;  :name "mdip"
-   ;  :token (funcall(plist-get (nth 0 (auth-source-search :host "slack")) :secret))
-   ;  :cookie "xoxd-KyIEnNOMYcpJsp0vMhsPnp4mLiqyNrgpzJ0TXux0CjTqxXnTXikUyQzDd5qhS3sTg7ff1W%2FFSayOP0RmmuAIgjcvXbOzZzkUcbhNeBLyQjtsuqw2tNiOnGeQbxXIJTA2YwmJGHdD8IdCTrIN6JLIdxQGvFpjnfKLWCv0eN5uq1DOSOqrpcMd6g%3D%3D; d-s=1721647725"
-   ;  :default t
-   ;  )
-   ; )
-   ; (require 'slack)
+  (setq auth-sources '("~/.config/emacs/.authinfo.gpg"))
+
+  (autoload 'slack-im-open "slack" nil t)
+  (with-eval-after-load 'slack
+    (slack-register-team
+     :name "mdip"
+     :token (funcall(plist-get (nth 0 (auth-source-search :machine "mdip.slack.com" :port "token")) :secret))
+     :cookie (funcall(plist-get (nth 0 (auth-source-search :machine "mdip.slack.com" :port "cookie")) :secret))
+     :default t
+     )
+    )
 #+end_src
 ** slack-org
 org-store-linkでリンクをコピーすることができる。

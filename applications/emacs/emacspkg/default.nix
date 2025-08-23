@@ -53,6 +53,8 @@
         typst-preview
         terraform-mode
         plantuml-mode
+        auctex
+        auctex-latexmk
         org-super-agenda
         org-modern
         org-modern-indent
