@@ -1350,6 +1350,12 @@ Waylandでペーストできるようにする設定
   ,#+bibliography: ~/dropbox/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
+                 ("g" "game" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+filetags: :reference:game:
+  ,#+bibliography: ~/dropbox/ref.bib")
+          :unnarrowed t
+          :jump-to-captured t)
          )
      )
     (setq org-roam-node-display-template
