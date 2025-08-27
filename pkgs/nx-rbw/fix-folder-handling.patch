@@ -1,0 +1,38 @@
+--- a/rbw.lisp	2025-08-07 22:37:35.132141449 +0900
++++ b/rbw.lisp	2025-08-07 18:24:33.599631800 +0900
+@@ -51,11 +51,12 @@
+ 	(declare (ignore service))
+   (let* ((name-folder (str:split " ("
+ 																 (subseq password-name 0 (- (length password-name) 1))))
++				 (folder (second name-folder))
+ 				 (password (execute password-interface
+-														(list "get"
+-																	"--folder"
+-																	(second name-folder)
+-																	(first name-folder))
++														(append (list "get")
++																		(when (and folder (not (str:emptyp folder)))
++																			(list "--folder" folder))
++																		(list (first name-folder)))
+ 														:output '(:string :stripped t))))
+ 		(trivial-clipboard:text password)
+ 		password))
+@@ -64,13 +65,12 @@
+   (declare (ignore service))
+   (let* ((name-folder (str:split " ("
+ 																 (subseq password-name 0 (- (length password-name) 1))))
++				 (folder (second name-folder))
+ 				 (username (execute password-interface
+-														(list "get"
+-																	"--folder"
+-																	(second name-folder)
+-																	"--field"
+-																	"username"
+-																	(first name-folder))
++														(append (list "get")
++																		(when (and folder (not (str:emptyp folder)))
++																			(list "--folder" folder))
++																		(list "--field" "username" (first name-folder)))
+ 														:output '(:string :stripped t))))
+ 		(trivial-clipboard:text username)
+ 		username))

@@ -2,7 +2,41 @@ keymap:
   - mode: default
     remap:
       C-space: [C-space, {set_mode: shingeta}]
-      KEY_F23: KPLEFTPAREN
+      BTN_TRIGGER_HAPPY1: Shift-1
+      Shift-BTN_TRIGGER_HAPPY1: KEY_9
+      BTN_TRIGGER_HAPPY2: Shift-7
+      Shift-BTN_TRIGGER_HAPPY2: KEY_7
+      BTN_TRIGGER_HAPPY3: Shift-COMMA
+      Shift-BTN_TRIGGER_HAPPY3: KEY_5
+      BTN_TRIGGER_HAPPY4: LEFTBRACE
+      Shift-BTN_TRIGGER_HAPPY4: KEY_3
+      BTN_TRIGGER_HAPPY5: Shift-LEFTBRACE
+      Shift-BTN_TRIGGER_HAPPY5: KEY_1
+      BTN_TRIGGER_HAPPY6: Shift-GRAVE
+      Shift-BTN_TRIGGER_HAPPY6: KEY_8
+      BTN_TRIGGER_HAPPY7: Shift-RIGHTBRACE
+      Shift-BTN_TRIGGER_HAPPY7: KEY_0
+      BTN_TRIGGER_HAPPY8: RIGHTBRACE
+      Shift-BTN_TRIGGER_HAPPY8: KEY_2
+      BTN_TRIGGER_HAPPY9: Shift-DOT
+      Shift-BTN_TRIGGER_HAPPY9: KEY_4
+      BTN_TRIGGER_HAPPY10: Shift-4
+      Shift-BTN_TRIGGER_HAPPY10: KEY_6
+      BTN_TRIGGER_HAPPY11: Shift-3
+      Shift-BTN_TRIGGER_HAPPY11: Shift-1
+      BTN_TRIGGER_HAPPY12: Shift-2
+      Shift-BTN_TRIGGER_HAPPY12: GRAVE
+      BTN_TRIGGER_HAPPY13: Shift-5
+      Shift-BTN_TRIGGER_HAPPY13: Shift-6
+      BTN_TRIGGER_HAPPY14: Shift-BACKSLASH
+      Shift-BTN_TRIGGER_HAPPY14: BACKSLASH
+      Shift-DOT: KEY_SEMICOLON
+      Shift-EQUAL: Shift-SEMICOLON
+      Shift-KPRIGHTPAREN: KEY_SLASH
+      Shift-KPLEFTPAREN: Shift-EQUAL
+      Shift-MINUS: Shift-8
+      Shift-COMMA: Shift-MINUS
+      Shift-APOSTROPHE: Shift-APOSTROPHE
   - mode: shingeta
     remap:
       C-space: [C-space, {set_mode: default}]
@@ -103,7 +137,7 @@ keymap:
           j: [h, y, a]
           #KEY_MINUS: []
           KEY_COMMA: [s, y, a]
-          KEY_F23: [k, y, a]
+          KEY_KPLEFTPAREN: [k, y, a]
           KEY_APOSTROPHE: [c, y, a]
         timeout_millis: 50
         timeout_key: [k, o]
@@ -122,7 +156,7 @@ keymap:
           j: [r, y, a]
           #KEY_MINUS: []
           KEY_COMMA: [j, y, a]
-          KEY_F23: [g, y, a]
+          KEY_KPLEFTPAREN: [g, y, a]
           KEY_APOSTROPHE: [n, y, a]
         timeout_millis: 50
         timeout_key: [g, a]
@@ -236,7 +270,7 @@ keymap:
           j: [d, u]
           KEY_MINUS: [z, o]
           KEY_COMMA: [b, o]
-          KEY_F23: [m, u]
+          KEY_KPLEFTPAREN: [m, u]
           KEY_APOSTROPHE: [f, o]
         timeout_millis: 50
         timeout_key: i
@@ -255,7 +289,7 @@ keymap:
           j: [z, e]
           KEY_MINUS: [z, a]
           KEY_COMMA: [g, i]
-          KEY_F23: [r, o]
+          KEY_KPLEFTPAREN: [r, o]
           KEY_APOSTROPHE: [n, u]
         timeout_millis: 50
         timeout_key: [s, i]
@@ -296,7 +330,7 @@ keymap:
           p: [j, y, a]
         timeout_millis: 50
         timeout_key: [k, i]
-      KEY_F23:
+      KEY_KPLEFTPAREN:
         remap:
           t: [m, u]
           n: [r, o]

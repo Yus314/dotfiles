@@ -4,3 +4,9 @@
 .terraform/
 *.tfstate*
 .pre-commit-config.yaml
+
+# Terraform temporary files
+*.tfplan
+plan.txt
+**/plan.txt
+**/*_plain.yaml

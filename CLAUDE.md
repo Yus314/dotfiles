@@ -132,7 +132,6 @@ sudo darwin-rebuild build --flake .#watari
 - **Pre-commit統合**: git-hooks.nixはコミット前にコード品質を確保します
 - **CI/CD検証**: GitHub Actionsはすべての変更に対してチェックとビルドを実行します
 
-<<<<<<< HEAD
 変更をコミットする際、pre-commitフックが自動的にファイルをフォーマットする場合があります。この場合：
 1. フォーマットされた変更が自動的に適用されます
 2. コードの一貫性を保つため、これらのフォーマット変更を受け入れてください
@@ -143,10 +142,6 @@ sudo darwin-rebuild build --flake .#watari
 このリポジトリでは**Conventional Commits**規約を採用しています：
 
 ### 基本形式
-<<<<<<< HEAD
->>>>>>> 1f5a47d5913f1e194407ef5d38c9a49f527acb21
-=======
->>>>>>> 5f17e8edd2b159c048d5e9e457ac38fda977ecfa
 ```
 <type>[optional scope]: <description>
 
@@ -155,7 +150,6 @@ sudo darwin-rebuild build --flake .#watari
 [optional footer(s)]
 ```
 
-<<<<<<< HEAD
 ### 主要なタイプ
 - **feat**: 新機能
 - **fix**: バグ修正
@@ -181,11 +175,95 @@ chore(flake): update nixpkgs to latest unstable
 - `modules`: カスタムモジュール
 - `pkgs`: カスタムパッケージ
 - `infra`: インフラストラクチャ設定
-<<<<<<< HEAD
 
 ### 重要な注意事項
 - **共著者の記載**: このリポジトリではClaude Codeを共著者として記載しません
 - コミットメッセージには「🤖 Generated with Claude Code」や「Co-Authored-By: Claude」などの記載を追加しないでください
->>>>>>> 1f5a47d5913f1e194407ef5d38c9a49f527acb21
-=======
->>>>>>> 5f17e8edd2b159c048d5e9e457ac38fda977ecfa
+
+## Terraform Infrastructure
+
+`infra/`ディレクトリでOracle Cloud Infrastructure (OCI)バックエンドを使用したEnterprise-grade infrastructure管理を行います。
+
+### tf-wrapper: 汎用Terraformラッパー（sops.nix統合版）
+
+#### 概要
+
+tf-wrapperはsops.nixとHome Managerの統合により、セキュアで自動化されたTerraform OCI バックエンド管理を提供します。一時ファイル不要でOCI認証情報を安全に管理し、任意のディレクトリからTerraformを実行できます。
+
+#### 基本使用
+
+```bash
+# Home Manager経由で自動インストール済み（sops.nixにより設定も自動配置）
+cd infra/services/cloudflare
+tf-wrapper plan
+tf-wrapper apply
+
+# 直接実行
+nix run .#tf-wrapper -- --version
+```
+
+#### 設定ファイル
+
+sops.nixにより以下の設定ファイルが自動生成・配置されます：
+
+- `~/.config/tf-wrapper/oci.yaml`: OCI認証設定（復号化済み）
+- `~/.config/tf-wrapper/backend.yaml`: Terraformバックエンド設定（復号化済み）
+- `~/.config/tf-wrapper/oci_private_key.pem`: OCI秘密鍵（復号化済み、権限600）
+- `~/.config/tf-wrapper/profiles.yaml`: プロファイル設定（将来対応）
+
+#### 他プロジェクトでの利用
+
+tf-wrapperは任意のTerraformプロジェクトで即座に利用可能：
+
+```bash
+# 設定は既にsops.nixにより配置済み、追加設定不要
+cd /path/to/other-terraform-project
+tf-wrapper init
+tf-wrapper apply
+```
+
+#### 環境変数
+
+- `TF_WRAPPER_CONFIG_DIR_OVERRIDE`: 設定ディレクトリの上書き
+- `TF_VAR_key`: Backend key（デフォルト: 自動生成）
+- `TF_DEBUG=1`: デバッグ情報表示
+- `TF_LOG_LEVEL=ERROR`: エラーのみ表示
+- `TF_WRAPPER_CLEANUP_ENV=1`: 終了時に環境変数をクリーンアップ
+
+#### セキュリティ機能
+
+- sops.nixによる暗号化設定管理
+- 一時ファイル不要（セキュリティリスク軽減）
+- 秘密鍵ファイルの厳格な権限管理（600）
+- 設定ファイルの自動復号化
+- Home Manager統合による一元管理
+
+### 従来の使用方法（互換性維持）
+
+```bash
+# 初回セットアップ
+cd infra && scripts/install-tf-wrapper.sh
+
+# 基本操作
+cd services/cloudflare
+tf init && tf plan && tf apply
+
+cd ../github
+tf init && tf plan && tf apply
+```
+
+### 📚 詳細ドキュメント
+
+インフラ運用の詳細は以下を参照してください：
+
+- **[🚀 運用ガイド](infra/docs/OPERATIONS.md)** - セットアップ、ワークフロー、検証手順
+- **[🛡️ セキュリティ](infra/docs/SECURITY.md)** - SOPS管理、機密情報の取扱いポリシー
+- **[🚨 トラブルシューティング](infra/docs/TROUBLESHOOTING.md)** - よくある問題と解決方法
+- **[🔥 緊急時対応](infra/docs/EMERGENCY.md)** - インシデント対応手順
+
+### アーキテクチャ概要
+
+- **OCI Native Backend**: 状態管理にOracle Cloud Object Storage使用
+- **SOPS暗号化**: Age + PGP二重保護による機密情報管理
+- **Zero-Touch認証**: 自動化tfラッパーによる認証フロー
+- **Enterprise Security**: 完全暗号化、監査証跡、ロールバック対応

@@ -37,10 +37,6 @@
       enableZshIntegration = true;
       enableNushellIntegration = true;
     };
-    nh = {
-      enable = true;
-      flake = "~/ghq/github.com/Yus314/dotfiles";
-    };
   };
   home.packages = with pkgs; [
     # --- CLI Utilities ---
@@ -67,8 +63,9 @@
     nvfetcher
     claude-code
     gemini-cli
-    nh
     nix-search-cli
+    jq
+    yq
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings

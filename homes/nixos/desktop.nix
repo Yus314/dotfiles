@@ -5,6 +5,8 @@
     ../../applications/hyprland
     ../../applications/niri
     ../../applications/sway
+    ../../applications/swww
+    ../../applications/spotlight-downloader
     ../../applications/i3
     ../../applications/tofi
     ../../applications/foot
@@ -12,6 +14,7 @@
     ../../applications/dunst
     ../../applications/rclone
     ../../applications/nyxt
+    ../../applications/fcitx5-cskk
   ];
   home.packages = with pkgs; [
     xfce.thunar

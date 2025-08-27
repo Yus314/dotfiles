@@ -23,7 +23,7 @@
       };
     };
     controlMaster = "auto";
-    controlPersist = "10m";
+    controlPersist = "180m";
     includes = [ "config.d/*" ];
   };
   programs.fish = {

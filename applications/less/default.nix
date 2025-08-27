@@ -2,7 +2,7 @@
 {
   programs.less = {
     enable = true;
-    keys = ''
+    config = ''
       #command
 
       #line-edit

@@ -12,14 +12,15 @@ locals {
 resource "cloudflare_zero_trust_tunnel_cloudflared" "main" {
   for_each = local.tunnels
 
-  account_id = var.cloudflare_account_id
+  config_src = "cloudflare"
+  account_id = data.sops_file.cloudflare-secret.data["account_id"]
   name       = each.key
 }
 
 resource "cloudflare_zero_trust_tunnel_cloudflared_config" "main" {
   for_each = local.tunnels
 
-  account_id = var.cloudflare_account_id
+  account_id = data.sops_file.cloudflare-secret.data["account_id"]
   tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.main[each.key].id
 
   config = {
