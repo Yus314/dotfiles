@@ -117,6 +117,7 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
+
         "lastModified": 1755681184,
         "narHash": "sha256-iW4UaW6me6+VqDSyFE8mwgW6zXTcdIn2mVUEAAXzMeo=",
         "owner": "nix-community",
@@ -223,6 +224,7 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
+
         "lastModified": 1755446520,
         "narHash": "sha256-I0Ok1OGDwc1jPd8cs2VvAYZsHriUVFGIUqW+7uSsOUM=",
         "owner": "cachix",
@@ -287,6 +289,7 @@
         ]
       },
       "locked": {
+
         "lastModified": 1755625756,
         "narHash": "sha256-t57ayMEdV9g1aCfHzoQjHj1Fh3LDeyblceADm2hsLHM=",
         "owner": "nix-community",
