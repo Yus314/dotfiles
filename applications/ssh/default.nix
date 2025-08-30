@@ -25,6 +25,10 @@
     controlMaster = "auto";
     controlPersist = "180m";
     includes = [ "config.d/*" ];
+    extraConfig = ''
+      ClientAliveInterval 60
+      ClientAliveCountMax 3
+    '';
   };
   programs.fish = {
     interactiveShellInit = ''
