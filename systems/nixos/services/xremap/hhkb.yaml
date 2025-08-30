@@ -27,7 +27,7 @@ modmap:
       o: p
       p: q
       KEY_LEFTBRACE: z
-      KEY_RIGHTBRACE: KEY_KPRIGHTPAREN
+      KEY_RIGHTBRACE: F24
       # middle column
       a: h
       s: i
