@@ -6,7 +6,7 @@
     ../../applications/niri
     ../../applications/sway
     ../../applications/swww
-    ../../applications/spotlight-downloader
+    #../../applications/spotlight-downloader
     ../../applications/i3
     ../../applications/tofi
     ../../applications/foot
@@ -19,6 +19,8 @@
   home.packages = with pkgs; [
     xfce.thunar
     xfce.tumbler
+    sshfs
+    gvfs
     gscreenshot
     wl-clipboard
     #swaylock
