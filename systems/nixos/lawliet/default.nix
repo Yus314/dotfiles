@@ -56,6 +56,15 @@ in
     #};
 
   };
+  programs.steam = {
+    enable = true;
+  };
+
+  programs.virt-manager.enable = true;
+  users.groups.libvirtd.members = [ "kaki" ];
+  virtualisation.libvirtd.enable = true;
+  virtualisation.spiceUSBRedirection.enable = true;
+
   networking.hostName = "lawliet";
 
   services.offlineimap = {
