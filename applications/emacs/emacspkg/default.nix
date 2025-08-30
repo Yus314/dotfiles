@@ -76,7 +76,7 @@
         ace-window
         embark
         embark-consult
-        go-translate
+        gt
         rainbow-delimiters
         reformatter
         apheleia
