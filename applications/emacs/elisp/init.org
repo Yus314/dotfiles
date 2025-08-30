@@ -1839,6 +1839,8 @@ Waylandでペーストできるようにする設定
      :cookie (funcall(plist-get (nth 0 (auth-source-search :machine "mdip.slack.com" :port "cookie")) :secret))
      :default t
      )
+    (define-key slack-mode-map (kbd "S-<return>")
+  (lambda () (interactive) (insert (kbd "C-j"))))
     )
 #+end_src
 ** slack-org
