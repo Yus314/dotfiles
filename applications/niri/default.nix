@@ -32,7 +32,7 @@ in
 
   programs.niri = {
     enable = true;
-    package = inputs.niri.packages.${pkgs.system}.niri-unstable;
+    package = pkgs.niri;
 
     settings = {
       # デュアルモニター設定
