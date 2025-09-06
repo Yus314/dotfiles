@@ -732,24 +732,26 @@ Waylandでペーストできるようにする設定
 #+end_src
 * lsp-bridge
 #+begin_src emacs-lisp :tangle yes
-    (add-hook 'emacs-startup-hook #'global-lsp-bridge-mode)
-    (autoload 'global-lsp-bridge-mode "lsp-bridge")
-    (with-eval-after-load 'lsp-bridge
-      (yas-global-mode)
-      (setq lsp-bridge-nix-lsp-server "nil")
-      (setq lsp-bridge-enable-with-tramp t)
-      (setq lsp-bridge-remote-start-automatically t)
-      (setq lsp-bridge-enable-search-words nil)
-      (setq lsp-bridge-auto-format-code t)
-      (setq lsp-bridge-auto-format-code-idle 10)
-      (setq lsp-bridge-enable-org-babel t)
-      (setq lsp-bridge-enable-hover-diagnostic t)
-      (setq acm-enable-tabnine nil)
-      (setq acm-enable-search-file-words nil)
-      (setq acm-enable-ctag nil)
-      (setq acm-enable-telega nil)
-   ;   (setq lsp-bridge-log-level "debug")
-      )
+   (add-hook 'emacs-startup-hook #'global-lsp-bridge-mode)
+   (autoload 'global-lsp-bridge-mode "lsp-bridge")
+   (with-eval-after-load 'lsp-bridge
+     (yas-global-mode)
+     (setq lsp-bridge-nix-lsp-server "nil")
+     (setq lsp-bridge-enable-with-tramp t)
+     (setq lsp-bridge-remote-start-automatically t)
+     (setq lsp-bridge-enable-search-words nil)
+     (setq lsp-bridge-auto-format-code t)
+     (setq lsp-bridge-auto-format-code-idle 10)
+     (setq lsp-bridge-enable-org-babel t)
+     (setq lsp-bridge-enable-hover-diagnostic t)
+     (setq acm-enable-tabnine nil)
+     (setq acm-enable-search-file-words nil)
+     (setq acm-enable-ctag nil)
+     (setq acm-enable-telega nil)
+     ; for rust
+     (setq lsp-bridge-enable-inlay-hint t)
+  ;   (setq lsp-bridge-log-level "debug")
+     )
 #+end_src
 * lsp-mode
 #+begin_src emacs-lisp :tangle yes
@@ -860,40 +862,44 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** rust
 #+begin_src emacs-lisp :tangle yes
-     ;(use-package rust-mode
-     ;   :custom
-     ;   (rust-mode-treesitter-derive  t)
-     ;   (rust-format-on-save  t)
-        ;:hook
-        ;(rust-mode-hook  lsp)
+       ;(use-package rust-mode
+       ;   :custom
+       ;   (rust-mode-treesitter-derive  t)
+       ;   (rust-format-on-save  t)
+          ;:hook
+          ;(rust-mode-hook  lsp)
+      ;    )
+      ; (add-hook 'rust-mode-hook 'eglot-ensure)
+  ;     (defun my/find-rust-project-root (dir)
+  ;        (when-let ((root (locate-dominating-file dir "Cargo.toml")))
+  ;          (list 'vc 'Git root)))
+
+  ;     (defun my/rust-mode-hook ()
+  ;       (setq-local project-find-functions (list #'my/find-rust-project-root)))
+
+  ;     (add-hook 'rustic-mode-hook #'my/rust-mode-hook)
+      (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+  (autoload 'rust-mode "rust-mode" nil t)
+
+      ;(require 'rust-mode)
+      ;(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+      ;(setq rust-mode-treesitter-derive t)
+      (with-eval-after-load 'rust-mode
+        (setq rust-mode-treesitter-derive t)
+        )
+    ;  (require 'rust-mode)
+    ;  (require 'inheritenv)
+    ;  (setq rust-mode-treesitter-derive t)
+    ;  (with-eval-after-load 'inheritenv
+    ;   (inheritenv-add-advice #'rustic-compilation)
+    ;    (require 'rustic nil t)
+    ;    (require 'flycheck)
+    ;    (setq rustic-format-on-save t)
+    ;    (setq rustic-lsp-client nil)
+    ;    ;(add-hook 'rustic-mode-hook 'lsp)
+    ;    (push 'rustic-clippy flycheck-checkers)
+    ;(add-hook 'rustic-mode-hook 'flycheck-mode)
     ;    )
-    ; (add-hook 'rust-mode-hook 'eglot-ensure)
-;     (defun my/find-rust-project-root (dir)
-;        (when-let ((root (locate-dominating-file dir "Cargo.toml")))
-;          (list 'vc 'Git root)))
-
-;     (defun my/rust-mode-hook ()
-;       (setq-local project-find-functions (list #'my/find-rust-project-root)))
-
-;     (add-hook 'rustic-mode-hook #'my/rust-mode-hook)
-    ;(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
-    ;(require 'rust-mode)
-    ;(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
-    ;(setq rust-mode-treesitter-derive t)
-    ;(with-eval-after-load 'rust-mode
-  ;  (require 'rust-mode)
-  ;  (require 'inheritenv)
-  ;  (setq rust-mode-treesitter-derive t)
-  ;  (with-eval-after-load 'inheritenv
-  ;   (inheritenv-add-advice #'rustic-compilation)
-  ;    (require 'rustic nil t)
-  ;    (require 'flycheck)
-  ;    (setq rustic-format-on-save t)
-  ;    (setq rustic-lsp-client nil)
-  ;    ;(add-hook 'rustic-mode-hook 'lsp)
-  ;    (push 'rustic-clippy flycheck-checkers)
-  ;(add-hook 'rustic-mode-hook 'flycheck-mode)
-  ;    )
 #+end_src
 ** Python
 #+begin_src emacs-lisp :tangle yes
@@ -964,9 +970,9 @@ Waylandでペーストできるようにする設定
   ;; 保存時に自動コンパイル
   (add-hook 'TeX-after-compilation-finished-functions
             #'TeX-revert-document-buffer)
-  ;(add-hook 'LaTeX-mode-hook
-  ;          (lambda ()
-  ;            (add-hook 'after-save-hook ('TeX-command-run-all nil))))
+  (add-hook 'LaTeX-mode-hook
+           (lambda ()
+              (add-hook 'after-save-hook ('TeX-command-run-all nil))))
   (setq TeX-PDF-from-DVI  '"Dvipdfmx")
   (with-eval-after-load 'auctex
     (require 'auctex-latexmk)
@@ -1451,13 +1457,13 @@ Waylandでペーストできるようにする設定
   	  )))
 
     (keymap-set org-mode-map "C-c r r" 'org-roam-review-accept)
-    (keymap-set org-mode-map "C-c r f"  org-roam-review-forgot)
-    (keymap-set org-mode-map "C-c r u"  org-roam-review-bury)
-    (keymap-set org-mode-map "C-c r m"  org-roam-review-set-memorise)
-    (keymap-set org-mode-map "C-c r x"  org-roam-review-set-excluded)
-    (keymap-set org-mode-map "C-c r b"  org-roam-review-set-budding)
-    (keymap-set org-mode-map "C-c r s"  org-roam-review-set-seedling)
-    (keymap-set org-mode-map "C-c r e"  org-roam-review-set-evergreen)
+    (keymap-set org-mode-map "C-c r f"  'org-roam-review-forgot)
+    (keymap-set org-mode-map "C-c r u"  'org-roam-review-bury)
+    (keymap-set org-mode-map "C-c r m"  'org-roam-review-set-memorise)
+    (keymap-set org-mode-map "C-c r x"  'org-roam-review-set-excluded)
+    (keymap-set org-mode-map "C-c r b"  'org-roam-review-set-budding)
+    (keymap-set org-mode-map "C-c r s"  'org-roam-review-set-seedling)
+    (keymap-set org-mode-map "C-c r e"  'org-roam-review-set-evergreen)
     (keymap-set org-roam-review-mode-map  "d"  'org-roam-review-delete)
     )
 #+end_src
@@ -1690,12 +1696,11 @@ Waylandでペーストできるようにする設定
 
 ** envrc
 #+begin_src emacs-lisp :tangle yes
-  (use-package envrc
-   ; :custom
-    ;(envrc-remote  t)
-    :config
-    (envrc-global-mode)
-  )
+  (autoload 'envrc-global-mode "envrc" nil t)
+  (add-hook 'emacs-startup-hook #'envrc-global-mode)
+  (with-eval-after-load 'envrc
+    (setq  Info-directory-list Info-default-directory-list )
+    )
 #+end_src
 
 ** inheritenv

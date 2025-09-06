@@ -23,7 +23,7 @@ in
     packages = with pkgs; [
       nil
       nixfmt-rfc-style
-      rust-analyzer
+      #rust-analyzer
       basedpyright
       pyright
       ruff
