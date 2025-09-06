@@ -26,7 +26,7 @@
     #swaylock
     #swayidle
     wlogout
-    pinta
+    krita
     # Temporarily disabled due to CI issues
     # inputs.claude-desktop.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];

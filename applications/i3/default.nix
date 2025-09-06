@@ -3,7 +3,6 @@ let
   mod = "MOD1";
 in
 {
-
   xsession.windowManager.i3 = {
     enable = false;
     config = {
@@ -17,7 +16,7 @@ in
         "${mod}+Shift+t" = "move up";
         "${mod}+Shift+h" = "move down";
         "${mod}+f" = "fullscreen";
-        "${mod}+Return" = "exec wezterm";
+        "${mod}+Return" = "exec foot";
         "${mod}+Shift+q" = "kill";
         "${mod}+i" = "exec thunar";
         "${mod}+v" = "exec vivaldi";
