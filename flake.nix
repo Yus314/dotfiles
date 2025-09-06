@@ -128,7 +128,7 @@
                   enable = true;
                   excludes = [
                     "secrets.yaml"
-                    "secrets/defualt.yaml"
+                    "secrets/default.yaml"
                     "applications/neovim/lua/plugins/skkeleton.lua"
                     "applications/neovim/SKK-JISYO.L"
                   ];
