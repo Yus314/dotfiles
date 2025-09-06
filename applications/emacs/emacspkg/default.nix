@@ -106,8 +106,6 @@
         pkgs.zathura
         pkgs.imagemagick
         pkgs.ghq
-        pkgs.tinymist
-
         pkgs.aider-chat
         pkgs.tree-sitter
         pkgs.emacs-lsp-booster

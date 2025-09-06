@@ -13,6 +13,7 @@ let
 in
 {
   imports = [
+    home-manager.nixosModules.home-manager
     ../common.nix
   ];
   home-manager = {
@@ -22,20 +23,10 @@ in
     extraSpecialArgs = {
       inherit nixpkgs;
       inherit system;
-      inherit org-babel emacs-overlay;
+      inherit emacs-overlay;
+      inherit org-babel;
+
     };
     backupFileExtension = "hm-backup";
   };
-  #  system = "x86_64-linux";
-  #  modules = [
-  #    ./lab-sub-configuration.nix
-  #    home-manager.nixosModules.home-manager
-  #  ];
-  #  specialArgs = {
-  #    unstable = import unstable {
-  #      sysmet = "x86_64-linux";
-  #      config.allowUnfree = true;
-  #    };
-  #    inherit xremap;
-  #  };
 }

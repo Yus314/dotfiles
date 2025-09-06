@@ -939,6 +939,8 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** typst
 #+begin_src emacs-lisp :tangle yes
+    (add-to-list 'auto-mode-alist '("\\.typ\\'" . typst-ts-mode))
+    (autoload 'typst-ts-mode "typst-ts-mode" nil t)
   (setq typst-ts-mode-watch-option "--open")
 
   ;typst-previewだと保存しなくても同期するようになる
