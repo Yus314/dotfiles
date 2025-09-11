@@ -30,14 +30,9 @@ keymap:
       Shift-BTN_TRIGGER_HAPPY13: Shift-6
       BTN_TRIGGER_HAPPY14: Shift-BACKSLASH
       Shift-BTN_TRIGGER_HAPPY14: BACKSLASH
-      Shift-DOT: KEY_SEMICOLON
-      Shift-EQUAL: Shift-SEMICOLON
       Shift-KPRIGHTPAREN: KEY_SLASH
       F24: Shift-9
       Shift-F24: Shift-EQUAL
-      Shift-MINUS: Shift-8
-      Shift-COMMA: Shift-MINUS
-      Shift-APOSTROPHE: Shift-APOSTROPHE
   - mode: shingeta
     remap:
       C-space: [C-space, {set_mode: default}]

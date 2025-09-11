@@ -136,7 +136,7 @@ in
     mu
     sops
     age
-    pinentry-emacs
+    pinentry-gnome3
     cloudflared
     # アイコンテーマ (dunst通知用)
     adwaita-icon-theme
@@ -144,7 +144,7 @@ in
   ];
   programs.gnupg.agent = {
     enable = true;
-    pinentryPackage = pkgs.pinentry-emacs;
+    pinentryPackage = pkgs.pinentry-gnome3;
   };
   services.pcscd.enable = true;
   system.stateVersion = "25.05"; # Did you read the comment?

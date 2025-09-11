@@ -14,6 +14,7 @@ modmap:
       KEY_0: BTN_TRIGGER_HAPPY10
       KEY_MINUS: BTN_TRIGGER_HAPPY11
       KEY_EQUAL: BTN_TRIGGER_HAPPY12
+      Shift-EQUAL: Shift-SEMICOLON
       KEY_BACKSLASH: BTN_TRIGGER_HAPPY13
       KEY_GRAVE: BTN_TRIGGER_HAPPY14
       q: k
@@ -40,14 +41,18 @@ modmap:
       l: n
       KEY_SEMICOLON: r
       KEY_APOSTROPHE: v
+      Shift-APOSTROPHE: Shift-APOSTROPHE
       # low column
       z: j
       x: MINUS
+      Shift-MINUS: Shift-8
       c: COMMA
+      Shift-COMMA: Shift-MINUS
       v: KPLEFTPAREN
       b: APOSTROPHE
       n: w
       m: g
       KEY_COMMA: m
       KEY_DOT: b
+      Shift-DOT: KEY_SEMICOLON
       KEY_SLASH: x
