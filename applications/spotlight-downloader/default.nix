@@ -26,7 +26,7 @@ in
 
     Service = {
       Type = "oneshot";
-      ExecStart = "${lib.getExe pkgs.spotlight-downloader} --out-dir ${spotlightArchiveDir} --locale ja-JP";
+      ExecStart = "${lib.getExe pkgs.spotlight-downloader} download --outdir ${spotlightArchiveDir} --locale ja-JP";
 
       # エラー時のリトライ設定
       Restart = "on-failure";

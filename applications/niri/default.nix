@@ -32,7 +32,7 @@ in
 
   programs.niri = {
     enable = true;
-    package = inputs.niri.packages.${pkgs.system}.niri-unstable;
+    package = pkgs.niri;
 
     settings = {
       # デュアルモニター設定
@@ -71,6 +71,9 @@ in
       input = {
         mod-key = "Alt";
         mod-key-nested = "Alt";
+        tablet = {
+          map-to-output = "HDMI-A-1";
+        };
       };
 
       environment = {

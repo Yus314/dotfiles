@@ -4,35 +4,49 @@
   inputs = {
     nixpkgs.url = "git+https://github.com/nixos/nixpkgs?shallow=1&ref=nixos-unstable";
     nixpkgs-stable.url = "git+https://github.com/nixos/nixpkgs?shallow=1&ref=nixos-24.05";
-    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nix-darwin = {
-      url = "github:LnL7/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    emacs-overlay.url = "github:nix-community/emacs-overlay";
 
-    org-babel.url = "github:emacs-twist/org-babel";
-    sops-nix.url = "github:Mic92/sops-nix";
-    impermanence.url = "github:nix-community/impermanence";
+    claude-desktop.url = "github:k3d3/claude-desktop-linux-flake";
+    disko.url = "github:nix-community/disko";
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
     flake-parts.url = "github:hercules-ci/flake-parts";
     git-hooks.url = "github:cachix/git-hooks.nix";
-    treefmt-nix.url = "github:numtide/treefmt-nix";
-    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
-    nur-packages.url = "github:Yus314/nur-packages";
-    nur-packages.inputs.nixpkgs.follows = "nixpkgs";
-    disko.url = "github:nix-community/disko";
-    disko.inputs.nixpkgs.follows = "nixpkgs";
-    xremap.url = "github:xremap/nix-flake";
+    home-manager.url = "github:nix-community/home-manager";
+    impermanence.url = "github:nix-community/impermanence";
     mcp-servers.url = "github:natsukium/mcp-servers-nix";
-    mcp-servers.inputs.nixpkgs.follows = "nixpkgs";
-    claude-desktop.url = "github:k3d3/claude-desktop-linux-flake";
-    claude-desktop.inputs.nixpkgs.follows = "nixpkgs";
     niri.url = "github:sodiboo/niri-flake";
+    nix-darwin.url = "github:LnL7/nix-darwin";
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
+    nur-packages.url = "github:Yus314/nur-packages";
+    org-babel.url = "github:emacs-twist/org-babel";
+    sops-nix.url = "github:Mic92/sops-nix";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    xremap.url = "github:xremap/nix-flake";
+
+    # use in follows
+    flake-utils.url = "github:numtide/flake-utils";
+
+    claude-desktop.inputs.nixpkgs.follows = "nixpkgs";
+    claude-desktop.inputs.flake-utils.follows = "flake-utils";
+    disko.inputs.nixpkgs.follows = "nixpkgs";
+    emacs-overlay.inputs.nixpkgs-stable.follows = "nixpkgs-stable";
+    emacs-overlay.inputs.nixpkgs.follows = "nixpkgs";
+    flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
+    git-hooks.inputs.flake-compat.follows = "";
+    git-hooks.inputs.gitignore.follows = "";
+    git-hooks.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    mcp-servers.inputs.nixpkgs.follows = "nixpkgs";
+    niri.inputs.niri-stable.follows = "";
+    niri.inputs.niri-unstable.follows = "";
+    niri.inputs.nixpkgs-stable.follows = "nixpkgs-stable";
     niri.inputs.nixpkgs.follows = "nixpkgs";
+    niri.inputs.xwayland-satellite-stable.follows = "";
+    niri.inputs.xwayland-satellite-unstable.follows = "";
+    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
+    nur-packages.inputs.nixpkgs.follows = "nixpkgs";
+    xremap.inputs.nixpkgs.follows = "nixpkgs";
+    xremap.inputs.flake-parts.follows = "flake-parts";
+
   };
   outputs =
     {
@@ -114,7 +128,7 @@
                   enable = true;
                   excludes = [
                     "secrets.yaml"
-                    "secrets/defualt.yaml"
+                    "secrets/default.yaml"
                     "applications/neovim/lua/plugins/skkeleton.lua"
                     "applications/neovim/SKK-JISYO.L"
                   ];

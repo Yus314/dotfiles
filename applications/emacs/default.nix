@@ -18,12 +18,12 @@ in
   };
   xdg.configFile."emacs/init.el".text = tangle (builtins.readFile ./elisp/init.org);
   xdg.configFile."emacs/early-init.el".text = tangle (builtins.readFile ./elisp/early-init.org);
-
+  xdg.configFile."emacs/.authinfo.gpg".source = ./.authinfo.gpg;
   home = {
     packages = with pkgs; [
       nil
       nixfmt-rfc-style
-      rust-analyzer
+      #rust-analyzer
       basedpyright
       pyright
       ruff

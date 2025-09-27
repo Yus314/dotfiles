@@ -1,5 +1,5 @@
 [default]
-extend-words = { edn = "edn", ba = "ba", ths = "ths", shs = "shs", nd = "nd", noice = "noice", pn = "pn", thn = "thn", unparented = "unparented" }
+extend-words = { edn = "edn", ba = "ba", ths = "ths", shs = "shs", nd = "nd", noice = "noice", pn = "pn", thn = "thn", unparented = "unparented", typ = "typ" }
 extend_ignore-words-re = ["noice"]
 
 [files]

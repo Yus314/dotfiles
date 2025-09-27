@@ -8,7 +8,6 @@ let
   inherit (inputs)
     nixpkgs
     home-manager
-    unstable
     sops-nix
     emacs-overlay
     org-babel
@@ -29,7 +28,9 @@ in
     extraSpecialArgs = {
       inherit nixpkgs;
       inherit system;
-      inherit org-babel emacs-overlay;
+      inherit emacs-overlay;
+      inherit org-babel;
+
     };
     backupFileExtension = "hm-backup";
   };

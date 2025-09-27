@@ -21,9 +21,13 @@
         #        "~/.ssh/id_ed25519"
         #     ];
       };
+      "*" = {
+        serverAliveInterval = 60;
+        serverAliveCountMax = 3;
+      };
     };
     controlMaster = "auto";
-    controlPersist = "10m";
+    controlPersist = "180m";
     includes = [ "config.d/*" ];
   };
   programs.fish = {
