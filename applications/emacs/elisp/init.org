@@ -1378,13 +1378,13 @@ Waylandでペーストできるようにする設定
   (with-eval-after-load 'org-roam-review
     (add-hook 'org-roam-capture-new-node-hook #'org-roam-review-set-seedling)
     (keymap-set org-mode-map "C-c r r" 'org-roam-review-accept)
-    (keymap-set org-mode-map "C-c r f"  org-roam-review-forgot)
-    (keymap-set org-mode-map "C-c r u"  org-roam-review-bury)
-    (keymap-set org-mode-map "C-c r m"  org-roam-review-set-memorise)
-    (keymap-set org-mode-map "C-c r x"  org-roam-review-set-excluded)
-    (keymap-set org-mode-map "C-c r b"  org-roam-review-set-budding)
-    (keymap-set org-mode-map "C-c r s"  org-roam-review-set-seedling)
-    (keymap-set org-mode-map "C-c r e"  org-roam-review-set-evergreen)
+    (keymap-set org-mode-map "C-c r f" 'org-roam-review-forgot)
+    (keymap-set org-mode-map "C-c r u" 'org-roam-review-bury)
+    (keymap-set org-mode-map "C-c r m" 'org-roam-review-set-memorise)
+    (keymap-set org-mode-map "C-c r x" 'org-roam-review-set-excluded)
+    (keymap-set org-mode-map "C-c r b" 'org-roam-review-set-budding)
+    (keymap-set org-mode-map "C-c r s" 'org-roam-review-set-seedling)
+    (keymap-set org-mode-map "C-c r e" 'org-roam-review-set-evergreen)
     )
 #+end_src
 ** citer
