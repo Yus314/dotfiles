@@ -6,7 +6,7 @@
     ../../applications/niri
     ../../applications/sway
     ../../applications/swww
-    ../../applications/spotlight-downloader
+    #../../applications/spotlight-downloader
     ../../applications/i3
     ../../applications/tofi
     ../../applications/foot
@@ -19,12 +19,14 @@
   home.packages = with pkgs; [
     xfce.thunar
     xfce.tumbler
+    sshfs
+    gvfs
     gscreenshot
     wl-clipboard
     #swaylock
     #swayidle
     wlogout
-    pinta
+    krita
     # Temporarily disabled due to CI issues
     # inputs.claude-desktop.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];

@@ -21,6 +21,10 @@
         #        "~/.ssh/id_ed25519"
         #     ];
       };
+      "*" = {
+        serverAliveInterval = 60;
+        serverAliveCountMax = 3;
+      };
     };
     extraConfig = ''
       ClientAliveInterval 60

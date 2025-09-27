@@ -37,6 +37,7 @@ in
     ../applications/vim
     ../applications/rbw
     ../applications/tf-wrapper
+    ../applications/nh
   ];
   services.gpg-agent = {
     enable = true;
