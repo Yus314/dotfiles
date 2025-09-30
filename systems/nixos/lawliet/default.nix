@@ -71,7 +71,6 @@ in
     enable = true;
     path = [ pkgs.mu ];
   };
-  services.onedrive.enable = true;
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
