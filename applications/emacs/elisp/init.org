@@ -1675,6 +1675,7 @@ Waylandでペーストできるようにする設定
   (autoload 'apheleia-global-mode "apheleia")
   (apheleia-global-mode)
   ;(setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)
+    (setf (alist-get 'typst-ts-mode apheleia-mode-alist) 'typstmt)
 #+end_src
 * aggressive-inden
 * プログラミング支援
