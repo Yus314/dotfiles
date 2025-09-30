@@ -212,10 +212,11 @@
   # Mod+Shift+Space { switch-layout "prev"; }
 
   "Print".action.screenshot = { };
-  "Ctrl+Print".action.screenshot-screen = { };
+  "Mod+Shift+P".action.screenshot = { };
+  "Mod+P".action.screenshot-screen = { };
   "Alt+Print".action.screenshot-window = { };
 
   # Powers off the monitors. To turn them back on, do any input like
   # moving the mouse or pressing any other key.
-  "Mod+Shift+P".action.power-off-monitors = { };
+  #"Mod+Shift+P".action.power-off-monitors = { };
 }
