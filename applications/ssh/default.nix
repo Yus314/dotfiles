@@ -26,6 +26,10 @@
         serverAliveCountMax = 3;
       };
     };
+    extraConfig = ''
+      ClientAliveInterval 60
+      ClientAliveCountMax 3
+    '';
     controlMaster = "auto";
     controlPersist = "180m";
     includes = [ "config.d/*" ];
