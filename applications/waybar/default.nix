@@ -201,9 +201,9 @@
         };
 
         # niri-taskbar CFFI統合設定（完全構成）
-        #"cffi/niri-taskbar" = {
-        #  module_path = "${pkgs.niri-taskbar}/lib/libniri_taskbar.so";
-        #};
+        "cffi/niri-taskbar" = {
+          module_path = "${pkgs.niri-taskbar}/lib/libniri_taskbar.so";
+        };
       }
     ];
     style = ''
