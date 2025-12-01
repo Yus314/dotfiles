@@ -6,6 +6,7 @@
     ../applications/vivaldi
     ../applications/google-chrome
     ../applications/qutebrowser
+    ../applications/obs-studio
   ];
   home.packages = with pkgs; [
     zoom-us
