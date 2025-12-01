@@ -7,4 +7,5 @@ in
   #fcitx5-cskk = super.libFortQt5.callPackage (import ./fcitx5-cskk) { };
   #fcitx5-cskk-qt = self.fcitx-cskk-override { enableQt = true; };
   tf-wrapper = super.callPackage ./tf-wrapper { };
+  sikulix = super.callPackage ./sikulix { };
 }
