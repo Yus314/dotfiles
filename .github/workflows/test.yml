@@ -43,7 +43,7 @@ jobs:
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Check flake
-        run: nix flake check --no-build --all-systems --keep-going
+        run: nix flake check --no-build --all-systems --keep-going --allow-import-from-derivation
   build:
     needs: check
     runs-on: ${{ matrix.os }}
