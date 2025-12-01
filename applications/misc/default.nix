@@ -66,6 +66,7 @@
     nix-search-cli
     jq
     yq
+    github-copilot-cli
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
