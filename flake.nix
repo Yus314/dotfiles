@@ -100,7 +100,6 @@
           };
           packages = rec {
             tf-wrapper = pkgs.tf-wrapper;
-            sikulix = pkgs.sikulix;
           };
           pre-commit = {
             check.enable = true;
