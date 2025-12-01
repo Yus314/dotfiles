@@ -6,7 +6,7 @@
     packages = with pkgs; [
       noto-fonts-cjk-serif
       noto-fonts-cjk-sans
-      noto-fonts-emoji
+      noto-fonts-color-emoji
       nerd-fonts.hack
       arkpandora_ttf
       bizin-gothic-nf
