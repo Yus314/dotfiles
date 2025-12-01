@@ -15,6 +15,7 @@
     ../../applications/rclone
     ../../applications/nyxt
     ../../applications/fcitx5-cskk
+    ../../applications/darkman
   ];
   home.packages = with pkgs; [
     xfce.thunar
