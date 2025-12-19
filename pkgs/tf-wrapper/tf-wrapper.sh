@@ -6,7 +6,8 @@ set -euo pipefail
 # ========================================
 # 設定値
 # ========================================
-readonly SCRIPT_NAME="$(basename "$0")"
+SCRIPT_NAME="$(basename "$0")"
+readonly SCRIPT_NAME
 readonly TF_WRAPPER_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/tf-wrapper"
 
 # カラー定義
@@ -43,8 +44,9 @@ parse_config() {
 # バックエンドキー生成
 # ========================================
 generate_backend_key() {
-  local current_dir="$(basename "$PWD")"
-  local parent_dir="$(basename "$(dirname "$PWD")")"
+  local current_dir parent_dir
+  current_dir="$(basename "$PWD")"
+  parent_dir="$(basename "$(dirname "$PWD")")"
 
   # ディレクトリ構造に基づくキー生成
   if [[ $parent_dir == "services" ]]; then
@@ -151,17 +153,23 @@ setup_oci_environment() {
     # sops.nix管理の個別ファイルから読み取り
     local config_dir="$TF_WRAPPER_CONFIG_DIR_RESOLVED"
 
-    export TF_VAR_tenancy_ocid="$(cat "$config_dir/tenancy.txt")"
-    export TF_VAR_user_ocid="$(cat "$config_dir/user.txt")"
-    export TF_VAR_fingerprint="$(cat "$config_dir/fingerprint.txt")"
-    export TF_VAR_bucket="$(cat "$config_dir/backend-bucket.txt")"
-    export TF_VAR_namespace="$(cat "$config_dir/backend-namespace.txt")"
-    export TF_VAR_region="$(cat "$config_dir/backend-region.txt")"
-    export TF_VAR_private_key_path="$config_dir/private_key.pem"
+    # 環境変数の宣言
+    export TF_VAR_tenancy_ocid TF_VAR_user_ocid TF_VAR_fingerprint
+    export TF_VAR_bucket TF_VAR_namespace TF_VAR_region TF_VAR_private_key_path
+
+    # 値の代入
+    TF_VAR_tenancy_ocid="$(cat "$config_dir/tenancy.txt")"
+    TF_VAR_user_ocid="$(cat "$config_dir/user.txt")"
+    TF_VAR_fingerprint="$(cat "$config_dir/fingerprint.txt")"
+    TF_VAR_bucket="$(cat "$config_dir/backend-bucket.txt")"
+    TF_VAR_namespace="$(cat "$config_dir/backend-namespace.txt")"
+    TF_VAR_region="$(cat "$config_dir/backend-region.txt")"
+    TF_VAR_private_key_path="$config_dir/private_key.pem"
   fi
 
   # キーの設定（環境変数優先、なければ自動生成）
-  local backend_key="${TF_VAR_key:-$(generate_backend_key)}"
+  local backend_key
+  backend_key="${TF_VAR_key:-$(generate_backend_key)}"
   export TF_VAR_key="$backend_key"
 
   # 設定値検証

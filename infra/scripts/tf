@@ -12,11 +12,15 @@ set -euo pipefail
 # ========================================
 # 設定値
 # ========================================
-readonly SCRIPT_NAME="$(basename "$0")"
+SCRIPT_NAME="$(basename "$0")"
+readonly SCRIPT_NAME
 # スクリプトの実際の場所を取得（シンボリックリンク対応）
-readonly SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
-readonly SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
-readonly INFRA_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+readonly SCRIPT_PATH
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+readonly SCRIPT_DIR
+INFRA_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+readonly INFRA_DIR
 readonly SECRETS_FILE="${INFRA_DIR}/secrets/infrastructure.yaml"
 
 # 一時ファイル設定
@@ -172,9 +176,10 @@ setup_oci_environment() {
         return 1
     fi
 
-    export TF_VAR_tenancy_ocid=$(echo "$oci_config" | jq -r '.tenancy_ocid')
-    export TF_VAR_user_ocid=$(echo "$oci_config" | jq -r '.user_ocid')
-    export TF_VAR_fingerprint=$(echo "$oci_config" | jq -r '.fingerprint')
+    export TF_VAR_tenancy_ocid TF_VAR_user_ocid TF_VAR_fingerprint
+    TF_VAR_tenancy_ocid=$(echo "$oci_config" | jq -r '.tenancy_ocid')
+    TF_VAR_user_ocid=$(echo "$oci_config" | jq -r '.user_ocid')
+    TF_VAR_fingerprint=$(echo "$oci_config" | jq -r '.fingerprint')
 
     # 秘密鍵の一時ファイル設定（json_outputを使用するため、この位置で実行）
     setup_oci_private_key
