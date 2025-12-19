@@ -3,7 +3,8 @@
 
 set -euo pipefail
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
 readonly WRAPPER_SCRIPT="$SCRIPT_DIR/tf"
 readonly USER_BIN="$HOME/.local/bin"
 readonly LINK_PATH="$USER_BIN/tf"
@@ -33,8 +34,9 @@ success "tfコマンドをインストールしました: $LINK_PATH"
 
 # PATHの確認
 if [[ ":$PATH:" != *":$USER_BIN:"* ]]; then
-  warn "~/.local/bin がPATHに含まれていません"
+  warn "$HOME/.local/bin がPATHに含まれていません"
   info "以下のコマンドでPATHに追加してください:"
+  # shellcheck disable=SC2016
   echo 'export PATH="$HOME/.local/bin:$PATH"'
   echo ""
   info "または、fishシェルを使用している場合:"

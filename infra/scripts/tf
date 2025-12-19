@@ -24,7 +24,6 @@ readonly INFRA_DIR
 readonly SECRETS_FILE="${INFRA_DIR}/secrets/infrastructure.yaml"
 
 # 一時ファイル設定
-readonly TMP_DIR="${TMPDIR:-/tmp}"
 readonly TMP_KEY_PREFIX="oci_terraform_"
 readonly TMP_KEY_SUFFIX=".pem"
 
