@@ -146,6 +146,14 @@
           };
           treefmt = {
             projectRootFile = "flake.nix";
+            settings = {
+              global = {
+                excludes = [
+                  "secrets/*"
+                  "**/secrets.yaml"
+                ];
+              };
+            };
             programs = {
               nixfmt.enable = true;
               stylua.enable = true;
