@@ -113,7 +113,8 @@
                     "applications/neovim/.*\\.lua$"
                   ];
                 };
-                tflint.enable = true;
+                # tflint disabled: Terraform versions are managed by Nix
+                # tflint.enable = true;
                 shellcheck.enable = true;
                 biome.enable = true;
                 yamllint = {
