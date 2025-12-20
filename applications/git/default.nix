@@ -2,14 +2,16 @@
 {
   programs.git = {
     enable = true;
-    userName = "Yus314";
-    userEmail = "shizhaoyoujie@gmail.com";
     signing = {
       key = "D2A9353AEDF9200A";
       format = "openpgp";
       signByDefault = true;
     };
-    extraConfig = {
+    settings = {
+      user = {
+        name = "Yus314";
+        email = "shizhaoyoujie@gmail.com";
+      };
       core = {
         editor = "emacs";
       };
