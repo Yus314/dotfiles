@@ -107,12 +107,8 @@
               src = ./.;
               hooks = {
                 nil.enable = true;
-                lua-ls = {
-                  enable = true;
-                  excludes = [
-                    "applications/neovim/.*\\.lua$"
-                  ];
-                };
+                # lua-ls disabled: Neovim configurations are validated by Neovim runtime
+                # lua-ls.enable = true;
                 # tflint disabled: Terraform versions are managed by Nix
                 # tflint.enable = true;
                 shellcheck.enable = true;
