@@ -24,14 +24,15 @@
       "*" = {
         serverAliveInterval = 60;
         serverAliveCountMax = 3;
+        controlMaster = "auto";
+        controlPersist = "180m";
       };
     };
     #   extraConfig = ''
     #     ClientAliveInterval 60
     #     ClientAliveCountMax 3
     #   '';
-    controlMaster = "auto";
-    controlPersist = "180m";
+    enableDefaultConfig = false;
     includes = [ "config.d/*" ];
   };
   programs.fish = {
