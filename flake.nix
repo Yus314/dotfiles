@@ -168,12 +168,12 @@
                 sops
                 qmk
                 (terraform.withPlugins (p: [
-                  p.cloudflare
-                  p.external
-                  p.github
-                  p.null
-                  p.sops
-                  p.oci
+                  p.cloudflare_cloudflare
+                  p.hashicorp_external
+                  p.integrations_github
+                  p.hashicorp_null
+                  p.carlpett_sops
+                  p.oracle_oci
                 ]))
                 cf-terraforming
               ];
