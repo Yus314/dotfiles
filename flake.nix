@@ -21,6 +21,17 @@
     sops-nix.url = "github:Mic92/sops-nix";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     xremap.url = "github:xremap/nix-flake";
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        home-manager.follows = "home-manager";
+      };
+    };
+    firefox-addons = {
+      url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # use in follows
     flake-utils.url = "github:numtide/flake-utils";
@@ -100,6 +111,8 @@
           };
           packages = rec {
             tf-wrapper = pkgs.tf-wrapper;
+            adb-mcp = pkgs.adb-mcp;
+            # LINE = pkgs.LINE;
           };
           pre-commit = {
             check.enable = true;

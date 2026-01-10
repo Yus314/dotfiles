@@ -6,6 +6,7 @@
     ../applications/vivaldi
     ../applications/google-chrome
     ../applications/qutebrowser
+    ../applications/zen-browser
   ];
   home.packages = with pkgs; [
     zoom-us
