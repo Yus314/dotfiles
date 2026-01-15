@@ -8,6 +8,7 @@
       noto-fonts-cjk-sans
       noto-fonts-color-emoji
       nerd-fonts.hack
+      nerd-fonts.symbols-only
       arkpandora_ttf
       bizin-gothic-nf
     ];
