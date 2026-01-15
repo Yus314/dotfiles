@@ -1,36 +1,35 @@
 {
   inputs,
-  config,
   pkgs,
+  ghTokenPath ? null,
   ...
 }:
-let
-  inherit (pkgs) stdenv;
-  inherit (inputs) mcp-servers;
-  mcp-config = mcp-servers.lib.mkConfig pkgs {
-    programs = {
-      github = {
-        enable = true;
-        envFile = config.sops.secrets.gh-token-for-mcp.path;
-      };
-      git = {
-        enable = true;
-      };
+(inputs.mcp-servers.lib.evalModule pkgs {
+  programs = {
+    git = {
+      enable = true;
     };
   };
-in
-{
-  home.file."Library/Application Support/Claude/claude_desktop_config.json" = {
-    enable = stdenv.hostPlatform.isDarwin;
-    source = mcp-config;
+  settings.servers = {
+    github = pkgs.lib.mkIf (ghTokenPath != null) {
+      command = "${pkgs.lib.getExe pkgs.github-mcp-server}";
+      env = {
+        GITHUB_PERSONAL_ACCESS_TOKEN_FILE = ghTokenPath;
+      };
+    };
+    adb-mcp = {
+      command = "${pkgs.lib.getExe pkgs.adb-mcp}";
+    };
   };
-
-  xdg.configFile."Claude/claude_desktop_config.json" = {
-    enable = stdenv.hostPlatform.isLinux;
-    source = mcp-config;
-  };
-
-  sops.secrets.gh-token-for-mcp = {
-    sopsFile = ./secrets.yaml;
-  };
-}
+}).config.settings.servers
+#in
+#{
+#  home.file."Library/Application Support/Claude/claude_desktop_config.json" = {
+#    enable = stdenv.hostPlatform.isDarwin;
+#    source = mcp-config;
+#  };
+#
+#  xdg.configFile."Claude/claude_desktop_config.json" = {
+#    enable = stdenv.hostPlatform.isLinux;
+#    source = mcp-config;
+#  };
