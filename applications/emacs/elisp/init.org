@@ -1220,6 +1220,52 @@ chromeの編集をemacsのバッファ内から行なえるようにするもの
       (auto-revert-mode 1)))
 
   (add-hook 'org-mode-hook #'my/calendar-auto-revert)
+
+  (defvar my/calendar-name "shizhaoyoujie@gmail.com"
+    "Default calendar name for khalorg operations.")
+
+  (defun my/calendar-add-event ()
+    "Add a new event to Google Calendar via khalorg.
+Prompts for title, date, time, location, and description.
+The event is added to khal and can be synced to Google Calendar."
+    (interactive)
+    (require 'org-id)
+    (let* ((title (read-string "Event title: "))
+           (date (org-read-date nil nil nil "Event date: "))
+           (start-time (read-string "Start time (HH:MM): " "09:00"))
+           (end-time (read-string "End time (HH:MM): " "10:00"))
+           (location (read-string "Location (optional): "))
+           (description (read-string "Description (optional): "))
+           (uid (org-id-uuid))
+           (timestamp (format "<%s %s-%s>" date start-time end-time))
+           (org-content (concat "* " title "\n"
+                                timestamp "\n"
+                                ":PROPERTIES:\n"
+                                ":UID: " uid "\n"
+                                (unless (string-empty-p location)
+                                  (concat ":LOCATION: " location "\n"))
+                                ":END:\n"
+                                (unless (string-empty-p description)
+                                  (concat description "\n")))))
+      (with-temp-buffer
+        (insert org-content)
+        (let ((exit-code (call-process-region (point-min) (point-max)
+                                              "khalorg" nil nil nil
+                                              "new" my/calendar-name)))
+          (if (zerop exit-code)
+              (message "Event '%s' added to calendar. Run M-x my/calendar-sync or C-c c s to sync." title)
+            (error "Failed to add event to calendar"))))))
+
+  (defun my/calendar-add-and-sync ()
+    "Add a new event and immediately sync with Google Calendar."
+    (interactive)
+    (my/calendar-add-event)
+    (my/calendar-sync))
+
+  ;; Calendar keybindings (using C-c k prefix for khal/khalorg)
+  (keymap-global-set "C-c k a" #'my/calendar-add-event)
+  (keymap-global-set "C-c k s" #'my/calendar-sync)
+  (keymap-global-set "C-c k A" #'my/calendar-add-and-sync)
 #+end_src
 ** org-archive
 #+begin_src emacs-lisp :tangle yes
