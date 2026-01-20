@@ -20,6 +20,8 @@ in
     ../applications/fish
     ../applications/git
     ../applications/lazygit
+    ../applications/ledger
+    ../applications/kakoune
     ../applications/misc
     ../applications/neomutt
     ../applications/neovim
@@ -33,11 +35,14 @@ in
     ../applications/bash
     ../applications/less
     ../applications/claude-code
-    ../applications/mcp
     ../applications/vim
     ../applications/rbw
     ../applications/tf-wrapper
     ../applications/nh
+    ../applications/vdirsyncer
+    ../applications/khal
+    ../applications/khalorg
+    #../applications/sdcv
   ];
   services.gpg-agent = {
     enable = true;

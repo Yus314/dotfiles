@@ -38,3 +38,9 @@ creation_rules:
           - *admin_kaki
         age:
           - *admin_yusuke
+  - path_regex: applications/vdirsyncer/secrets.yaml$
+    key_groups:
+      - pgp:
+          - *admin_kaki
+        age:
+          - *admin_yusuke

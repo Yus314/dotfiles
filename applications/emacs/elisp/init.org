@@ -532,15 +532,21 @@ Waylandでペーストできるようにする設定
       "Select from the current point to the end of the buffer."
       (interactive)
       (set-mark (point)) ;; 現在のポイントをマークに設定
-      (goto-char (point-max))) ;; バッファ末尾に移動
-    (global-set-key (kbd "M->") 'select-to-end-of-buffer)
-    )
+     (use-package multiple-cursors
+      )
+     (goto-char (point-max))) ;; バッファ末尾に移動
+      (use-package multiple-cursors
+      )
+  (global-set-key (kbd "M->") 'select-to-end-of-buffer)
+      (use-package multiple-cursors
+      )
+  )
 #+end_src
 ** multiple-cursors
 #+begin_src emacs-lisp :tangle yes
-  (with-eval-after-load 'multiple-cursors
-    (use-package multiple-cursors
-      )
+  (autoload-if-found '(mc/mark-next-like-this) "multiple-cursors" nil t)
+  (
+with-eval-after-load 'multiple-cursors
     )
 #+end_src
 * ミニバッファ補完
@@ -755,11 +761,11 @@ Waylandでペーストできるようにする設定
 #+end_src
 * lsp-mode
 #+begin_src emacs-lisp :tangle yes
-;  (autoload-if-found '(lsp lsp-deferred lsp-org lsp-register-client make-lsp-client) "lsp-mode" nil t)
-;  (autoload-if-found '(lsp-lens-mode lsp-lens-refresh lsp-lens--enable) "lsp-lens" nil t)
-;  (autoload-if-found '(lsp-modeline-workspace-status-mode lsp-modeline-code-actions-mode) "lsp-modeline" nil t)
-;  (autoload-if-found '(lsp-headerline-breadcrumb-mode) "lsp-headerline" nil t)
-;  (autoload-if-found '(lsp-diagnostics-mode) "lsp-diagnostics" nil t)
+  (autoload-if-found '(lsp lsp-deferred lsp-org lsp-register-client make-lsp-client) "lsp-mode" nil t)
+  (autoload-if-found '(lsp-lens-mode lsp-lens-refresh lsp-lens--enable) "lsp-lens" nil t)
+  (autoload-if-found '(lsp-modeline-workspace-status-mode lsp-modeline-code-actions-mode) "lsp-modeline" nil t)
+  (autoload-if-found '(lsp-headerline-breadcrumb-mode) "lsp-headerline" nil t)
+  (autoload-if-found '(lsp-diagnostics-mode) "lsp-diagnostics" nil t)
 
 ;   (with-eval-after-load 'lsp-mode
 ;     (setq lsp-completion-provider :none)
@@ -929,6 +935,16 @@ Waylandでペーストできるようにする設定
   ;  (setq lsp-pyright-langserver-command "pyright")
   ;  )
 #+end_src
+** Lean4
+#+begin_src emacs-lisp :tangle yes
+   (add-to-list 'auto-mode-alist '("\\.lean\\'" . lean4-mode))
+   (autoload 'lean4-mode "lean4-mode" nil t)
+  (add-hook 'lean4-mode-hook (lambda ()
+  			     (lsp-mode)))
+  ;(with-eval-after-load 'lean4-mode
+   ; (require 'lsp-mode)
+   ; )
+#+end_src
 ** Common Lisp
 #+begin_src emacs-lisp :tangle yes
   ;(require 'sly-autoloads)
@@ -961,27 +977,44 @@ Waylandでペーストできるようにする設定
 #+end_src
 ** Tex
 #+begin_src emacs-lisp :tangle yes
-  (require 'auctex)
-  (setq TeX-default-mode  'japanese-latex-mode)
-  (setq TeX-auto-save  t)
-  (setq TeX-parse-self  t)
-  (setq TeX-master  nil)
-  (setq TeX-view-program-selection  '((output-pdf "PDF Tools")))
-  (setq japanese-TeX-engine-default  'platex)
-  (setq TeX-view-program-list  '(("PDF Tools" TeX-pdf-tools-sync-view)))
+  ;; AUCTeXの設定を遅延ロード
+  (with-eval-after-load 'latex
+    (setq TeX-default-mode 'japanese-latex-mode)
+    (setq TeX-auto-save t)
+    (setq TeX-parse-self t)
+    (setq TeX-master nil)
+    (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
+    (setq japanese-TeX-engine-default 'platex)
+    (setq TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view)))
+    (setq TeX-PDF-from-DVI "Dvipdfmx"))
+
   ;; 保存時に自動コンパイル
   (add-hook 'TeX-after-compilation-finished-functions
             #'TeX-revert-document-buffer)
-  (add-hook 'LaTeX-mode-hook
-           (lambda ()
-              (add-hook 'after-save-hook ('TeX-command-run-all nil))))
+  ;(add-hook 'LaTeX-mode-hook
+  ;         (lambda ()
+  ;            (add-hook 'after-save-hook ('TeX-command-run-all nil))))
   (setq TeX-PDF-from-DVI  '"Dvipdfmx")
   (with-eval-after-load 'auctex
     (require 'auctex-latexmk)
-    (auctex-latexmk-setup)
-    )
+    (auctex-latexmk-setup))
 #+end_src
-
+*** atomic-chrome
+chromeの編集をemacsのバッファ内から行なえるようにするもの。
+キーバインドや検索など慣れた動作で編集ができるようになる。
+同期がほぼ同時にできて快適に操作できる。
+課題として、Overleafでカーソルもスクロールできるはずなのだが、できていないことと、補完が効いていないことがある。補完はLeTeXのemacsの設定かもしれない。
+#+begin_src emacs-lisp :tangle yes
+  (require 'atomic-chrome)
+  (atomic-chrome-start-server)
+  (setq atomic-chrome-url-major-mode-alist
+        '(("overleaf.com" . LaTeX-mode)))
+#+end_src
+** ledger
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(ledger-mode) "ledger-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.ledger$" . ledger-mode))
+#+end_src
 * org
 ** org
 #+begin_src emacs-lisp :tangle yes
@@ -1061,7 +1094,7 @@ Waylandでペーストできるようにする設定
   (with-eval-after-load 'org
   (use-package org-super-agenda
     :custom
-    (org-agenda-files  '("~/dropbox/inbox/inbox.org" "~/dropbox/habit.org" "~/dropbox/kana.org"))
+    (org-agenda-files  '("~/dropbox/inbox/inbox.org" "~/dropbox/habit.org" "~/dropbox/kana.org" "~/dropbox/calendar.org"))
     (org-agenda-todo-ignore-scheduled  t)
     (org-agenda-custom-commands
       '(
@@ -1160,6 +1193,33 @@ Waylandでペーストできるようにする設定
     (org-super-agenda-mode)
     )
   )
+#+end_src
+** khalorg (Google Calendar)
+#+begin_src emacs-lisp :tangle yes
+  (defun my/calendar-sync ()
+    "Synchronize Google Calendar using vdirsyncer and khalorg."
+    (interactive)
+    (let ((output-buffer (get-buffer-create "*Calendar Sync*")))
+      (with-current-buffer output-buffer
+        (erase-buffer)
+        (insert "Synchronizing calendar...\n"))
+      (display-buffer output-buffer)
+      (set-process-sentinel
+       (start-process "calsync" output-buffer "calsync")
+       (lambda (process event)
+         (when (string-match-p "finished" event)
+           (message "Calendar synchronization completed")
+           (when (get-file-buffer "~/dropbox/calendar.org")
+             (with-current-buffer (get-file-buffer "~/dropbox/calendar.org")
+               (revert-buffer t t t))))))))
+
+  (defun my/calendar-auto-revert ()
+    "Auto-revert calendar.org after external changes."
+    (when (and buffer-file-name
+               (string-match-p "calendar\\.org$" buffer-file-name))
+      (auto-revert-mode 1)))
+
+  (add-hook 'org-mode-hook #'my/calendar-auto-revert)
 #+end_src
 ** org-archive
 #+begin_src emacs-lisp :tangle yes
@@ -1650,6 +1710,14 @@ Waylandでペーストできるようにする設定
   					;	 )
       )
 
+#+end_src
+* quick-sdcv
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(quiqk-sdcv-search-at-point quick-sdcv-search-input) "quick-sdcv" nil t)
+  (with-eval-after-load 'quick-sdcv
+    (setq quick-sdcv-dictionary-prefix-symbol "►")
+    (setq quick-sdcv-ellipsis " ▼")
+    )
 #+end_src
 * reinbow-delimiters
 #+begin_src emacs-lisp :tangle yes
