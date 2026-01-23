@@ -3,9 +3,9 @@
   programs.kakoune = {
     enable = true;
     plugins = [ pkgs.kakoune-lsp ];
-    colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;
+    # colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;  # Package doesn't exist in nixpkgs
     config = {
-      colorScheme = "modus-operandi";
+      # colorScheme = "modus-operandi";  # Requires colorSchemePackage
       keyMappings = [
         {
           mode = "normal";
