@@ -111,7 +111,7 @@
           };
           packages = rec {
             tf-wrapper = pkgs.tf-wrapper;
-            adb-mcp = pkgs.adb-mcp;
+            # adb-mcp = pkgs.adb-mcp;  # Temporarily disabled - overlay issue in CI
             # LINE = pkgs.LINE;
           };
           pre-commit = {

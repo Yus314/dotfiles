@@ -1,13 +1,25 @@
 {
-  my.programs.claude-code = {
+  inputs,
+  config,
+  pkgs,
+  ...
+}:
+{
+  # sops.nix設定 - gh-token-for-mcp シークレット
+  sops.secrets = {
+    "gh-token-for-mcp" = {
+      sopsFile = ../mcp/secrets.yaml;
+    };
+  };
+
+  programs.claude-code = {
     enable = true;
-    enableTelemetry = true;
-    otelMetricsExporter = "prometheus";
     settings = {
-      apiKeyHelper = "";
-      includeCoAuthoredBy = false;
-      permissions = {
-        allow = [ ];
+      includeCoAuthorBy = false;
+      defaultMode = "plan";
+      env = {
+        CLAUDE_CODE_ENABLE_TELEMETRY = "1";
+        OTEL_METRICS_EXPORTER = "prometheus";
       };
       # Hook設定 - グローバル通知システム
       hooks = {
@@ -35,13 +47,13 @@
         ];
       };
     };
-    userMemory = '''';
+    agentsDir = ../../applications/claude-code/agents;
+    commandsDir = ../../applications/claude-code/commands;
+    mcpServers = import ../../applications/mcp {
+      inherit pkgs;
+      ghTokenPath = config.sops.secrets.gh-token-for-mcp.path;
+    };
 
-    # シンプルにディレクトリ指定のみ
-    commandsDirectory = ./commands;
+    #    };
   };
-
-  programs.git.ignores = [
-    "**/.claude/settings.local.json"
-  ];
 }

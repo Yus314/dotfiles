@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  inputs,
   pkgs,
   ...
 }:
@@ -128,39 +129,81 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = [ cfg.package ];
-
-    my.programs.claude-code.settings = lib.mkMerge [
-      (lib.mkIf cfg.enableTelemetry {
-        env.CLAUDE_CODE_ENABLE_TELEMETRY = "1";
-      })
-      (lib.mkIf (cfg.otelMetricsExporter != null) {
-        env.OTEL_METRICS_EXPORTER = cfg.otelMetricsExporter;
-      })
-    ];
-
-    home.file = lib.mkMerge [
-      # Settings file
-      (lib.mkIf (cfg.settings != { }) {
-        ".claude/settings.json" = {
-          source = settingsFile;
+    programs.claude-code = {
+      enable = true;
+      settings = {
+        includeCoAuthorBy = false;
+        defaultMode = "plan";
+        env = {
+          CLAUDE_CODE_ENABLE_TELEMETRY = "1";
+          OTEL_METRICS_EXPORTER = "prometheus";
         };
-      })
-
-      # User memory file
-      (lib.mkIf (cfg.userMemory != null) {
-        ".claude/CLAUDE.md" = {
-          text = cfg.userMemory;
+        # Hook設定 - グローバル通知システム
+        hooks = {
+          # システム通知発生時
+          Notification = [
+            {
+              hooks = [
+                {
+                  type = "command";
+                  command = "dunstify -a 'claude-code' 'コマンド実行の確認' 'Claudeがコマンドの実行を確認したいようです'";
+                }
+              ];
+            }
+          ];
+          # Claude応答完了時
+          Stop = [
+            {
+              hooks = [
+                {
+                  type = "command";
+                  command = "dunstify -a 'claude-code' 'タスク完了' 'Claudeがあなたの依頼を完了させました!'";
+                }
+              ];
+            }
+          ];
         };
-      })
+        commandsDir = ../../applications/claude-code/commands;
+        mcpServers = import ../../applications/mcp {
+          inherit pkgs;
+          #ghTokenPath = config.sops.secrets.gh-token-for-mcp.path;
+        };
 
-      # Slash commands
-      (lib.mapAttrs' (
-        name: content:
-        lib.nameValuePair ".claude/commands/${name}.md" {
-          text = content;
-        }
-      ) allCommands)
-    ];
+      };
+    };
+    #home.packages = [ cfg.package ];
+
+    #my.programs.claude-code.settings = lib.mkMerge [
+    #  (lib.mkIf cfg.enableTelemetry {
+    #    env.CLAUDE_CODE_ENABLE_TELEMETRY = "1";
+    #  })
+    #  (lib.mkIf (cfg.otelMetricsExporter != null) {
+    #    env.OTEL_METRICS_EXPORTER = cfg.otelMetricsExporter;
+    #  })
+    #];
+
+    #home.file = lib.mkMerge [
+    #  # Settings file
+    #  (lib.mkIf (cfg.settings != { }) {
+    #    ".claude/settings.json" = {
+    #      source = settingsFile;
+    #    };
+    #  })
+
+    # User memory file
+    #  (lib.mkIf (cfg.userMemory != null) {
+    #    ".claude/CLAUDE.md" = {
+    #      text = cfg.userMemory;
+    #    };
+    #  })
+
+    # Slash commands
+    #  (lib.mapAttrs' (
+    #    name: content:
+    #    lib.nameValuePair ".claude/commands/${name}.md" {
+    #      text = content;
+    #    }
+    #  ) allCommands)
+    #];
   };
 }
