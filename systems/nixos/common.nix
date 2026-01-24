@@ -32,6 +32,9 @@ in
     #};
   };
 
+  # Disable man cache generation to avoid CI sandbox issues
+  documentation.man.generateCaches = false;
+
   i18n.defaultLocale = "en_US.UTF-8";
 
   i18n.inputMethod = {
