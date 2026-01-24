@@ -1004,11 +1004,13 @@ chromeの編集をemacsのバッファ内から行なえるようにするもの
 キーバインドや検索など慣れた動作で編集ができるようになる。
 同期がほぼ同時にできて快適に操作できる。
 課題として、Overleafでカーソルもスクロールできるはずなのだが、できていないことと、補完が効いていないことがある。補完はLeTeXのemacsの設定かもしれない。
-#+begin_src emacs-lisp :tangle yes
-  (require 'atomic-chrome)
-  (atomic-chrome-start-server)
-  (setq atomic-chrome-url-major-mode-alist
-        '(("overleaf.com" . LaTeX-mode)))
+#+begin_src emacs-lisp :tangle no
+  ;; Temporarily disabled - causes build error in CI
+  (use-package atomic-chrome
+    :config
+    (atomic-chrome-start-server)
+    (setq atomic-chrome-url-major-mode-alist
+          '(("overleaf.com" . LaTeX-mode))))
 #+end_src
 ** ledger
 #+begin_src emacs-lisp :tangle yes
