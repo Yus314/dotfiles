@@ -1,8 +1,11 @@
 { pkgs, ... }:
 {
+  # Temporarily disabled - causes package conflict in CI
+  # home.packages = [ pkgs.kakoune-lsp ];
+
   programs.kakoune = {
-    enable = true;
-    plugins = [ pkgs.kakoune-lsp ];
+    enable = false;
+    plugins = [ ];
     # colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;  # Package doesn't exist in nixpkgs
     config = {
       # colorScheme = "modus-operandi";  # Requires colorSchemePackage
