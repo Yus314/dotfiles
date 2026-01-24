@@ -1,6 +1,7 @@
 {
   inputs,
   config,
+  lib,
   pkgs,
   ...
 }:
@@ -13,7 +14,8 @@
   };
 
   programs.claude-code = {
-    enable = true;
+    # Temporarily disabled due to package conflict in buildEnv (two claude-code versions)
+    enable = false;
     settings = {
       includeCoAuthorBy = false;
       defaultMode = "plan";
