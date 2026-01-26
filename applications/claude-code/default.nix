@@ -15,7 +15,7 @@
 
   programs.claude-code = {
     # Temporarily disabled due to package conflict in buildEnv (two claude-code versions)
-    enable = true;
+    enable = false;
     settings = {
       includeCoAuthorBy = false;
       defaultMode = "plan";
