@@ -70,7 +70,7 @@
 
     # --- GUI Applications ---
     zathura # Document viewer with vi-like keybindings
-    kakoune # Modal editor with multiple selections
+    # kakoune # Installed via programs.kakoune module
     zotero # Reference management software
 
     anki-bin # Spaced repetition flashcard program (binary version)

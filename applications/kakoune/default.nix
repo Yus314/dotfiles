@@ -4,7 +4,7 @@
   # home.packages = [ pkgs.kakoune-lsp ];
 
   programs.kakoune = {
-    enable = false;
+    enable = true;
     plugins = [ ];
     # colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;  # Package doesn't exist in nixpkgs
     config = {
