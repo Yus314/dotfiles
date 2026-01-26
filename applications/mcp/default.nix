@@ -18,9 +18,8 @@
     };
   };
 }
-# Note: adb-mcp temporarily disabled
-# // {
-#   adb-mcp = {
-#     command = "${pkgs.lib.getExe pkgs.adb-mcp}";
-#   };
-# }
+// {
+  adb-mcp = {
+    command = "${pkgs.lib.getExe pkgs.adb-mcp}";
+  };
+}

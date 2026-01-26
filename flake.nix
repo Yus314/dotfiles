@@ -111,13 +111,14 @@
           };
           packages = rec {
             tf-wrapper = pkgs.tf-wrapper;
-            # adb-mcp = pkgs.adb-mcp;  # Temporarily disabled - overlay issue in CI
+            adb-mcp = pkgs.adb-mcp;
             # LINE = pkgs.LINE;
           };
           pre-commit = {
             check.enable = true;
             settings = {
               src = ./.;
+              excludes = [ "^\\.claude/" ];
               hooks = {
                 nil.enable = true;
                 # lua-ls disabled: Neovim configurations are validated by Neovim runtime
@@ -161,6 +162,7 @@
                 excludes = [
                   "secrets/*"
                   "**/secrets.yaml"
+                  ".claude/*"
                 ];
               };
             };
