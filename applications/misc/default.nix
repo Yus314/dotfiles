@@ -61,7 +61,7 @@
     aider-chat # AI pair programming tool in your terminal
     cachix
     nvfetcher
-    claude-code
+    # claude-code # Installed via programs.claude-code module
     gemini-cli
     nix-search-cli
     jq
