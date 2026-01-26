@@ -143,18 +143,30 @@ Waylandでペーストできるようにする設定
 ** theme
 *** Modus Theme
   #+begin_src emacs-lisp :tangle yes
+        (add-hook 'emacs-startup-hook
+        	  #'(lambda ()
+        	      (when (require 'modus-themes)
+        	;	(load-theme 'modus-operandi)
+    		)))
+
+        (with-eval-after-load 'modus-themes
+          (setq modus-themes-italic-constructs  t)
+          (setq modus-themes-bold-constructs  t)
+          (setq modus-themes-mode-line  '(moody borderless))
+          (setq modus-themes-prompts  '(italic bold))
+          (setq custom-safe-themes  t)
+          )
+#+end_src
+*** darkman
+#+begin_src emacs-lisp :tangle yes
     (add-hook 'emacs-startup-hook
     	  #'(lambda ()
-    	      (when (require 'modus-themes)
-    		(load-theme 'modus-operandi))))
-
-    (with-eval-after-load 'modus-themes
-      (setq modus-themes-italic-constructs  t)
-      (setq modus-themes-bold-constructs  t)
-      (setq modus-themes-mode-line  '(moody borderless))
-      (setq modus-themes-prompts  '(italic bold))
-      (setq custom-safe-themes  t)
-      )
+    	      (when (require 'darkman)
+    		)))
+    (with-eval-after-load 'darkman
+  (setq darkman-themes '(:light modus-operandi :dark modus-vivendi))
+  (darkman-mode)
+  )
 #+end_src
 ** tree-sitter
 #+begin_src emacs-lisp :tangle yes
@@ -1004,8 +1016,7 @@ chromeの編集をemacsのバッファ内から行なえるようにするもの
 キーバインドや検索など慣れた動作で編集ができるようになる。
 同期がほぼ同時にできて快適に操作できる。
 課題として、Overleafでカーソルもスクロールできるはずなのだが、できていないことと、補完が効いていないことがある。補完はLeTeXのemacsの設定かもしれない。
-#+begin_src emacs-lisp :tangle no
-  ;; Temporarily disabled - causes build error in CI
+#+begin_src emacs-lisp :tangle yes
   (use-package atomic-chrome
     :config
     (atomic-chrome-start-server)
