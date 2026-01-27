@@ -25,15 +25,16 @@ in
     users.${username} = {
       imports = [
         ../desktop.nix
+        ../../../applications/ledger/service.nix
       ];
       home.packages = with pkgs; [ bluetui ];
     };
     extraSpecialArgs = {
+      inherit inputs;
       inherit nixpkgs;
       inherit system;
       inherit emacs-overlay;
       inherit org-babel;
-
     };
     backupFileExtension = "hm-backup";
   };

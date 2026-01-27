@@ -21,11 +21,11 @@ in
       imports = [ ../desktop.nix ];
     };
     extraSpecialArgs = {
+      inherit inputs;
       inherit nixpkgs;
       inherit system;
       inherit emacs-overlay;
       inherit org-babel;
-
     };
     backupFileExtension = "hm-backup";
   };
