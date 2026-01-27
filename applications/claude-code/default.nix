@@ -51,7 +51,7 @@
     agentsDir = ../../applications/claude-code/agents;
     commandsDir = ../../applications/claude-code/commands;
     mcpServers = import ../../applications/mcp {
-      inherit pkgs;
+      inherit inputs pkgs;
       ghTokenPath = config.sops.secrets.gh-token-for-mcp.path;
     };
 
