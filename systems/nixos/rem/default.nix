@@ -15,7 +15,7 @@
     ./lab-sub-hardware-configuration.nix
     # ./keymap.nix
     # ./font.nix
-    # ./nvidia.nix
+    ./nvidia.nix
     # ./cloudflare.nix
     ./networks.nix
     ../common.nix
