@@ -1210,8 +1210,13 @@ chromeの編集をemacsのバッファ内から行なえるようにするもの
 ** khalorg (Google Calendar)
 #+begin_src emacs-lisp :tangle yes
   (defun my/calendar-sync ()
-    "Synchronize Google Calendar using vdirsyncer and khalorg."
+    "Synchronize Google Calendar using vdirsyncer and khalorg.
+Cancels any pending scheduled sync."
     (interactive)
+    ;; Cancel any pending scheduled sync
+    (when my/calendar-sync-timer
+      (cancel-timer my/calendar-sync-timer)
+      (setq my/calendar-sync-timer nil))
     (let ((output-buffer (get-buffer-create "*Calendar Sync*")))
       (with-current-buffer output-buffer
         (erase-buffer)
@@ -1234,23 +1239,85 @@ chromeの編集をemacsのバッファ内から行なえるようにするもの
 
   (add-hook 'org-mode-hook #'my/calendar-auto-revert)
 
-  (defvar my/calendar-name "shizhaoyoujie@gmail.com"
+  ;; Calendar configuration
+  (defvar my/calendar-list '("shizhaoyoujie@gmail.com" "共有カレンダー")
+    "List of available calendars for khalorg operations.")
+
+  (defvar my/calendar-default "shizhaoyoujie@gmail.com"
     "Default calendar name for khalorg operations.")
 
-  (defun my/calendar-add-event ()
-    "Add a new event to Google Calendar via khalorg.
-Prompts for title, date, time, location, and description.
-The event is added to khal and can be synced to Google Calendar."
+  (defvar my/calendar-display-names
+    '(("shizhaoyoujie@gmail.com" . "Personal")
+      ("共有カレンダー" . "Shared"))
+    "Association list mapping calendar IDs to display names.")
+
+  (defvar my/calendar-sync-timer nil
+    "Timer for debounced calendar sync.")
+
+  (defvar my/calendar-sync-delay 10
+    "Seconds to wait before auto-syncing after event addition.")
+
+  (defun my/calendar-select (&optional skip-prompt)
+    "Select a calendar from `my/calendar-list'.
+If SKIP-PROMPT is non-nil, return `my/calendar-default' without prompting."
+    (if skip-prompt
+        my/calendar-default
+      (let* ((display-to-id (mapcar (lambda (cal)
+                                      (cons (or (cdr (assoc cal my/calendar-display-names))
+                                                cal)
+                                            cal))
+                                    my/calendar-list))
+             (display-names (mapcar #'car display-to-id))
+             (default-display (or (cdr (assoc my/calendar-default my/calendar-display-names))
+                                  my/calendar-default))
+             (selection (completing-read
+                         (format "Calendar [%s]: " default-display)
+                         display-names
+                         nil t nil nil default-display)))
+        (cdr (assoc selection display-to-id)))))
+
+  (defun my/calendar-schedule-sync ()
+    "Schedule a debounced sync after adding events.
+Resets timer if called again within the delay period."
+    (when my/calendar-sync-timer
+      (cancel-timer my/calendar-sync-timer))
+    (setq my/calendar-sync-timer
+          (run-with-timer my/calendar-sync-delay nil
+                          (lambda ()
+                            (setq my/calendar-sync-timer nil)
+                            (message "Auto-syncing calendar...")
+                            (my/calendar-sync)))))
+
+  (defun my/calendar-cancel-scheduled-sync ()
+    "Cancel any pending scheduled sync."
     (interactive)
+    (when my/calendar-sync-timer
+      (cancel-timer my/calendar-sync-timer)
+      (setq my/calendar-sync-timer nil)
+      (message "Scheduled sync cancelled.")))
+
+  (defun my/calendar-add-event (&optional use-default)
+    "Add a new event to Google Calendar via khalorg.
+With prefix argument (C-u), skip calendar selection and use default.
+Prompts for title, date, time, location, and description.
+If start time is empty, creates an all-day event.
+Automatically schedules a sync after `my/calendar-sync-delay' seconds."
+    (interactive "P")
     (require 'org-id)
-    (let* ((title (read-string "Event title: "))
-           (date (org-read-date nil nil nil "Event date: "))
-           (start-time (read-string "Start time (HH:MM): " "09:00"))
-           (end-time (read-string "End time (HH:MM): " "10:00"))
+    (let* ((calendar (my/calendar-select use-default))
+           (title (read-string "Event title: "))
+           (date-time (org-read-date nil t nil "Event date: "))
+           (date (format-time-string "%Y-%m-%d %a" date-time))
+           (start-time (read-string "Start time (HH:MM, empty for all-day): "))
+           (end-time (if (string-empty-p start-time)
+                         ""
+                       (read-string "End time (HH:MM): " "10:00")))
            (location (read-string "Location (optional): "))
            (description (read-string "Description (optional): "))
            (uid (org-id-uuid))
-           (timestamp (format "<%s %s-%s>" date start-time end-time))
+           (timestamp (if (string-empty-p start-time)
+                          (format "<%s>" date)
+                        (format "<%s %s-%s>" date start-time end-time)))
            (org-content (concat "* " title "\n"
                                 timestamp "\n"
                                 ":PROPERTIES:\n"
@@ -1264,21 +1331,34 @@ The event is added to khal and can be synced to Google Calendar."
         (insert org-content)
         (let ((exit-code (call-process-region (point-min) (point-max)
                                               "khalorg" nil nil nil
-                                              "new" my/calendar-name)))
+                                              "new" calendar)))
           (if (zerop exit-code)
-              (message "Event '%s' added to calendar. Run M-x my/calendar-sync or C-c c s to sync." title)
+              (progn
+                (message "Event '%s' added to %s. Auto-sync in %ds..."
+                         title
+                         (or (cdr (assoc calendar my/calendar-display-names)) calendar)
+                         my/calendar-sync-delay)
+                (my/calendar-schedule-sync))
             (error "Failed to add event to calendar"))))))
 
-  (defun my/calendar-add-and-sync ()
-    "Add a new event and immediately sync with Google Calendar."
+  (defun my/calendar-add-event-to-personal ()
+    "Add event directly to personal calendar without prompting."
     (interactive)
-    (my/calendar-add-event)
-    (my/calendar-sync))
+    (let ((my/calendar-default "shizhaoyoujie@gmail.com"))
+      (my/calendar-add-event t)))
+
+  (defun my/calendar-add-event-to-shared ()
+    "Add event directly to shared calendar without prompting."
+    (interactive)
+    (let ((my/calendar-default "共有カレンダー"))
+      (my/calendar-add-event t)))
 
   ;; Calendar keybindings (using C-c k prefix for khal/khalorg)
   (keymap-global-set "C-c k a" #'my/calendar-add-event)
   (keymap-global-set "C-c k s" #'my/calendar-sync)
-  (keymap-global-set "C-c k A" #'my/calendar-add-and-sync)
+  (keymap-global-set "C-c k c" #'my/calendar-cancel-scheduled-sync)
+  (keymap-global-set "C-c k p" #'my/calendar-add-event-to-personal)
+  (keymap-global-set "C-c k S" #'my/calendar-add-event-to-shared)
 #+end_src
 ** org-archive
 #+begin_src emacs-lisp :tangle yes

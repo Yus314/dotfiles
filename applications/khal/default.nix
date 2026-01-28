@@ -13,9 +13,9 @@
     locale = {
       timeformat = "%H:%M";
       dateformat = "%Y-%m-%d";
-      longdateformat = "%Y-%m-%d %a";
+      longdateformat = "%Y-%m-%d";
       datetimeformat = "%Y-%m-%d %H:%M";
-      longdatetimeformat = "%Y-%m-%d %a %H:%M";
+      longdatetimeformat = "%Y-%m-%d %H:%M";
       local_timezone = "Asia/Tokyo";
       default_timezone = "Asia/Tokyo";
       firstweekday = 0;
