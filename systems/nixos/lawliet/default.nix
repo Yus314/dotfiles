@@ -20,6 +20,7 @@ in
     ./user.nix
     ../desktop.nix
     ./root-ssh.nix
+    ./syncthing.nix
   ];
   inherit
     (pkgs.callPackage ./disko-config.nix {
