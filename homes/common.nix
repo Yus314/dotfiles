@@ -15,6 +15,7 @@ in
   imports = [
     sops-nix.homeManagerModules.sops
     ../modules/home-manager
+    ../applications/codex
     ../applications/emacs
     ../applications/emacs/service.nix
     ../applications/fish
