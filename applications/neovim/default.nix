@@ -31,7 +31,7 @@ in
       python312Packages.python-lsp-server
       rustfmt
       nil
-      nixfmt-rfc-style
+      nixfmt
       nodejs
       tree-sitter
       deno
