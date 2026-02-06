@@ -148,7 +148,8 @@ stdenv.mkDerivation {
     make all \
       NYXT_RENDERER=electron \
       NYXT_SUBMODULES=true \
-      NODE_SETUP=false
+      NODE_SETUP=false \
+      MAKEFLAGS=-j1
 
     runHook postBuild
   '';

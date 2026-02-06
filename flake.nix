@@ -112,7 +112,6 @@
           packages = rec {
             tf-wrapper = pkgs.tf-wrapper;
             adb-mcp = pkgs.adb-mcp;
-            # LINE = pkgs.LINE;
           };
           pre-commit = {
             check.enable = true;
