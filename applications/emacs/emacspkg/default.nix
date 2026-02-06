@@ -5,7 +5,15 @@
     defaultInitFile = true;
     package = pkgs.emacs-unstable-pgtk;
     alwaysTangle = true;
-    override = final: prev: prev // (pkgs.nurEmacsPackages or { });
+    override =
+      final: prev:
+      prev
+      // (pkgs.nurEmacsPackages or { })
+      // {
+        lsp-bridge = (prev.lsp-bridge or pkgs.emacsPackages.lsp-bridge).overrideAttrs (old: {
+          src = /home/kaki/lsp-bridge;
+        });
+      };
     extraEmacsPackages =
       epkgs:
       with epkgs;
@@ -14,6 +22,7 @@
         exec-path-from-shell
         smooth-scroll
         modus-themes
+        darkman
         perfect-margin
         nerd-icons
         nerd-icons-corfu
@@ -28,6 +37,7 @@
         vundo
         dmacro
         multiple-cursors
+        phi-search
         vertico
         marginalia
         orderless
@@ -40,21 +50,24 @@
         aidermacs
         claude-code-ide
         lsp-bridge
-        lsp-mode
-        lsp-ui
+        # lsp-mode  # temporarily disabled due to build segfault
+        # lsp-ui
         nix-ts-mode
         yaml-mode
         rust-mode
         rustic
         python-mode
-        lsp-pyright
+        # lsp-pyright  # depends on lsp-mode
         sly
+        # lean4-mode  # depends on lsp-mode
         typst-ts-mode
         typst-preview
         terraform-mode
         plantuml-mode
         auctex
         auctex-latexmk
+        atomic-chrome
+        # lean4-mode  # duplicate, depends on lsp-mode
         org-super-agenda
         org-modern
         org-modern-indent
@@ -76,11 +89,14 @@
         ace-window
         embark
         embark-consult
+        quick-sdcv
+        lexic
         gt
         rainbow-delimiters
         reformatter
         apheleia
         envrc
+        ledger-mode
         mu4e
         dired-narrow
         nerd-icons-dired
