@@ -75,6 +75,7 @@
 
     anki-bin # Spaced repetition flashcard program (binary version)
     mpv # Feature-rich media player
+    rquickshare
   ];
   xdg.enable = true;
 }
