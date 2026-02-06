@@ -7,7 +7,13 @@
 
 let
   calendarOrgFile = "${config.home.homeDirectory}/dropbox/calendar.org";
-  primaryCalendar = "shizhaoyoujie@gmail.com";
+  calendars = [
+    "shizhaoyoujie@gmail.com"
+    "共有カレンダー"
+  ];
+
+  # sedフィルタ: :END:の次行の不正タイムスタンプを除去
+  sedFilter = "sed '/^:END:$/ { n; /^[[:space:]]*<[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}.*>$/d; }'";
 
   calsyncScript = pkgs.writeShellScriptBin "calsync" ''
     set -euo pipefail
@@ -27,11 +33,11 @@ let
       echo "#+CATEGORY: calendar"
       echo "#+FILETAGS: :calendar:"
       echo ""
-      # 【修正】sed をパイプで繋ぎ、重複したタイムスタンプを除去
-      # ロジック: ":END:" という行を見つけたら、次の行(n)を読み込み、
-      # その行が "<...>" で始まるタイムスタンプなら削除(d)する。
-      ${lib.getExe pkgs.khalorg} list "${primaryCalendar}" today 30d \
-        | sed '/^:END:$/ { n; /^<.*>--<.*>$/d; }'
+      # 各カレンダーからイベントを出力
+      # sedフィルタ: :END:の次行の不正タイムスタンプを除去
+      ${lib.concatMapStringsSep "\n      " (cal: ''
+        ${lib.getExe pkgs.khalorg} list "${cal}" today 30d \
+          | ${sedFilter}'') calendars}
     } > "$CALENDAR_ORG"
 
     echo "Calendar synced to $CALENDAR_ORG"
