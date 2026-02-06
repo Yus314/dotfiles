@@ -1,0 +1,26 @@
+* Kindle
+** android版を使用する理由
+NixOSでKindleを使う選択肢は以下の3つがある。
+1. Kindle Cloud Reader (Web版の Kindle) を使う
+2. virt-manager などで Windows用のデスクトップアプリを動かす
+3. Android用のモバイルアプリをLinux上で動かす
+1は手軽だが、動作が重く、制限がある。2も試したがリソースを大く消費するため挙動が思いし、キーボードの切り変えなども手動の動作がはさまる。そのためAndroidで動かすことにした。
+** nixの設定
+#+begin_src nix-ts
+  virtualisation.waydroid.enable = true;
+#+end_src
+** セットアップ手順
+*** 1. Google Playが使えるデータを用意する
+[[https://github.com/casualsnek/waydroid_script][なぞのスクリプト]]でGoogle PlayとLinuxに対応させる。
+#+begin_src bash
+   nix shell github:nix-community/NUR#repos.ataraxiasjel.waydroid-script -c sudo waydroid-script
+#+end_src
+これでスクリプトを起動し、gapps(Google Play)とlibhoudini(x86-64でないと認識させる？)をインストールする。
+*** 2.サーバーを起動
+#+begin_src bash
+  waydroid session start
+#+end_src
+*** 3. Android画面を起動
+#+begin_src bash
+  waydroid show-full-ui
+#+end_src
