@@ -15,6 +15,10 @@
       tab_bar_edge = "top";
       tab_bar_style = "slant";
     };
+    extraConfig = ''
+      map kitty_mod+d previous_tab
+      map kitty_mod+n next_tab
+    '';
     shellIntegration = {
       enableBashIntegration = true;
       enableZshIntegration = true;
