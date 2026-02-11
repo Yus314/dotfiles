@@ -1,4 +1,15 @@
 { config, pkgs, ... }:
+let
+  zathuraSourceConfig = ''
+    for pid in $(${pkgs.procps}/bin/pgrep zathura); do
+      ${pkgs.dbus}/bin/dbus-send --print-reply \
+        --dest="org.pwmt.zathura.PID-$pid" \
+        /org/pwmt/zathura \
+        org.pwmt.zathura.SourceConfig \
+        2>/dev/null || true
+    done
+  '';
+in
 {
   services.darkman = {
     enable = true;
@@ -28,6 +39,12 @@
           fi
         fi
       '';
+      zathura-theme = ''
+        ${pkgs.coreutils}/bin/ln -sf \
+          "${config.xdg.configHome}/zathura/zathurarc.dark" \
+          "${config.xdg.configHome}/zathura/zathurarc"
+        ${zathuraSourceConfig}
+      '';
     };
     lightModeScripts = {
       gtk-theme = ''
@@ -50,6 +67,12 @@
               "テーマを light に変更しました。再起動で適用されます。"
           fi
         fi
+      '';
+      zathura-theme = ''
+        ${pkgs.coreutils}/bin/ln -sf \
+          "${config.xdg.configHome}/zathura/zathurarc.light" \
+          "${config.xdg.configHome}/zathura/zathurarc"
+        ${zathuraSourceConfig}
       '';
     };
   };
