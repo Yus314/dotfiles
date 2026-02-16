@@ -53,6 +53,12 @@
     map P toggle_page_mode
   '';
 
+  # checkLinkTargetsの前に既存リンクを削除（Home Manager競合回避）
+  home.activation.zathuraCleanup = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+    $DRY_RUN_CMD rm -f "${config.xdg.configHome}/zathura/zathurarc"
+  '';
+
+  # writeBoundaryの後にリンクを作成
   home.activation.zathuraLink = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     $DRY_RUN_CMD ${pkgs.coreutils}/bin/ln -sf \
       "${config.xdg.configHome}/zathura/zathurarc.light" \
