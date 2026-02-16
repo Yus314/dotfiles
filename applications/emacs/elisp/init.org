@@ -1544,9 +1544,11 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
   (keymap-global-set "C-c n l"  'org-roam-buffer-toggle)
   (keymap-global-set "C-c n f" 'org-roam-node-find)
   (keymap-global-set "C-c n i" 'org-roam-node-insert)
+  (keymap-global-set "C-c n c" 'org-roam-capture)
   (autoload 'org-roam-buffer-toggle "org-roam" nil t)
   (autoload 'org-roam-node-find "org-roam" nil t)
   (autoload 'org-roam-node-insert "org-roam" nil t)
+  (autoload 'org-roam-capture "org-roam" nil t)
   (with-eval-after-load 'org-roam
       (setq org-roam-directory  "~/dropbox/zk")
     (setq find-file-visit-truename   t)
@@ -1565,7 +1567,7 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
            ("b" "book" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
   ,#+filetags: :reference:book:
-  ,#+bibliography: ~/dropbox/ref.bib")
+  ,#+bibliography: ~/dropbox/book.bib")
           :unnarrowed t
           :jump-to-captured t)
            ("a" "anime" plain "%?" :if-new
