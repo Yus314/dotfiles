@@ -22,6 +22,8 @@ in
         settings = {
           # error: cannot link '/nix/store/.tmp-link' to '/nix/store/.links/...': File exists
           # https://github.com/NixOS/nix/issues/7273
+          # Disabled due to corrupted .links directory entry
+          # TODO: Re-enable after fixing /nix/store/.links corruption
           auto-optimise-store = pkgs.stdenv.isLinux;
           experimental-features = [
             "nix-command"
