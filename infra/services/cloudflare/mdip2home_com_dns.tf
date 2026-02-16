@@ -13,6 +13,12 @@ locals {
       content = "${cloudflare_zero_trust_tunnel_cloudflared.main["sub_mdip2home"].id}.cfargotunnel.com"
       proxied = true
     }
+    ledger = {
+      type    = "CNAME"
+      name    = "ledger"
+      content = "${cloudflare_zero_trust_tunnel_cloudflared.main["lawliet_hledger"].id}.cfargotunnel.com"
+      proxied = true
+    }
   }
 }
 

@@ -2,9 +2,15 @@ locals {
   tunnels = {
     "lab_ryuk" = {
       hostname = "test.mdip2home.com"
+      service  = "ssh://localhost:22"
     },
     "sub_mdip2home" = {
       hostname = "sub.mdip2home.com"
+      service  = "ssh://localhost:22"
+    },
+    "lawliet_hledger" = {
+      hostname = "ledger.mdip2home.com"
+      service  = "http://localhost:5000"
     }
   }
 }
@@ -25,7 +31,7 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "main" {
 
   config = {
     ingress = [
-      { hostname = each.value.hostname, service = "ssh://localhost:22" },
+      { hostname = each.value.hostname, service = each.value.service },
       { service = "http_status:404" }
     ]
   }

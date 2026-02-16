@@ -9,6 +9,9 @@ locals {
     "sma" = {
       domain = "sma.mdip2home.com"
     }
+    "hledger" = {
+      domain = "ledger.mdip2home.com"
+    }
   }
 }
 
