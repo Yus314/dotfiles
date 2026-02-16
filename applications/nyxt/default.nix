@@ -1,7 +1,8 @@
 { pkgs, ... }:
 {
   programs.nyxt = {
-    enable = true;
+    package = pkgs.nyxt-4;
+    enable = false;
     config = ./config.lisp;
     extensions = {
       "nx-rbw" = pkgs.nx-rbw;
