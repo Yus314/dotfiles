@@ -5,7 +5,11 @@
       name = "Bizin Gothic Discord NF";
       size = 18;
     };
-    themeFile = "Modus_Vivendi";
+    autoThemeFiles = {
+      light = "Modus_Operandi";
+      dark = "Modus_Vivendi";
+      noPreference = "Modus_Operandi";
+    };
     settings = {
       macos_option_as_alt = "left";
       allow_remote_control = "socket-only";

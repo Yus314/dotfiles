@@ -22,12 +22,6 @@ in
         ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme "'prefer-dark'"
         ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/gtk-theme "'Adwaita-dark'"
       '';
-      kitty-theme = ''
-        for socket in /tmp/kitty-*; do
-          [ -S "$socket" ] && ${pkgs.kitty}/bin/kitty @ --to "unix:$socket" set-colors --all --configured \
-            ${pkgs.kitty-themes}/share/kitty-themes/themes/Modus_Vivendi.conf
-        done
-      '';
       claude-code-theme = ''
         CLAUDE_JSON="$HOME/.claude.json"
         if [ -f "$CLAUDE_JSON" ]; then
@@ -50,12 +44,6 @@ in
       gtk-theme = ''
         ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/color-scheme "'prefer-light'"
         ${pkgs.dconf}/bin/dconf write /org/gnome/desktop/interface/gtk-theme "'Adwaita'"
-      '';
-      kitty-theme = ''
-        for socket in /tmp/kitty-*; do
-          [ -S "$socket" ] && ${pkgs.kitty}/bin/kitty @ --to "unix:$socket" set-colors --all --configured \
-            ${pkgs.kitty-themes}/share/kitty-themes/themes/Modus_Operandi.conf
-        done
       '';
       claude-code-theme = ''
         CLAUDE_JSON="$HOME/.claude.json"
