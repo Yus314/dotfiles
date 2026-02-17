@@ -18,6 +18,8 @@
     extraConfig = ''
       map kitty_mod+d previous_tab
       map kitty_mod+n next_tab
+      map kitty_mod+t launch --type=tab --cwd=last_reported
+      map kitty_mod+h launch --type=tab --cwd=~
     '';
     shellIntegration = {
       enableBashIntegration = true;
