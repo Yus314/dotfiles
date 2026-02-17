@@ -50,6 +50,9 @@
     };
     agentsDir = ../../applications/claude-code/agents;
     commandsDir = ../../applications/claude-code/commands;
+    skills = {
+      codex = ./skills/codex;
+    };
     mcpServers = import ../../applications/mcp {
       inherit inputs pkgs;
       ghTokenPath = config.sops.secrets.gh-token-for-mcp.path;
