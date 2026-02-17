@@ -1,9 +1,4 @@
 local capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
-local lsp_attach = function(client, buf)
-	vim.api.nvim_buf_set_option(buf, "formatexpr", "v:lua.vim.lsp.formatexpr()")
-	vim.api.nvim_buf_set_option(buf, "omnifunc", "v:lua.vim.lsp.omnifunc")
-	vim.api.nvim_buf_set_option(buf, "tagfunc", "v:lua.vim.lsp.tagfunc")
-end
 
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, opts)
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
@@ -19,11 +14,10 @@ vim.keymap.set("n", "<leader>cw", "<cmd>lua vim.lsp.buf.workspace_symbol()<CR>")
 vim.keymap.set("n", "<leader>cr", "<cmd>lua vim.lsp.buf.rename()<CR>")
 vim.keymap.set("n", "gf", "<cmd>lua vim.lsp.buf.format()<CR>")
 
-require("rust-tools").setup({
+vim.g.rustaceanvim = {
 	server = {
 		capabilities = capabilities,
-		on_attach = lsp_attach,
-		settings = {
+		default_settings = {
 			["rust-analyzer"] = {
 				checkOnSave = {
 					allFeatures = true,
@@ -32,42 +26,43 @@ require("rust-tools").setup({
 			},
 		},
 	},
-})
-require("lspconfig").jdtls.setup({})
-require("lspconfig").lua_ls.setup({})
--- require 'lspconfig'.nushell.setup {}
-require("lspconfig").texlab.setup({})
--- require 'lspconfig'.pylsp.setup {
--- 	capabilities = capabilities,
--- 	on_attach = lsp_attach,
--- 	settings = {
--- 		pylsp = {
--- 			plugins = {
--- 				ruff = {
--- 					enabled = true
--- 				},
--- 				pycodestyle = {
--- 					enabled = false
--- 				},
--- 				pyflakes = {
--- 					enabled = false
--- 				},
--- 				mccabe = {
--- 					enabled = false
--- 				}
--- 			}
--- 		}
--- 	}
--- }
-require("lspconfig").ruff.setup({
+}
+
+vim.lsp.config("*", {
 	capabilities = capabilities,
-	on_attach = lsp_attach,
+	root_markers = { ".git" },
 })
-require("lspconfig").nil_ls.setup({
-	autostart = true,
-	capabilities = capabilities,
-	on_attach = lsp_attach,
-	formatting = {
-		command = "nixfmt",
+
+vim.lsp.config("jdtls", {
+	cmd = { "jdtls" },
+	filetypes = { "java" },
+})
+
+vim.lsp.config("lua_ls", {
+	cmd = { "lua-language-server" },
+	filetypes = { "lua" },
+})
+
+vim.lsp.config("texlab", {
+	cmd = { "texlab" },
+	filetypes = { "tex", "plaintex", "bib" },
+})
+
+vim.lsp.config("ruff", {
+	cmd = { "ruff", "server" },
+	filetypes = { "python" },
+})
+
+vim.lsp.config("nil_ls", {
+	cmd = { "nil" },
+	filetypes = { "nix" },
+	settings = {
+		["nil"] = {
+			formatting = {
+				command = { "nixfmt" },
+			},
+		},
 	},
 })
+
+vim.lsp.enable({ "jdtls", "lua_ls", "texlab", "ruff", "nil_ls" })

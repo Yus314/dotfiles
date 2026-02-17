@@ -1,7 +1,7 @@
 return {
 	{
-		name = "rust-tools.nvim",
-		dir = "@rust_tools_nvim@",
+		name = "rustaceanvim",
+		dir = "@rustaceanvim@",
 		ft = { "rust" },
 	},
 }

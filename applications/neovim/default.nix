@@ -9,17 +9,21 @@ let
     file:
     let
       srcPath = ./. + "/${file}";
-      replacements = plugins;
+      substArgs = builtins.concatStringsSep " " (
+        pkgs.lib.mapAttrsToList (name: value: "--subst-var-by ${name} ${value}") plugins
+      );
     in
     {
-      "nvim/${file}".source = pkgs.replaceVars srcPath replacements;
+      "nvim/${file}".source = pkgs.runCommand (builtins.baseNameOf file) { } ''
+        substitute ${srcPath} $out ${substArgs}
+      '';
     };
 
   configFiles = files: builtins.foldl' (x: y: x // y) { } (map configFile files);
 in
 {
   programs.neovim = {
-    enable = false;
+    enable = true;
     vimAlias = true;
 
     extraPackages = with pkgs; [
@@ -27,8 +31,8 @@ in
       rust-analyzer
       texlab
       ruff
-      python312Packages.python-lsp-ruff
-      python312Packages.python-lsp-server
+      # python312Packages.python-lsp-ruff # jaraco-test 5.6.0 ビルド失敗のため一時無効化 (nixpkgs#485478)
+      # python312Packages.python-lsp-server # 同上
       rustfmt
       nil
       nixfmt
@@ -80,45 +84,43 @@ in
           )).dependencies;
       }
     }/parser";
-  };
-  # // configFiles [
-  #   "init.lua"
-  #   #"lua/color.lua"
-  #   "lua/keymaps.lua"
-  #   "lua/lsp.lua"
-  #   "lua/nvim-cmp.lua"
-  #   "lua/options.lua"
-  #   "lua/specif.lua"
-
-  #"lua/plugins/barbar.lua"
-  #"lua/plugins/cmp.lua"
-  #"lua/plugins/comment.lua"
-  #   "lua/plugins/conform.lua"
-  #   "lua/plugins/copilot.lua"
-  #   "lua/plugins/dial.lua"
-  #   "lua/plugins/gitsign.lua"
-  #   "lua/plugins/hop.lua"
-  #   "lua/plugins/lspconfig.lua"
-  #   "lua/plugins/lualine.lua"
-  #   "lua/plugins/markdown-preview.lua"
-  #   "lua/plugins/noice.lua"
-  # "/lua/plugins/nu.lua"
-  #   "lua/plugins/null-ls.lua"
-  #   "lua/plugins/oil.lua"
-  #   "lua/plugins/onedark.lua"
-  #   "lua/plugins/rust-tools.lua"
-  #   "lua/plugins/skkeleton.lua"
-  #   "lua/plugins/telescope.lua"
-  #   "lua/plugins/toggleterm.lua"
-  #   "lua/plugins/tree-sitter.lua"
-  # "/lua/plugins/vim-markdown.lua"
-  #   "lua/plugins/vimtex.lua"
-  #   "lua/plugins/orgmode.lua"
-  #   "lua/plugins/render-markdown.lua"
-  #   "lua/plugins/telekasten.lua"
-  #   "lua/plugins/nvim-markdown.lua"
-  #   "lua/plugins/yamlmatter.lua"
-  #   "lua/plugins/zotcite.lua"
-
-  # ];
+  }
+  // configFiles [
+    "init.lua"
+    "lua/color.lua"
+    "lua/keymaps.lua"
+    "lua/lsp.lua"
+    "lua/nvim-cmp.lua"
+    "lua/options.lua"
+    "lua/specif.lua"
+    "lua/plugins/plugins.lua"
+    #"lua/plugins/barbar.lua"
+    #"lua/plugins/cmp.lua"
+    #"lua/plugins/comment.lua"
+    "lua/plugins/conform.lua"
+    "lua/plugins/copilot.lua"
+    "lua/plugins/dial.lua"
+    "lua/plugins/gitsign.lua"
+    "lua/plugins/hop.lua"
+    "lua/plugins/kitty-scrollback.lua"
+    "lua/plugins/lualine.lua"
+    "lua/plugins/markdown-preview.lua"
+    "lua/plugins/noice.lua"
+    "lua/plugins/nu.lua"
+    "lua/plugins/oil.lua"
+    "lua/plugins/onedark.lua"
+    "lua/plugins/rust-tools.lua"
+    "lua/plugins/skkeleton.lua"
+    "lua/plugins/telescope.lua"
+    "lua/plugins/toggleterm.lua"
+    "lua/plugins/tree-sitter.lua"
+    "lua/plugins/vim-markdown.lua"
+    "lua/plugins/vimtex.lua"
+    "lua/plugins/orgmode.lua"
+    "lua/plugins/render-markdown.lua"
+    "lua/plugins/telekasten.lua"
+    "lua/plugins/nvim-markdown.lua"
+    "lua/plugins/yamlmatter.lua"
+    "lua/plugins/zotcite.lua"
+  ];
 }

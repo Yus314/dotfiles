@@ -6,9 +6,7 @@ return {
 		dir = "@denops_vim@",
 		--"vim-denops/denops.vim",
 		config = function()
-			-- vim.g['denops#deno'] = '/nix/store/l3adf02p4xdxlvqy5rl2wzb37965nvml-deno-1.43.6/bin/deno'
-			vim.g["denops#deno"] = "/nix/store/4s9mwxzx1cqm2mv3w7zz43ylcsddavd0-deno-1.44.3/bin/deno"
-			-- vim.g['denops#deno'] = 'deno'
+			vim.g["denops#deno"] = "deno"
 		end,
 	},
 

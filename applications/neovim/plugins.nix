@@ -18,7 +18,7 @@ let
 in
 with pkgs.vimPlugins;
 plugins [
-  #barbar-nvim
+  barbar-nvim
   cmp-buffer
   cmp-nvim-lsp
   cmp-path
@@ -32,14 +32,12 @@ plugins [
   markdown-preview-nvim
   noice-nvim
   nui-nvim
-  null-ls-nvim
   nvim-cmp
-  nvim-lspconfig
   nvim-treesitter.withAllGrammars
   nvim-ts-autotag
   nvim-web-devicons
   plenary-nvim
-  rust-tools-nvim
+  rustaceanvim
   telescope-file-browser-nvim
   telescope-nvim
   toggleterm-nvim
@@ -56,4 +54,5 @@ plugins [
   orgmode
   telekasten-nvim
   telescope-fzf-native-nvim
+  kitty-scrollback-nvim
 ]

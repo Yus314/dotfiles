@@ -119,26 +119,6 @@ return {
 		opts = {},
 	},
 	{
-		name = "nvim-treesitter",
-		dir = "@nvim_treesitter@",
-		build = ":TSUpdate",
-		config = function()
-			require("nvim-treesitter.configs").setup({
-				sync_install = false,
-				highlight = {
-					enable = true,
-				},
-				indent = { enable = true },
-			})
-		end,
-		dependencies = {
-			{
-				"nushell/tree-sitter-nu",
-			},
-		},
-	},
-
-	{
 		-- 自動でフォーマットするためだけに入れているが他に良い方法があるかも
 		name = "conform-nvim",
 		dir = "@conform_nvim@",
@@ -148,19 +128,6 @@ return {
 				lsp_fallback = true,
 			},
 		},
-	},
-	{
-		--	 何故か Python はこれがないとformat できない。
-		name = "null-ls.nvim",
-		dir = "@null_ls_nvim@",
-		config = function()
-			local null_ls = require("null-ls")
-			null_ls.setup({
-				sources = {
-					null_ls.builtins.formatting.nixfmt,
-				},
-			})
-		end,
 	},
 	{
 		"epwalsh/obsidian.nvim",
@@ -178,12 +145,7 @@ return {
 		end,
 	},
 	{
-		name = "rust-tools.nvim",
-		dir = "@rust_tools_nvim@",
-		ft = { "rust" },
-	},
-	{
-		name = "lualie.nvim",
+		name = "lualine.nvim",
 		dir = "@lualine_nvim@",
 		dependencies = { {
 			name = "nvim-web-devicons",
@@ -245,17 +207,6 @@ return {
 	{
 		name = "copilot.vim",
 		dir = "@copilot_vim@",
-	},
-	{
-		name = "nvim-lspconfig",
-		dir = "@nvim_lspconfig@",
-		init_options = {
-			userLanguages = {
-				eelixir = "html-eex",
-				eruby = "erb",
-				rust = "html",
-			},
-		},
 	},
 	{
 		name = "nvim-cmp",
