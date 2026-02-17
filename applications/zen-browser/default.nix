@@ -13,6 +13,25 @@
             vimium
           ]
         );
+        force = true;
+        settings = {
+          "{d7742d87-e61d-4b78-b8a1-b469842139fa}".settings = {
+            keyMappings = ''
+              # Insert your preferred key mappings here.
+              unmap s
+              unmap t
+              unmap d
+              unmap n
+              unmap D
+              unmap N
+              map s scrollDown
+              map t scrollUp
+              map d goBack
+              map n goForward
+            '';
+            settingsVersion = "2.3.1";
+          };
+        };
       };
       settings = {
         "browser.translations.neverTranslateLanguages" = "ja";
