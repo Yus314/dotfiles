@@ -27,14 +27,10 @@
       map kitty_mod+s scroll_to_prompt 1
       map kitty_mod+enter launch --type=tab --cwd=last_reported
       map kitty_mod+h launch --type=tab --cwd=~
-      map kitty_mod+z scroll_page_up
-      map kitty_mod+v scroll_page_down
 
-      # kitty-scrollback.nvim
-      action_alias kitty_scrollback_nvim kitten ${pkgs.vimPlugins.kitty-scrollback-nvim}/python/kitty_scrollback_nvim.py
-      map kitty_mod+b kitty_scrollback_nvim
-      map kitty_mod+g kitty_scrollback_nvim --config ksb_builtin_last_cmd_output
-      mouse_map ctrl+shift+right press ungrabbed combine : mouse_select_command_output : kitty_scrollback_nvim --config ksb_builtin_last_visited_cmd_output
+      # kakoune-scrollback
+      map kitty_mod+b launch --type=overlay --stdin-source=@screen_scrollback --stdin-add-formatting --stdin-add-line-wrap-markers ${pkgs.kakounePlugins.kakoune-scrollback}/bin/kakoune-scrollback
+      map kitty_mod+g launch --type=overlay --stdin-source=@last_cmd_output --stdin-add-formatting ${pkgs.kakounePlugins.kakoune-scrollback}/bin/kakoune-scrollback
     '';
     shellIntegration = {
       enableBashIntegration = true;
