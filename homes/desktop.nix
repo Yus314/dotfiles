@@ -3,6 +3,7 @@
   imports = [
     ../applications/alacritty
     ../applications/kitty
+    ../applications/ghostty
     ../applications/vivaldi
     ../applications/google-chrome
     ../applications/qutebrowser
