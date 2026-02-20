@@ -29,8 +29,8 @@
       map kitty_mod+h launch --type=tab --cwd=~
 
       # kakoune-scrollback
-      map kitty_mod+b launch --type=overlay --stdin-source=@screen_scrollback --stdin-add-formatting --stdin-add-line-wrap-markers ${pkgs.kakounePlugins.kakoune-scrollback}/bin/kakoune-scrollback
-      map kitty_mod+g launch --type=overlay --stdin-source=@last_cmd_output --stdin-add-formatting ${pkgs.kakounePlugins.kakoune-scrollback}/bin/kakoune-scrollback
+      map kitty_mod+b launch --type=overlay --env KAKOUNE_SCROLLBACK_TARGET_WINDOW_ID=$KITTY_WINDOW_ID --stdin-source=@screen_scrollback --stdin-add-formatting --stdin-add-line-wrap-markers ${pkgs.kakounePlugins.kakoune-scrollback}/bin/kakoune-scrollback
+      map kitty_mod+g launch --type=overlay --env KAKOUNE_SCROLLBACK_TARGET_WINDOW_ID=$KITTY_WINDOW_ID --stdin-source=@last_cmd_output --stdin-add-formatting ${pkgs.kakounePlugins.kakoune-scrollback}/bin/kakoune-scrollback
     '';
     shellIntegration = {
       enableBashIntegration = true;
