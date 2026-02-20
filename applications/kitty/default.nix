@@ -26,6 +26,8 @@
       map kitty_mod+s scroll_to_prompt 1
       map kitty_mod+enter launch --type=tab --cwd=last_reported
       map kitty_mod+h launch --type=tab --cwd=~
+      map kitty_mod+z scroll_page_up
+      map kitty_mod+v scroll_page_down
     '';
     shellIntegration = {
       enableBashIntegration = true;
