@@ -10,9 +10,9 @@
       prev
       // (pkgs.nurEmacsPackages or { })
       // {
-        lsp-bridge = (prev.lsp-bridge or pkgs.emacsPackages.lsp-bridge).overrideAttrs (old: {
-          src = /home/kaki/lsp-bridge;
-        });
+#        lsp-bridge = (prev.lsp-bridge or pkgs.emacsPackages.lsp-bridge).overrideAttrs (old: {
+#          src = /home/kaki/lsp-bridge;
+#        });
       };
     extraEmacsPackages =
       epkgs:
@@ -49,7 +49,7 @@
         ellama
         aidermacs
         claude-code-ide
-        lsp-bridge
+        # lsp-bridge  # temporarily disabled due to rapidfuzz build failure on Python 3.13
         # lsp-mode  # temporarily disabled due to build segfault
         # lsp-ui
         nix-ts-mode
