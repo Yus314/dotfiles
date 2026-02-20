@@ -165,8 +165,16 @@ Waylandでペーストできるようにする設定
     		)))
     (with-eval-after-load 'darkman
   (setq darkman-themes '(:light modus-operandi :dark modus-vivendi))
-  (darkman-mode)
+  (when (eq system-type 'gnu/linux)
+    (darkman-mode))
   )
+#+end_src
+*** auto-dark
+#+begin_src emacs-lisp :tangle yes
+  (when (eq system-type 'darwin)
+    (require 'auto-dark)
+    (setq auto-dark-themes '((modus-vivendi) (modus-operandi)))
+    (auto-dark-mode t))
 #+end_src
 ** tree-sitter
 #+begin_src emacs-lisp :tangle yes
@@ -749,7 +757,7 @@ with-eval-after-load 'multiple-cursors
   ;(yas-global-mode)
 #+end_src
 * lsp-bridge
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
    (add-hook 'emacs-startup-hook #'global-lsp-bridge-mode)
    (autoload 'global-lsp-bridge-mode "lsp-bridge")
    (with-eval-after-load 'lsp-bridge
