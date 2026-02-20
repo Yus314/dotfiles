@@ -41,21 +41,29 @@ in
   services.openssh = {
     enable = true;
   };
+  services.cloudflared = {
+    enable = true;
+    tunnels = {
+      "8660bc67-a68c-4c63-9ed1-77666eeb3936" = {
+        credentialsFile = config.sops.secrets.cloudflared-tunnel-cred-lawliet.path;
+        default = "http_status:404";
+        ingress = {
+          "ledger.mdip2home.com" = "http://localhost:5000";
+        };
+      };
+    };
+    certificateFile = config.sops.secrets.cloudflared-tunnel-cert.path;
+  };
   sops = {
     defaultSopsFile = ../../../secrets/default.yaml;
     age = {
       keyFile = "/home/kaki/.config/sops/age/keys.txt";
       generateKey = true;
     };
-    #gnupg = {
-    #  home = "home/kaki/.gnupg";
-    #};
-    #secrets = {
-    #  cachix-agent-token = {
-    #    sopsFile = ../../../secrets/cachix.yaml;
-    #  };
-    #};
-
+    secrets = {
+      cloudflared-tunnel-cert = { };
+      cloudflared-tunnel-cred-lawliet = { };
+    };
   };
   programs.steam = {
     enable = true;
@@ -64,7 +72,12 @@ in
   programs.virt-manager.enable = true;
   users.groups.libvirtd.members = [ "kaki" ];
   virtualisation.libvirtd.enable = true;
+  virtualisation.libvirtd.qemu.swtpm.enable = true;
   virtualisation.spiceUSBRedirection.enable = true;
+
+  virtualisation.waydroid.enable = true;
+
+  virtualisation.docker.enable = true;
 
   networking.hostName = "lawliet";
 
@@ -81,6 +94,15 @@ in
 
   # Enable networking
   networking.networkmanager.enable = true;
+
+  networking = {
+    firewall = {
+      enable = true;
+      extraCommands = ''
+        iptables -A nixos-fw -s 192.168.1.0/24 -j ACCEPT
+      '';
+    };
+  };
 
   # Set your time zone.
   time.timeZone = "Asia/Tokyo";
@@ -141,6 +163,8 @@ in
     # アイコンテーマ (dunst通知用)
     adwaita-icon-theme
     papirus-icon-theme
+    docker-compose
+    android-tools
   ];
   programs.gnupg.agent = {
     enable = true;

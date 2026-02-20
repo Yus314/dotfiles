@@ -62,6 +62,16 @@ in
       };
 
       binds = defaultKeyBind // {
+        "Mod+K".action.spawn = "kitty";
+        "Mod+E".action.spawn = [
+          "emacsclient"
+          "-c"
+          "-a"
+          ""
+        ];
+        "Mod+B".action.spawn = [
+          "zen-beta"
+        ];
         "Mod+Shift+Ctrl+Return".action.spawn = [
           "tofi-drun"
           "--drun-launch=true"

@@ -1,6 +1,7 @@
 { pkgs, ... }:
 {
   imports = [
+    ../applications/calibre
     ../applications/alacritty
     ../applications/kitty
     ../applications/ghostty

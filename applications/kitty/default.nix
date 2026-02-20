@@ -5,7 +5,11 @@
       name = "Bizin Gothic Discord NF";
       size = 18;
     };
-    themeFile = "Modus_Vivendi";
+    autoThemeFiles = {
+      light = "Modus_Operandi";
+      dark = "Modus_Vivendi";
+      noPreference = "Modus_Operandi";
+    };
     settings = {
       macos_option_as_alt = "left";
       allow_remote_control = "socket-only";
@@ -18,6 +22,10 @@
     extraConfig = ''
       map kitty_mod+d previous_tab
       map kitty_mod+n next_tab
+      map kitty_mod+t scroll_to_prompt -1
+      map kitty_mod+s scroll_to_prompt 1
+      map kitty_mod+enter launch --type=tab --cwd=last_reported
+      map kitty_mod+h launch --type=tab --cwd=~
     '';
     shellIntegration = {
       enableBashIntegration = true;

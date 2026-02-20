@@ -69,7 +69,6 @@
     # github-copilot-cli # Temporarily disabled due to man-cache build issues
 
     # --- GUI Applications ---
-    zathura # Document viewer with vi-like keybindings
     # kakoune # Installed via programs.kakoune module
     zotero # Reference management software
 
