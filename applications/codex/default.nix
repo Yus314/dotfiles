@@ -6,27 +6,38 @@
 }:
 
 let
-  # 音声設定（dunstと統一）
-  soundPath = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo";
+  isLinux = pkgs.stdenv.hostPlatform.isLinux;
 
   # 通知スクリプト
-  notifyScript = pkgs.writeShellScript "codex-notify" ''
-    # JSONペイロードを引数から取得
-    INPUT="$1"
-    TYPE=$(echo "$INPUT" | ${pkgs.jq}/bin/jq -r '.type // "unknown"')
-    MSG=$(echo "$INPUT" | ${pkgs.jq}/bin/jq -r '.["last-assistant-message"] // ""' | head -c 200)
+  notifyScript =
+    if isLinux then
+      let
+        # 音声設定（dunstと統一）
+        soundPath = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo";
+      in
+      pkgs.writeShellScript "codex-notify" ''
+        # JSONペイロードを引数から取得
+        INPUT="$1"
+        TYPE=$(echo "$INPUT" | ${pkgs.jq}/bin/jq -r '.type // "unknown"')
+        MSG=$(echo "$INPUT" | ${pkgs.jq}/bin/jq -r '.["last-assistant-message"] // ""' | head -c 200)
 
-    # 通知を送信
-    ${pkgs.dunst}/bin/dunstify \
-      -a "codex" \
-      -u normal \
-      -i "dialog-information" \
-      "Codex: タスク完了" \
-      "$MSG"
+        # 通知を送信
+        ${pkgs.dunst}/bin/dunstify \
+          -a "codex" \
+          -u normal \
+          -i "dialog-information" \
+          "Codex: タスク完了" \
+          "$MSG"
 
-    # 完了音を再生
-    ${pkgs.pipewire}/bin/pw-play "${soundPath}/complete.oga" --volume=0.8
-  '';
+        # 完了音を再生
+        ${pkgs.pipewire}/bin/pw-play "${soundPath}/complete.oga" --volume=0.8
+      ''
+    else
+      pkgs.writeShellScript "codex-notify" ''
+        INPUT="$1"
+        MSG=$(echo "$INPUT" | ${pkgs.jq}/bin/jq -r '.["last-assistant-message"] // ""' | head -c 200)
+        osascript -e "display notification \"$MSG\" with title \"Codex: タスク完了\""
+      '';
 in
 {
   # sops.nix設定 - OpenAI API KEY
