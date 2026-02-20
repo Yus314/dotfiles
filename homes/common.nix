@@ -10,7 +10,7 @@ in
 {
   programs.home-manager.enable = true;
   home = {
-    stateVersion = "25.05";
+    stateVersion = "26.05";
   };
   imports = [
     sops-nix.homeManagerModules.sops
