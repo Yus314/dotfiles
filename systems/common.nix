@@ -7,7 +7,12 @@
   ...
 }:
 let
-  inherit (inputs) emacs-overlay nur-packages firefox-addons;
+  inherit (inputs)
+    emacs-overlay
+    nur-packages
+    firefox-addons
+    brew-nix
+    ;
   inherit (specialArgs) username;
 in
 {
@@ -21,6 +26,7 @@ in
     emacs-overlay.overlays.default
     nur-packages.overlays.default
     firefox-addons.overlays.default
+    brew-nix.overlays.default
   ]
   ++ lib.attrValues self.overlays;
 

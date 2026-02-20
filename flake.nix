@@ -22,7 +22,8 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
     xremap.url = "github:xremap/nix-flake";
     zen-browser = {
-      url = "github:0xc000022070/zen-browser-flake";
+      #url = "github:0xc000022070/zen-browser-flake";
+      url = "github:0xc000022070/zen-browser-flake?ref=98d8f48ba80a4b6e3b56addad850d57132301075";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         home-manager.follows = "home-manager";
@@ -57,6 +58,17 @@
     nur-packages.inputs.nixpkgs.follows = "nixpkgs";
     xremap.inputs.nixpkgs.follows = "nixpkgs";
     xremap.inputs.flake-parts.follows = "flake-parts";
+
+    brew-api = {
+      url = "github:BatteredBunny/brew-api";
+      flake = false;
+    };
+    brew-nix = {
+      url = "github:BatteredBunny/brew-nix";
+      inputs.brew-api.follows = "brew-api";
+      inputs.nix-darwin.follows = "nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
   };
   outputs =
