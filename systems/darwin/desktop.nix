@@ -9,4 +9,5 @@
     enable = true;
     package = pkgs.aquaskk;
   };
+  system.defaults.NSGlobalDomain.AppleInterfaceStyleSwitchesAutomatically = true;
 }

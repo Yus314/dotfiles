@@ -22,6 +22,7 @@
               unmap t
               unmap d
               unmap n
+              unmap K
               unmap D
               unmap N
               map s scrollDown

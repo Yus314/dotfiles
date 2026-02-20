@@ -1,5 +1,47 @@
 {
   "nodes": {
+    "brew-api": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1770618325,
+        "narHash": "sha256-qJrcJX0a2l1ZU43BLvKWGw8E7jRdgdbnxmK/KBrb/yg=",
+        "owner": "BatteredBunny",
+        "repo": "brew-api",
+        "rev": "868d2c24eec333170aac772119a991881859acc9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "BatteredBunny",
+        "repo": "brew-api",
+        "type": "github"
+      }
+    },
+    "brew-nix": {
+      "inputs": {
+        "brew-api": [
+          "brew-api"
+        ],
+        "nix-darwin": [
+          "nix-darwin"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1764779851,
+        "narHash": "sha256-7WrgeIYBEuFG7DZtS8dio0y9nvRHf3otk7oqsPIoECs=",
+        "owner": "BatteredBunny",
+        "repo": "brew-nix",
+        "rev": "b314426c17667bcebd73ed7e57ecae2bac9755cf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "BatteredBunny",
+        "repo": "brew-nix",
+        "type": "github"
+      }
+    },
     "claude-desktop": {
       "inputs": {
         "flake-utils": [
@@ -424,6 +466,8 @@
     },
     "root": {
       "inputs": {
+        "brew-api": "brew-api",
+        "brew-nix": "brew-nix",
         "claude-desktop": "claude-desktop",
         "disko": "disko",
         "emacs-overlay": "emacs-overlay",
@@ -550,11 +594,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1771131295,
-        "narHash": "sha256-3Z7RKjuifcB6Hkjrk8gNOXAqEv5+ubc/J9lLoKD7pv4=",
+        "lastModified": 1771562861,
+        "narHash": "sha256-6oT3rF68W8HERLXvFfEkpz8xpAVLKZsY1ZuR/BbDTO8=",
         "owner": "0xc000022070",
         "repo": "zen-browser-flake",
-        "rev": "e983cc5e47483742b61e0c53cfe9a9314628086f",
+        "rev": "7783a3adf3d5a9599a82c75a44c7482e70398ac2",
         "type": "github"
       },
       "original": {

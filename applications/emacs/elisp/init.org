@@ -165,8 +165,16 @@ Waylandでペーストできるようにする設定
     		)))
     (with-eval-after-load 'darkman
   (setq darkman-themes '(:light modus-operandi :dark modus-vivendi))
-  (darkman-mode)
+  (when (eq system-type 'gnu/linux)
+    (darkman-mode))
   )
+#+end_src
+*** auto-dark
+#+begin_src emacs-lisp :tangle yes
+  (when (eq system-type 'darwin)
+    (require 'auto-dark)
+    (setq auto-dark-themes '((modus-vivendi) (modus-operandi)))
+    (auto-dark-mode t))
 #+end_src
 ** tree-sitter
 #+begin_src emacs-lisp :tangle yes
@@ -749,7 +757,7 @@ with-eval-after-load 'multiple-cursors
   ;(yas-global-mode)
 #+end_src
 * lsp-bridge
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
    (add-hook 'emacs-startup-hook #'global-lsp-bridge-mode)
    (autoload 'global-lsp-bridge-mode "lsp-bridge")
    (with-eval-after-load 'lsp-bridge
@@ -1371,67 +1379,70 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
 #+end_src
 ** org-capture
 #+begin_src emacs-lisp :tangle yes
-(defun my/org-agenda-to-string (agenda-type)
-      "Generate agenda string for the current week using a temporary file."
-      (let ((temp-agenda-file (make-temp-file "org-agenda-"))
-            (org-agenda-buffer nil)) ; 読み取り専用バッファを使わないようにする
-        (save-window-excursion
-          (org-agenda nil agenda-type) ; Agenda ビューを生成
-          (org-agenda-write temp-agenda-file)) ; 一時ファイルに書き出し
-        (with-temp-buffer
-          (insert-file-contents temp-agenda-file) ; 一時ファイルの内容を読み込む
-          (goto-char (point-min))
-          ;; 不要な部分を整形 (例: ヘッダー削除)
-          (kill-whole-line)
-          (buffer-string)))) ; 最終的な文字列として返す
+  (defun my/org-agenda-to-string (agenda-type)
+        "Generate agenda string for the current week using a temporary file."
+        (let ((temp-agenda-file (make-temp-file "org-agenda-"))
+              (org-agenda-buffer nil)) ; 読み取り専用バッファを使わないようにする
+          (save-window-excursion
+            (org-agenda nil agenda-type) ; Agenda ビューを生成
+            (org-agenda-write temp-agenda-file)) ; 一時ファイルに書き出し
+          (with-temp-buffer
+            (insert-file-contents temp-agenda-file) ; 一時ファイルの内容を読み込む
+            (goto-char (point-min))
+            ;; 不要な部分を整形 (例: ヘッダー削除)
+            (kill-whole-line)
+            (buffer-string)))) ; 最終的な文字列として返す
 
-    (keymap-global-set "C-c c" 'org-capture)
-    (autoload 'org-capture "org-capture" nil t)
-    (with-eval-after-load 'org-capture
-      (let* ((current-time (current-time))
-             ;; 現在の日付から土曜日までの日数を計算
-             (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
-             ;; 今週の土曜日を計算
-             (start-of-week (time-add
-                             (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
-             ;; 翌週の金曜日を計算
-             (end-of-week (time-add start-of-week (days-to-time 6)))
-             ;; フォーマットされた日付
-             (start-day (format-time-string "%m%d" start-of-week))
-             (end-day (format-time-string "%m%d" end-of-week))
-             ;; 年を取得
-             (year (format-time-string "%Y" start-of-week))
-             ;; アーカイブディレクトリとファイル名
-             (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
-             (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
+      (keymap-global-set "C-c c" 'org-capture)
+      (autoload 'org-capture "org-capture" nil t)
+      (with-eval-after-load 'org-capture
+        (let* ((current-time (current-time))
+               ;; 現在の日付から土曜日までの日数を計算
+               (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
+               ;; 今週の土曜日を計算
+               (start-of-week (time-add
+                               (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
+               ;; 翌週の金曜日を計算
+               (end-of-week (time-add start-of-week (days-to-time 6)))
+               ;; フォーマットされた日付
+               (start-day (format-time-string "%m%d" start-of-week))
+               (end-day (format-time-string "%m%d" end-of-week))
+               ;; 年を取得
+               (year (format-time-string "%Y" start-of-week))
+               ;; アーカイブディレクトリとファイル名
+               (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
+               (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
 
-        (setq weekly-dir   archive-file)
-        (setq org-archive-location (format "%s::** やったこと" archive-file))
-        )
-      (setq taskfile  "~/dropbox/inbox/inbox.org")
-      (setq org-capture-templates
-    	'(
-    	  ("t" "ToDo" entry (file taskfile )
-    	   "* TODO %^{title}\n %?")
-    	  ("h" "Habit" entry (file "~/dropbox/habit.org")
-    	   "* TODO %^{title}\n:PROPERTIES:\n:STYLE: habit\n:END:\n%?")
-    	  ("p" "Project" entry (file+headline taskfile "プロジェクト" )
-    	   "* PROJECT %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
-    	  ("w" "Weekly Report" entry (file weekly-dir)
-    	   "* 今週のこと
-    ,** やったこと
-    ,** 時間計測
-    ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
-    ,#+END:
-    ,** 考えたこと
-    %?
-    ,* 来週のこと
-    ,** 予定
-    %(my/org-agenda-to-string \"a\")
-    ,** TODOリスト
-    %(my/org-agenda-to-string \"d\")
-    ,** 考えていること
-    "))))
+          (setq weekly-dir   archive-file)
+          (setq org-archive-location (format "%s::** やったこと" archive-file))
+          )
+        (setq taskfile  "~/dropbox/inbox/inbox.org")
+        (setq org-capture-templates
+      	'(
+      	  ("t" "ToDo" entry (file taskfile )
+      	   "* TODO %^{title}\n %?")
+      	  ("h" "Habit" entry (file "~/dropbox/habit.org")
+      	   "* TODO %^{title}\n:PROPERTIES:\n:STYLE: habit\n:END:\n%?")
+      	  ("p" "Project" entry (file+headline taskfile "プロジェクト" )
+      	   "* PROJECT %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
+      	  ("w" "Weekly Report" entry (file weekly-dir)
+      	   "* 今週のこと
+      ,** やったこと
+      ,** 時間計測
+      ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
+      ,#+END:
+      ,** 考えたこと
+      ,*** 良かったこと
+      %?
+      ,*** 気づき
+      ,*** やり残したこと
+      ,* 来週のこと
+      ,** 予定
+      %(my/org-agenda-to-string \"a\")
+      ,** TODOリスト
+      %(my/org-agenda-to-string \"d\")
+      ,** 考えていること
+      "))))
 #+end_src
 ** org-refile
 #+begin_src emacs-lisp :tangle yes

@@ -5,6 +5,40 @@
   pkgs,
   ...
 }:
+
+let
+  isLinux = pkgs.stdenv.hostPlatform.isLinux;
+
+  notificationScript =
+    if isLinux then
+      pkgs.writeShellScript "claude-code-notification" ''
+        ${pkgs.dunst}/bin/dunstify \
+          -a "claude-code" \
+          -u normal \
+          -i "dialog-information" \
+          "コマンド実行の確認" \
+          "Claudeがコマンドの実行を確認したいようです"
+      ''
+    else
+      pkgs.writeShellScript "claude-code-notification" ''
+        osascript -e 'display notification "Claudeがコマンドの実行を確認したいようです" with title "Claude Code" subtitle "コマンド実行の確認" sound name "default"'
+      '';
+
+  stopScript =
+    if isLinux then
+      pkgs.writeShellScript "claude-code-stop" ''
+        ${pkgs.dunst}/bin/dunstify \
+          -a "claude-code" \
+          -u normal \
+          -i "emblem-checked" \
+          "タスク完了" \
+          "Claudeがあなたの依頼を完了させました!"
+      ''
+    else
+      pkgs.writeShellScript "claude-code-stop" ''
+        osascript -e 'display notification "Claudeがあなたの依頼を完了させました!" with title "Claude Code" subtitle "タスク完了" sound name "default"'
+      '';
+in
 {
   # sops.nix設定 - gh-token-for-mcp シークレット
   sops.secrets = {
@@ -30,7 +64,7 @@
             hooks = [
               {
                 type = "command";
-                command = "dunstify -a 'claude-code' 'コマンド実行の確認' 'Claudeがコマンドの実行を確認したいようです'";
+                command = "${notificationScript}";
               }
             ];
           }
@@ -41,7 +75,7 @@
             hooks = [
               {
                 type = "command";
-                command = "dunstify -a 'claude-code' 'タスク完了' 'Claudeがあなたの依頼を完了させました!'";
+                command = "${stopScript}";
               }
             ];
           }

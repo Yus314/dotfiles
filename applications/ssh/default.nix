@@ -11,6 +11,10 @@
         #       identityFile = [
         #        "~/.ssh/id_ed25519"
         #     ];
+        setEnv = {
+          TERM = "xterm-256color";
+        };
+        sendEnv = [ "TERM" ];
       };
       "rem" = {
         hostname = "sub.mdip2home.com";
@@ -20,6 +24,10 @@
         #       identityFile = [
         #        "~/.ssh/id_ed25519"
         #     ];
+        setEnv = {
+          TERM = "xterm-256color";
+        };
+        sendEnv = [ "TERM" ];
       };
       "*" = {
         serverAliveInterval = 60;
