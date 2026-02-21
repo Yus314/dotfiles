@@ -27,6 +27,7 @@
       map kitty_mod+s scroll_to_prompt 1
       map kitty_mod+enter launch --type=tab --cwd=last_reported
       map kitty_mod+h launch --type=tab --cwd=~
+      map kitty_mod+p launch --location=vsplit --cwd=current
 
       # kakoune-scrollback
       map kitty_mod+b launch --type=overlay --env KAKOUNE_SCROLLBACK_TARGET_WINDOW_ID=$KITTY_WINDOW_ID --stdin-source=@screen_scrollback --stdin-add-formatting --stdin-add-line-wrap-markers ${pkgs.kakounePlugins.kakoune-scrollback}/bin/kakoune-scrollback
