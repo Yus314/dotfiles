@@ -7,6 +7,13 @@
     enable = true;
     plugins = [pkgs.kakounePlugins.kakoune-scrollback ];
     # colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;  # Package doesn't exist in nixpkgs
+    extraConfig = ''
+      hook global RegisterModified '"' %{
+        nop %sh{
+          printf %s "$kak_main_reg_dquote" | ${./osc52-copy.sh}
+        }
+      }
+    '';
     config = {
       # colorScheme = "modus-operandi";  # Requires colorSchemePackage
       keyMappings = [
