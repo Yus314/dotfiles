@@ -17,7 +17,7 @@ in
         # 元の定義にはハッシュがないため、fetchurl を再定義して正しいハッシュを与えます
         src = pkgs.fetchurl {
           url = builtins.head oldAttrs.src.urls; # 元のURLを引き継ぐ
-          hash = "sha256-QSZlKtYqypUYzAAHb+O4Zj1gKbO3Ncl0ykQyhhpFIZA="; # Updated hash from build error
+          hash = "sha256-tnKMRFni10JVAsMEJzRtE+LW8miLvQT+3UwX0p4jEp4="; # Updated hash from build error
         };
         unpackPhase = ''
           echo "--- Custom unpackPhase started ---"
