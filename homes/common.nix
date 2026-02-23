@@ -32,6 +32,7 @@ in
     ../applications/wezterm
     ../applications/zsh
     ../applications/ssh
+    ../applications/tmux
     ../applications/gh
     ../applications/gnupg
     ../applications/bash

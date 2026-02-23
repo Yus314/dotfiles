@@ -23,15 +23,6 @@
       enableFishIntegration = false;
       enableNushellIntegration = true;
     };
-    tmux = {
-      enable = true;
-      terminal = "screen-256color";
-      extraConfig = ''
-        set -ga terminal-features ",alacritty:RGB"
-        set -g set-clipboard on
-      '';
-    };
-
     zoxide = {
       enable = true;
       enableBashIntegration = true;
