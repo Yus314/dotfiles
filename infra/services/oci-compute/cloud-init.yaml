@@ -1,9 +1,7 @@
 #cloud-config
-
 # パッケージ更新
 package_update: true
 package_upgrade: true
-
 # 基本パッケージインストール
 packages:
   - vim
@@ -13,16 +11,12 @@ packages:
   - htop
   - tmux
   - fail2ban
-
 # タイムゾーン設定
 timezone: Asia/Tokyo
-
 # SSH設定強化
 ssh_pwauth: false
-
 # 最終メッセージ
 final_message: "Cloud-init completed after $UPTIME seconds"
-
 # 再起動（カーネル更新がある場合）
 power_state:
   mode: reboot

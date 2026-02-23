@@ -9,15 +9,16 @@ set -uo pipefail
 # ==============================================================================
 # 設定
 # ==============================================================================
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
 readonly TERRAFORM_DIR="${SCRIPT_DIR}/../services/oci-compute"
 readonly LOG_FILE="${SCRIPT_DIR}/oci-a1-retry.log"
 readonly STATE_FILE="${SCRIPT_DIR}/.oci-a1-retry.state"
 
 # リトライ設定
-RETRY_INTERVAL="${RETRY_INTERVAL:-60}"          # リトライ間隔（秒）
-MAX_RETRIES="${MAX_RETRIES:-10080}"             # 最大リトライ回数（7日間: 60秒 × 10080）
-NOTIFY_ON_SUCCESS="${NOTIFY_ON_SUCCESS:-true}"  # 成功時に通知
+RETRY_INTERVAL="${RETRY_INTERVAL:-60}"         # リトライ間隔（秒）
+MAX_RETRIES="${MAX_RETRIES:-10080}"            # 最大リトライ回数（7日間: 60秒 × 10080）
+NOTIFY_ON_SUCCESS="${NOTIFY_ON_SUCCESS:-true}" # 成功時に通知
 
 # 通知設定（オプション）
 DISCORD_WEBHOOK_URL="${DISCORD_WEBHOOK_URL:-}"
@@ -54,7 +55,7 @@ log_error() { log "ERROR" "${RED}$*${NC}"; }
 # ==============================================================================
 notify_discord() {
   local message="$1"
-  if [[ -n "$DISCORD_WEBHOOK_URL" ]]; then
+  if [[ -n $DISCORD_WEBHOOK_URL ]]; then
     curl -s -H "Content-Type: application/json" \
       -d "{\"content\": \"$message\"}" \
       "$DISCORD_WEBHOOK_URL" >/dev/null 2>&1 || true
@@ -63,7 +64,7 @@ notify_discord() {
 
 notify_telegram() {
   local message="$1"
-  if [[ -n "$TELEGRAM_BOT_TOKEN" && -n "$TELEGRAM_CHAT_ID" ]]; then
+  if [[ -n $TELEGRAM_BOT_TOKEN && -n $TELEGRAM_CHAT_ID ]]; then
     curl -s -X POST \
       "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
       -d "chat_id=${TELEGRAM_CHAT_ID}" \
@@ -77,7 +78,7 @@ notify_success() {
 
   log_success "Instance created! Public IP: $public_ip"
 
-  if [[ "$NOTIFY_ON_SUCCESS" == "true" ]]; then
+  if [[ $NOTIFY_ON_SUCCESS == "true" ]]; then
     notify_discord "$message"
     notify_telegram "$message"
   fi
@@ -88,14 +89,14 @@ notify_success() {
 # ==============================================================================
 terraform_init() {
   log_info "Initializing Terraform..."
-  cd "$TERRAFORM_DIR"
+  cd "$TERRAFORM_DIR" || return 1
   tf-wrapper init -input=false 2>&1 | tee -a "$LOG_FILE"
-  return ${PIPESTATUS[0]}
+  return "${PIPESTATUS[0]}"
 }
 
 terraform_apply() {
   log_info "Attempting to create instance..."
-  cd "$TERRAFORM_DIR"
+  cd "$TERRAFORM_DIR" || return 1
 
   # apply実行、出力をキャプチャ
   local output
@@ -114,7 +115,7 @@ terraform_apply() {
 }
 
 get_public_ip() {
-  cd "$TERRAFORM_DIR"
+  cd "$TERRAFORM_DIR" || return 1
   tf-wrapper output -raw instance_public_ip 2>/dev/null || echo ""
 }
 
@@ -123,12 +124,12 @@ get_public_ip() {
 # ==============================================================================
 save_state() {
   local retry_count="$1"
-  echo "retry_count=$retry_count" > "$STATE_FILE"
-  echo "last_attempt=$(date -Iseconds)" >> "$STATE_FILE"
+  echo "retry_count=$retry_count" >"$STATE_FILE"
+  echo "last_attempt=$(date -Iseconds)" >>"$STATE_FILE"
 }
 
 load_state() {
-  if [[ -f "$STATE_FILE" ]]; then
+  if [[ -f $STATE_FILE ]]; then
     # shellcheck source=/dev/null
     source "$STATE_FILE"
     echo "${retry_count:-0}"
@@ -140,11 +141,12 @@ load_state() {
 # ==============================================================================
 # シグナルハンドラ
 # ==============================================================================
+# shellcheck disable=SC2329
 cleanup() {
   local exit_code=$?
   log_info "Received signal, cleaning up..."
   log_info "Script stopped after $(load_state) retries"
-  exit $exit_code
+  exit "$exit_code"
 }
 
 trap cleanup INT TERM
@@ -185,7 +187,7 @@ main() {
       local public_ip
       public_ip=$(get_public_ip)
 
-      if [[ -n "$public_ip" ]]; then
+      if [[ -n $public_ip ]]; then
         notify_success "$public_ip"
         rm -f "$STATE_FILE"
         log_success "=========================================="
@@ -250,18 +252,18 @@ EOF
 # エントリポイント
 # ==============================================================================
 case "${1:-}" in
-  -h|--help)
-    show_help
-    exit 0
-    ;;
-  -i|--interval)
-    RETRY_INTERVAL="${2:-60}"
-    shift 2
-    ;;
-  -m|--max)
-    MAX_RETRIES="${2:-10080}"
-    shift 2
-    ;;
+-h | --help)
+  show_help
+  exit 0
+  ;;
+-i | --interval)
+  RETRY_INTERVAL="${2:-60}"
+  shift 2
+  ;;
+-m | --max)
+  MAX_RETRIES="${2:-10080}"
+  shift 2
+  ;;
 esac
 
 main "$@"
