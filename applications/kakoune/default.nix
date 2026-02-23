@@ -5,8 +5,8 @@
 
   programs.kakoune = {
     enable = true;
-    plugins = [pkgs.kakounePlugins.kakoune-scrollback ];
-    # colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;  # Package doesn't exist in nixpkgs
+    plugins = [ pkgs.kakounePlugins.kakoune-scrollback ];
+    colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;
     extraConfig = ''
       hook global RegisterModified '"' %{
         nop %sh{
@@ -15,7 +15,7 @@
       }
     '';
     config = {
-      # colorScheme = "modus-operandi";  # Requires colorSchemePackage
+      colorScheme = "modus-operandi";
       keyMappings = [
         {
           mode = "normal";
