@@ -22,7 +22,6 @@
               unmap t
               unmap d
               unmap n
-              unmap K
               unmap D
               unmap N
               map s scrollDown
@@ -170,6 +169,12 @@
           };
         };
       };
+      keyboardShortcuts = [
+        {
+          id = "key_newNavigator";
+          disabled = true;
+        }
+      ];
       search = {
         force = true;
         default = "Kagi";
