@@ -5,7 +5,10 @@
 
   programs.kakoune = {
     enable = true;
-    plugins = [ pkgs.kakounePlugins.kakoune-scrollback ];
+    plugins = [
+      pkgs.kakounePlugins.kakoune-scrollback
+      pkgs.kakounePlugins.kakoune-autothemes
+    ];
     colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;
     extraConfig = ''
       hook global RegisterModified '"' %{
@@ -13,9 +16,12 @@
           printf %s "$kak_main_reg_dquote" | ${./osc52-copy.sh}
         }
       }
+
+      set-option global autothemes_dark_theme modus-vivendi
+      set-option global autothemes_light_theme modus-operandi
+      autothemes-enable
     '';
     config = {
-      colorScheme = "modus-operandi";
       keyMappings = [
         {
           mode = "normal";
