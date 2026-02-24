@@ -24,7 +24,7 @@ in
   # sops.nix設定追加
   sops.secrets = {
     "moonshot-api-key" = {
-      sopsFile = ./secrets.yaml;
+      sopsFile = ../kimi-cli/secrets.yaml;
       path = "${config.xdg.configHome}/opencode/moonshot-api-key";
       key = "moonshot_api_key";
       mode = "0600";
