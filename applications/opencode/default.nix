@@ -37,10 +37,36 @@ in
       model = "kimi-for-coding/k2p5";
 
       provider = {
-        moonshot = {
+        "kimi-for-coding" = {
+          name = "Kimi For Coding";
+          npm = "@ai-sdk/anthropic";
           options = {
+            baseURL = "https://api.kimi.com/coding/v1";
             apiKey = "{file:${config.xdg.configHome}/opencode/moonshot-api-key}";
-            timeout = false;
+          };
+          models = {
+            k2p5 = {
+              name = "Kimi K2.5";
+              reasoning = true;
+              attachment = false;
+              limit = {
+                context = 262144;
+                output = 32768;
+              };
+              modalities = {
+                input = [
+                  "text"
+                  "image"
+                  "video"
+                ];
+                output = [ "text" ];
+              };
+              options = {
+                interleaved = {
+                  field = "reasoning_content";
+                };
+              };
+            };
           };
         };
       };
