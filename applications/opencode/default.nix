@@ -21,13 +21,31 @@ let
   };
 in
 {
+  # sops.nix設定追加
+  sops.secrets = {
+    "moonshot-api-key" = {
+      sopsFile = ./secrets.yaml;
+      path = "${config.xdg.configHome}/opencode/moonshot-api-key";
+      key = "moonshot_api_key";
+      mode = "0600";
+    };
+  };
+
   programs.opencode = {
     enable = true;
     settings = {
-      model = "moonshot/kimi-k2.5";
-      autoupdate = false;
+      model = "kimi-for-coding/k2p5";
 
-      # MCP サーバー設定（既存設定をOpenCode形式に変換）
+      provider = {
+        moonshot = {
+          options = {
+            apiKey = "{file:${config.xdg.configHome}/opencode/moonshot-api-key}";
+            timeout = false;
+          };
+        };
+      };
+
+      autoupdate = false;
       mcp = lib.mapAttrs transformMcpServer mcpServers;
     };
   };
