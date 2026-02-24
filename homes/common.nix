@@ -38,6 +38,7 @@ in
     ../applications/bash
     ../applications/less
     ../applications/claude-code
+    ../applications/opencode
     ../applications/vim
     ../applications/rbw
     ../applications/tf-wrapper
