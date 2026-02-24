@@ -18,6 +18,7 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     nur-packages.url = "github:Yus314/nur-packages";
     org-babel.url = "github:emacs-twist/org-babel";
+    kimi-cli.url = "github:MoonshotAI/kimi-cli";
     sops-nix.url = "github:Mic92/sops-nix";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     xremap.url = "github:xremap/nix-flake";
@@ -55,6 +56,7 @@
     niri.inputs.xwayland-satellite-unstable.follows = "";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     nur-packages.inputs.nixpkgs.follows = "nixpkgs";
+    kimi-cli.inputs.nixpkgs.follows = "nixpkgs";
     xremap.inputs.nixpkgs.follows = "nixpkgs";
     xremap.inputs.flake-parts.follows = "flake-parts";
 

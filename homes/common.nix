@@ -39,6 +39,7 @@ in
     ../applications/less
     ../applications/claude-code
     ../applications/opencode
+    ../applications/kimi-cli
     ../applications/vim
     ../applications/rbw
     ../applications/tf-wrapper
