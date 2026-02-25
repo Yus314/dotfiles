@@ -43,11 +43,22 @@
           }
       }
 
+      declare-option -hidden bool markdown_wrap false
+
       hook global BufSetOption filetype=markdown %{
+          set-option buffer markdown_wrap true
           set-option buffer lsp_servers %{
               [markdown-oxide]
               command = "markdown-oxide"
               root_globs = [".moxide.toml", ".git", ".hg"]
+          }
+      }
+
+      hook global WinCreate .* %{
+          evaluate-commands -draft %sh{
+              if [ "$kak_opt_markdown_wrap" = "true" ]; then
+                  printf '%s\n' 'add-highlighter window/ wrap -word -indent'
+              fi
           }
       }
 
