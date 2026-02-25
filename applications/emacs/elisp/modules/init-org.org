@@ -1,0 +1,661 @@
+#+TITLE: Org Settings
+* Header
+#+begin_src emacs-lisp :tangle yes
+  ;;; init-org.el --- Org-mode settings -*- lexical-binding: t -*-
+#+end_src
+* org
+#+begin_src emacs-lisp :tangle yes
+  (with-eval-after-load 'org
+    (setq org-directory  "~/dropbox")
+
+    (setq org-todo-keywords '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)") ))
+
+    (setq org-startup-folded  t)
+    (setq org-startup-truncated  nil)
+    (setq org-hide-emphasis-markers  t);boldなどの*を隠す
+    ;(setq  org-emphasis-regexp-components  '("[:alnum:][:nonascii:][:punct:]" "[:alnum:][:nonascii:][:punct:]" "[:space:]" "." 1));*の前後にspaceが要らないように
+
+
+    (setq org-todo-keyword-faces
+  	'(("TODO" . (:foreground "white" :background "red" :weight bold))
+  	  ("WAIT" . org-warning)
+  	  ("SOMEDAY" . (:foreground "white" :background "pink" :weight bold))
+  	  ("DONE(d)" . "yellow")
+  	  ("CANCEL" . org-warning)
+  	  ("PROJECT" . (:foreground "white" :background "purple" :weight bold))
+  	  ))
+    (setq org-tag-alist
+  	'(("HOME" . ?h)
+  	  ("LAB" . ?l)
+  	  ("PC" . ?p)
+  	  ("desk" . ?d)
+  	  ("smartphone" . ?s)
+  	  ("anywhere" . ?a)
+  	  ("movie" . ?m)
+  	  ("Kana" . ?k)
+  	  ))
+    (setq org-return-follows-link  t)
+    (regexp-opt '("Tasks" "Notes"))
+
+
+  					;habit周り
+    (setq org-habit-show-habits-only-for-today  t)
+    (add-to-list 'org-modules 'org-habit t)
+    )
+#+end_src
+* org-clock
+#+begin_src emacs-lisp :tangle yes
+  (setq org-clock-clocktable-default-properties
+        '(:maxlevel 10
+                    :lang "ja"
+                    :scope agenda-with-archives
+                    :block today
+                    :level 4))
+  (keymap-global-set "C-c C-x C-j" 'org-clock-goto)
+  (keymap-global-set "C-c C-x C-o" 'org-clock-out)
+#+end_src
+* org-agenda
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'org-agenda "org-agenda" nil t)
+
+  (with-eval-after-load 'org-agenda
+    (setq org-agenda-start-on-weekday  nil); agendaの日々の始まりを今日に
+    (setq org-agenda-start-day  "today")
+    (setq org-agenda-skip-scheduled-if-done  '("DONE" "CANCEL"));スケジュールでDONEとCANCELを無視するようにする
+
+    (defun my/org-archive-to-trash ()
+      "Move the current subtree to ~/dropbox/trash.org instead of the default archive location"
+      (interactive)
+      (let ((org-archive-location "~/dropbox/trash.org::"))
+        (org-agenda-archive)))
+
+    (keymap-set org-agenda-mode-map "t" 'org-agenda-previous-item)
+    (keymap-set org-agenda-mode-map "s" 'org-agenda-next-item)
+    (keymap-set org-agenda-mode-map "e" 'org-agenda-todo)
+    (define-key org-agenda-mode-map (kbd "#") 'my/org-archive-to-trash)
+    )
+  (keymap-global-set "C-c a"  'org-agenda)
+#+end_src
+* org-super-agenda
+#+begin_src emacs-lisp :tangle yes
+  (with-eval-after-load 'org
+  (use-package org-super-agenda
+    :custom
+    (org-agenda-files  '("~/dropbox/inbox/inbox.org" "~/dropbox/habit.org" "~/dropbox/kana.org" "~/dropbox/calendar.org"))
+    (org-agenda-todo-ignore-scheduled  t)
+    (org-agenda-custom-commands
+      '(
+         ;; Removed duplicate "w" key, renamed the second one to "w2" for review
+         ;; Consider choosing a more meaningful key or merging the logic
+         ("w" "review"
+          (
+           (agenda "週の振り返り"
+                   (
+                    (org-agenda-span 'week)
+                    (org-agenda-overriding-header "来週の予定")
+                     )
+                   )
+           (todo "TODO"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(
+                     (:name "やること" :todo "TODO")
+                   (:discard (:anything t))
+                 ))
+           ))
+           )
+          )
+         ("g" "Garbage Tasks List"
+         ((alltodo ""
+                ((org-super-agenda-groups
+                  '((:name "Completed Tasks"
+                     :todo ("DONE" "CANCEL")
+                     :or (:scheduled t :deadline t))))))))
+         (
+          "d" "TODO"
+          (
+           (todo "TODO"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(
+                     (:name "やること" :todo "TODO")
+                   (:discard (:anything t))
+                 ))
+           ))
+           )
+          )
+         ("h" "Home"
+          (
+           (agenda "今日のこと"
+                   ((org-agenda-span 'day))
+                   )
+           (todo "TODO"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(
+                     ;; Corrected full-width dot and ensured tags are strings
+                     (:name "TODO" :tag ("PC" "smartphone" "desk" "HOME" "home" "anywhere"))
+                     (:discard (:anything t))
+                     ))
+                  ))
+           )
+          )
+         ;; Renamed duplicate key "w" to "w2" - please adjust if needed
+         ("w2" "review 2"
+          (
+           (agenda "週の振り返り (2)" ; Adjusted title
+                   ((org-agenda-span 'week)
+                    (org-agenda-overriding-header "来週の予定 (2)") ; Adjusted header
+                    )
+                   )
+           (todo "TODO"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(
+                     ;; Corrected full-width dot
+                     (:name "TODO" :todo "TODO")
+                     (:discard (:anything t))
+                     ))
+                  ))
+           )
+          )
+         ("l" "lab"
+          (
+           (agenda "今日のこと"
+                   ((org-agenda-span 'day))
+                   )
+           (todo "TODO"
+                 ((org-agenda-prefix-format " ")
+                  (org-super-agenda-groups
+                   '(
+                     (:name "TODO" :tag ("PC" "smartphone" "desk" "lab" "LAB" "anywhere"))
+                     (:discard (:anything t))
+                     ))
+                  ))
+           )
+          )
+         )
+     )
+    :config
+    (org-super-agenda-mode)
+    )
+  )
+#+end_src
+* khalorg (Google Calendar)
+#+begin_src emacs-lisp :tangle yes
+  (defun my/calendar-sync ()
+    "Synchronize Google Calendar using vdirsyncer and khalorg.
+Cancels any pending scheduled sync."
+    (interactive)
+    ;; Cancel any pending scheduled sync
+    (when my/calendar-sync-timer
+      (cancel-timer my/calendar-sync-timer)
+      (setq my/calendar-sync-timer nil))
+    (let ((output-buffer (get-buffer-create "*Calendar Sync*")))
+      (with-current-buffer output-buffer
+        (erase-buffer)
+        (insert "Synchronizing calendar...\n"))
+      (display-buffer output-buffer)
+      (set-process-sentinel
+       (start-process "calsync" output-buffer "calsync")
+       (lambda (process event)
+         (when (string-match-p "finished" event)
+           (message "Calendar synchronization completed")
+           (when (get-file-buffer "~/dropbox/calendar.org")
+             (with-current-buffer (get-file-buffer "~/dropbox/calendar.org")
+               (revert-buffer t t t))))))))
+
+  (defun my/calendar-auto-revert ()
+    "Auto-revert calendar.org after external changes."
+    (when (and buffer-file-name
+               (string-match-p "calendar\\.org$" buffer-file-name))
+      (auto-revert-mode 1)))
+
+  (add-hook 'org-mode-hook #'my/calendar-auto-revert)
+
+  ;; Calendar configuration
+  (defvar my/calendar-list '("shizhaoyoujie@gmail.com" "共有カレンダー")
+    "List of available calendars for khalorg operations.")
+
+  (defvar my/calendar-default "shizhaoyoujie@gmail.com"
+    "Default calendar name for khalorg operations.")
+
+  (defvar my/calendar-display-names
+    '(("shizhaoyoujie@gmail.com" . "Personal")
+      ("共有カレンダー" . "Shared"))
+    "Association list mapping calendar IDs to display names.")
+
+  (defvar my/calendar-sync-timer nil
+    "Timer for debounced calendar sync.")
+
+  (defvar my/calendar-sync-delay 10
+    "Seconds to wait before auto-syncing after event addition.")
+
+  (defun my/calendar-select (&optional skip-prompt)
+    "Select a calendar from `my/calendar-list'.
+If SKIP-PROMPT is non-nil, return `my/calendar-default' without prompting."
+    (if skip-prompt
+        my/calendar-default
+      (let* ((display-to-id (mapcar (lambda (cal)
+                                      (cons (or (cdr (assoc cal my/calendar-display-names))
+                                                cal)
+                                            cal))
+                                    my/calendar-list))
+             (display-names (mapcar #'car display-to-id))
+             (default-display (or (cdr (assoc my/calendar-default my/calendar-display-names))
+                                  my/calendar-default))
+             (selection (completing-read
+                         (format "Calendar [%s]: " default-display)
+                         display-names
+                         nil t nil nil default-display)))
+        (cdr (assoc selection display-to-id)))))
+
+  (defun my/calendar-schedule-sync ()
+    "Schedule a debounced sync after adding events.
+Resets timer if called again within the delay period."
+    (when my/calendar-sync-timer
+      (cancel-timer my/calendar-sync-timer))
+    (setq my/calendar-sync-timer
+          (run-with-timer my/calendar-sync-delay nil
+                          (lambda ()
+                            (setq my/calendar-sync-timer nil)
+                            (message "Auto-syncing calendar...")
+                            (my/calendar-sync)))))
+
+  (defun my/calendar-cancel-scheduled-sync ()
+    "Cancel any pending scheduled sync."
+    (interactive)
+    (when my/calendar-sync-timer
+      (cancel-timer my/calendar-sync-timer)
+      (setq my/calendar-sync-timer nil)
+      (message "Scheduled sync cancelled.")))
+
+  (defun my/calendar-add-event (&optional use-default)
+    "Add a new event to Google Calendar via khalorg.
+With prefix argument (C-u), skip calendar selection and use default.
+Prompts for title, date, time, location, and description.
+If start time is empty, creates an all-day event.
+Automatically schedules a sync after `my/calendar-sync-delay' seconds."
+    (interactive "P")
+    (require 'org-id)
+    (let* ((calendar (my/calendar-select use-default))
+           (title (read-string "Event title: "))
+           (date-time (org-read-date nil t nil "Event date: "))
+           (date (format-time-string "%Y-%m-%d %a" date-time))
+           (start-time (read-string "Start time (HH:MM, empty for all-day): "))
+           (end-time (if (string-empty-p start-time)
+                         ""
+                       (read-string "End time (HH:MM): " "10:00")))
+           (location (read-string "Location (optional): "))
+           (description (read-string "Description (optional): "))
+           (uid (org-id-uuid))
+           (timestamp (if (string-empty-p start-time)
+                          (format "<%s>" date)
+                        (format "<%s %s-%s>" date start-time end-time)))
+           (org-content (concat "* " title "\n"
+                                timestamp "\n"
+                                ":PROPERTIES:\n"
+                                ":UID: " uid "\n"
+                                (unless (string-empty-p location)
+                                  (concat ":LOCATION: " location "\n"))
+                                ":END:\n"
+                                (unless (string-empty-p description)
+                                  (concat description "\n")))))
+      (with-temp-buffer
+        (insert org-content)
+        (let ((exit-code (call-process-region (point-min) (point-max)
+                                              "khalorg" nil nil nil
+                                              "new" calendar)))
+          (if (zerop exit-code)
+              (progn
+                (message "Event '%s' added to %s. Auto-sync in %ds..."
+                         title
+                         (or (cdr (assoc calendar my/calendar-display-names)) calendar)
+                         my/calendar-sync-delay)
+                (my/calendar-schedule-sync))
+            (error "Failed to add event to calendar"))))))
+
+  (defun my/calendar-add-event-to-personal ()
+    "Add event directly to personal calendar without prompting."
+    (interactive)
+    (let ((my/calendar-default "shizhaoyoujie@gmail.com"))
+      (my/calendar-add-event t)))
+
+  (defun my/calendar-add-event-to-shared ()
+    "Add event directly to shared calendar without prompting."
+    (interactive)
+    (let ((my/calendar-default "共有カレンダー"))
+      (my/calendar-add-event t)))
+
+  ;; Calendar keybindings (using C-c k prefix for khal/khalorg)
+  (keymap-global-set "C-c k a" #'my/calendar-add-event)
+  (keymap-global-set "C-c k s" #'my/calendar-sync)
+  (keymap-global-set "C-c k c" #'my/calendar-cancel-scheduled-sync)
+  (keymap-global-set "C-c k p" #'my/calendar-add-event-to-personal)
+  (keymap-global-set "C-c k S" #'my/calendar-add-event-to-shared)
+#+end_src
+* org-archive
+#+begin_src emacs-lisp :tangle yes
+ ; (defun my/org-archive-to-trash ()
+ ;   "Move the current subtree to ~/dropbox/trash.org instead of the default archive location"
+ ;   (interactive)
+ ;   (let ((org-archive-location "~/dropbox/trash.org::"))
+ ;     (org-agenda-archive)))
+ ; (define-key org-agenda-mode-map (kbd "#") 'my/org-archive-to-trash)
+#+end_src
+* org-capture
+#+begin_src emacs-lisp :tangle yes
+  (defun my/org-agenda-to-string (agenda-type)
+        "Generate agenda string for the current week using a temporary file."
+        (let ((temp-agenda-file (make-temp-file "org-agenda-"))
+              (org-agenda-buffer nil)) ; 読み取り専用バッファを使わないようにする
+          (save-window-excursion
+            (org-agenda nil agenda-type) ; Agenda ビューを生成
+            (org-agenda-write temp-agenda-file)) ; 一時ファイルに書き出し
+          (with-temp-buffer
+            (insert-file-contents temp-agenda-file) ; 一時ファイルの内容を読み込む
+            (goto-char (point-min))
+            ;; 不要な部分を整形 (例: ヘッダー削除)
+            (kill-whole-line)
+            (buffer-string)))) ; 最終的な文字列として返す
+
+      (keymap-global-set "C-c c" 'org-capture)
+      (autoload 'org-capture "org-capture" nil t)
+      (with-eval-after-load 'org-capture
+        (let* ((current-time (current-time))
+               ;; 現在の日付から土曜日までの日数を計算
+               (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
+               ;; 今週の土曜日を計算
+               (start-of-week (time-add
+                               (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
+               ;; 翌週の金曜日を計算
+               (end-of-week (time-add start-of-week (days-to-time 6)))
+               ;; フォーマットされた日付
+               (start-day (format-time-string "%m%d" start-of-week))
+               (end-day (format-time-string "%m%d" end-of-week))
+               ;; 年を取得
+               (year (format-time-string "%Y" start-of-week))
+               ;; アーカイブディレクトリとファイル名
+               (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
+               (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
+
+          (setq weekly-dir   archive-file)
+          (setq org-archive-location (format "%s::** やったこと" archive-file))
+          )
+        (setq taskfile  "~/dropbox/inbox/inbox.org")
+        (setq org-capture-templates
+      	'(
+      	  ("t" "ToDo" entry (file taskfile )
+      	   "* TODO %^{title}\n %?")
+      	  ("h" "Habit" entry (file "~/dropbox/habit.org")
+      	   "* TODO %^{title}\n:PROPERTIES:\n:STYLE: habit\n:END:\n%?")
+      	  ("p" "Project" entry (file+headline taskfile "プロジェクト" )
+      	   "* PROJECT %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
+      	  ("w" "Weekly Report" entry (file weekly-dir)
+      	   "* 今週のこと
+      ,** やったこと
+      ,** 時間計測
+      ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
+      ,#+END:
+      ,** 考えたこと
+      ,*** 良かったこと
+      %?
+      ,*** 気づき
+      ,*** やり残したこと
+      ,* 来週のこと
+      ,** 予定
+      %(my/org-agenda-to-string \"a\")
+      ,** TODOリスト
+      %(my/org-agenda-to-string \"d\")
+      ,** 考えていること
+      "))))
+#+end_src
+* org-refile
+#+begin_src emacs-lisp :tangle yes
+  (defun my-org-refile-verify-target ()
+    "プロジェクト見出しの下にある全ての見出しを検証します。"
+    (let ((path (org-get-outline-path)))
+      (or (string= (car path) "プロジェクト")
+          (member "プロジェクト" path))))
+
+  (setq org-refile-target-verify-function 'my-org-refile-verify-target)
+  (setq org-refile-targets '((nil . (:maxlevel . 9))))
+#+end_src
+* org-journal
+#+begin_src emacs-lisp :tangle yes
+  ;
+#+end_src
+* org-indent
+#+begin_src emacs-lisp :tangle yes
+  (with-eval-after-load 'org
+    (add-hook 'org-mode-hook #'org-indent-mode))
+#+end_src
+* org-modern
+#+begin_src emacs-lisp :tangle yes
+    (autoload 'global-org-modern-mode "org-modern" nil t)
+  (with-eval-after-load 'org
+    (global-org-modern-mode))
+  (with-eval-after-load 'org-modern
+    (setq org-insert-heading-respect-content  t)
+    (setq org-modern-star  "◉○●◈◇◆✸✳")
+    (setq org-modern-todo-faces
+  	 '(("SOMEDAY" :background "pink" :foreground "white" :weight bold)
+  		("PROJECT" :background "purple" :foreground "white" :weight bold)
+  		)))
+
+#+end_src
+
+* org-modern-indent
+#+begin_src emacs-lisp :tangle yes
+  ;(require 'org-modern-indent)
+  (add-hook 'org-mode-hook #'org-modern-indent-mode 90)
+  (autoload 'org-modern-indent-mode "org-modern-indent" nil t)
+#+end_src
+* org-habit
+#+begin_src emacs-lisp :tangle yes
+  ;(use-package org-habit
+  ;  :custom
+  ;  (org-habit-show-habits-only-for-today  t)
+  ;  :config
+  ;  (add-to-list 'org-modules 'org-habit t)
+  ;  )
+
+#+end_src
+* gcal
+#+begin_src emacs-lisp :tangle yes
+  ;(with-delayed-execution
+  ;  (eval-after-load 'gcal
+  ;    '(eval-after-load 'gcal-org
+  ;       '(progn
+  ;	  (setq gcal-client-id  "1005172243429-37v4n4shbp9dinr7h7ki5elu98nko9h4.apps.googleusercontent.com")
+  ;	  (setq gcal-client-secret  (funcall(plist-get (nth 0 (auth-source-search :host "gcal")) :secret)))
+  ;	  (gcal-org-pull-to-file
+   ;   	   "shizhaoyoujie@gmail.com"
+   ;   	   "~/dropbox/inbox/inbox.org"
+   ;   	   "FROM_GCAL"
+  ;    	   "~/dropbox/my-schedule.gcal-cache")
+  ;	  (gcal-org-push-file
+  ;    	   "shizhaoyoujie@gmail.com"
+  ;    	   "~/dropbox/inbox/inbox.org"
+  ;    	   "~/dropbox/my-schedule.gcal-cache")
+
+  					; かなとの予定
+  ;	  (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+  ;    				 "~/dropbox/kana.org"
+  ;    				 "FROM_KANA"
+  ;    				 "~/dropbox/kana-schedule.gcal-cache")
+  ;	  (gcal-org-push-file
+  ;  	   "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
+  ;  	   "~/dropbox/kana.org"
+  ;  	   "~/dropbox/kana-schedule.gcal-cache")
+  ;	  )
+  ;       )
+  ;    )
+  ;  )
+
+#+end_src
+* org-babel
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'org-babel-do-load-languages "org" nil t)
+
+  (with-eval-after-load 'org
+    (add-hook 'org-mode-hook
+  	    #'(lambda ()
+  		(org-babel-do-load-languages 'org-babel-load-languages
+  					     '((emacs-lisp . t)
+  					       (org . t)
+  					       (shell . t)
+  					       (plantuml . t)
+  					       )))))
+  (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+#+end_src
+** org-nix-shell
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(org-nix-shell-mode) "org-nix-shell" nil t)
+
+  (with-eval-after-load 'org
+    (add-hook 'org-mode-hook #'org-nix-shell-mode))
+#+end_src
+* org-roam
+#+begin_src emacs-lisp :tangle yes
+  (keymap-global-set "C-c n l"  'org-roam-buffer-toggle)
+  (keymap-global-set "C-c n f" 'org-roam-node-find)
+  (keymap-global-set "C-c n i" 'org-roam-node-insert)
+  (keymap-global-set "C-c n c" 'org-roam-capture)
+  (autoload 'org-roam-buffer-toggle "org-roam" nil t)
+  (autoload 'org-roam-node-find "org-roam" nil t)
+  (autoload 'org-roam-node-insert "org-roam" nil t)
+  (autoload 'org-roam-capture "org-roam" nil t)
+  (with-eval-after-load 'org-roam
+      (setq org-roam-directory  "~/dropbox/zk")
+    (setq find-file-visit-truename   t)
+    (setq org-roam-capture-templates
+      '(("d" "default" plain "%?" :if-new
+          (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}")
+          :unnarrowed t
+          :jump-to-captured t)
+
+           ("p" "paper" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+filetags: :reference:paper:
+  ,#+bibliography: ~/dropbox/ref.bib")
+          :unnarrowed t
+          :jump-to-captured t)
+           ("b" "book" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+filetags: :reference:book:
+  ,#+bibliography: ~/dropbox/book.bib")
+          :unnarrowed t
+          :jump-to-captured t)
+           ("a" "anime" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+filetags: :reference:anime:
+  ,#+bibliography: ~/dropbox/ref.bib")
+          :unnarrowed t
+          :jump-to-captured t)
+           ("m" "movie" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+filetags: :reference:movie:
+  ,#+bibliography: ~/dropbox/ref.bib")
+          :unnarrowed t
+          :jump-to-captured t)
+                 ("g" "game" plain "%?" :if-new
+            (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
+  ,#+filetags: :reference:game:
+  ,#+bibliography: ~/dropbox/ref.bib")
+          :unnarrowed t
+          :jump-to-captured t)
+         )
+     )
+    (setq org-roam-node-display-template
+  	(concat "${title:*} "
+  		(propertize "${tags:10}" 'face 'org-tag)))
+    (org-roam-db-autosync-mode)
+    )
+#+end_src
+* org-roam-ui
+#+begin_src emacs-lisp :tangle yes
+  (keymap-global-set "C-c n u" 'org-roam-ui-open)
+  (autoload 'org-roam-ui-open "org-roam-ui" nil t)
+  (with-eval-after-load 'org-roam
+    (setq org-roam-ui-sync-theme  t)
+    (setq org-roam-ui-follow   t)
+    (setq org-roam-ui-update-on-save  t)
+    (setq org-roam-ui-open-on-start  t)
+    )
+#+end_src
+* org-roam-review
+#+begin_src emacs-lisp :tangle yes
+  (keymap-global-set "C-c n r" 'org-roam-review)
+  (autoload 'org-roam-review "org-roam-review" nil t)
+  (autoload 'org-roam-review-list-by-maturity "org-roam-review" nil t)
+  (autoload 'org-roam-review-list-recently-added "org-roam-review" nil t)
+  (with-eval-after-load 'org-roam-review
+    (add-hook 'org-roam-capture-new-node-hook #'org-roam-review-set-seedling)
+
+    ;; カスタム削除関数の定義
+    (defun org-roam-review-delete ()
+      "Delete the current org-roam node file being reviewed."
+      (interactive)
+      (let* ((node (org-roam-node-at-point))
+             (file-path (when node (org-roam-node-file node)))
+             (title (when node (org-roam-node-title node)))
+             (id (when node (org-roam-node-id node))))
+
+        ;; ファイルの存在確認
+        (unless (and file-path (file-exists-p file-path))
+          (error "No valid file found for current node"))
+
+        ;; バックリンクの確認（他のノートからリンクされているか）
+        (let ((backlinks (org-roam-db-query
+                         [:select [source]
+                          :from links
+                          :where (= dest $s1)]
+                         id)))
+          (when backlinks
+            (unless (yes-or-no-p (format "'%s' has %d backlinks from other notes. Delete anyway? "
+                                        title (length backlinks)))
+              (user-error "Deletion cancelled"))))
+
+        ;; 削除確認
+        (when (yes-or-no-p (format "Delete '%s' permanently? " title))
+          ;; 該当ファイルのバッファを閉じる
+          (dolist (buffer (buffer-list))
+            (when (equal (buffer-file-name buffer) file-path)
+              (with-current-buffer buffer
+                (set-buffer-modified-p nil)) ; 保存確認を避ける
+              (kill-buffer buffer)))
+
+          ;; ファイル削除
+          (delete-file file-path)
+
+
+          (message "Deleted: %s" title)
+
+          ;; 次のレビューアイテムへ移動
+  	(org-roam-review-refresh)
+  	  )))
+
+    (keymap-set org-mode-map "C-c r r" 'org-roam-review-accept)
+    (keymap-set org-mode-map "C-c r f"  'org-roam-review-forgot)
+    (keymap-set org-mode-map "C-c r u"  'org-roam-review-bury)
+    (keymap-set org-mode-map "C-c r m"  'org-roam-review-set-memorise)
+    (keymap-set org-mode-map "C-c r x"  'org-roam-review-set-excluded)
+    (keymap-set org-mode-map "C-c r b"  'org-roam-review-set-budding)
+    (keymap-set org-mode-map "C-c r s"  'org-roam-review-set-seedling)
+    (keymap-set org-mode-map "C-c r e"  'org-roam-review-set-evergreen)
+    (keymap-set org-roam-review-mode-map  "d"  'org-roam-review-delete)
+    )
+#+end_src
+* citer
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'org-cite-insert "citar" nil t)
+  (with-eval-after-load 'citar
+    (setq citar-bibliography  '("~/dropbox/ref.bib"))
+    (keymap-set minibuffer-local-completion-map "s-j" 'icomplete-fido-exit)
+    )
+#+end_src
+* Provide
+#+begin_src emacs-lisp :tangle yes
+  (provide 'init-org)
+#+end_src

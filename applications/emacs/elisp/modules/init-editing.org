@@ -1,0 +1,324 @@
+#+TITLE: Editing Settings
+* Header
+#+begin_src emacs-lisp :tangle yes
+  ;;; init-editing.el --- Modal editing and structural editing -*- lexical-binding: t -*-
+#+end_src
+* ryo-modal-mode
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf ryo-modal
+  ;  :ensure t
+  ;    )
+#+end_src
+* evil-mode
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf evil
+ ;   :ensure t
+ ;   )
+
+#+end_src
+* kakoune
+#+begin_src emacs-lisp :tangle yes
+ ; (leaf kakoune
+ ;   :ensure t
+ ;   :after ryo-modal multiple-cursors expand-region
+ ;   :bind ("C-z" . ryo-modal-mode)
+ ;   )
+#+end_src
+* mewo
+#+begin_src emacs-lisp :tangle yes
+  (use-package meow
+    ;:require meow
+   :custom
+   (meow-use-clipboard  t)
+    (meow-expand-hint-counts  nil)
+    :config
+    (defun meow-setup ()
+      (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
+     (meow-leader-define-key
+      '("?" . meow-cheatsheet))
+      (meow-motion-overwrite-define-key
+       ;; custom keybinding for motion state
+       '("<escape>" . ignore))
+      (meow-normal-define-key
+       '("?" . meow-cheatsheet)
+       ;; Ctrl key;;;;;;;
+
+
+                                          ;'("*" . meow-expand-0)
+       ;; puni
+       '(", a (" . puni-wrap-round)
+       '(", a [" . puni-wrap-square)
+       '(", a {" . puni-wrap-curly)
+       '(", a <" . puni-wrap-angle)
+       '(", a d" . puni-splice)
+       '(", s l" . puni-slurp-forward)
+       '(", b a" . puni-barf-forward)
+
+       '("%" . mark-whole-buffer)
+
+       '("=" . meow-expand-9)
+       '("!" . meow-expand-8)
+       '("[" . meow-expand-7)
+       '("]" . meow-expand-6)
+       '("{" . meow-expand-5)
+       '("+" . meow-expand-4)
+       '("}" . meow-expand-3)
+       '(")" . meow-expand-2)
+       '("(" . meow-expand-1)
+       '("1" . digit-argument)
+       '("2" . digit-argument)
+       '("3" . digit-argument)
+       '("4" . digit-argument)
+       '("5" . digit-argument)
+       '("6" . digit-argument)
+       '("7" . digit-argument)
+       '("8" . digit-argument)
+       '("9" . digit-argument)
+       '("0" . digit-argument)
+       '("-" . negativargument)
+       '(";" . meow-reverse)
+       '("*" . meow-inner-of-thing)
+       '("." . meow-bounds-of-thing)
+       '("<" . meow-beginning-of-thing)
+       '(">" . meow-end-of-thing)
+       '("a" . meow-append)
+       '("A" . meow-forward-bracket)
+       '("b" . meow-back-word) ;元はmeow-back-word
+       '("B" . meow-back-symbol)
+       '("c" . meow-swap-grab)
+       '("C" . mc/mark-next-like-this)
+       '("p" . projectile-command-map)
+       '("P" . meow-backward-delete)
+       '("e" . meow-line)
+       '("E" . meow-goto-line)
+      '("f" . meow-find)
+      '("<escape>" . meow-cancel-selection)
+       '("G" . meow-grab)
+       '("d" . meow-left)
+       '("D" . meow-left-expand)
+       '("i" . meow-insert)
+       '("I" . meow-mark-symbol)
+       '("j" . meow-join)
+       '("k" . meow-kill)
+       '("l" . meow-till)
+       '("m" . meow-block)
+     '("M" . meow-to-block)
+       '("s" . meow-next)
+       '("S" . meow-next-expand)
+       '("o" . meow-open-below)
+       '("O" . meow-open-above)
+       '("t" . meow-prev)
+       '("T" . meow-prev-expand)
+       '("q" . meow-quit)
+       '("Q" . kmacro-start-macro)
+       '("r" . meow-change)
+       '("R" . meow-replace)
+       '("h" . meow-search)
+       '("n" . meow-right)
+       '("N" . meow-right-expand)
+       '("u" . vundo)
+       '("U" . meow-undo-in-selection)
+                                         ;'("v" . meow-visit)
+       '("v i" . meow-inner-of-thing) ;; Inner
+     '("v a" . meow-bounds-of-thing) ;; Around
+      '("v b" . meow-block) ;; Block
+      '("v c" . puni-mark-list-around-point) ;; Contents
+       '("v x" . puni-mark-sexp-around-point) ;; eXpression
+      '("v l" . meow-line) ;; Line
+       '("v s" . meow-mark-symbol) ;; Symbol
+       '("v w" . meow-mark-word) ;; Word
+       '("v v" . puni-expand-region) ;; Expand
+       '("v r" . rectangle-mark-mode) ;; Rectangle
+       '("w" . meow-next-word)
+       '("W" . meow-next-symbol)
+       '("x" . meow-save)
+       '("X" . meow-sync-grab)
+       '("y" . meow-yank)
+       '("z" . meow-pop-selection)
+       '("'" . repeat)
+     ;'("g" . avy-goto-char-timer)
+       )
+      )
+    (meow-setup)
+    (meow-global-mode)
+    )
+  ;(add-hook 'emacs-startup-hook #'meow-global-mode)
+  ;
+  ;(autoload 'meow-global-mode "meow" nil t)
+  ;(with-eval-after-load 'meow
+  ;   (meow-normal-define-key
+  ;       '("?" . meow-cheatsheet)
+         ;; Ctrl key;;;;;;;
+
+
+                                            ;'("*" . meow-expand-0)
+         ;; puni
+  ;       '(", a (" . puni-wrap-round)
+  ;       '(", a [" . puni-wrap-square)
+  ;       '(", a {" . puni-wrap-curly)
+  ;       '(", a <" . puni-wrap-angle)
+  ;       '(", a d" . puni-splice)
+  ;       '(", s l" . puni-slurp-forward)
+  ;       '(", b a" . puni-barf-forward)
+
+  ;       '("%" . mark-whole-buffer)
+
+  ;       '("=" . meow-expand-9)
+  ;       '("!" . meow-expand-8)
+  ;       '("[" . meow-expand-7)
+  ;       '("]" . meow-expand-6)
+  ;       '("{" . meow-expand-5)
+  ;       '("+" . meow-expand-4)
+  ;       '("}" . meow-expand-3)
+  ;       '(")" . meow-expand-2)
+  ;       '("(" . meow-expand-1)
+  ;       '("1" . digit-argument)
+  ;       '("2" . digit-argument)
+  ;       '("3" . digit-argument)
+  ;       '("4" . digit-argument)
+  ;       '("5" . digit-argument)
+  ;       '("6" . digit-argument)
+  ;       '("7" . digit-argument)
+  ;       '("8" . digit-argument)
+  ;       '("9" . digit-argument)
+  ;       '("0" . digit-argument)
+  ;       '("-" . negativargument)
+  ;       '(";" . meow-reverse)
+  ;       '("*" . meow-inner-of-thing)
+  ;       '("." . meow-bounds-of-thing)
+  ;       '("<" . meow-beginning-of-thing)
+  ;      '(">" . meow-end-of-thing)
+  ;       '("a" . meow-append)
+  ;       '("A" . meow-forward-bracket)
+  ;       '("b" . meow-back-word) ;元はmeow-back-word
+  ;       '("B" . meow-back-symbol)
+  ;       '("c" . meow-swap-grab)
+  ;       '("C" . mc/mark-next-like-this)
+  ;       '("p" . meow-delete)
+  ;       '("P" . meow-backward-delete)
+  ;       '("e" . meow-line)
+  ;       '("E" . meow-goto-line)
+  ;      '("f" . meow-find)
+  ;      '("<escape>" . meow-cancel-selection)
+  ;       '("G" . meow-grab)
+  ;       '("d" . meow-left)
+  ;       '("D" . meow-left-expand)
+  ;       '("i" . meow-insert)
+  ;       '("I" . meow-mark-symbol)
+  ;       '("j" . meow-join)
+  ;       '("k" . meow-kill)
+  ;       '("l" . meow-till)
+  ;       '("m" . meow-block)
+  ;     '("M" . meow-to-block)
+  ;       '("s" . meow-next)
+  ;       '("S" . meow-next-expand)
+  ;       '("o" . meow-open-below)
+  ;       '("O" . meow-open-above)
+  ;       '("t" . meow-prev)
+  ;       '("T" . meow-prev-expand)
+  ;       '("q" . meow-quit)
+  ;       '("Q" . kmacro-start-macro)
+  ;       '("r" . meow-change)
+  ;       '("R" . meow-replace)
+  ;       '("h" . meow-search)
+  ;       '("n" . meow-right)
+  ;       '("N" . meow-right-expand)
+  ;       '("u" . vundo)
+  ;       '("U" . meow-undo-in-selection)
+                                           ;'("v" . meow-visit)
+  ;       '("v i" . meow-inner-of-thing) ;; Inner
+  ;     '("v a" . meow-bounds-of-thing) ;; Around
+  ;      '("v b" . meow-block) ;; Block
+  ;      '("v c" . puni-mark-list-around-point) ;; Contents
+  ;       '("v x" . puni-mark-sexp-around-point) ;; eXpression
+  ;      '("v l" . meow-line) ;; Line
+  ;       '("v s" . meow-mark-symbol) ;; Symbol
+  ;       '("v w" . meow-mark-word) ;; Word
+  ;       '("v v" . puni-expand-region) ;; Expand
+  ;       '("v r" . rectangle-mark-mode) ;; Rectangle
+  ;       '("w" . meow-next-word)
+  ;       '("W" . meow-next-symbol)
+  ;       '("x" . meow-save)
+  ;       '("X" . meow-sync-grab)
+  ;       '("y" . meow-yank)
+  ;       '("z" . meow-pop-selection)
+  ;       '("'" . repeat)
+        ;'("g" . avy-goto-char-timer)
+  ;       )
+  ;  )
+#+end_src
+* puni
+ #+begin_src emacs-lisp :tangle yes
+   ;(with-eval-after-load 'puni
+   ;(keymap-global-unset "C-j")
+   ;(use-package puni
+   ;    :bind
+   ;    ("C-j i" . puni-mark-list-around-point)
+   ;    ("C-j a" . puni-mark-sexp-around-point)
+   ;    ("C-j e" . puni-expand-region)
+   ;    )
+   ;)
+   (require 'puni)
+ #+end_src
+
+* which key
+#+begin_src emacs-lisp :tangle yes
+  (add-hook 'emacs-startup-hook #'which-key-mode)
+  (autoload 'which-key-mode "which-key" nil t)
+#+end_src
+* vundo
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'vundo "vundo" nil t)
+  (with-eval-after-load 'vundo
+    (keymap-set vundo-mode-map "d" 'vundo-backward)
+    (keymap-set vundo-mode-map "n" 'vundo-forward)
+    (keymap-set vundo-mode-map "s" 'vundo-next)
+    (keymap-set vundo-mode-map "t" 'vundo-previous)
+    (keymap-set vundo-mode-map "b" 'vundo-diff)
+    )
+
+#+end_src
+* dmacro
+#+begin_src emacs-lisp :tangle yes
+  (with-eval-after-load 'dmacro
+    (use-package dmacro
+      )
+  					;:custom `((dmacro-key . ,(kbd "C-b")))  ;; C-b を dmacro のキーにする
+  					;:global-minor-mode global-dmacro-mode
+    (defun my-indent-rigidly-right-to-tab-stop (beg end)
+      "Indent all lines between BEG and END rightward to a tab stop and keep the region active."
+      (interactive "r")
+      (let ((deactivate-mark nil))  ; 選択範囲を解除しない
+        (indent-rigidly-right-to-tab-stop beg end)))
+
+    (global-set-key (kbd "C->") 'my-indent-rigidly-right-to-tab-stop)
+    (defun select-to-end-of-buffer ()
+      "Select from the current point to the end of the buffer."
+      (interactive)
+      (set-mark (point)) ;; 現在のポイントをマークに設定
+     (use-package multiple-cursors
+      )
+     (goto-char (point-max))) ;; バッファ末尾に移動
+      (use-package multiple-cursors
+      )
+  (global-set-key (kbd "M->") 'select-to-end-of-buffer)
+      (use-package multiple-cursors
+      )
+  )
+#+end_src
+* multiple-cursors
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(mc/mark-next-like-this) "multiple-cursors" nil t)
+  (
+with-eval-after-load 'multiple-cursors
+    )
+#+end_src
+* yasnippet
+#+begin_src emacs-lisp :tangle yes
+  ;(autoload-if-found '(yas-global-mode) "yasnippet" nil t)
+  ;(yas-global-mode)
+#+end_src
+* Provide
+#+begin_src emacs-lisp :tangle yes
+  (provide 'init-editing)
+#+end_src

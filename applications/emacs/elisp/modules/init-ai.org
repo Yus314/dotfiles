@@ -1,0 +1,83 @@
+#+TITLE: AI Settings
+* Header
+#+begin_src emacs-lisp :tangle yes
+  ;;; init-ai.el --- AI assistance tools -*- lexical-binding: t -*-
+#+end_src
+* ellama
+#+begin_src emacs-lisp :tangle yes
+  ;(require 'llm-gemini)
+  ;(require 'ellama)
+  ;(use-package ellama
+  ;  :ensure t
+  ;  :bind ("C-c e" . ellama-transient-main-menu)
+  ;  :init
+  ;  (require 'llm-ollama)
+  ;  (setq ellama-provider ;; setopt は非推奨なので setq を使用
+  ;	  (make-llm-gemini
+  ;	   :key (funcall(plist-get (nth 0 (auth-source-search :host "gemini")) :secret))
+  ;	   :chat-model "gemini-2.5-pro-preview-03-25"
+  ;	   ))
+  					;(make-llm-ollama
+  					;     		   :scheme "http"
+  					;                 :host "ollama.mdip2home.com"
+  					;     		   :port 80
+  					;                 :chat-model "Qwen2.5:14b"
+  					;                 :embedding-model "Qwen2.5:14b"
+  					;		   :default-chat-non-standard-params '(("num_ctx" . 32768))))
+
+
+  ;  :config
+  ;  (defcustom ellama-japanese-correction-prompt-template
+  ;    "
+  ;あなたは論理的な思考を重視する編集者です。
+  ; あなたはZettelkastenのエキスパートであり、元のメモの意図と表現を尊重しつつ、改善点を指摘するアドバイザーです。以下のZettelkastenメモを、元の内容を大きく変更せずに、より良くするための添削をお願いします。\n
+  ;
+  ;重視する点（指摘してほしいこと）:\n
+  ;* アトミック（単一のアイデアか？）: 一つのメモに複数のアイデアが混在していないか確認し、もし混在していればどのように分割できるか、元の構成を尊重しつつ指摘してください。\n
+  ;* 明確性・簡潔性: メモの内容が不明確、または冗長な箇所があれば、元の表現を活かしたより良い表現の可能性を提案してください。\n
+  ;添削してほしいメモ:\n%s\n
+  ;出力形式:\n
+  ;* 元のメモに対する具体的な改善点の指摘をリスト形式で記述してください。（例：「この部分は複数のアイデアを含んでいる可能性があります。具体的にはAとBのアイデアです。分割するなら〜」「『それ』が指す内容が少し曖昧かもしれません。明確にするなら〜」など）\n
+  ;* 修正が必要な場合でも、大幅な書き換えは行わず、修正箇所の指摘と、修正案（複数可）の提示*にとどめてください。\n
+  ;* 変更提案の理由を簡潔に説明してください\n
+  ;       "
+  ;    :group 'ellama
+  ;    :type 'string)
+  ;  (defun ellama-japanese-correction ()
+  ;    "Summarize selected region or current buffer."
+  ;    (interactive)
+  ;    (let ((text (if (region-active-p)
+  ;               	    (buffer-substring-no-properties (region-beginning) (reg;ion-end))
+  ;               	  (buffer-substring-no-properties (point-min) (point-max)));))
+  ;      (ellama-instant (format ellama-japanese-correction-prompt-template
+  ;     			      text))))
+
+  ;  )
+    #+end_src
+* aidermacs
+#+begin_src emacs-lisp :tangle yes
+     (with-eval-after-load 'aidermacs
+  (use-package aidermacs
+    :bind
+    ("C-c i" . aidermacs-transient-menu)
+    :custom
+    (aidermacs-backend  'comint)
+    (aidermacs-vterm-multiline-newline-key  "S-<return>")
+    (aidermacs-use-architect-mode  nil)
+    (aidermacs-default-model   "gemini/gemini-2.5-pro-preview-03-25")
+    :config
+    ;(setenv "GEMINI_API_KEY" (funcall(plist-get (nth 0 (auth-source-search :host "gemini")) :secret)))
+    )
+  )
+#+end_src
+* claude-code-ide
+#+begin_src emacs-lisp :tangle yes
+   (require 'claude-code-ide)
+#+end_src
+* emigo
+#+begin_src emacs-lisp :tangle yes
+#+end_src
+* Provide
+#+begin_src emacs-lisp :tangle yes
+  (provide 'init-ai)
+#+end_src

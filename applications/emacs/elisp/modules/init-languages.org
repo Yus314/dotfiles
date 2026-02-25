@@ -1,0 +1,363 @@
+#+TITLE: Language Settings
+* Header
+#+begin_src emacs-lisp :tangle yes
+  ;;; init-languages.el --- Language-specific settings / LSP / formatters -*- lexical-binding: t -*-
+#+end_src
+* 言語固有の設定
+** nix
+#+begin_src emacs-lisp :tangle yes
+  ;(use-package nix-ts-mode
+  ;  :mode
+  ;  (("\\.nix\\'" . nix-ts-mode))
+  ;  :hook
+  ;  (nix-ts-mode-hook . nixfmt-on-save-mode)
+  ;  (nix-ts-mode-hook . lsp)
+  ;  )
+  (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
+  (autoload 'nix-ts-mode "nix-ts-mode" nil t)
+ ; (with-eval-after-load 'nix-ts-mode
+ ;   (add-hook 'nix-ts-mode-hook 'lsp)
+ ;  )
+#+end_src
+** yaml
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'yaml-mode "yaml-mode" nil t)
+  ;(use-package yaml-mode
+  ;  )
+  (add-to-list 'auto-mode-alist '("\\.ya?ml$" . yaml-mode))
+  ;(use-package yaml-ts-mode
+  ;  :mode
+  ;  ("\\.ya?ml\\'")
+  ;  )
+  (autoload 'yaml-ts-mode "yaml-ts-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.ya?ml$" . yaml-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
+#+end_src
+** rust
+#+begin_src emacs-lisp :tangle yes
+       ;(use-package rust-mode
+       ;   :custom
+       ;   (rust-mode-treesitter-derive  t)
+       ;   (rust-format-on-save  t)
+          ;:hook
+          ;(rust-mode-hook  lsp)
+      ;    )
+      ; (add-hook 'rust-mode-hook 'eglot-ensure)
+  ;     (defun my/find-rust-project-root (dir)
+  ;        (when-let ((root (locate-dominating-file dir "Cargo.toml")))
+  ;          (list 'vc 'Git root)))
+
+  ;     (defun my/rust-mode-hook ()
+  ;       (setq-local project-find-functions (list #'my/find-rust-project-root)))
+
+  ;     (add-hook 'rustic-mode-hook #'my/rust-mode-hook)
+      (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+  (autoload 'rust-mode "rust-mode" nil t)
+
+      ;(require 'rust-mode)
+      ;(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+      ;(setq rust-mode-treesitter-derive t)
+      (with-eval-after-load 'rust-mode
+        (setq rust-mode-treesitter-derive t)
+        )
+    ;  (require 'rust-mode)
+    ;  (require 'inheritenv)
+    ;  (setq rust-mode-treesitter-derive t)
+    ;  (with-eval-after-load 'inheritenv
+    ;   (inheritenv-add-advice #'rustic-compilation)
+    ;    (require 'rustic nil t)
+    ;    (require 'flycheck)
+    ;    (setq rustic-format-on-save t)
+    ;    (setq rustic-lsp-client nil)
+    ;    ;(add-hook 'rustic-mode-hook 'lsp)
+    ;    (push 'rustic-clippy flycheck-checkers)
+    ;(add-hook 'rustic-mode-hook 'flycheck-mode)
+    ;    )
+#+end_src
+** Python
+#+begin_src emacs-lisp :tangle yes
+     ;(add-hook 'python-ts-mode-hook 'ruff-format-on-save-mode)
+     ;(leaf ruff-format
+     ;  :ensure t
+     ;  )
+   ;(use-package python-mode
+   ;  )
+ ;  (autoload 'python-mode "python-mode" nil t)
+ ; (autoload 'python-ts-mode "python-mode" nil t)
+ ;  (add-to-list 'auto-mode-alist '("\\.py$" . python-ts-mode))
+ ; (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+  ; (add-hook 'python-ts-mode-hook (lambda ()
+  ; 				  (require 'lsp-pyright)
+  ; 				  (lsp)))
+  ; (use-package lsp-pyright
+  ;   :custom (lsp-pyright-langserver-command "pyright") ;; or basedpyright
+  ;   :hook (python-ts-mode . (lambda ()
+  ;                           (require 'lsp-pyright)
+  ;                           (lsp))))  ; or lsp-deferred
+  ;  (add-hook 'python-ts-mode-hook
+ ; 	    (lambda ()
+  ;	      (require 'lsp-pyright)
+  ;	      (lsp)))
+  ;(with-eval-after-load 'lsp-pyright
+  ;  (setq lsp-pyright-langserver-command "pyright")
+  ;  )
+#+end_src
+** Lean4
+#+begin_src emacs-lisp :tangle yes
+   (add-to-list 'auto-mode-alist '("\\.lean\\'" . lean4-mode))
+   (autoload 'lean4-mode "lean4-mode" nil t)
+  (add-hook 'lean4-mode-hook (lambda ()
+  			     (lsp-mode)))
+  ;(with-eval-after-load 'lean4-mode
+   ; (require 'lsp-mode)
+   ; )
+#+end_src
+** Common Lisp
+#+begin_src emacs-lisp :tangle yes
+  ;(require 'sly-autoloads)
+
+  ;(with-eval-after-load 'sly
+   ; (setopt inferior-lisp-program "sbcl")
+   ; (setopt sly-command-switch-to-existing-lisp 'always))
+#+end_src
+** typst
+#+begin_src emacs-lisp :tangle yes
+    (add-to-list 'auto-mode-alist '("\\.typ\\'" . typst-ts-mode))
+    (autoload 'typst-ts-mode "typst-ts-mode" nil t)
+  (setq typst-ts-mode-watch-option "--open")
+
+  ;typst-previewだと保存しなくても同期するようになる
+  (setq typst-preview-browser "qutebrowser")
+#+end_src
+** terraform
+#+begin_src emacs-lisp :tangle yes
+  (add-to-list 'auto-mode-alist '("\\.tf\\'" . terraform-mode))
+  (autoload 'terraform-mode "terraform-mode" nil t)
+  (with-eval-after-load 'terraform-mode
+  ;  (add-hook 'torraform-mode-hook 'lsp)
+   )
+#+end_src
+** plantuml
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(plantuml-mode) "plantuml-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.pu$" . plantuml-mode))
+#+end_src
+** Tex
+#+begin_src emacs-lisp :tangle yes
+  ;; AUCTeXの設定を遅延ロード
+  (with-eval-after-load 'latex
+    (setq TeX-default-mode 'japanese-latex-mode)
+    (setq TeX-auto-save t)
+    (setq TeX-parse-self t)
+    (setq TeX-master nil)
+    (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
+    (setq japanese-TeX-engine-default 'platex)
+    (setq TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view)))
+    (setq TeX-PDF-from-DVI "Dvipdfmx"))
+
+  ;; 保存時に自動コンパイル
+  (add-hook 'TeX-after-compilation-finished-functions
+            #'TeX-revert-document-buffer)
+  ;(add-hook 'LaTeX-mode-hook
+  ;         (lambda ()
+  ;            (add-hook 'after-save-hook ('TeX-command-run-all nil))))
+  (setq TeX-PDF-from-DVI  '"Dvipdfmx")
+  (with-eval-after-load 'auctex
+    (require 'auctex-latexmk)
+    (auctex-latexmk-setup))
+#+end_src
+*** atomic-chrome
+chromeの編集をemacsのバッファ内から行なえるようにするもの。
+キーバインドや検索など慣れた動作で編集ができるようになる。
+同期がほぼ同時にできて快適に操作できる。
+課題として、Overleafでカーソルもスクロールできるはずなのだが、できていないことと、補完が効いていないことがある。補完はLeTeXのemacsの設定かもしれない。
+#+begin_src emacs-lisp :tangle yes
+  (use-package atomic-chrome
+    :config
+    (atomic-chrome-start-server)
+    (setq atomic-chrome-url-major-mode-alist
+          '(("overleaf.com" . LaTeX-mode))))
+#+end_src
+** ledger
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(ledger-mode) "ledger-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.ledger$" . ledger-mode))
+#+end_src
+* lsp-bridge
+#+begin_src emacs-lisp :tangle no
+   (add-hook 'emacs-startup-hook #'global-lsp-bridge-mode)
+   (autoload 'global-lsp-bridge-mode "lsp-bridge")
+   (with-eval-after-load 'lsp-bridge
+     (yas-global-mode)
+     (setq lsp-bridge-nix-lsp-server "nil")
+     (setq lsp-bridge-enable-with-tramp t)
+     (setq lsp-bridge-remote-start-automatically t)
+     (setq lsp-bridge-enable-search-words nil)
+     (setq lsp-bridge-auto-format-code t)
+     (setq lsp-bridge-auto-format-code-idle 10)
+     (setq lsp-bridge-enable-org-babel t)
+     (setq lsp-bridge-enable-hover-diagnostic t)
+     (setq acm-enable-tabnine nil)
+     (setq acm-enable-search-file-words nil)
+     (setq acm-enable-ctag nil)
+     (setq acm-enable-telega nil)
+     ; for rust
+     (setq lsp-bridge-enable-inlay-hint t)
+  ;   (setq lsp-bridge-log-level "debug")
+     )
+#+end_src
+* lsp-mode
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(lsp lsp-deferred lsp-org lsp-register-client make-lsp-client) "lsp-mode" nil t)
+  (autoload-if-found '(lsp-lens-mode lsp-lens-refresh lsp-lens--enable) "lsp-lens" nil t)
+  (autoload-if-found '(lsp-modeline-workspace-status-mode lsp-modeline-code-actions-mode) "lsp-modeline" nil t)
+  (autoload-if-found '(lsp-headerline-breadcrumb-mode) "lsp-headerline" nil t)
+  (autoload-if-found '(lsp-diagnostics-mode) "lsp-diagnostics" nil t)
+
+;   (with-eval-after-load 'lsp-mode
+;     (setq lsp-completion-provider :none)
+;     (autoload 'lsp-lens-mode "lsp-lens" nil t)
+;     (autoload 'lsp-lens--enable "lsp-lens" nil t)
+;          (defun my-lsp-mode-setup ()
+;         "LSP利用時に追加の補完設定を行う"
+;         (add-hook 'completion-at-point-functions #'cape-file nil t))
+;  	     (add-hook 'lsp-mode-hook #'my-lsp-mode-setup)
+;   )
+  ;(use-package lsp-mode
+  ;  :custom
+  ;  (lsp-keymap-prefix  "M-p")
+  ;  (lsp-log-in  nil) ;パフォーマンスに大きく影響するらしい
+  ;  :hook
+  ;  (lsp-mode-hook . lsp-enable-which-key-integration)
+  ;         ( lsp-mode-hook . my-lsp-mode-setup)
+  ;  補完をorderlessで絞れるようにする
+  ;  ;(lsp-completion-mode-hook . (lambda ()
+  ;				(setq-local completion-category-defaults
+  ;					    (assoc-delete-all 'lsp-capf completion-category-defaults)));)
+  ;  )
+
+;  (defun lsp-booster--advice-json-parse (old-fn &rest args)
+  					; "Try to parse bytecode instead of json."
+;    (or
+;     (when (equal (following-char) ?#)
+;       (let ((bytecode (read (current-buffer))))
+;         (when (byte-code-function-p bytecode)
+;           (funcall bytecode))))
+;     (apply old-fn args)))
+;  (advice-add (if (progn (require 'json)
+;                         (fboundp 'json-parse-buffer))
+;                  'json-parse-buffer
+;                'json-read)
+;              :around
+;              #'lsp-booster--advice-json-parse);
+
+;  (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+;    "Prepend emacs-lsp-booster command to lsp CMD."
+;    (let ((orig-result (funcall old-fn cmd test?)))
+;      (if (and (not test?)                             ;; for check lsp-server-present?
+;               (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+;               lsp-use-plists
+;               (not (functionp 'json-rpc-connection))  ;; native json-rpc
+;               (executable-find "emacs-lsp-booster"))
+;          (progn
+;            (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
+;              (setcar orig-result command-from-exec-path))
+;            (message "Using emacs-lsp-booster for %s!" orig-result)
+;            (cons "emacs-lsp-booster" orig-result))
+;        orig-result)))
+;  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+#+end_src
+* lsp-ui
+#+begin_src emacs-lisp :tangle yes
+;  (autoload 'lsp-ui-mode "lsp-ui" nil t)
+;  (with-eval-after-load 'lsp-mode
+;    (add-hook 'lsp-mode-hook #'lsp-ui-mode))
+#+end_src
+* eglot
+#+begin_src emacs-lisp :tangle yes
+  ;(use-package eglot
+  ;  :defer-config
+  ;  (add-to-list 'eglot-server-programs
+  ;	       '((nix-ts-mode . ("nil"))
+  					;	       (typst-ts-mode . ("tinymist")))
+  ;	       '(nix-ts-mode . ("nil"))
+  ;               )
+  ;  (add-to-list 'eglot-server-programs
+  ;	       '(typst-ts-mode . ("tinymist")))
+  ;  )
+  ;(use-package eglot-booster
+  ;  :when (executable-find "emacs-lsp-booster")
+  ;  :vc ( :url "https://github.com/jdtsmith/eglot-booster")
+  ;  :global-minor-mode t)
+#+end_src
+* flycheck
+#+begin_src emacs-lisp :tangle yes
+  (use-package flycheck-posframe
+    :after flycheck posframe
+    :config(flycheck-posframe-mode)
+    )
+  (autoload 'flycheck-mode "flycheck" nil t)
+  (dolist (hook
+  	 '(emacs-lisp-mode-hook
+  	   org-mode-hook
+  	   python-ts-mode-hook
+  	   nix-ts-mode-hook
+  	   rust-mode-hook
+  	   rustic-mode-hook
+  	   ))
+    (add-hook hook #'flycheck-mode))
+  (with-eval-after-load "flycheck"
+    (flycheck-define-checker textlint
+      "textlint."
+      :command ("textlint" "--format" "unix"
+                source-inplace)
+      :error-patterns
+      ((warning line-start (file-name) ":" line ":" column ": "
+                (id (one-or-more (not (any " "))))
+                (message (one-or-more not-newline)
+                         (zero-or-more "\n" (any " ") (one-or-more not-newline)))
+                line-end))
+      :modes (text-mode markdown-mode gfm-mode LaTeX-mode japanese-latex-mode))
+    (add-to-list 'flycheck-checkers 'textlint)
+    )
+#+end_src
+* apheleia
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'apheleia-global-mode "apheleia")
+  (apheleia-global-mode)
+  ;(setf (alist-get 'nix-ts-mode apheleia-mode-alist) 'nixfmt)
+    (setf (alist-get 'typst-ts-mode apheleia-mode-alist) 'typstmt)
+#+end_src
+* reformatter
+#+begin_src emacs-lisp :tangle yes
+  ;(use-package reformatter
+  ;   )
+  ;  (reformatter-define nixfmt
+  ;    :program "nixfmt"
+  ;    :args '("-")
+  ;    )
+  ;  (reformatter-define ruff
+  ;    :program "ruff format"
+  ;    :args '("-")
+  ;    )
+    ;)
+#+end_src
+* envrc
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'envrc-global-mode "envrc" nil t)
+  (add-hook 'emacs-startup-hook #'envrc-global-mode)
+  (with-eval-after-load 'envrc
+    (setq  Info-directory-list Info-default-directory-list )
+    )
+#+end_src
+
+* inheritenv
+#+begin_src emacs-lisp :tangle yes
+  ;(require 'inheritenv)
+  ;(eval-after-load 'rustic
+  ;  (inheritenv-add-advice #'rustic-compilation))
+#+end_src
+* Provide
+#+begin_src emacs-lisp :tangle yes
+  (provide 'init-languages)
+#+end_src

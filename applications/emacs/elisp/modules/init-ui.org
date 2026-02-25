@@ -1,0 +1,127 @@
+#+TITLE: UI Settings
+* Header
+#+begin_src emacs-lisp :tangle yes
+  ;;; init-ui.el --- UI/Theme settings -*- lexical-binding: t -*-
+#+end_src
+* theme
+** Modus Theme
+  #+begin_src emacs-lisp :tangle yes
+        (add-hook 'emacs-startup-hook
+        	  #'(lambda ()
+        	      (when (require 'modus-themes)
+        	;	(load-theme 'modus-operandi)
+    		)))
+
+        (with-eval-after-load 'modus-themes
+          (setq modus-themes-italic-constructs  t)
+          (setq modus-themes-bold-constructs  t)
+          (setq modus-themes-mode-line  '(moody borderless))
+          (setq modus-themes-prompts  '(italic bold))
+          (setq custom-safe-themes  t)
+          )
+#+end_src
+** darkman
+#+begin_src emacs-lisp :tangle yes
+    (add-hook 'emacs-startup-hook
+    	  #'(lambda ()
+    	      (when (require 'darkman)
+    		)))
+    (with-eval-after-load 'darkman
+  (setq darkman-themes '(:light modus-operandi :dark modus-vivendi))
+  (when (eq system-type 'gnu/linux)
+    (darkman-mode))
+  )
+#+end_src
+** auto-dark
+#+begin_src emacs-lisp :tangle yes
+  (when (eq system-type 'darwin)
+    (require 'auto-dark)
+    (setq auto-dark-themes '((modus-vivendi) (modus-operandi)))
+    (auto-dark-mode t))
+#+end_src
+* tree-sitter
+#+begin_src emacs-lisp :tangle yes
+  (setq treesit-font-lock-level  4)
+  (setq major-mode-remap-alist
+        '(
+  	(nix-mode  nix-ts-mode)
+  					;  (emacs-lisp-mode . emacs-lisp-ts-mode)
+  	(yaml-mode  yaml-ts-mode)
+  	;(python-mode  python-ts-mode)
+  	)
+        )
+#+end_src
+* perfect-margin
+#+begin_src emacs-lisp :tangle yes
+  (add-hook 'emacs-startup-hook #'perfect-margin-mode)
+  (autoload 'perfect-margin-mode "perfect-margin" nil t)
+  (with-eval-after-load 'perfect-margin
+    (setq perfect-margin-ignore-filters  nil)
+    (setq perfect-margin-ignore-regexps  nil)
+    (setq perfect-margin-visible-width  108)
+    (setq split-width-threshold  107)
+    (add-to-list 'perfect-margin-ignore-regexps "*which-key")
+    )
+#+end_src
+* icon
+** nerd-icons
+#+begin_src emacs-lisp :tangle yes
+  (use-package nerd-icons
+     )
+  ;(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+   (use-package nerd-icons-corfu
+     :after nerd-icons
+     )
+#+end_src
+* winnum
+#+begin_src emacs-lisp :tangle yes
+ ; (use-package winum
+ ;   )
+#+end_src
+* tab bar
+バッファをウインドウの管理をうまくできていないので、あまりつかいこなせていない。
+ #+begin_src emacs-lisp :tangle yes
+  ; (centaur-tabs-mode  t)
+  ; (autoload-if-found 'centaur-tabs-mode "centaur-tabs")
+  ; (setq centaur-tabs-style  "alternate")
+  ; (setq centaur-tabs-set-icons  t)
+  ; (setq centaur-tabs-icon-type  'nerd-icons)
+  ; (setq centaur-tabs-set-bar  'under)
+  ; (setq x-underline-at-descent-line  t)
+  ; (centaur-tabs-headline-match)
+  ; (setq centaur-tabs-set-bar 'under)
+  ; (setq x-underline-at-descent-line t)
+ #+end_src
+* minus
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'minions-mode "minions" nil t)
+  (add-hook 'emacs-startup-hook #'minions-mode)
+#+end_src
+* Moody
+#+begin_src emacs-lisp :tangle yes
+  (add-hook 'emacs-startup-hook #'moody-replace-mode-line-buffer-identification)
+  (add-hook 'emacs-startup-hook #'moody-replace-vc-mode)
+  (autoload 'moody-replace-mode-line-buffer-identification "moody" nil t)
+  (autoload 'moody-replace-vc-mode "moody" nil t)
+  (with-eval-after-load 'moody
+  (setq moody-mode-line-height 26)
+  )
+#+end_src
+* spacious-padding
+#+begin_src emacs-lisp :tangle yes
+  (add-hook 'emacs-startup-hook #'spacious-padding-mode)
+  (autoload 'spacious-padding-mode "spacious-padding" nil t)
+  (with-eval-after-load 'spacious-padding
+    (setq spacious-padding-widths
+  	'(
+  	  :internal-border-width 5
+  	  :right-divider-width 0
+  	  :mode-line-width 0
+  	  :left-fringe-width 5
+  	  ))
+    )
+ #+end_src
+* Provide
+#+begin_src emacs-lisp :tangle yes
+  (provide 'init-ui)
+#+end_src

@@ -1,0 +1,317 @@
+#+TITLE: Tools Settings
+* Header
+#+begin_src emacs-lisp :tangle yes
+  ;;; init-tools.el --- Git/navigation/terminal/TRAMP etc. -*- lexical-binding: t -*-
+#+end_src
+* Git
+** diff-hl
+#+begin_src emacs-lisp :tangle yes
+  (add-hook 'emacs-startup-hook 'global-diff-hl-mode)
+  (autoload 'global-diff-hl-mode "diff-hl" nil t)
+  (with-eval-after-load 'diff-hl
+    (setq diff-hl-flydiff-mode  t)
+    (setq diff-hl-draw-borders  nil)
+    )
+#+end_src
+** magit
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'magit-status "magit" nil t)
+  (keymap-global-set "C-x g" 'magit-status)
+#+end_src
+** forge
+#+begin_src emacs-lisp :tangle yes
+#+end_src
+* Project
+** projectile
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(projectile-mode
+                       projectile-clear-known-projects
+                       projectile-cleanup-known-projects) "projectile" nil t)
+
+  (add-hook 'emacs-startup-hook #'projectile-mode)
+  ( add-hook 'emacs-startup-hook #'my/update-projectile-known-projects )
+  (defun my/update-projectile-known-projects ()
+    (interactive)
+    (projectile-clear-known-projects)
+    (projectile-cleanup-known-projects)
+    (setopt projectile-known-projects (mapcar
+                                       (lambda (x)
+                                         (abbreviate-file-name (concat x "/")))
+                                       (split-string (shell-command-to-string "ghq list --full-path")))))
+#+end_src
+* PDF
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'pdf-tools-install "pdf-tools" nil t)
+  (autoload 'pdf-occur-global-minor-mode "pdf-occur" nil t)
+  					;    (add-hook 'pdf-view-mode-hook (lambda() (nlinum-mode -1)))
+  (add-hook 'emacs-startup-hook #'pdf-tools-install)
+  #+end_src
+* mistty
+#+begin_src emacs-lisp :tangle yes
+    (use-package mistty
+      :custom
+  					;(explicit-shell-file-name . "/home/kaki/.nix-profile/bin/fish")
+      (mistty-shell-command  "/bin/bash")
+    )
+#+end_src
+* vterm
+#+begin_src emacs-lisp :tangle yes
+  (setq vterm-keymap-exceptions '("C-c" "C-y" "M-v" "M-x"))
+  (autoload 'vterm-toggle "vterm-toggle" nil t)
+  (with-eval-after-load 'vterm-toggle
+    (setq vterm-toggle-scope 'project)
+    )
+  (with-eval-after-load 'vterm
+    (setq vterm-tramp-shells  '(("ssh" "'fish'") ("scp" login-shell) ("docker" "/bin/sh")))
+    (keymap-set vterm-mode-map "C-c C-c" 'vterm--self-insert)
+    )
+  (keymap-global-set "M-v" #'vterm-toggle)
+#+end_src
+* helpful
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'helpful-callable "helpful" nil t)
+  (autoload 'helpful-function "helpful" nil t)
+  (autoload 'helpful-macro "helpful" nil t)
+  (autoload 'helpful-command "helpful" nil t)
+  (autoload 'helpful-key "helpful" nil t)
+  (autoload 'helpful-variable "helpful" nil t)
+  (autoload 'helpful-at-point "helpful" nil t)
+
+  (keymap-global-set "C-h f" #'helpful-callable)
+  (keymap-global-set "C-h v" #'helpful-variable)
+  (keymap-global-set "C-h k" #'helpful-key)
+  (keymap-global-set "C-c C-d" #'helpful-at-point)
+  (keymap-global-set "C-h F" #'helpful-function)
+  (keymap-global-set "C-h C" #'helpful-command)
+#+end_src
+* Avy
+#+begin_src emacs-lisp :tangle yes
+  ;(use-package avy
+  ;  :bind ("M-'" . avy-goto-char-timer)
+  ;  )
+  ;(defun avy-action-helpful (pt)
+  ;  (save-excursion
+  ;    (goto-char pt)
+  ;    (helpful-at-point))
+  ;  (select-window
+  ;   (cdr (ring-ref avy-ring 0)))
+  ;  t)
+  ;(setf (alist-get ?H avy-dispatch-alist) 'avy-action-helpful)
+  ;(defun avy-action-embark (pt)
+  ;  (unwind-protect
+  ;      (save-excursion
+  ;	(goto-char pt)
+  ;	(embark-act))
+  ;  (select-window
+  ;   (cdr (ring-ref avy-ring 0))))
+  ;  t)
+  					;(setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark)
+
+  (keymap-global-set "M-'" 'avy-goto-char-timer)
+  (autoload 'avy-goto-char-timer "avy" nil t)
+  ;(with-eval-after-load 'avy
+  ;  (defun avy-action-helpful (pt)
+  ;  (save-excursion
+  ;    (goto-char pt)
+  ;    (helpful-at-point))
+  ;  (select-window
+  ;   (cdr (ring-ref avy-ring 0)))
+  ;  t)
+  ;(setf (alist-get ?H avy-dispatch-alist) 'avy-action-helpful)
+  ;(defun avy-action-embark (pt)
+  ;  (unwind-protect
+  ;      (save-excursion
+  ;	(goto-char pt)
+  ;	(embark-act))
+  ;  (select-window
+  ;   (cdr (ring-ref avy-ring 0))))
+  ;  t)
+  ;)
+#+end_src
+* ace-window
+#+begin_src emacs-lisp :tangle yes
+  (keymap-global-set "C-x o" 'ace-window)
+  (autoload 'ace-window "ace-window" nil t)
+#+end_src
+* embark
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'embark-act "embark" nil t)
+  (with-eval-after-load 'embark
+    (setq prefix-help-command #'embark-prefix-help-command)
+    (require 'embark-consult)
+    )
+#+end_src
+* go-translate
+#+begin_src emacs-lisp :tangle yes
+    (use-package go-translate
+      :defer t
+      :config
+      (setq gt-langs '(en ja))
+      (setq gt-default-translator
+  	  (gt-translator
+  	   :taker (gt-taker :text 'buffer :pick 'paragraph)
+  	   :engines (list (gt-deepl-engine :key  (funcall(plist-get (nth 0 (auth-source-search :host "deepl")) :secret))))
+  	   :render (gt-buffer-render :then (gt-kill-ring-render))
+  	   ))
+  					; :bind (
+  					;	 ("C-t" . gt-do-translate)
+  					;	 )
+      )
+
+#+end_src
+* quick-sdcv
+#+begin_src emacs-lisp :tangle yes
+  (autoload-if-found '(quiqk-sdcv-search-at-point quick-sdcv-search-input) "quick-sdcv" nil t)
+  (with-eval-after-load 'quick-sdcv
+    (setq quick-sdcv-dictionary-prefix-symbol "►")
+    (setq quick-sdcv-ellipsis " ▼")
+    )
+#+end_src
+* reinbow-delimiters
+#+begin_src emacs-lisp :tangle yes
+  (require 'rainbow-delimiters)
+  (add-hook 'emacs-mode #'rainbow-delimiters-mode)
+#+end_src
+* Dired
+** dired-narrow
+#+begin_src emacs-lisp :tangle yes
+  (use-package dired-narrow
+    :after dired-hacks-utils
+    :bind
+    (:map dired-mode-map
+     ("," . dired-narrow-fuzzy)
+     )
+  )
+#+end_src
+** nerd-icons-dired
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'nerd-icons-dired-mode "nerd-icons-dired" nil t)
+
+  (with-eval-after-load 'dired-mode
+    (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
+#+end_src
+* mu4e
+#+begin_src emacs-lisp :tangle yes
+    (setq mail-user-agent 'mu4e-user-agent)
+#+end_src
+* Slack
+#+begin_src emacs-lisp :tangle yes
+  (setq auth-sources '("~/.config/emacs/.authinfo.gpg"))
+
+  (autoload 'slack-im-open "slack" nil t)
+  (with-eval-after-load 'slack
+    (slack-register-team
+     :name "mdip"
+     :token (funcall(plist-get (nth 0 (auth-source-search :machine "mdip.slack.com" :port "token")) :secret))
+     :cookie (funcall(plist-get (nth 0 (auth-source-search :machine "mdip.slack.com" :port "cookie")) :secret))
+     :default t
+     )
+    (define-key slack-mode-map (kbd "S-<return>")
+  (lambda () (interactive) (insert (kbd "C-j"))))
+    )
+#+end_src
+** slack-org
+org-store-linkでリンクをコピーすることができる。
+TODOに貼っておくことで、作業の際に確認することができるようになる。
+#+begin_src emacs-lisp :tangle yes
+#+end_src
+* tramp
+#+begin_src emacs-lisp :tangle yes
+        					;(with-eval-after-load "tramp"
+        					;  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+        					;  )
+        					;(add-to-list 'tramp-remote-path "/run/current-system/sw/bin")
+    (customize-set-variable 'tramp-use-connection-share nil)
+  (setq tramp-use-ssh-controlmaster-options nil)
+    (setq tramp-verbose 6)
+    (setq tramp-debug-buffer t)
+
+    (require 'tramp-sh)
+    (setq tramp-remote-path
+          (append tramp-remote-path
+           	      '(tramp-own-remote-path)))
+
+    (setq remote-file-name-inhibit-locks t
+          tramp-use-scp-direct-remote-copying t
+          remote-file-name-inhibit-auto-save-visited t)
+
+    (setq tramp-copy-size-limit (* 1024 1024) ;; 1MB
+          )
+
+        					; use direct async
+    (connection-local-set-profile-variables
+     'remote-direct-async-process
+     '((tramp-direct-async-process . t)))
+
+    (connection-local-set-profiles
+     '(:application tramp :protocol "scp")
+     'remote-direct-async-process)
+
+    (setq magit-tramp-pipe-stty-settings 'pty)
+
+
+    ;; don't show the diff by default in the commit buffer. Use `C-c C-d' to display it
+    (setq magit-commit-show-diff nil)
+    ;; don't show git variables in magit branch
+    (setq magit-branch-direct-configure nil)
+    ;; don't automatically refresh the status buffer after running a git command
+    (setq magit-refresh-status-buffer nil)
+
+
+    (defun memoize-remote (key cache orig-fn &rest args)
+    "Memoize a value if the key is a remote path."
+    (if (and key
+             (file-remote-p key))
+        (if-let ((current (assoc key (symbol-value cache))))
+            (cdr current)
+          (let ((current (apply orig-fn args)))
+            (set cache (cons (cons key current) (symbol-value cache)))
+            current))
+      (apply orig-fn args)))
+
+    ;; Memoize current project
+  (defvar project-current-cache nil)
+  (defun memoize-project-current (orig &optional prompt directory)
+    (memoize-remote (or directory
+                         project-current-directory-override
+                         default-directory)
+                     'project-current-cache orig prompt directory))
+
+  (advice-add 'project-current :around #'memoize-project-current)
+
+  ;; Memoize magit top level
+  (defvar magit-toplevel-cache nil)
+  (defun memoize-magit-toplevel (orig &optional directory)
+    (memoize-remote (or directory default-directory)
+                     'magit-toplevel-cache orig directory))
+  (advice-add 'magit-toplevel :around #'memoize-magit-toplevel)
+
+  ;; memoize vc-git-root
+  (defvar vc-git-root-cache nil)
+  (defun memoize-vc-git-root (orig file)
+    (let ((value (memoize-remote (file-name-directory file) 'vc-git-root-cache orig file)))
+      ;; sometimes vc-git-root returns nil even when there is a root there
+      (when (null (cdr (car vc-git-root-cache)))
+        (setq vc-git-root-cache (cdr vc-git-root-cache)))
+      value))
+  (advice-add 'vc-git-root :around #'memoize-vc-git-root)
+
+  ;; memoize all git candidates in the current project
+  (defvar $counsel-git-cands-cache nil)
+  (defun $memoize-counsel-git-cands (orig dir)
+    ($memoize-remote (magit-toplevel dir) '$counsel-git-cands-cache orig dir))
+  (advice-add 'counsel-git-cands :around #'$memoize-counsel-git-cands)
+#+end_src
+* tmampのread-only問題への対処
+#+begin_src emacs-lisp :tangle yes
+  (add-hook 'find-file-hook
+            (lambda ()
+              (when (file-remote-p (buffer-file-name))
+                (set (make-local-variable 'inhibit-read-only) t)
+                (fset (make-local-variable 'file-writable-p) (lambda (filename) t))
+                (set (make-local-variable 'buffer-read-only) nil))))
+#+end_src
+* Provide
+#+begin_src emacs-lisp :tangle yes
+  (provide 'init-tools)
+#+end_src
