@@ -1,7 +1,9 @@
 { pkgs, ... }:
 {
-  # Temporarily disabled - causes package conflict in CI
-  # home.packages = [ pkgs.kakoune-lsp ];
+  home.packages = with pkgs; [
+    kakoune-lsp
+    nixd
+  ];
 
   programs.kakoune = {
     enable = true;
@@ -20,6 +22,26 @@
       set-option global autothemes_dark_theme modus-vivendi
       set-option global autothemes_light_theme modus-operandi
       autothemes-enable
+
+      eval %sh{kak-lsp --kakoune -s $kak_session}
+      lsp-enable
+
+      hook global BufSetOption filetype=nix %{
+          set-option buffer lsp_servers %{
+              [nixd]
+              root_globs = ["flake.nix", "shell.nix", ".git", ".hg"]
+              [nixd.settings.nixd]
+              formatting.command = ["nixfmt"]
+              [nixd.settings.nixd.nixpkgs]
+              expr = "import <nixpkgs> { }"
+              [nixd.settings.nixd.options.nixos]
+              expr = "(builtins.getFlake (\"git+file://\" + toString ./.)).nixosConfigurations.lawliet.options"
+              [nixd.settings.nixd.options.home-manager]
+              expr = "(builtins.getFlake (\"git+file://\" + toString ./.)).nixosConfigurations.lawliet.options.home-manager.users.type.getSubOptions []"
+          }
+      }
+
+      map global user l ':enter-user-mode lsp<ret>' -docstring 'LSP mode'
     '';
     config = {
       keyMappings = [
