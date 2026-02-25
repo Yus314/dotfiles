@@ -4,6 +4,7 @@
     ../desktop.nix
     ../../applications/hyprland
     ../../applications/niri
+    ../../applications/obsidian
     ../../applications/sway
     ../../applications/swww
     ../../applications/spotlight-downloader
