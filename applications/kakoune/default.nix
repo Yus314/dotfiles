@@ -3,6 +3,7 @@
   home.packages = with pkgs; [
     kakoune-lsp
     nixd
+    markdown-oxide
   ];
 
   programs.kakoune = {
@@ -24,6 +25,7 @@
       autothemes-enable
 
       eval %sh{kak-lsp --kakoune -s $kak_session}
+      remove-hooks global lsp-filetype-.*
       lsp-enable
 
       hook global BufSetOption filetype=nix %{
@@ -38,6 +40,14 @@
               expr = "(builtins.getFlake (\"git+file://\" + toString ./.)).nixosConfigurations.lawliet.options"
               [nixd.settings.nixd.options.home-manager]
               expr = "(builtins.getFlake (\"git+file://\" + toString ./.)).nixosConfigurations.lawliet.options.home-manager.users.type.getSubOptions []"
+          }
+      }
+
+      hook global BufSetOption filetype=markdown %{
+          set-option buffer lsp_servers %{
+              [markdown-oxide]
+              command = "markdown-oxide"
+              root_globs = [".moxide.toml", ".git", ".hg"]
           }
       }
 
