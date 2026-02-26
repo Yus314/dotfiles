@@ -49,9 +49,17 @@
     colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;
     extraConfig = ''
       hook global RegisterModified '"' %{
-        nop %sh{
-          printf %s "$kak_main_reg_dquote" | ${./osc52-copy.sh}
+        evaluate-commands -no-hooks %sh{
+          echo "edit -scratch '*clipboard*'"
+          echo "execute-keys '%%<a-d>P'"
+          echo "write -force '/tmp/kak-clipboard-$kak_session'"
+          echo "delete-buffer! '*clipboard*'"
         }
+        nop %sh{
+          f="/tmp/kak-clipboard-$kak_session"
+          [ -f "$f" ] && ${./osc52-copy.sh} < "$f" && rm -f "$f"
+        }
+        try %{ nop %sh{ printf %s "$kak_main_reg_dquote" | ${./osc52-copy.sh} } }
       }
 
       eval %sh{ kak-tree-sitter -dks --init $kak_session --with-highlighting --with-text-objects }
