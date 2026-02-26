@@ -1,6 +1,11 @@
 # ./tofi.nix
 # Tofi ランチャーの設定
-{ pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   programs.tofi = {
@@ -78,6 +83,33 @@
       anchor = "top";
     };
   };
+
+  home.activation.tofiDrunCacheRefresh = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    apps_dir="${config.home.profileDirectory}/share/applications"
+    state_dir="${config.xdg.stateHome}/tofi"
+    hash_file="$state_dir/desktop-hash"
+    cache_file="${config.xdg.cacheHome}/tofi-drun"
+
+    if [ -d "$apps_dir" ]; then
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$state_dir"
+      new_hash="$(
+        ${pkgs.findutils}/bin/find "$apps_dir" -type f -name '*.desktop' -print0 \
+          | ${pkgs.coreutils}/bin/sort -z \
+          | ${pkgs.findutils}/bin/xargs -0 -r ${pkgs.coreutils}/bin/stat -c '%n %s %Y' \
+          | ${pkgs.coreutils}/bin/sha256sum \
+          | ${pkgs.coreutils}/bin/cut -d' ' -f1
+      )"
+      old_hash=""
+      if [ -f "$hash_file" ]; then
+        old_hash="$(${pkgs.coreutils}/bin/cat "$hash_file")"
+      fi
+      if [ "$new_hash" != "$old_hash" ]; then
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/rm -f "$cache_file"
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/printf '%s\n' "$new_hash" > "$hash_file"
+      fi
+    fi
+  '';
+
   xdg.desktopEntries.wlogout = {
     name = "wlogout";
     type = "Application";
