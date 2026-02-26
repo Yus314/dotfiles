@@ -12,6 +12,21 @@
     highlighting = true
     text_objects = true
 
+    [grammar.nix]
+    link_flags = ["-O3", "-Wl,-z,noexecstack"]
+
+    [grammar.rust]
+    link_flags = ["-O3", "-Wl,-z,noexecstack"]
+
+    [grammar.python]
+    link_flags = ["-O3", "-Wl,-z,noexecstack"]
+
+    [grammar.markdown]
+    link_flags = ["-O3", "-Wl,-z,noexecstack"]
+
+    [grammar."markdown.inline"]
+    link_flags = ["-O3", "-Wl,-z,noexecstack"]
+
     [language.nix]
     remove_default_highlighter = true
 
