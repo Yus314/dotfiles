@@ -4,7 +4,26 @@
     kakoune-lsp
     nixd
     markdown-oxide
+    kak-tree-sitter
   ];
+
+  xdg.configFile."kak-tree-sitter/config.toml".text = ''
+    [features]
+    highlighting = true
+    text_objects = true
+
+    [language.nix]
+    remove_default_highlighter = true
+
+    [language.rust]
+    remove_default_highlighter = true
+
+    [language.python]
+    remove_default_highlighter = true
+
+    [language.markdown]
+    remove_default_highlighter = true
+  '';
 
   programs.kakoune = {
     enable = true;
@@ -19,6 +38,8 @@
           printf %s "$kak_main_reg_dquote" | ${./osc52-copy.sh}
         }
       }
+
+      eval %sh{ kak-tree-sitter -dks --init $kak_session --with-highlighting --with-text-objects }
 
       set-option global autothemes_dark_theme modus-vivendi
       set-option global autothemes_light_theme modus-operandi
