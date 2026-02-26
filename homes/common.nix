@@ -42,11 +42,13 @@ in
     ../applications/kimi-cli
     ../applications/vim
     ../applications/rbw
+    ../applications/sprout
     ../applications/tf-wrapper
     ../applications/nh
     ../applications/vdirsyncer
-    ../applications/khal
-    ../applications/khalorg
+    ../applications/weekly-report
+    #../applications/khal
+    #../applications/khalorg
     #../applications/sdcv
   ];
   services.gpg-agent = {

@@ -345,43 +345,29 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
 #+end_src
 * org-capture
 #+begin_src emacs-lisp :tangle yes
-  (defun my/org-agenda-to-string (agenda-type)
-        "Generate agenda string for the current week using a temporary file."
-        (let ((temp-agenda-file (make-temp-file "org-agenda-"))
-              (org-agenda-buffer nil)) ; 読み取り専用バッファを使わないようにする
-          (save-window-excursion
-            (org-agenda nil agenda-type) ; Agenda ビューを生成
-            (org-agenda-write temp-agenda-file)) ; 一時ファイルに書き出し
-          (with-temp-buffer
-            (insert-file-contents temp-agenda-file) ; 一時ファイルの内容を読み込む
-            (goto-char (point-min))
-            ;; 不要な部分を整形 (例: ヘッダー削除)
-            (kill-whole-line)
-            (buffer-string)))) ; 最終的な文字列として返す
+  (defun my/generate-weekly-report ()
+        "Run generate-weekly-report command."
+        (interactive)
+        (async-shell-command "generate-weekly-report"))
 
       (keymap-global-set "C-c c" 'org-capture)
       (autoload 'org-capture "org-capture" nil t)
       (with-eval-after-load 'org-capture
         (let* ((current-time (current-time))
-               ;; 現在の日付から土曜日までの日数を計算
-               (days-to-saturday (mod (- 6 (string-to-number (format-time-string "%w" current-time))) 7))
-               ;; 今週の土曜日を計算
-               (start-of-week (time-add
-                               (time-add current-time (days-to-time days-to-saturday)) (days-to-time -6)))
-               ;; 翌週の金曜日を計算
+               (dow (string-to-number (format-time-string "%w" current-time)))
+               ;; 日曜始まり: 今日を含む週の日曜日を計算
+               (start-of-week (time-subtract current-time (days-to-time dow)))
                (end-of-week (time-add start-of-week (days-to-time 6)))
                ;; フォーマットされた日付
                (start-day (format-time-string "%m%d" start-of-week))
                (end-day (format-time-string "%m%d" end-of-week))
-               ;; 年を取得
+               ;; 年を取得（週の開始日の年を使用）
                (year (format-time-string "%Y" start-of-week))
                ;; アーカイブディレクトリとファイル名
                (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
                (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
 
-          (setq weekly-dir   archive-file)
-          (setq org-archive-location (format "%s::** やったこと" archive-file))
-          )
+          (setq org-archive-location (format "%s::** やったこと" archive-file)))
         (setq taskfile  "~/dropbox/inbox/inbox.org")
         (setq org-capture-templates
       	'(
@@ -390,25 +376,7 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
       	  ("h" "Habit" entry (file "~/dropbox/habit.org")
       	   "* TODO %^{title}\n:PROPERTIES:\n:STYLE: habit\n:END:\n%?")
       	  ("p" "Project" entry (file+headline taskfile "プロジェクト" )
-      	   "* PROJECT %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?")
-      	  ("w" "Weekly Report" entry (file weekly-dir)
-      	   "* 今週のこと
-      ,** やったこと
-      ,** 時間計測
-      ,#+BEGIN: clocktable :scope agenda-with-archives :maxlevel 10 :lang \"ja\" :block lastweek :wstart 6 :level 4
-      ,#+END:
-      ,** 考えたこと
-      ,*** 良かったこと
-      %?
-      ,*** 気づき
-      ,*** やり残したこと
-      ,* 来週のこと
-      ,** 予定
-      %(my/org-agenda-to-string \"a\")
-      ,** TODOリスト
-      %(my/org-agenda-to-string \"d\")
-      ,** 考えていること
-      "))))
+      	   "* PROJECT %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?"))))
 #+end_src
 * org-refile
 #+begin_src emacs-lisp :tangle yes

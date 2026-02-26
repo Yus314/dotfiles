@@ -10,6 +10,7 @@ in
   tf-wrapper = super.callPackage ./tf-wrapper { };
   #  nyxt-4 = super.callPackage ./nyxt { };
   khalorg = super.callPackage ./khalorg { };
+  weekly-report = super.callPackage ./weekly-report { };
   #    inherit (lib) mkWindowsAppNoCC copyDesktopIcons makeDesktopIcon;
   #    wine = pkgs.wineWowPackages.base;
   #  };
