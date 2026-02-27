@@ -45,11 +45,11 @@
         ];
       };
 
-      khal = {
-        enable = true;
-        type = "discover";
-        color = "auto";
-      };
+      # khal = {
+      #   enable = true;
+      #   type = "discover";
+      #   color = "auto";
+      # };
     };
   };
 
