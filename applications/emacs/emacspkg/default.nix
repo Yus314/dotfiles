@@ -114,6 +114,7 @@ in
         reformatter
         apheleia
         envrc
+        markdown-mode
         ledger-mode
         mu4e
         dired-narrow
@@ -132,6 +133,7 @@ in
             tree-sitter-python
             tree-sitter-typst
             tree-sitter-hcl # terraform
+            tree-sitter-markdown
           ]
         ))
       ]

@@ -178,6 +178,13 @@ chromeの編集をemacsのバッファ内から行なえるようにするもの
     (setq atomic-chrome-url-major-mode-alist
           '(("overleaf.com" . LaTeX-mode))))
 #+end_src
+** markdown
+#+begin_src emacs-lisp :tangle yes
+  (autoload 'markdown-mode "markdown-mode" nil t)
+  (autoload 'gfm-mode "markdown-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.md\\'" . gfm-mode))
+  (add-to-list 'auto-mode-alist '("\\.markdown\\'" . gfm-mode))
+#+end_src
 ** ledger
 #+begin_src emacs-lisp :tangle yes
   (autoload-if-found '(ledger-mode) "ledger-mode" nil t)
