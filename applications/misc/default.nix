@@ -58,6 +58,7 @@
     nix-search-cli
     jq
     yq
+    # sprout # Moved to applications/sprout
     # github-copilot-cli # Temporarily disabled due to man-cache build issues
 
     # --- GUI Applications ---
