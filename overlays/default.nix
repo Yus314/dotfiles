@@ -12,6 +12,16 @@
     });
   };
 
+  kakoune-lsp-local = final: prev: {
+    kakoune-lsp = prev.kakoune-lsp.overrideAttrs (oldAttrs: {
+      version = "19.0.1-snapshot-local";
+      src = inputs.kakoune-lsp-src;
+      cargoDeps = prev.rustPlatform.importCargoLock {
+        lockFile = "${inputs.kakoune-lsp-src}/Cargo.lock";
+      };
+    });
+  };
+
   fcitx5-updated = final: prev: {
     fcitx5 = prev.fcitx5.overrideAttrs (oldAttrs: rec {
       version = "5.1.14";
