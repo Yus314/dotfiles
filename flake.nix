@@ -34,6 +34,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    kakoune-lsp-src = {
+      url = "git+file:///home/kaki/ghq/github.com/Yus314/kakoune-lsp";
+      flake = false;
+    };
+
     # use in follows
     flake-utils.url = "github:numtide/flake-utils";
 
