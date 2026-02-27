@@ -29,7 +29,7 @@
     #swaylock
     #swayidle
     wlogout
-    krita
+    #krita
     rnote
     # Temporarily disabled due to CI issues
     # inputs.claude-desktop.packages.${pkgs.stdenv.hostPlatform.system}.default
