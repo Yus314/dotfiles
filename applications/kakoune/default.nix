@@ -45,6 +45,7 @@
     plugins = [
       pkgs.kakounePlugins.kakoune-scrollback
       pkgs.kakounePlugins.kakoune-autothemes
+      pkgs.kakounePlugins.kakoune-sprout
     ];
     colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;
     extraConfig = ''
@@ -179,6 +180,26 @@
           mode = "normal";
           key = "H";
           effect = "S";
+        }
+        {
+          mode = "normal";
+          key = "k";
+          effect = "n";
+        }
+        {
+          mode = "normal";
+          key = "j";
+          effect = "t";
+        }
+        {
+          mode = "normal";
+          key = "K";
+          effect = "N";
+        }
+        {
+          mode = "normal";
+          key = "J";
+          effect = "T";
         }
       ];
     };
