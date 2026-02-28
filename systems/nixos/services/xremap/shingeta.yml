@@ -46,7 +46,7 @@ keymap:
           l: [h, y, u]
           p: [r, y, u]
         timeout_key: Key_MINUS
-        timeout_millis: 50
+        timeout_millis: 40
       y:
         remap:
           f: [x, y, a]
@@ -64,7 +64,7 @@ keymap:
           # m: []
           # b: []
           x: [x, w, a]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [n, i]
       o:
         remap:
@@ -83,7 +83,7 @@ keymap:
           # m: []
           # b: []
           x: [p, y, o]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [h, a]
       KEY_DOT:
         remap:
@@ -91,7 +91,7 @@ keymap:
           n: [t, h, i]
           l: [k, y, u]
           p: [g, y, u]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: KEY_COMMA
       # FIX IT
       KEY_EQUAL:
@@ -100,7 +100,7 @@ keymap:
           n: [d, h, i]
           l: [t, y, u]
           p: [n, y, u]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [t, i]
       f:
         remap:
@@ -108,7 +108,7 @@ keymap:
           i: [s, y, e]
           o: [m, y, a]
           y: [x, y, a]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [g, u]
       c:
         remap:
@@ -116,7 +116,7 @@ keymap:
           e: [p, a]
           o: [s, y, o]
           y: [s, y, u]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [b, a]
       l:
         remap:
@@ -135,7 +135,7 @@ keymap:
           KEY_COMMA: [s, y, a]
           KEY_F24: [k, y, a]
           KEY_APOSTROPHE: [c, y, a]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [k, o]
       p:
         remap:
@@ -154,7 +154,7 @@ keymap:
           KEY_COMMA: [j, y, a]
           KEY_F24: [g, y, a]
           KEY_APOSTROPHE: [n, y, a]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [g, a]
       q:
         remap:
@@ -162,12 +162,12 @@ keymap:
           i: [j, e]
           o: [p, y, a]
           y: [x, o]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [h, i]
       z:
         remap:
           e: [w, h, o]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [g, e]
       # middle row
       h:
@@ -176,7 +176,7 @@ keymap:
           n: [w, o]
           l: [h, y, o]
           p: [r, y, o]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [n, o]
       i:
         remap:
@@ -196,7 +196,7 @@ keymap:
           m: [p, i]
           b: [p, o]
           x: [t, y, e]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [t, o]
       e:
         remap:
@@ -217,7 +217,7 @@ keymap:
           m: [b, e]
           b: [p, u]
           x: [v, u]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [k, a]
       a:
         remap:
@@ -225,7 +225,7 @@ keymap:
           n: [r, i]
           l: [k, y, o]
           p: [g, y, o]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [n, n]
       u:
         remap:
@@ -233,7 +233,7 @@ keymap:
           n: [z, u]
           l: [t, y, o]
           p: [n, y, o]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [x, t, u]
       d:
         remap:
@@ -241,7 +241,7 @@ keymap:
           i: [b, i]
           o: [m, y, u]
           y: [x, y, u]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [k, u]
       s:
         remap:
@@ -249,7 +249,7 @@ keymap:
           i: [r, a]
           o: [b, y, u]
           y: [x, a]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [u]
       t:
         remap:
@@ -268,7 +268,7 @@ keymap:
           KEY_COMMA: [b, o]
           KEY_F24: [m, u]
           KEY_APOSTROPHE: [f, o]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: i
       n:
         remap:
@@ -287,7 +287,7 @@ keymap:
           KEY_COMMA: [g, i]
           KEY_F24: [r, o]
           KEY_APOSTROPHE: [n, u]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [s, i]
       r:
         remap:
@@ -295,13 +295,13 @@ keymap:
           i: [s, o]
           o: [p, y, u]
           y: [x, e]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [n, a]
       v:
         remap:
           e: SHIFT-KEY_1
           i: SHIFT-KEY_SLASH
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: q
         # low column
       j:
@@ -310,13 +310,13 @@ keymap:
           n: [z, e]
           l: [h, y, a]
           p: [r, y, a]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [s, u]
       KEY_MINUS:
         remap:
           t: [z, o]
           n: [z, a]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [m, a]
       KEY_COMMA:
         remap:
@@ -324,7 +324,7 @@ keymap:
           n: [g, i]
           l: [s, y, a]
           p: [j, y, a]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [k, i]
       KEY_F24:
         remap:
@@ -332,7 +332,7 @@ keymap:
           n: [r, o]
           l: [k, y, a]
           p: [g, y, a]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [r, u]
       KEY_APOSTROPHE:
         remap:
@@ -340,7 +340,7 @@ keymap:
           n: [n, u]
           l: [t, y, a]
           p: [n, y, a]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [t, u]
       w:
         remap:
@@ -348,7 +348,7 @@ keymap:
           i: [w, a]
           o: [m, y, o]
           y: [x, y, o]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [t, e]
       g:
         remap:
@@ -356,19 +356,19 @@ keymap:
           i: [d, a]
           o: [b, y, o]
           y: [x, i]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [t, a]
       m:
         remap:
           e: [b, e]
           i: [p, i]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [d, e]
       b:
         remap:
           e: [p, u]
           i: [p, o]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: KEY_DOT
       x:
         remap:
@@ -376,5 +376,5 @@ keymap:
           i: [t, y, e]
           o: [p, y, o]
           y: [x, w, a]
-        timeout_millis: 50
+        timeout_millis: 40
         timeout_key: [b, u]
