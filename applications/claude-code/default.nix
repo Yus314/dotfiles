@@ -9,6 +9,8 @@
 let
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
 
+  claudeCodePkg = pkgs.claude-code;
+
   notificationScript =
     if isLinux then
       pkgs.writeShellScript "claude-code-notification" ''
@@ -38,6 +40,70 @@ let
       pkgs.writeShellScript "claude-code-stop" ''
         osascript -e 'display notification "Claudeがあなたの依頼を完了させました!" with title "Claude Code" subtitle "タスク完了" sound name "default"'
       '';
+
+  # PreToolUse safety-net hook（Nix store 配置 = 不変 = 自己改ざん不可）
+  safetyNetScript = pkgs.writeShellScript "claude-safety-net" ''
+    INPUT=$(${pkgs.coreutils}/bin/cat)
+    TOOL_NAME=$(echo "$INPUT" | ${pkgs.jq}/bin/jq -r '.tool_name // empty')
+
+    if [ "$TOOL_NAME" != "Bash" ]; then
+      exit 0
+    fi
+
+    COMMAND=$(echo "$INPUT" | ${pkgs.jq}/bin/jq -r '.tool_input.command // empty')
+
+    # JSON パース失敗時は fail closed
+    if [ -z "$COMMAND" ]; then
+      echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Failed to parse command"}}'
+      exit 0
+    fi
+
+    BLOCKED_PATTERNS=(
+      'rm[[:space:]]+-[a-zA-Z]*r[a-zA-Z]*f[[:space:]]+[/~.]'
+      'sudo[[:space:]]'
+      'git[[:space:]]+push[[:space:]]+.*--force'
+      'git[[:space:]]+push[[:space:]]+.*-f[[:space:]]'
+      'git[[:space:]]+reset[[:space:]]+--hard'
+      'mkfs[[:space:]]'
+      'dd[[:space:]]+if='
+      ':\(\)\{[[:space:]]*:\|:&'
+    )
+
+    for pattern in "''${BLOCKED_PATTERNS[@]}"; do
+      if echo "$COMMAND" | ${pkgs.gnugrep}/bin/grep -qE "$pattern"; then
+        echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: $pattern\"}}"
+        exit 0
+      fi
+    done
+
+    exit 0
+  '';
+
+  # nono ラッパー（fail closed: nono 起動失敗時は即終了）
+  claudeWrapped = pkgs.writeShellScriptBin "claude" ''
+    if ! command -v ${pkgs.nono}/bin/nono &>/dev/null; then
+      echo "Error: nono is not available. Use claude-raw for unprotected access." >&2
+      exit 1
+    fi
+
+    # --allow-file はファイルの存在が前提（Landlock PathFd）
+    touch "$HOME/.claude.json" 2>/dev/null || true
+
+    exec ${pkgs.nono}/bin/nono run \
+      --allow . \
+      --allow "$HOME/.claude" \
+      --read "$HOME/.local/share/claude" \
+      --allow-file "$HOME/.claude.json" \
+      --exec \
+      -- ${claudeCodePkg}/bin/claude \
+        --dangerously-skip-permissions \
+        "$@"
+  '';
+
+  # 素の Claude Code（リスク承知で PATH に残す）
+  claudeRaw = pkgs.writeShellScriptBin "claude-raw" ''
+    exec ${claudeCodePkg}/bin/claude "$@"
+  '';
 in
 {
   # sops.nix設定 - gh-token-for-mcp シークレット
@@ -47,17 +113,34 @@ in
     };
   };
 
+  home.packages = [
+    (lib.hiPrio claudeWrapped)
+    claudeRaw
+  ];
+
   programs.claude-code = {
     enable = true;
     settings = {
       includeCoAuthorBy = false;
-      defaultMode = "plan";
+      defaultMode = "bypassPermissions";
       env = {
         CLAUDE_CODE_ENABLE_TELEMETRY = "1";
         OTEL_METRICS_EXPORTER = "prometheus";
       };
-      # Hook設定 - グローバル通知システム
+      # Hook設定
       hooks = {
+        # 安全ネット — 危険コマンドをブロック
+        PreToolUse = [
+          {
+            matcher = "Bash";
+            hooks = [
+              {
+                type = "command";
+                command = "${safetyNetScript}";
+              }
+            ];
+          }
+        ];
         # システム通知発生時
         Notification = [
           {
@@ -91,7 +174,5 @@ in
       inherit inputs pkgs;
       ghTokenPath = config.sops.secrets.gh-token-for-mcp.path;
     };
-
-    #    };
   };
 }
