@@ -86,14 +86,31 @@ let
       exit 1
     fi
 
-    # --allow-file はファイルの存在が前提（Landlock PathFd）
-    touch "$HOME/.claude.json" 2>/dev/null || true
+    # ~/.claude.json を ~/.claude/ 内にシンボリンクで移動
+    # write-file-atomic が temp ファイルを同ディレクトリに作成するため、
+    # --allow-file では不足（親ディレクトリの MakeReg が必要）
+    if [ -f "$HOME/.claude.json" ] && [ ! -L "$HOME/.claude.json" ]; then
+      mv "$HOME/.claude.json" "$HOME/.claude/claude.json"
+      ln -s "$HOME/.claude/claude.json" "$HOME/.claude.json"
+    elif [ ! -e "$HOME/.claude.json" ]; then
+      touch "$HOME/.claude/claude.json"
+      ln -s "$HOME/.claude/claude.json" "$HOME/.claude.json"
+    fi
+
+    # Claude Code は SHELL に "bash" か "zsh" を含むパスのみ受け付ける。
+    # NixOS では /bin/bash が存在せず、$SHELL (~/.nix-profile/bin/zsh) は
+    # nono の Landlock パス外。/bin/sh のシンボリンク解決先は
+    # /nix/store/...-bash-interactive-.../bin/bash なので "bash" を含む。
+    export SHELL=$(${pkgs.coreutils}/bin/readlink -f /bin/sh)
 
     exec ${pkgs.nono}/bin/nono run \
       --allow . \
       --allow "$HOME/.claude" \
-      --read "$HOME/.local/share/claude" \
-      --allow-file "$HOME/.claude.json" \
+      --allow "$HOME/.local/share" \
+      --allow "$HOME/.cache" \
+      --allow "$HOME/.config/codex" \
+      --read "$HOME/.nix-profile" \
+      --allow-file /dev/null \
       --exec \
       -- ${claudeCodePkg}/bin/claude \
         --dangerously-skip-permissions \
