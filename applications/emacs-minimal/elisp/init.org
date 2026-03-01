@@ -24,7 +24,8 @@ unwind-protect により、途中でエラーが発生しても確実に復元�
     (add-to-list 'load-path modules-dir)
     (unwind-protect
         (dolist (module '(init-core
-                          init-ui))
+                          init-ui
+                          init-org))
           (require module))
       ;; 必ず復元される
       (setq file-name-handler-alist my-saved-file-name-handler-alist)))

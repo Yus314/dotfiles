@@ -29,6 +29,7 @@ in
         darkman
         auto-dark
         nix-ts-mode
+        org-super-agenda
 
         (treesit-grammars.with-grammars (
           p: with p; [
