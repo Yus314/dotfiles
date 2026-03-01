@@ -1,0 +1,31 @@
+#+TITLE: Configurations for GNU Emacs
+#+AUTHOR: minera
+* Header
+#+begin_src emacs-lisp :tangle yes
+  ;; init.el --- My init.el -*- lexical-binding: t -*-
+  ;; Configurations for Emacs
+#+end_src
+* autoload-if-found
+#+begin_src emacs-lisp :tangle yes
+  (defun autoload-if-found (functions file &optional docstring interactive type)
+    "Set autoload iff FILE has found."
+    (when (locate-library file)
+      (dolist (f functions)
+        (autoload f file docstring interactive type))))
+#+end_src
+* Load modules
+file-name-handler-alist を一時的に無効化し、全モジュールロード後に復元する。
+unwind-protect により、途中でエラーが発生しても確実に復元される。
+#+begin_src emacs-lisp :tangle yes
+  (defconst my-saved-file-name-handler-alist file-name-handler-alist)
+  (setq file-name-handler-alist nil)
+
+  (let ((modules-dir (expand-file-name "modules" user-emacs-directory)))
+    (add-to-list 'load-path modules-dir)
+    (unwind-protect
+        (dolist (module '(init-core
+                          init-ui))
+          (require module))
+      ;; 必ず復元される
+      (setq file-name-handler-alist my-saved-file-name-handler-alist)))
+#+end_src

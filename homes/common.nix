@@ -11,13 +11,16 @@ in
   programs.home-manager.enable = true;
   home = {
     stateVersion = "26.05";
+    sessionVariables = {
+      EDITOR = "kak";
+    };
   };
   imports = [
     sops-nix.homeManagerModules.sops
     ../modules/home-manager
     ../applications/codex
-    ../applications/emacs
-    ../applications/emacs/service.nix
+    ../applications/emacs-minimal
+    ../applications/emacs-minimal/service.nix
     ../applications/fish
     ../applications/git
     ../applications/lazygit

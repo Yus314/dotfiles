@@ -1,0 +1,54 @@
+#+TITLE: UI Settings
+* Header
+#+begin_src emacs-lisp :tangle yes
+  ;;; init-ui.el --- UI/Theme settings -*- lexical-binding: t -*-
+#+end_src
+* theme
+** Modus Theme
+  #+begin_src emacs-lisp :tangle yes
+        (add-hook 'emacs-startup-hook
+        	  #'(lambda ()
+        	      (when (require 'modus-themes)
+        	;	(load-theme 'modus-operandi)
+    		)))
+
+        (with-eval-after-load 'modus-themes
+          (setq modus-themes-italic-constructs  t)
+          (setq modus-themes-bold-constructs  t)
+          (setq modus-themes-mode-line  '(moody borderless))
+          (setq modus-themes-prompts  '(italic bold))
+          (setq custom-safe-themes  t)
+          )
+#+end_src
+** darkman
+#+begin_src emacs-lisp :tangle yes
+    (add-hook 'emacs-startup-hook
+    	  #'(lambda ()
+    	      (when (require 'darkman)
+    		)))
+    (with-eval-after-load 'darkman
+  (setq darkman-themes '(:light modus-operandi :dark modus-vivendi))
+  (when (eq system-type 'gnu/linux)
+    (darkman-mode))
+  )
+#+end_src
+** auto-dark
+#+begin_src emacs-lisp :tangle yes
+  (when (eq system-type 'darwin)
+    (require 'auto-dark)
+    (setq auto-dark-themes '((modus-vivendi) (modus-operandi)))
+    (auto-dark-mode t))
+#+end_src
+* tree-sitter
+#+begin_src emacs-lisp :tangle yes
+  (setq treesit-font-lock-level  4)
+  (setq major-mode-remap-alist
+        '(
+  	(nix-mode . nix-ts-mode)
+  	))
+  (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-ts-mode))
+#+end_src
+* Provide
+#+begin_src emacs-lisp :tangle yes
+  (provide 'init-ui)
+#+end_src
