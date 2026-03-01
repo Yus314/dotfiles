@@ -105,7 +105,6 @@ sudo darwin-rebuild build --flake .#watari
 - **git-hooks.nix**: Pre-commitフック統合
 - **disko**: 宣言的ディスクパーティション管理
 - **xremap**: キーマッピング設定
-- **impermanence**: 永続化設定管理
 - **nix-darwin**: macOS用Nix設定
 
 ## ホスト固有の注意点
@@ -237,20 +236,6 @@ tf-wrapper apply
 - 秘密鍵ファイルの厳格な権限管理（600）
 - 設定ファイルの自動復号化
 - Home Manager統合による一元管理
-
-### 従来の使用方法（互換性維持）
-
-```bash
-# 初回セットアップ
-cd infra && scripts/install-tf-wrapper.sh
-
-# 基本操作
-cd services/cloudflare
-tf init && tf plan && tf apply
-
-cd ../github
-tf init && tf plan && tf apply
-```
 
 ### 📚 詳細ドキュメント
 

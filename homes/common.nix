@@ -27,9 +27,7 @@ in
     ../applications/zathura
     ../applications/neomutt
     ../applications/neovim
-    ../applications/nushell
     ../applications/offlineimap
-    ../applications/wezterm
     ../applications/zsh
     ../applications/ssh
     ../applications/tmux
@@ -39,9 +37,6 @@ in
     ../applications/bash
     ../applications/less
     ../applications/claude-code
-    ../applications/opencode
-    ../applications/kimi-cli
-    ../applications/vim
     ../applications/rbw
     ../applications/sprout
     ../applications/tf-wrapper

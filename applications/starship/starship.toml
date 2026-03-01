@@ -1,3 +1,0 @@
-"$schema" = "https://starship.rs/config-schema.json"
-
-format = "$shell$all$line_break$character"

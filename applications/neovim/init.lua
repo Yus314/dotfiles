@@ -54,7 +54,7 @@ vim.api.nvim_exec(
 -- 	execute '!open -na "Google Chrome" --args --new-window --app=' . a:url
 vim.cmd([[
 function OpenMarkdownPreview (url)
-    execute "! vivaldi --args --new-window --app= " . a:url
+    execute "! zen-browser --new-window --app= " . a:url
 endfunction
 ]])
 vim.g.mkdp_browserfunc = "OpenMarkdownPreview"

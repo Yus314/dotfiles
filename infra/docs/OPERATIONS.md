@@ -12,17 +12,6 @@ ls -la ~/.config/sops/age/keys.txt    # age鍵が存在することを確認
 echo $SOPS_AGE_KEY_FILE               # 環境変数設定の確認
 ```
 
-### tfラッパーのインストール
-```bash
-# 初回のみ実行
-cd infra
-scripts/install-tf-wrapper.sh    # PATHへのシンボリックリンク作成
-
-# インストール確認
-which tf                          # /usr/local/bin/tf が表示されることを確認
-tf --version                      # バージョン情報とSOPS統合確認
-```
-
 ### 認証テスト
 ```bash
 # 各サービスで認証テスト

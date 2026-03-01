@@ -127,7 +127,7 @@
   (setq typst-ts-mode-watch-option "--open")
 
   ;typst-previewだと保存しなくても同期するようになる
-  (setq typst-preview-browser "qutebrowser")
+  (setq typst-preview-browser "zen-browser")
 #+end_src
 ** terraform
 #+begin_src emacs-lisp :tangle yes

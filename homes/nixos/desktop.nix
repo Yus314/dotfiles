@@ -2,15 +2,11 @@
 {
   imports = [
     ../desktop.nix
-    ../../applications/hyprland
     ../../applications/niri
     ../../applications/obsidian
-    ../../applications/sway
     ../../applications/swww
     ../../applications/spotlight-downloader
-    ../../applications/i3
     ../../applications/tofi
-    ../../applications/foot
     ../../applications/waybar
     ../../applications/dunst
     ../../applications/rclone
@@ -31,9 +27,6 @@
     wlogout
     #krita
     rnote
-    # Temporarily disabled due to CI issues
-    # inputs.claude-desktop.packages.${pkgs.stdenv.hostPlatform.system}.default
     scrcpy
-    i3
   ];
 }
