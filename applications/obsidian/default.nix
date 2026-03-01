@@ -4,7 +4,7 @@
     enable = true;
     package = pkgs.obsidian;
     vaults.main = {
-      target = "dropbox/obsidian-vault";
+      target = "obsidian-vault";
     };
   };
 

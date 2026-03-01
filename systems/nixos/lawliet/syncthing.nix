@@ -142,6 +142,27 @@ in
             };
           };
         };
+        "obsidian-vault" = {
+          path = "/home/${user}/obsidian-vault";
+          type = "sendreceive";
+          devices = [
+            "android-mole"
+            "watari"
+            "ryuk"
+            "rem"
+          ];
+          ignorePerms = true;
+          fsWatcherEnabled = true;
+          fsWatcherDelayS = 5;
+          rescanIntervalS = 1800;
+          versioning = {
+            type = "staggered";
+            params = {
+              cleanInterval = "3600";
+              maxAge = "2592000";
+            };
+          };
+        };
       };
     };
   };
@@ -182,6 +203,40 @@ in
     STEOF
 
         chown ${user}:${group} /home/${user}/org/.stignore /home/${user}/org-knowledge/.stignore
+  '';
+
+  # Obsidian vault同期ディレクトリと.stignore作成
+  system.activationScripts.syncthing-obsidian-setup = lib.stringAfter [ "users" ] ''
+        mkdir -p /home/${user}/obsidian-vault
+        chown ${user}:${group} /home/${user}/obsidian-vault
+
+        STIGNORE="/home/${user}/obsidian-vault/.stignore"
+        STIGNORE_NEW="$STIGNORE.new"
+        cat > "$STIGNORE_NEW" << 'STEOF'
+    // Obsidian workspace (device-specific)
+    .obsidian/workspace.json
+    .obsidian/workspace-mobile.json
+    .obsidian/workspace-cache.json
+    // Trash (削除は全端末に反映、ゴミ箱は端末ローカル)
+    .trash/
+    // macOS metadata
+    .DS_Store
+    ._*
+    // Editor temp files
+    .#*
+    *.tmp
+    *~
+    *.swp
+    *.swo
+    *.bak
+    STEOF
+        # 内容が同じなら上書きしない (mtime 変更による不要な同期を防止)
+        if ! cmp -s "$STIGNORE_NEW" "$STIGNORE" 2>/dev/null; then
+          mv "$STIGNORE_NEW" "$STIGNORE"
+        else
+          rm -f "$STIGNORE_NEW"
+        fi
+        chown ${user}:${group} "$STIGNORE"
   '';
 
   # MoLe同期ディレクトリとファイルの作成
