@@ -13,6 +13,7 @@
 (require 'org)
 (require 'org-clock)
 (require 'org-agenda)
+(require 'org-habit)
 (require 'time-date)
 
 ;;;; Configuration
@@ -34,6 +35,8 @@
 (when noninteractive
   (setq org-agenda-inhibit-startup t)
   (setq org-element-cache-persistent nil)
+  ;; Hide habit entries from agenda (they repeat every week, not useful in reports)
+  (setq org-habit-show-habits nil)
   ;; Ensure Japanese clocktable translations are available
   (setq org-clock-clocktable-language-setup
         '(("en" "File" "L" "Timestamp" "Headline" "Time" "ALL" "Total time" "File time" "Clock summary at")
