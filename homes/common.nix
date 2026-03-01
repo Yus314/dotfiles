@@ -35,6 +35,7 @@ in
     ../applications/tmux
     ../applications/gh
     ../applications/gnupg
+    ../applications/bat
     ../applications/bash
     ../applications/less
     ../applications/claude-code

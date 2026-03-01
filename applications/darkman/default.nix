@@ -24,6 +24,9 @@ in
       '';
       claude-code-theme = ''
         CLAUDE_JSON="$HOME/.claude.json"
+        if [ -L "$CLAUDE_JSON" ]; then
+          CLAUDE_JSON=$(${pkgs.coreutils}/bin/readlink -f "$CLAUDE_JSON")
+        fi
         if [ -f "$CLAUDE_JSON" ]; then
           ${pkgs.jq}/bin/jq '.theme = "dark"' "$CLAUDE_JSON" > "$CLAUDE_JSON.tmp" && \
             mv "$CLAUDE_JSON.tmp" "$CLAUDE_JSON"
@@ -39,6 +42,11 @@ in
           "${config.xdg.configHome}/zathura/zathurarc"
         ${zathuraSourceConfig}
       '';
+      bat-theme = ''
+        ${pkgs.coreutils}/bin/ln -sf \
+          "${config.xdg.configHome}/bat/config.dark" \
+          "${config.xdg.configHome}/bat/config"
+      '';
     };
     lightModeScripts = {
       gtk-theme = ''
@@ -47,6 +55,9 @@ in
       '';
       claude-code-theme = ''
         CLAUDE_JSON="$HOME/.claude.json"
+        if [ -L "$CLAUDE_JSON" ]; then
+          CLAUDE_JSON=$(${pkgs.coreutils}/bin/readlink -f "$CLAUDE_JSON")
+        fi
         if [ -f "$CLAUDE_JSON" ]; then
           ${pkgs.jq}/bin/jq '.theme = "light"' "$CLAUDE_JSON" > "$CLAUDE_JSON.tmp" && \
             mv "$CLAUDE_JSON.tmp" "$CLAUDE_JSON"
@@ -61,6 +72,11 @@ in
           "${config.xdg.configHome}/zathura/zathurarc.light" \
           "${config.xdg.configHome}/zathura/zathurarc"
         ${zathuraSourceConfig}
+      '';
+      bat-theme = ''
+        ${pkgs.coreutils}/bin/ln -sf \
+          "${config.xdg.configHome}/bat/config.light" \
+          "${config.xdg.configHome}/bat/config"
       '';
     };
   };

@@ -2,7 +2,6 @@
 {
   ext.xdg.enable = true;
   programs = {
-    bat.enable = true;
     direnv = {
       enable = true;
       enableZshIntegration = true;
