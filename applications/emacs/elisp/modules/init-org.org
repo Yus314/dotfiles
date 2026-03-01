@@ -34,6 +34,7 @@
   	  ("movie" . ?m)
   	  ("Kana" . ?k)
   	  ))
+    (setq org-log-done 'time)
     (setq org-return-follows-link  t)
     (regexp-opt '("Tasks" "Notes"))
 
@@ -336,12 +337,8 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
 #+end_src
 * org-archive
 #+begin_src emacs-lisp :tangle yes
- ; (defun my/org-archive-to-trash ()
- ;   "Move the current subtree to ~/dropbox/trash.org instead of the default archive location"
- ;   (interactive)
- ;   (let ((org-archive-location "~/dropbox/trash.org::"))
- ;     (org-agenda-archive)))
- ; (define-key org-agenda-mode-map (kbd "#") 'my/org-archive-to-trash)
+  (with-eval-after-load 'org
+    (setq org-archive-location "%s_archive::"))
 #+end_src
 * org-capture
 #+begin_src emacs-lisp :tangle yes
@@ -353,21 +350,6 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
       (keymap-global-set "C-c c" 'org-capture)
       (autoload 'org-capture "org-capture" nil t)
       (with-eval-after-load 'org-capture
-        (let* ((current-time (current-time))
-               (dow (string-to-number (format-time-string "%w" current-time)))
-               ;; 日曜始まり: 今日を含む週の日曜日を計算
-               (start-of-week (time-subtract current-time (days-to-time dow)))
-               (end-of-week (time-add start-of-week (days-to-time 6)))
-               ;; フォーマットされた日付
-               (start-day (format-time-string "%m%d" start-of-week))
-               (end-day (format-time-string "%m%d" end-of-week))
-               ;; 年を取得（週の開始日の年を使用）
-               (year (format-time-string "%Y" start-of-week))
-               ;; アーカイブディレクトリとファイル名
-               (archive-dir (expand-file-name (format "~/dropbox/archive/%s/" year)))
-               (archive-file (format "%s%s-%s.org" archive-dir start-day end-day)))
-
-          (setq org-archive-location (format "%s::** やったこと" archive-file)))
         (setq taskfile  "~/dropbox/inbox/inbox.org")
         (setq org-capture-templates
       	'(

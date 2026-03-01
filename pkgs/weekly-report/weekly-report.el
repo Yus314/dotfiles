@@ -2,8 +2,8 @@
 
 ;;; Commentary:
 ;; Emacs batch script to generate a weekly report from org-mode files.
-;; Reads DONE tasks from archive .org files, generates clocktable,
-;; agenda, and TODO lists, then outputs a Markdown file.
+;; Reads DONE tasks from inbox.org, inbox.org_archive, and legacy archive .org files,
+;; generates clocktable, agenda, and TODO lists, then outputs a Markdown file.
 ;;
 ;; Usage:
 ;;   emacs --batch -l weekly-report.el --eval "(weekly-report-generate)" -- [--date YYYY-MM-DD]
@@ -18,7 +18,6 @@
 ;;;; Configuration
 
 (defvar weekly-report-org-dir "~/dropbox")
-(defvar weekly-report-archive-dir "~/dropbox/archive")
 (defvar weekly-report-agenda-files
   '("~/dropbox/inbox/inbox.org"
     "~/dropbox/habit.org"
@@ -67,14 +66,14 @@ Returns YYYY-MM-DD string or nil."
                  (string-to-number (match-string 1 date-string)))))
 
 (defun weekly-report--date-range (&optional date-string)
-  "Calculate Saturday-to-Friday week range containing DATE-STRING or today.
+  "Calculate Sunday-to-Saturday week range containing DATE-STRING or today.
 Returns plist with :start :end :start-mmdd :end-mmdd :year :start-time :end-time :next-start."
-  (let* ((date (if date-string
-                   (weekly-report--parse-date date-string)
-                 (current-time)))
+  (let* ((date (weekly-report--parse-date
+                (or date-string
+                    (format-time-string "%Y-%m-%d"))))
          (dow (string-to-number (format-time-string "%w" date)))
-         (days-since-sat (mod (- dow weekly-report-wstart) 7))
-         (start (time-subtract date (days-to-time days-since-sat)))
+         (days-since-start (mod (- dow weekly-report-wstart) 7))
+         (start (time-subtract date (days-to-time days-since-start)))
          (end (time-add start (days-to-time 6)))
          (next-start (time-add start (days-to-time 7))))
     (list :start (format-time-string "%Y-%m-%d" start)
@@ -278,44 +277,37 @@ Returns a single string with the realigned table."
 
 ;;;; DONE items extraction
 
-(defun weekly-report--extract-done-items (archive-file inbox-file start-time end-time)
-  "Extract DONE/CANCEL items from ARCHIVE-FILE, falling back to INBOX-FILE.
-START-TIME and END-TIME are time values defining the week range."
-  (let ((items '()))
-    ;; Try archive file first
-    (when (and archive-file (file-exists-p archive-file))
-      (with-temp-buffer
-        (insert-file-contents archive-file)
-        (org-mode)
-        (org-map-entries
-         (lambda ()
-           (let* ((heading (org-get-heading t t t t))
-                  (todo-state (org-get-todo-state))
-                  (clock-min (weekly-report--entry-clock-minutes))
-                  (body (weekly-report--entry-body)))
-             (when (member todo-state '("DONE" "CANCEL"))
-               (push (list heading clock-min body) items))))
-         nil nil)))
-    ;; Fallback to inbox if no items found
-    (when (and (null items)
-               inbox-file
-               (file-exists-p (expand-file-name inbox-file)))
-      (with-temp-buffer
-        (insert-file-contents (expand-file-name inbox-file))
-        (org-mode)
-        (org-map-entries
-         (lambda ()
-           (let* ((heading (org-get-heading t t t t))
-                  (todo-state (org-get-todo-state))
-                  (closed (org-entry-get nil "CLOSED"))
-                  (clock-min (weekly-report--entry-clock-minutes))
-                  (body (weekly-report--entry-body)))
-             (when (and (member todo-state '("DONE" "CANCEL"))
-                        closed
-                        (weekly-report--timestamp-in-range-p
-                         closed start-time end-time))
-               (push (list heading clock-min body) items))))
-         nil nil)))
+(defun weekly-report--extract-done-items (inbox-file start-time end-time
+                                          &optional legacy-archive-file)
+  "Extract DONE/CANCEL items from INBOX-FILE, its _archive, and LEGACY-ARCHIVE-FILE.
+START-TIME and END-TIME are time values defining the week range.
+All sources are filtered by CLOSED timestamp."
+  (let ((items '())
+        (files (delq nil
+                     (list (expand-file-name inbox-file)
+                           (let ((archive (concat (expand-file-name inbox-file) "_archive")))
+                             (when (file-exists-p archive) archive))
+                           (when (and legacy-archive-file
+                                      (file-exists-p legacy-archive-file))
+                             legacy-archive-file)))))
+    (dolist (file files)
+      (when (file-exists-p file)
+        (with-temp-buffer
+          (insert-file-contents file)
+          (org-mode)
+          (org-map-entries
+           (lambda ()
+             (let* ((heading (org-get-heading t t t t))
+                    (todo-state (org-get-todo-state))
+                    (closed (org-entry-get nil "CLOSED"))
+                    (clock-min (weekly-report--entry-clock-minutes))
+                    (body (weekly-report--entry-body)))
+               (when (and (member todo-state '("DONE" "CANCEL"))
+                          closed
+                          (weekly-report--timestamp-in-range-p
+                           closed start-time end-time))
+                 (push (list heading clock-min body) items))))
+           nil nil))))
     (nreverse items)))
 
 (defun weekly-report--format-done-items (items)
@@ -343,14 +335,20 @@ Each item is (heading clock-minutes body-or-nil)."
 
 ;;;; Clocktable generation
 
-(defun weekly-report--generate-clocktable (start-str next-start-str archive-file)
+(defun weekly-report--generate-clocktable (start-str next-start-str inbox-file
+                                           &optional legacy-archive-file)
   "Generate clocktable as Markdown table for range START-STR to NEXT-START-STR.
-ARCHIVE-FILE is included in scope if it exists."
-  (let ((org-agenda-files
-         (append (mapcar #'expand-file-name
-                         (seq-filter #'file-exists-p weekly-report-agenda-files))
-                 (when (and archive-file (file-exists-p archive-file))
-                   (list (expand-file-name archive-file))))))
+INBOX-FILE's _archive and LEGACY-ARCHIVE-FILE are included in scope if they exist."
+  (let* ((inbox-archive (concat (expand-file-name inbox-file) "_archive"))
+         (extra-files (delq nil
+                            (list (when (file-exists-p inbox-archive) inbox-archive)
+                                  (when (and legacy-archive-file
+                                             (file-exists-p legacy-archive-file))
+                                    (expand-file-name legacy-archive-file)))))
+         (org-agenda-files
+          (append (mapcar #'expand-file-name
+                          (seq-filter #'file-exists-p weekly-report-agenda-files))
+                  extra-files)))
     (if (null org-agenda-files)
         ""
       (condition-case err
@@ -533,20 +531,22 @@ Reads --date argument from command line, or defaults to today."
          (end-time (plist-get range :end-time))
          (next-start-str (plist-get range :next-start))
          ;; File paths
-         (archive-dir (expand-file-name
-                       year
-                       (expand-file-name "archive" weekly-report-org-dir)))
-         (archive-org (expand-file-name
-                       (format "%s-%s.org" start-mmdd end-mmdd) archive-dir))
+         (output-dir (expand-file-name
+                      year
+                      (expand-file-name "archive" weekly-report-org-dir)))
+         (legacy-archive-org (expand-file-name
+                              (format "%s-%s.org" start-mmdd end-mmdd) output-dir))
          (output-file (expand-file-name
-                       (format "%s-%s.md" start-mmdd end-mmdd) archive-dir))
+                       (format "%s-%s.md" start-mmdd end-mmdd) output-dir))
          (inbox-file (expand-file-name "inbox/inbox.org" weekly-report-org-dir)))
     (message "Generating weekly report for %s to %s..." start-str end-str)
     ;; Extract data
     (let* ((done-items (weekly-report--extract-done-items
-                        archive-org inbox-file start-time end-time))
+                        inbox-file start-time end-time
+                        legacy-archive-org))
            (clocktable (weekly-report--generate-clocktable
-                        start-str next-start-str archive-org))
+                        start-str next-start-str inbox-file
+                        legacy-archive-org))
            (agenda (weekly-report--generate-agenda next-start-str))
            (todos (weekly-report--extract-todos inbox-file))
            ;; Format sections (keys are heading lines)
@@ -556,7 +556,7 @@ Reads --date argument from command line, or defaults to today."
               ("## 予定" . ,(format "```\n%s\n```" agenda))
               ("## TODOリスト" . ,(weekly-report--format-todo-items todos)))))
       ;; Ensure directory exists
-      (make-directory archive-dir t)
+      (make-directory output-dir t)
       ;; Update or create file
       (let* ((existing (when (file-exists-p output-file)
                          (with-temp-buffer
