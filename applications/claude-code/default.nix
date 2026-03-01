@@ -80,6 +80,10 @@ let
   '';
 
   # nono ラッパー（fail closed: nono 起動失敗時は即終了）
+  # --profile claude-code: 組み込みプロファイルで workdir readwrite, ~/.claude,
+  #   interactive mode, unlink_protection, PostToolUseFailure フック等を有効化
+  # 追加フラグ: プロファイルでカバーされない NixOS 固有パス、/dev/null（nono バグ回避）、
+  #   dangerous_commands の許可
   claudeWrapped = pkgs.writeShellScriptBin "claude" ''
     if ! command -v ${pkgs.nono}/bin/nono &>/dev/null; then
       echo "Error: nono is not available. Use claude-raw for unprotected access." >&2
@@ -88,7 +92,7 @@ let
 
     # ~/.claude.json を ~/.claude/ 内にシンボリンクで移動
     # write-file-atomic が temp ファイルを同ディレクトリに作成するため、
-    # --allow-file では不足（親ディレクトリの MakeReg が必要）
+    # プロファイルの allow_file では不足（親ディレクトリの MakeReg が必要）
     if [ -f "$HOME/.claude.json" ] && [ ! -L "$HOME/.claude.json" ]; then
       mv "$HOME/.claude.json" "$HOME/.claude/claude.json"
       ln -s "$HOME/.claude/claude.json" "$HOME/.claude.json"
@@ -104,14 +108,19 @@ let
     export SHELL=$(${pkgs.coreutils}/bin/readlink -f /bin/sh)
 
     exec ${pkgs.nono}/bin/nono run \
-      --allow . \
-      --allow "$HOME/.claude" \
+      --profile claude-code \
+      --allow-cwd \
+      --allow "$HOME/ghq/github.com/Yus314" \
       --allow "$HOME/.local/share" \
       --allow "$HOME/.cache" \
       --allow "$HOME/.config/codex" \
+      --read "$HOME/.config/gh" \
       --read "$HOME/.nix-profile" \
       --allow-file /dev/null \
-      --exec \
+      --allow-command rm \
+      --allow-command mv \
+      --allow-command cp \
+      --allow-command chmod \
       -- ${claudeCodePkg}/bin/claude \
         --dangerously-skip-permissions \
         "$@"
@@ -165,6 +174,20 @@ in
               {
                 type = "command";
                 command = "${notificationScript}";
+              }
+            ];
+          }
+        ];
+        # nono サンドボックス診断 — 操作失敗時に制約情報を Claude に通知
+        # HM が settings.json を管理するため nono の自動インストールが失敗する。
+        # スクリプト本体は nono が ~/.claude/hooks/nono-hook.sh に配置する。
+        PostToolUseFailure = [
+          {
+            matcher = "Read|Write|Edit|Bash";
+            hooks = [
+              {
+                type = "command";
+                command = "$HOME/.claude/hooks/nono-hook.sh";
               }
             ];
           }
