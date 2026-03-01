@@ -7,20 +7,11 @@
 {
   programs.bat = {
     enable = true;
-    themes = {
-      modus-operandi = {
-        src = ./.;
-        file = "modus-operandi.tmTheme";
-      };
-      modus-vivendi = {
-        src = ./.;
-        file = "modus-vivendi.tmTheme";
-      };
-    };
+    themes = { };
   };
 
-  xdg.configFile."bat/config.light".text = "--theme=modus-operandi";
-  xdg.configFile."bat/config.dark".text = "--theme=modus-vivendi";
+  xdg.configFile."bat/config.light".text = "--theme=OneHalfLight";
+  xdg.configFile."bat/config.dark".text = "--theme=OneHalfDark";
 
   home.activation.batCleanup = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
     $DRY_RUN_CMD rm -f "${config.xdg.configHome}/bat/config"
