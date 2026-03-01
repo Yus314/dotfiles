@@ -6,7 +6,7 @@
 }:
 
 let
-  calendarOrgFile = "${config.home.homeDirectory}/dropbox/calendar.org";
+  calendarOrgFile = "${config.home.homeDirectory}/org/calendar.org";
   calendarBaseDir = "${config.home.homeDirectory}/.local/share/calendars/google";
 
   # khalorg list で使用するカレンダー名

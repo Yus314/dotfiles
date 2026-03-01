@@ -6,7 +6,7 @@
 * org
 #+begin_src emacs-lisp :tangle yes
   (with-eval-after-load 'org
-    (setq org-directory  "~/dropbox")
+    (setq org-directory  "~/org")
 
     (setq org-todo-keywords '((sequence  "TODO(t)" "WAIT(w)" "SOMEDAY(s)" "PROJECT(p)" "|" "DONE(d)" "CANCEL(c)") ))
 
@@ -65,9 +65,9 @@
     (setq org-agenda-skip-scheduled-if-done  '("DONE" "CANCEL"));スケジュールでDONEとCANCELを無視するようにする
 
     (defun my/org-archive-to-trash ()
-      "Move the current subtree to ~/dropbox/trash.org instead of the default archive location"
+      "Move the current subtree to ~/org/trash.org instead of the default archive location"
       (interactive)
-      (let ((org-archive-location "~/dropbox/trash.org::"))
+      (let ((org-archive-location "~/org/trash.org::"))
         (org-agenda-archive)))
 
     (keymap-set org-agenda-mode-map "t" 'org-agenda-previous-item)
@@ -82,7 +82,7 @@
   (with-eval-after-load 'org
   (use-package org-super-agenda
     :custom
-    (org-agenda-files  '("~/dropbox/inbox/inbox.org" "~/dropbox/habit.org" "~/dropbox/kana.org" "~/dropbox/calendar.org"))
+    (org-agenda-files  '("~/org/inbox/inbox.org" "~/org/habit.org" "~/org/kana.org" "~/org/calendar.org"))
     (org-agenda-todo-ignore-scheduled  t)
     (org-agenda-custom-commands
       '(
@@ -202,17 +202,9 @@ Cancels any pending scheduled sync."
        (lambda (process event)
          (when (string-match-p "finished" event)
            (message "Calendar synchronization completed")
-           (when (get-file-buffer "~/dropbox/calendar.org")
-             (with-current-buffer (get-file-buffer "~/dropbox/calendar.org")
+           (when (get-file-buffer "~/org/calendar.org")
+             (with-current-buffer (get-file-buffer "~/org/calendar.org")
                (revert-buffer t t t))))))))
-
-  (defun my/calendar-auto-revert ()
-    "Auto-revert calendar.org after external changes."
-    (when (and buffer-file-name
-               (string-match-p "calendar\\.org$" buffer-file-name))
-      (auto-revert-mode 1)))
-
-  (add-hook 'org-mode-hook #'my/calendar-auto-revert)
 
   ;; Calendar configuration
   (defvar my/calendar-list '("shizhaoyoujie@gmail.com" "共有カレンダー")
@@ -350,12 +342,12 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
       (keymap-global-set "C-c c" 'org-capture)
       (autoload 'org-capture "org-capture" nil t)
       (with-eval-after-load 'org-capture
-        (setq taskfile  "~/dropbox/inbox/inbox.org")
+        (setq taskfile  "~/org/inbox/inbox.org")
         (setq org-capture-templates
       	'(
       	  ("t" "ToDo" entry (file taskfile )
       	   "* TODO %^{title}\n %?")
-      	  ("h" "Habit" entry (file "~/dropbox/habit.org")
+      	  ("h" "Habit" entry (file "~/org/habit.org")
       	   "* TODO %^{title}\n:PROPERTIES:\n:STYLE: habit\n:END:\n%?")
       	  ("p" "Project" entry (file+headline taskfile "プロジェクト" )
       	   "* PROJECT %^{title}[/]\n:PROPERTIES:\n:CATEGORY: %\\1\n:END:\n%?"))))
@@ -421,23 +413,23 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
   ;	  (setq gcal-client-secret  (funcall(plist-get (nth 0 (auth-source-search :host "gcal")) :secret)))
   ;	  (gcal-org-pull-to-file
    ;   	   "shizhaoyoujie@gmail.com"
-   ;   	   "~/dropbox/inbox/inbox.org"
+   ;   	   "~/org/inbox/inbox.org"
    ;   	   "FROM_GCAL"
-  ;    	   "~/dropbox/my-schedule.gcal-cache")
+  ;    	   "~/org/my-schedule.gcal-cache")
   ;	  (gcal-org-push-file
   ;    	   "shizhaoyoujie@gmail.com"
-  ;    	   "~/dropbox/inbox/inbox.org"
-  ;    	   "~/dropbox/my-schedule.gcal-cache")
+  ;    	   "~/org/inbox/inbox.org"
+  ;    	   "~/org/my-schedule.gcal-cache")
 
   					; かなとの予定
   ;	  (gcal-org-pull-to-file "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
-  ;    				 "~/dropbox/kana.org"
+  ;    				 "~/org/kana.org"
   ;    				 "FROM_KANA"
-  ;    				 "~/dropbox/kana-schedule.gcal-cache")
+  ;    				 "~/org/kana-schedule.gcal-cache")
   ;	  (gcal-org-push-file
   ;  	   "3512a1f6cb8f64e6d897c8e882de5910cef1a834fe96c1634963a76bd50e72dc@group.calendar.google.com"
-  ;  	   "~/dropbox/kana.org"
-  ;  	   "~/dropbox/kana-schedule.gcal-cache")
+  ;  	   "~/org/kana.org"
+  ;  	   "~/org/kana-schedule.gcal-cache")
   ;	  )
   ;       )
   ;    )
@@ -477,7 +469,7 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
   (autoload 'org-roam-node-insert "org-roam" nil t)
   (autoload 'org-roam-capture "org-roam" nil t)
   (with-eval-after-load 'org-roam
-      (setq org-roam-directory  "~/dropbox/zk")
+      (setq org-roam-directory  "~/org-knowledge/zk")
     (setq find-file-visit-truename   t)
     (setq org-roam-capture-templates
       '(("d" "default" plain "%?" :if-new
@@ -488,31 +480,31 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
            ("p" "paper" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
   ,#+filetags: :reference:paper:
-  ,#+bibliography: ~/dropbox/ref.bib")
+  ,#+bibliography: ~/org-knowledge/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
            ("b" "book" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
   ,#+filetags: :reference:book:
-  ,#+bibliography: ~/dropbox/book.bib")
+  ,#+bibliography: ~/org-knowledge/book.bib")
           :unnarrowed t
           :jump-to-captured t)
            ("a" "anime" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
   ,#+filetags: :reference:anime:
-  ,#+bibliography: ~/dropbox/ref.bib")
+  ,#+bibliography: ~/org-knowledge/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
            ("m" "movie" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
   ,#+filetags: :reference:movie:
-  ,#+bibliography: ~/dropbox/ref.bib")
+  ,#+bibliography: ~/org-knowledge/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
                  ("g" "game" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
   ,#+filetags: :reference:game:
-  ,#+bibliography: ~/dropbox/ref.bib")
+  ,#+bibliography: ~/org-knowledge/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
          )
@@ -601,9 +593,116 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
 #+begin_src emacs-lisp :tangle yes
   (autoload 'org-cite-insert "citar" nil t)
   (with-eval-after-load 'citar
-    (setq citar-bibliography  '("~/dropbox/ref.bib"))
+    (setq citar-bibliography  '("~/org-knowledge/ref.bib"))
     (keymap-set minibuffer-local-completion-map "s-j" 'icomplete-fido-exit)
     )
+#+end_src
+* Syncthing Sync
+#+begin_src emacs-lisp :tangle yes
+  ;;; Syncthing Sync -*- lexical-binding: t -*-
+
+  (defvar my/org-sync-dirs
+    (list (expand-file-name "~/org/")
+          (expand-file-name "~/org-knowledge/"))
+    "Directories managed by Syncthing.")
+
+  (defun my/org-sync-buffer-p ()
+    "Return non-nil if current buffer is in a Syncthing-managed org directory."
+    (and buffer-file-name
+         (seq-some (lambda (dir)
+                     (string-prefix-p dir (expand-file-name buffer-file-name)))
+                   my/org-sync-dirs)))
+
+  (defun my/org-sync-save-current ()
+    "Save current buffer if it is in a Syncthing-managed directory."
+    (when (and (my/org-sync-buffer-p)
+               (buffer-modified-p)
+               (file-writable-p buffer-file-name))
+      (let ((save-silently t))
+        (save-buffer))))
+
+  ;; ---- 操作駆動の即座保存 ----
+  (add-hook 'org-after-todo-state-change-hook #'my/org-sync-save-current)
+  (add-hook 'org-clock-in-hook #'my/org-sync-save-current)
+  (add-hook 'org-clock-out-hook #'my/org-sync-save-current)
+  (add-hook 'org-after-refile-insert-hook #'my/org-sync-save-current)
+  (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
+  (dolist (fn '(org-schedule org-deadline org-priority
+                org-set-tags-command org-set-property))
+    (advice-add fn :after (lambda (&rest _) (my/org-sync-save-current))))
+  (advice-add 'org-agenda-bulk-action :after
+              (lambda (&rest _) (org-save-all-org-buffers)))
+
+  ;; ---- デバウンス付き安全網（変更後3秒idle） ----
+  (defvar my/org-sync-save-timer nil)
+  (defun my/org-sync-schedule-save ()
+    "Schedule a debounced save after buffer modification."
+    (when (and (derived-mode-p 'org-mode) (my/org-sync-buffer-p))
+      (when my/org-sync-save-timer (cancel-timer my/org-sync-save-timer))
+      (setq my/org-sync-save-timer
+            (run-with-idle-timer 3 nil
+              (lambda ()
+                (setq my/org-sync-save-timer nil)
+                (dolist (buf (buffer-list))
+                  (with-current-buffer buf
+                    (when (and (derived-mode-p 'org-mode)
+                               (my/org-sync-buffer-p)
+                               (buffer-modified-p)
+                               (file-writable-p buffer-file-name))
+                      (let ((save-silently t)) (save-buffer))))))))))
+  (add-hook 'after-change-functions
+            (lambda (&rest _) (my/org-sync-schedule-save)))
+
+  ;; ---- フォーカス喪失時保存 ----
+  (add-function :after after-focus-change-function
+    (lambda ()
+      (unless (frame-focus-state)
+        (dolist (buf (buffer-list))
+          (with-current-buffer buf
+            (my/org-sync-save-current))))))
+
+  ;; ---- 自動リバート ----
+  (defun my/org-sync-auto-revert ()
+    "Enable auto-revert for Syncthing-managed org files."
+    (when (my/org-sync-buffer-p)
+      (auto-revert-mode 1)))
+  (add-hook 'org-mode-hook #'my/org-sync-auto-revert)
+  (setq auto-revert-verbose nil)
+  (setq auto-revert-use-notify t)
+  (setq auto-revert-avoid-polling t)
+
+  ;; ---- agendaバッファ自動リフレッシュ（デバウンス、agendaファイルのみ） ----
+  (defvar my/org-sync-agenda-redo-timer nil)
+  (add-hook 'after-revert-hook
+    (lambda ()
+      (when (and (derived-mode-p 'org-mode)
+                 buffer-file-name
+                 (member (expand-file-name buffer-file-name)
+                         (mapcar #'expand-file-name (org-agenda-files))))
+        (when my/org-sync-agenda-redo-timer
+          (cancel-timer my/org-sync-agenda-redo-timer))
+        (setq my/org-sync-agenda-redo-timer
+              (run-with-idle-timer 2 nil
+                (lambda ()
+                  (dolist (buf (buffer-list))
+                    (with-current-buffer buf
+                      (when (derived-mode-p 'org-agenda-mode)
+                        (ignore-errors (org-agenda-redo-all)))))
+                  (setq my/org-sync-agenda-redo-timer nil)))))))
+
+  ;; ---- コンフリクト検知（org-tasksディレクトリのみ） ----
+  (defun my/org-sync-check-conflicts ()
+    "Warn about Syncthing conflict files in org-tasks directory."
+    (let ((dir (expand-file-name "~/org/")))
+      (when (file-directory-p dir)
+        (let ((conflicts (directory-files dir t "\\.sync-conflict-")))
+          (when conflicts
+            (display-warning 'org-sync
+              (format "Syncthing conflicts detected:\n%s"
+                      (mapconcat #'identity conflicts "\n"))
+              :warning))))))
+  (add-hook 'emacs-startup-hook #'my/org-sync-check-conflicts)
+  (run-with-timer 300 300 #'my/org-sync-check-conflicts)
 #+end_src
 * Provide
 #+begin_src emacs-lisp :tangle yes

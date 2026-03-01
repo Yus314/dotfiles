@@ -7,9 +7,9 @@
 writeShellScriptBin "generate-weekly-report" ''
   set -euo pipefail
 
-  # Verify Dropbox is mounted
-  if [ ! -d "$HOME/dropbox/inbox" ]; then
-    echo "Error: ~/dropbox/inbox not found. Is Dropbox mounted?" >&2
+  # Verify org directory exists
+  if [ ! -d "$HOME/org/inbox" ]; then
+    echo "Error: ~/org/inbox not found." >&2
     exit 1
   fi
 

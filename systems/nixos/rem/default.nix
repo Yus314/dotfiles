@@ -19,6 +19,7 @@
     # ./cloudflare.nix
     ./networks.nix
     ../common.nix
+    ./syncthing.nix
   ];
 
   # Use the systemd-boot EFI boot loader.

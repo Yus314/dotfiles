@@ -17,12 +17,13 @@
 
 ;;;; Configuration
 
-(defvar weekly-report-org-dir "~/dropbox")
+(defvar weekly-report-org-dir "~/org")
+(defvar weekly-report-archive-dir "~/org-knowledge/archive")
 (defvar weekly-report-agenda-files
-  '("~/dropbox/inbox/inbox.org"
-    "~/dropbox/habit.org"
-    "~/dropbox/kana.org"
-    "~/dropbox/calendar.org"))
+  '("~/org/inbox/inbox.org"
+    "~/org/habit.org"
+    "~/org/kana.org"
+    "~/org/calendar.org"))
 (defvar weekly-report-wstart 0) ; Sunday
 
 ;; Must match user's org-todo-keywords (not loaded from user init in batch mode)
@@ -533,7 +534,7 @@ Reads --date argument from command line, or defaults to today."
          ;; File paths
          (output-dir (expand-file-name
                       year
-                      (expand-file-name "archive" weekly-report-org-dir)))
+                      (expand-file-name weekly-report-archive-dir)))
          (legacy-archive-org (expand-file-name
                               (format "%s-%s.org" start-mmdd end-mmdd) output-dir))
          (output-file (expand-file-name

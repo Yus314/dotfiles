@@ -19,6 +19,7 @@ in
     ../common.nix
     ../services/dropbox
     ../desktop.nix
+    ./syncthing.nix
   ];
   fonts.packages = [ pkgs.bizin-gothic-nf ];
   fonts.fontDir.enable = true;

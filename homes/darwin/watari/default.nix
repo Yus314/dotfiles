@@ -15,5 +15,6 @@ in
   home-manager.users.${username} = {
     imports = [ ../../../applications/ssh ];
     programs.man.enable = false;
+    home.packages = [ pkgs.syncthing ];
   };
 }
