@@ -46,8 +46,8 @@ in
     ../applications/nh
     ../applications/vdirsyncer
     ../applications/weekly-report
-    #../applications/khal
-    #../applications/khalorg
+    ../applications/khal
+    ../applications/khalorg
     #../applications/sdcv
   ];
   services.gpg-agent = {
