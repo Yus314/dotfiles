@@ -469,7 +469,7 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
   (autoload 'org-roam-node-insert "org-roam" nil t)
   (autoload 'org-roam-capture "org-roam" nil t)
   (with-eval-after-load 'org-roam
-      (setq org-roam-directory  "~/org-knowledge/zk")
+      (setq org-roam-directory  "~/obsidian-vault/zk")
     (setq find-file-visit-truename   t)
     (setq org-roam-capture-templates
       '(("d" "default" plain "%?" :if-new
@@ -480,31 +480,31 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
            ("p" "paper" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
   ,#+filetags: :reference:paper:
-  ,#+bibliography: ~/org-knowledge/ref.bib")
+  ,#+bibliography: ~/obsidian-vault/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
            ("b" "book" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
   ,#+filetags: :reference:book:
-  ,#+bibliography: ~/org-knowledge/book.bib")
+  ,#+bibliography: ~/obsidian-vault/book.bib")
           :unnarrowed t
           :jump-to-captured t)
            ("a" "anime" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
   ,#+filetags: :reference:anime:
-  ,#+bibliography: ~/org-knowledge/ref.bib")
+  ,#+bibliography: ~/obsidian-vault/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
            ("m" "movie" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
   ,#+filetags: :reference:movie:
-  ,#+bibliography: ~/org-knowledge/ref.bib")
+  ,#+bibliography: ~/obsidian-vault/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
                  ("g" "game" plain "%?" :if-new
             (file+head "${slug}-%<%d-%m-%y>.org" "#+title: ${title}
   ,#+filetags: :reference:game:
-  ,#+bibliography: ~/org-knowledge/ref.bib")
+  ,#+bibliography: ~/obsidian-vault/ref.bib")
           :unnarrowed t
           :jump-to-captured t)
          )
@@ -593,7 +593,7 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
 #+begin_src emacs-lisp :tangle yes
   (autoload 'org-cite-insert "citar" nil t)
   (with-eval-after-load 'citar
-    (setq citar-bibliography  '("~/org-knowledge/ref.bib"))
+    (setq citar-bibliography  '("~/obsidian-vault/ref.bib"))
     (keymap-set minibuffer-local-completion-map "s-j" 'icomplete-fido-exit)
     )
 #+end_src
@@ -603,7 +603,7 @@ Automatically schedules a sync after `my/calendar-sync-delay' seconds."
 
   (defvar my/org-sync-dirs
     (list (expand-file-name "~/org/")
-          (expand-file-name "~/org-knowledge/"))
+          (expand-file-name "~/obsidian-vault/"))
     "Directories managed by Syncthing.")
 
   (defun my/org-sync-buffer-p ()
