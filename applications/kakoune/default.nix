@@ -65,6 +65,7 @@
 
       eval %sh{ kak-tree-sitter -dks --init $kak_session --with-highlighting --with-text-objects }
 
+      source "${pkgs.kakounePlugins.kakoune-autothemes}/share/kak/autoload/plugins/autothemes/rc/autothemes.kak"
       set-option global autothemes_dark_theme modus-vivendi
       set-option global autothemes_light_theme modus-operandi
       autothemes-enable
