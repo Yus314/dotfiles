@@ -30,6 +30,15 @@ rustPlatform.buildRustPackage rec {
       --replace-fail \
         'AccessMode::Read => AccessFs::ReadFile | AccessFs::ReadDir | AccessFs::Execute,' \
         'AccessMode::Read => AccessFs::ReadFile | AccessFs::ReadDir | AccessFs::Execute | AccessFs::IoctlDev,'
+
+    # deny_keychains_linux から ~/.local/share/keyrings を除去。
+    # --allow "$HOME/.local/share" との Landlock deny-overlap 競合を回避。
+    # 保護目標はホスト破壊防止であり、秘密漏洩は許容範囲。
+    sed -i '/"~\/.local\/share\/keyrings"/d' \
+      crates/nono-cli/data/policy.json
+    # 末尾カンマ修正: "~/.1password", → "~/.1password"
+    sed -i 's/"~\/.1password",/"~\/.1password"/' \
+      crates/nono-cli/data/policy.json
   '';
 
   # CLI のみビルド（nono-ffi を除外）
