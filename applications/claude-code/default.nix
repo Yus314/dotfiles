@@ -111,10 +111,12 @@ let
       --profile claude-code \
       --allow-cwd \
       --allow "$HOME/ghq/github.com/Yus314" \
+      --allow "$HOME/ledger" \
       --allow "$HOME/.local/share" \
       --allow "$HOME/.cache" \
       --allow "$HOME/.config/codex" \
       --read "$HOME/.config/gh" \
+      --read "$HOME/.config/cabal" \
       --read "$HOME/.nix-profile" \
       --allow-file /dev/null \
       --allow-command rm \
