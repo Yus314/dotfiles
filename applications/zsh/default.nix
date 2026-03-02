@@ -14,15 +14,11 @@
       enable = true;
     };
     initContent = ''
-                        	if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
-                        		source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-                        	fi
-            				  eval "$(zoxide init zsh)"
-      					  EDITOR=nvim
+                  	if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+                  		source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+                  	fi
+      				  eval "$(zoxide init zsh)"
     '';
-    sessionVariables = {
-      EDITOR = "nvim";
-    };
     plugins = [ ];
   };
 }

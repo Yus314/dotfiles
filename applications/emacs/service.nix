@@ -7,7 +7,7 @@ in
   services.emacs = {
     enable = pkgs.stdenv.isLinux;
     package = emacsPkg.emacs-unstable;
-    defaultEditor = true;
+    defaultEditor = false;
     startWithUserSession = "graphical";
   };
 }

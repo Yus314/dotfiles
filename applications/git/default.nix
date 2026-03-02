@@ -13,7 +13,7 @@
         email = "shizhaoyoujie@gmail.com";
       };
       core = {
-        editor = "emacs";
+        editor = "kak";
       };
       ghq.user = "Yus314";
       pull.rebase = false;
