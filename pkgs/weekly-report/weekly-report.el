@@ -19,7 +19,7 @@
 ;;;; Configuration
 
 (defvar weekly-report-org-dir "~/org")
-(defvar weekly-report-archive-dir "~/org-knowledge/archive")
+(defvar weekly-report-archive-dir "~/weekly-report")
 (defvar weekly-report-agenda-files
   '("~/org/inbox/inbox.org"
     "~/org/habit.org"

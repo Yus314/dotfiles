@@ -123,14 +123,16 @@ in
             };
           };
         };
-        "org-knowledge" = {
-          path = "/home/${user}/org-knowledge";
+        "weekly-report" = {
+          path = "/home/${user}/weekly-report";
           type = "sendreceive";
           devices = [
+            "android-mole"
             "watari"
             "ryuk"
             "rem"
           ];
+          ignorePerms = true;
           fsWatcherEnabled = true;
           fsWatcherDelayS = 10;
           rescanIntervalS = 3600;
@@ -170,9 +172,7 @@ in
   # org同期ディレクトリと.stignore作成
   system.activationScripts.syncthing-org-setup = lib.stringAfter [ "users" ] ''
         mkdir -p /home/${user}/org/inbox
-        mkdir -p /home/${user}/org-knowledge/zk
-        mkdir -p /home/${user}/org-knowledge/archive
-        chown -R ${user}:${group} /home/${user}/org /home/${user}/org-knowledge
+        chown -R ${user}:${group} /home/${user}/org
 
         cat > /home/${user}/org/.stignore << 'STEOF'
     // Emacs temp files
@@ -186,23 +186,13 @@ in
     .org-id-locations
     STEOF
 
-        cat > /home/${user}/org-knowledge/.stignore << 'STEOF'
-    // Emacs temp files
-    .#*
-    *.tmp
-    *~
-    // macOS metadata
-    .DS_Store
-    ._*
-    // Org internal
-    .org-id-locations
-    // org-roam DB (SQLite + WAL/SHM) - ローカル生成
-    org-roam.db
-    org-roam.db-wal
-    org-roam.db-shm
-    STEOF
+        chown ${user}:${group} /home/${user}/org/.stignore
+  '';
 
-        chown ${user}:${group} /home/${user}/org/.stignore /home/${user}/org-knowledge/.stignore
+  # weekly-report同期ディレクトリ作成
+  system.activationScripts.syncthing-weekly-report-setup = lib.stringAfter [ "users" ] ''
+    mkdir -p /home/${user}/weekly-report
+    chown ${user}:${group} /home/${user}/weekly-report
   '';
 
   # Obsidian vault同期ディレクトリと.stignore作成
@@ -217,6 +207,9 @@ in
     .obsidian/workspace.json
     .obsidian/workspace-mobile.json
     .obsidian/workspace-cache.json
+    // Nix-managed plugins (Home Manager)
+    .obsidian/plugins/
+    .obsidian/community-plugins.json
     // Trash (削除は全端末に反映、ゴミ箱は端末ローカル)
     .trash/
     // macOS metadata
@@ -229,6 +222,10 @@ in
     *.swp
     *.swo
     *.bak
+    // org-roam DB (SQLite + WAL/SHM) - ローカル生成
+    org-roam.db
+    org-roam.db-wal
+    org-roam.db-shm
     STEOF
         # 内容が同じなら上書きしない (mtime 変更による不要な同期を防止)
         if ! cmp -s "$STIGNORE_NEW" "$STIGNORE" 2>/dev/null; then
