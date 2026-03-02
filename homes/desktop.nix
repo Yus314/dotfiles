@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   imports = [
-    # ../applications/calibre  # temporarily disabled: calibre 8.16.2 marked as broken
+    # ../applications/calibre
     ../applications/kitty
     ../applications/ghostty
     ../applications/google-chrome

@@ -8,7 +8,10 @@ in
     ../../applications/yabai
   ];
   home-manager.users.${username} = {
-    imports = [ ../desktop.nix ];
+    imports = [
+      ../desktop.nix
+      ../../applications/obsidian
+    ];
     home.file."Library/Application\ Support/AquaSKK/keymap.conf".source = ./keymap.conf;
     home.packages = [
       (pkgs.brewCasks.adobe-acrobat-pro.overrideAttrs (oldAttrs: {
