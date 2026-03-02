@@ -33,7 +33,7 @@ in
   };
 
   # Disable man cache generation to avoid CI sandbox issues
-  documentation.man.generateCaches = false;
+  documentation.man.cache.enable = false;
 
   i18n.defaultLocale = "en_US.UTF-8";
 
