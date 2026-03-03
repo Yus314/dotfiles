@@ -23,4 +23,9 @@ in
   # "stardict-kojien6-2.4.2" フォルダの中身（.ifo, .idx, .dict.dz 等）をすべて利用可能にします
   home.file.".stardict/dic/kojien6".source = "${sdcv-repo}/stardict-kojien6-2.4.2";
   home.file.".stardict/dic/jmdict-en-ja".source = "${sdcv-repo}/stardict-jmdict-en-ja-2.4.2";
+  home.file.".stardict/dic/jmdict-ja-en".source = "${sdcv-repo}/stardict-jmdict-ja-en-2.4.2";
+  home.file.".stardict/dic/edict".source = "${sdcv-repo}/stardict-edict-2.4.2";
+  home.file.".stardict/dic/longman5".source =
+    "${sdcv-repo}/stardict-Longman_Dictionary_of_Contemporary_English_5th_Ed-2.4.2";
+  home.file.".stardict/dic/collins5".source = "${sdcv-repo}/stardict-collins5-2.4.2";
 }

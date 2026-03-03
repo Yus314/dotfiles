@@ -48,7 +48,7 @@ in
     ../applications/weekly-report
     ../applications/khal
     ../applications/khalorg
-    #../applications/sdcv
+    ../applications/sdcv
   ];
   services.gpg-agent = {
     enable = true;
