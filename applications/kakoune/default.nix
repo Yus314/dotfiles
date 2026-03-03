@@ -5,6 +5,7 @@
     nixd
     markdown-oxide
     kak-tree-sitter
+    kakounePlugins.kakoune-markdown-render
   ];
 
   xdg.configFile."kak-tree-sitter/config.toml".text = ''
@@ -46,6 +47,7 @@
       pkgs.kakounePlugins.kakoune-scrollback
       pkgs.kakounePlugins.kakoune-autothemes
       pkgs.kakounePlugins.kakoune-sprout
+      pkgs.kakounePlugins.kakoune-markdown-render
     ];
     colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;
     extraConfig = ''
