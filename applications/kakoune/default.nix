@@ -109,6 +109,15 @@
           }
       }
 
+      # kakoune-markdown-render: Nerd Font 丸囲み数字 (nf-md-numeric_N_circle) は
+      # セル全体を埋めるデザインのため、Unicode 丸数字に差し替え
+      set-option global mkdr_heading_char_1 '①'
+      set-option global mkdr_heading_char_2 '②'
+      set-option global mkdr_heading_char_3 '③'
+      set-option global mkdr_heading_char_4 '④'
+      set-option global mkdr_heading_char_5 '⑤'
+      set-option global mkdr_heading_char_6 '⑥'
+
       map global user l ':enter-user-mode lsp<ret>' -docstring 'LSP mode'
     '';
     config = {
