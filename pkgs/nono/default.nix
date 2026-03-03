@@ -11,16 +11,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "nono";
-  version = "0.8.0";
+  version = "0.9.0";
 
   src = fetchFromGitHub {
     owner = "always-further";
     repo = "nono";
     rev = "v${version}";
-    hash = "sha256-4GsG/xR/Ex2CJEqmv0TSfEMQyk/Se+Uja+n9jSo53/U=";
+    hash = "sha256-ri0JTYVsJD6MQnq3EVVKLZolRWZALOO7OcNnaUhngo0=";
   };
 
-  cargoHash = "sha256-0fxlIjsGOBjKeHUk+Ro+hk+20YBJLOXp6s0axuuyD4w=";
+  cargoHash = "sha256-vmBuRurCFO3ejz84Phmc4pvGq7J3BTKVT1ebEikhIoM=";
 
   # Landlock V5 (kernel 6.10+) の IoctlDev 権限が access_to_landlock() で
   # 付与されないバグを修正。TTY ioctl (setRawMode 等) がブロックされる。
