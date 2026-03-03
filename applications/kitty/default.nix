@@ -22,6 +22,9 @@
       tab_bar_style = "slant";
     };
     extraConfig = ''
+      # Text presentation for characters that would otherwise use color emoji
+      symbol_map U+2611 DejaVu Sans Mono
+
       map kitty_mod+d previous_tab
       map kitty_mod+n next_tab
       map kitty_mod+t scroll_to_prompt -1
