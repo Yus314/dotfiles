@@ -114,6 +114,7 @@ let
       --allow "$HOME/ledger" \
       --allow "$HOME/.local/share" \
       --allow "$HOME/.cache" \
+      --allow "$HOME/.cargo" \
       --allow "$HOME/.config/codex" \
       --read "$HOME/.config/gh" \
       --read "$HOME/.config/cabal" \

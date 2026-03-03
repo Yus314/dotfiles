@@ -11,16 +11,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "nono";
-  version = "0.6.1";
+  version = "0.8.0";
 
   src = fetchFromGitHub {
     owner = "always-further";
     repo = "nono";
     rev = "v${version}";
-    hash = "sha256-EAxgz7qCXLztV83UZimcImGbbTCC8EJVJiXlBr0T1NY=";
+    hash = "sha256-4GsG/xR/Ex2CJEqmv0TSfEMQyk/Se+Uja+n9jSo53/U=";
   };
 
-  cargoHash = "sha256-GagTF5eTdhU+wyK9R1ltLVfM48qF1XH+eTKbaqA8umE=";
+  cargoHash = "sha256-0fxlIjsGOBjKeHUk+Ro+hk+20YBJLOXp6s0axuuyD4w=";
 
   # Landlock V5 (kernel 6.10+) の IoctlDev 権限が access_to_landlock() で
   # 付与されないバグを修正。TTY ioctl (setRawMode 等) がブロックされる。
@@ -36,8 +36,14 @@ rustPlatform.buildRustPackage rec {
     # 保護目標はホスト破壊防止であり、秘密漏洩は許容範囲。
     sed -i '/"~\/.local\/share\/keyrings"/d' \
       crates/nono-cli/data/policy.json
-    # 末尾カンマ修正: "~/.1password", → "~/.1password"
-    sed -i 's/"~\/.1password",/"~\/.1password"/' \
+    # 末尾カンマ修正: "~/.op", → "~/.op"
+    sed -i 's/"~\/.op",/"~\/.op"/' \
+      crates/nono-cli/data/policy.json
+
+    # rust_runtime グループから ~/.cargo を除去。
+    # --allow "$HOME/.cargo" との read vs readwrite 競合を回避。
+    # readwrite は CLI フラグ側で付与する。
+    sed -i '/"~\/.cargo",/d' \
       crates/nono-cli/data/policy.json
   '';
 
