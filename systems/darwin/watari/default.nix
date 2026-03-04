@@ -18,6 +18,11 @@ in
   system.primaryUser = "kaki";
 
   networking.hostName = "watari";
+  networking.knownNetworkServices = [
+    "Wi-Fi"
+    "Thunderbolt Bridge"
+    "USB 10/100/1000 LAN"
+  ];
 
   fonts.packages = [
     pkgs.bizin-gothic-nf
@@ -56,5 +61,9 @@ in
         hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
       };
     });
+  };
+  services.tailscale = {
+    enable = true;
+    overrideLocalDns = true;
   };
 }
