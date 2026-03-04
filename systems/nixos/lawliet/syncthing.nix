@@ -29,8 +29,6 @@ let
   # 他ホストのデバイスID
   # 取得方法: syncthing --device-id
   watariDeviceId = "3XNHQ5T-LBTQ3PJ-EXYZUJA-SSUF3B7-GX3XCCU-ADNBUPR-KRDYYJF-JBUIDAG";
-  ryukDeviceId = "6SK3K4H-L25FKU2-FB4RELG-GZ6HGJ4-77YJUYB-JGZ6H65-53DK2IK-RN572QS";
-  remDeviceId = "BIJF4JD-CUBPXFO-7NLGBYO-55HYH2K-7IV4RI7-ZGH75BB-YJ3SYJK-XBIEGQC";
 
   # デバイスIDが設定されているかチェック
   isConfigured = !lib.hasPrefix "XXXXXXX" androidDeviceId;
@@ -79,14 +77,6 @@ in
           id = watariDeviceId;
           name = "watari (macOS)";
         };
-        "ryuk" = {
-          id = ryukDeviceId;
-          name = "ryuk (lab-main)";
-        };
-        "rem" = {
-          id = remDeviceId;
-          name = "rem (lab-sub)";
-        };
       };
 
       # フォルダ設定
@@ -109,12 +99,25 @@ in
           devices = [
             "android-mole"
             "watari"
-            "ryuk"
-            "rem"
           ];
           fsWatcherEnabled = true;
           fsWatcherDelayS = 2;
           rescanIntervalS = 300;
+          versioning = {
+            type = "staggered";
+            params = {
+              cleanInterval = "3600";
+              maxAge = "2592000";
+            };
+          };
+        };
+        "org-knowledge" = {
+          path = "/home/${user}/org-knowledge";
+          type = "sendreceive";
+          devices = [ "watari" ];
+          fsWatcherEnabled = true;
+          fsWatcherDelayS = 10;
+          rescanIntervalS = 3600;
           versioning = {
             type = "staggered";
             params = {
@@ -129,8 +132,6 @@ in
           devices = [
             "android-mole"
             "watari"
-            "ryuk"
-            "rem"
           ];
           ignorePerms = true;
           fsWatcherEnabled = true;
@@ -150,8 +151,6 @@ in
           devices = [
             "android-mole"
             "watari"
-            "ryuk"
-            "rem"
           ];
           ignorePerms = true;
           fsWatcherEnabled = true;
@@ -172,7 +171,9 @@ in
   # org同期ディレクトリと.stignore作成
   system.activationScripts.syncthing-org-setup = lib.stringAfter [ "users" ] ''
         mkdir -p /home/${user}/org/inbox
-        chown -R ${user}:${group} /home/${user}/org
+        mkdir -p /home/${user}/org-knowledge/zk
+        mkdir -p /home/${user}/org-knowledge/archive
+        chown -R ${user}:${group} /home/${user}/org /home/${user}/org-knowledge
 
         cat > /home/${user}/org/.stignore << 'STEOF'
     // Emacs temp files
@@ -186,7 +187,23 @@ in
     .org-id-locations
     STEOF
 
-        chown ${user}:${group} /home/${user}/org/.stignore
+        cat > /home/${user}/org-knowledge/.stignore << 'STEOF'
+    // Emacs temp files
+    .#*
+    *.tmp
+    *~
+    // macOS metadata
+    .DS_Store
+    ._*
+    // Org internal
+    .org-id-locations
+    // org-roam DB (SQLite + WAL/SHM) - ローカル生成
+    org-roam.db
+    org-roam.db-wal
+    org-roam.db-shm
+    STEOF
+
+        chown ${user}:${group} /home/${user}/org/.stignore /home/${user}/org-knowledge/.stignore
   '';
 
   # weekly-report同期ディレクトリ作成
