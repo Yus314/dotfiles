@@ -19,9 +19,9 @@ in
 
   networking.hostName = "watari";
   networking.knownNetworkServices = [
-    "Wi-Fi"
-    "Thunderbolt Bridge"
     "USB 10/100/1000 LAN"
+    "Thunderbolt Bridge"
+    "Wi-Fi"
   ];
 
   fonts.packages = [
