@@ -12,6 +12,5 @@
     discord
     code-cursor
     slack
-    firefox
   ];
 }

@@ -5,7 +5,6 @@
   pkg-config,
   openssl,
   dbus,
-  darwin,
   stdenv,
 }:
 
@@ -58,11 +57,7 @@ rustPlatform.buildRustPackage rec {
   buildInputs = [
     openssl
   ]
-  ++ lib.optionals stdenv.hostPlatform.isLinux [ dbus ]
-  ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.Security
-    darwin.apple_sdk.frameworks.SystemConfiguration
-  ];
+  ++ lib.optionals stdenv.hostPlatform.isLinux [ dbus ];
 
   meta = {
     description = "Kernel-level sandbox for AI coding agents";

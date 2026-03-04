@@ -31,7 +31,7 @@
     };
 
     kakoune-lsp-src = {
-      url = "git+file:///home/kaki/ghq/github.com/Yus314/kakoune-lsp";
+      url = "github:Yus314/kakoune-lsp";
       flake = false;
     };
 

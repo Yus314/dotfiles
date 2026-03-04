@@ -1,7 +1,7 @@
 ;; karabiner.edn
 ;; 3つのJSONファイルの内容を統合したGoku設定ファイル
 
-{:profiles {:Default {:sim 40}}
+{:profiles {:Default {:sim 40 :default true}}
  ;; メインとなる設定リスト
 	 :input-sources {
 	 		:en {

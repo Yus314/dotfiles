@@ -43,10 +43,8 @@
     yq
 
     # --- GUI Applications ---
-    zotero # Reference management software
-
     anki-bin # Spaced repetition flashcard program (binary version)
-    mpv # Feature-rich media player
+    # mpv # temporarily disabled: jeepney test fails on Darwin (D-Bus unavailable in sandbox)
     rquickshare
   ];
   xdg.enable = true;

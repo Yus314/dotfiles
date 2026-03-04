@@ -41,6 +41,9 @@ in
   services.openssh = {
     enable = true;
   };
+  services.tailscale = {
+    enable = true;
+  };
   services.cloudflared = {
     enable = true;
     tunnels = {
@@ -103,6 +106,7 @@ in
       '';
     };
   };
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
 
   # Set your time zone.
   time.timeZone = "Asia/Tokyo";
