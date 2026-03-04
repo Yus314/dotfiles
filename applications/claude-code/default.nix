@@ -143,7 +143,7 @@ in
   };
 
   home.packages = [
-    (lib.hiPrio claudeWrapped)
+    #   (lib.hiPrio claudeWrapped)
     claudeRaw
   ];
 
