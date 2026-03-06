@@ -10,40 +10,24 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "nono";
-  version = "0.9.0";
+  version = "0.11.0";
 
   src = fetchFromGitHub {
     owner = "always-further";
     repo = "nono";
     rev = "v${version}";
-    hash = "sha256-ri0JTYVsJD6MQnq3EVVKLZolRWZALOO7OcNnaUhngo0=";
+    hash = "sha256-/pfWJDBgkGpCLuW4288JhhlFtrEEMdHoclPPsAkI+Ps=";
   };
 
-  cargoHash = "sha256-vmBuRurCFO3ejz84Phmc4pvGq7J3BTKVT1ebEikhIoM=";
+  cargoHash = "sha256-dzDOIIhaL8K0Kf5uh6hQOiWM5tKeeCKVrmvd8HjDlJU=";
 
   # Landlock V5 (kernel 6.10+) の IoctlDev 権限が access_to_landlock() で
   # 付与されないバグを修正。TTY ioctl (setRawMode 等) がブロックされる。
-  # https://github.com/always-further/nono/issues/XXX
   postPatch = ''
     substituteInPlace crates/nono/src/sandbox/linux.rs \
       --replace-fail \
         'AccessMode::Read => AccessFs::ReadFile | AccessFs::ReadDir | AccessFs::Execute,' \
         'AccessMode::Read => AccessFs::ReadFile | AccessFs::ReadDir | AccessFs::Execute | AccessFs::IoctlDev,'
-
-    # deny_keychains_linux から ~/.local/share/keyrings を除去。
-    # --allow "$HOME/.local/share" との Landlock deny-overlap 競合を回避。
-    # 保護目標はホスト破壊防止であり、秘密漏洩は許容範囲。
-    sed -i '/"~\/.local\/share\/keyrings"/d' \
-      crates/nono-cli/data/policy.json
-    # 末尾カンマ修正: "~/.op", → "~/.op"
-    sed -i 's/"~\/.op",/"~\/.op"/' \
-      crates/nono-cli/data/policy.json
-
-    # rust_runtime グループから ~/.cargo を除去。
-    # --allow "$HOME/.cargo" との read vs readwrite 競合を回避。
-    # readwrite は CLI フラグ側で付与する。
-    sed -i '/"~\/.cargo",/d' \
-      crates/nono-cli/data/policy.json
   '';
 
   # CLI のみビルド（nono-ffi を除外）

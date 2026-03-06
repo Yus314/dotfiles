@@ -80,10 +80,9 @@ let
   '';
 
   # nono ラッパー（fail closed: nono 起動失敗時は即終了）
-  # --profile claude-code: 組み込みプロファイルで workdir readwrite, ~/.claude,
-  #   interactive mode, unlink_protection, PostToolUseFailure フック等を有効化
-  # 追加フラグ: プロファイルでカバーされない NixOS 固有パス、/dev/null（nono バグ回避）、
-  #   dangerous_commands の許可
+  # --profile claude-code-nixos: 組み込み claude-code プロファイルを extends し、
+  #   NixOS 固有パス・allowed_commands を追加（~/.config/nono/profiles/ に配置）
+  # allow を細分化して keyrings deny との overlap を回避
   claudeWrapped = pkgs.writeShellScriptBin "claude" ''
     if ! command -v ${pkgs.nono}/bin/nono &>/dev/null; then
       echo "Error: nono is not available. Use claude-raw for unprotected access." >&2
@@ -108,22 +107,8 @@ let
     export SHELL=$(${pkgs.coreutils}/bin/readlink -f /bin/sh)
 
     exec ${pkgs.nono}/bin/nono run \
-      --profile claude-code \
+      --profile claude-code-nixos \
       --allow-cwd \
-      --allow "$HOME/ghq/github.com/Yus314" \
-      --allow "$HOME/ledger" \
-      --allow "$HOME/.local/share" \
-      --allow "$HOME/.cache" \
-      --allow "$HOME/.cargo" \
-      --allow "$HOME/.config/codex" \
-      --read "$HOME/.config/gh" \
-      --read "$HOME/.config/cabal" \
-      --read "$HOME/.nix-profile" \
-      --allow-file /dev/null \
-      --allow-command rm \
-      --allow-command mv \
-      --allow-command cp \
-      --allow-command chmod \
       -- ${claudeCodePkg}/bin/claude \
         --dangerously-skip-permissions \
         "$@"
@@ -142,8 +127,39 @@ in
     };
   };
 
+  # カスタム nono プロファイル: 組み込み claude-code を extends し NixOS 固有設定を追加
+  xdg.configFile."nono/profiles/claude-code-nixos.json".text = builtins.toJSON {
+    extends = "claude-code";
+    security = {
+      allowed_commands = [
+        "rm"
+        "mv"
+        "cp"
+        "chmod"
+      ];
+    };
+    filesystem = {
+      allow = [
+        "$HOME/ghq/github.com/Yus314"
+        "$HOME/ledger"
+        "$HOME/.local/share/nix"
+        "$HOME/.local/share/direnv"
+        "$HOME/.local/share/zoxide"
+        "$HOME/.local/share/gnupg"
+        "$HOME/.cache"
+        "$HOME/.cargo"
+        "$HOME/.config/codex"
+      ];
+      read = [
+        "$HOME/.config/gh"
+        "$HOME/.config/cabal"
+        "$HOME/.nix-profile"
+      ];
+    };
+  };
+
   home.packages = [
-    #   (lib.hiPrio claudeWrapped)
+    (lib.hiPrio claudeWrapped)
     claudeRaw
   ];
 
