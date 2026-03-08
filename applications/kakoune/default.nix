@@ -4,7 +4,7 @@
     kakoune-lsp
     nixd
     markdown-oxide
-    # kak-tree-sitter # temporarily disabled: tinycc dependency is broken in nixpkgs
+    kak-tree-sitter
     kakounePlugins.kakoune-markdown-render
   ];
 
