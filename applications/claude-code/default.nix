@@ -106,9 +106,16 @@ let
     # /nix/store/...-bash-interactive-.../bin/bash なので "bash" を含む。
     export SHELL=$(${pkgs.coreutils}/bin/readlink -f /bin/sh)
 
-    exec ${pkgs.nono}/bin/nono run \
+    # nono v0.12.0 の nono run (Supervised モード) では seccomp-notify
+    # スーパーバイザーが openat を傍受し、O_CREAT 非対応のため /tmp 等での
+    # 新規ファイル作成が EACCES になる。nono wrap (Direct モード) は Landlock
+    # のみで制御するため O_CREAT が通る。--net-allow でプロキシを迂回し
+    # ネットワークアクセスを確保する（プロキシフィルタリングは無効化される）。
+    # TODO: nono upstream で O_CREAT サポートが追加されたら nono run に戻す
+    exec ${pkgs.nono}/bin/nono wrap \
       --profile claude-code-nixos \
       --allow-cwd \
+      --net-allow \
       -- ${claudeCodePkg}/bin/claude \
         --dangerously-skip-permissions \
         "$@"
@@ -160,6 +167,10 @@ in
         "$HOME/.config/gh"
         "$HOME/.config/cabal"
         "$HOME/.nix-profile"
+        # Claude Code がブラウザ検出で google-chrome config を probe する。
+        # 未許可だと seccomp-notify の対話プロンプトが表示され、その間に
+        # 他スレッドの通知がキューに溜まり、応答後にスーパーバイザーがハングする。
+        "$HOME/.config/google-chrome"
       ];
     };
   };
@@ -167,6 +178,7 @@ in
   home.packages = [
     (lib.hiPrio claudeWrapped)
     claudeRaw
+    pkgs.nono
   ];
 
   programs.claude-code = {
