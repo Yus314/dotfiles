@@ -130,6 +130,12 @@ in
   # カスタム nono プロファイル: 組み込み claude-code を extends し NixOS 固有設定を追加
   xdg.configFile."nono/profiles/claude-code-nixos.json".text = builtins.toJSON {
     extends = "claude-code";
+    network = {
+      # 組み込み github グループに含まれないが gh run view --log-failed 等で必要なホスト
+      proxy_allow = [
+        "results-receiver.actions.githubusercontent.com"
+      ];
+    };
     security = {
       allowed_commands = [
         "rm"
