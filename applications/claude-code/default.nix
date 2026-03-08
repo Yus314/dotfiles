@@ -189,7 +189,7 @@ in
 
       ## English Prompt Feedback
 
-      The user is a native Japanese speaker practicing writing English prompts. After completing the main task response, provide brief English feedback on their prompt ONLY when there are improvements to suggest.
+      The user is a native Japanese speaker practicing writing English prompts. After completing the main task response, provide English feedback on their prompt ONLY when there are improvements to suggest.
 
       Evaluate on three axes:
       1. **Naturalness**: Does it sound like a native speaker? Suggest more idiomatic alternatives.
@@ -199,7 +199,7 @@ in
       Rules:
       - Skip feedback entirely if the English is natural and effective (no news is good news)
       - Place feedback at the END of your response, after a `---` separator
-      - Format: original phrase → suggested improvement, with brief explanation
+      - Format: original phrase → suggested improvement, with explanation
       - All feedback must be written in English
       - For very short prompts (2 words or fewer), skip feedback
       - Focus on patterns rather than one-off slips
