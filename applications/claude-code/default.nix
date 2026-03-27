@@ -106,16 +106,14 @@ let
     # /nix/store/...-bash-interactive-.../bin/bash なので "bash" を含む。
     export SHELL=$(${pkgs.coreutils}/bin/readlink -f /bin/sh)
 
-    # nono v0.12.0 の nono run (Supervised モード) では seccomp-notify
-    # スーパーバイザーが openat を傍受し、O_CREAT 非対応のため /tmp 等での
-    # 新規ファイル作成が EACCES になる。nono wrap (Direct モード) は Landlock
-    # のみで制御するため O_CREAT が通る。--net-allow でプロキシを迂回し
-    # ネットワークアクセスを確保する（プロキシフィルタリングは無効化される）。
-    # TODO: nono upstream で O_CREAT サポートが追加されたら nono run に戻す
-    exec ${pkgs.nono}/bin/nono wrap \
+    # nono run はアダプティブ実行: Supervised/Direct を自動選択する。
+    # --allow-net でプロキシを無効化 → Direct モード（Landlock のみ）になる。
+    # O_CREAT 問題は v0.15.0 (PR #289) で修正済み。
+    # 将来 --allow-net を外せばプロキシフィルタリング付き Supervised モードに移行可能。
+    exec ${pkgs.nono}/bin/nono run \
       --profile claude-code-nixos \
       --allow-cwd \
-      --net-allow \
+      --allow-net \
       -- ${claudeCodePkg}/bin/claude \
         --dangerously-skip-permissions \
         "$@"
@@ -181,6 +179,10 @@ in
     pkgs.nono
   ];
 
+  # Claude Code がシンボリックリンクを通常ファイルに置き換えた場合でも
+  # switch 時に確認なしで再作成する
+  home.file.".claude/CLAUDE.md".force = true;
+
   programs.claude-code = {
     enable = true;
     memory.text = ''
@@ -218,9 +220,6 @@ in
       - Skip feedback entirely if the English is natural and effective (no news is good news)
       - Place feedback at the END of your response, after a `---` separator
       - Format: original phrase → suggested improvement, with explanation
-      - All feedback must be written in English
-      - For very short prompts (2 words or fewer), skip feedback
-      - Focus on patterns rather than one-off slips
       - If the prompt is written in Japanese, skip feedback
     '';
     settings = {
