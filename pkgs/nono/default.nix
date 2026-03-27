@@ -10,31 +10,27 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "nono";
-  version = "0.14.0";
+  version = "0.25.0";
 
   src = fetchFromGitHub {
     owner = "always-further";
     repo = "nono";
     rev = "v${version}";
-    hash = "sha256-oa5ng8WQQm47bCWnmAK4u2JElYyiof98ytYyUd5GQPk=";
+    hash = "sha256-CwlO6qRQ6VrgQGmusJb6/RWKxDyApsh8YLYf5MDBYOY=";
   };
 
-  cargoHash = "sha256-qAKcKslVrz7qZzMyS9PaBC+9bWlV6WqQeDJrKHVdJps=";
+  cargoHash = "sha256-DfGjB1wx7JMXszS8RTbKZl13hdBEKOWUFpaUigNuTGg=";
 
-  # Landlock V5 (kernel 6.10+) の IoctlDev 権限が access_to_landlock() で
-  # 付与されないバグを修正。TTY ioctl (setRawMode 等) がブロックされる。
+  # IoctlDev パッチは v0.16.0 で上流修正済み（apply_with_abi() でデバイスパスのみ選択的付与）
   postPatch = ''
-    substituteInPlace crates/nono/src/sandbox/linux.rs \
-      --replace-fail \
-        'AccessMode::Read => AccessFs::ReadFile | AccessFs::ReadDir | AccessFs::Execute,' \
-        'AccessMode::Read => AccessFs::ReadFile | AccessFs::ReadDir | AccessFs::Execute | AccessFs::IoctlDev,'
-
     # Seccomp deny should return EACCES (not EPERM) so glibc's dynamic linker
     # continues searching RUNPATH entries instead of aborting on the first miss.
+    # v0.14.0 → v0.25.0 でコードがリファクタリングされ、deny_notif() が
+    # respond_notif_errno() ヘルパー関数を使うようになった。
     substituteInPlace crates/nono/src/sandbox/linux.rs \
       --replace-fail \
-        'error: -libc::EPERM,' \
-        'error: -libc::EACCES,'
+        'respond_notif_errno(notify_fd, notif_id, libc::EPERM)' \
+        'respond_notif_errno(notify_fd, notif_id, libc::EACCES)'
 
     # Seccomp-notify の対話プロンプトはマルチスレッドの子プロセス (Node.js) で
     # デッドロックを引き起こす。プロンプト待機中に他スレッドの通知がキューに溜まり、
@@ -47,7 +43,7 @@ rustPlatform.buildRustPackage rec {
         'if std::env::var_os("NONO_INTERACTIVE_PROMPT").is_none() {'
   '';
 
-  # v0.14.0 のテストは Nix サンドボックス内で利用できないカーネル機能
+  # テストは Nix サンドボックス内で利用できないカーネル機能
   # (Landlock, seccomp-notify) を必要とするためスキップ
   doCheck = false;
 
