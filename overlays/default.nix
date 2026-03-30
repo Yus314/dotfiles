@@ -2,12 +2,12 @@
 {
   kakoune-updated = final: prev: {
     kakoune-unwrapped = prev.kakoune-unwrapped.overrideAttrs (oldAttrs: {
-      version = "unstable-2025-06-18";
+      version = "unstable-2026-03-25";
       src = prev.fetchFromGitHub {
         owner = "mawww";
         repo = "kakoune";
-        rev = "50cdb754fb9cc1d8af79285cf6076330de02de20";
-        hash = "sha256-iLq27vI8rMttUoONnYxWjn1SLk1IJ3yva9FqApZ0diI=";
+        rev = "1355294ef3c5deac37e3cdd9a124fe3002e2751a";
+        hash = "sha256-H6OJAg7etnriofRDdygMErXQFdUuKBrGpO6Wnz/Usd0=";
       };
     });
   };
