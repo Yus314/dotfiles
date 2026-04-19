@@ -106,6 +106,14 @@ let
     # /nix/store/...-bash-interactive-.../bin/bash なので "bash" を含む。
     export SHELL=$(${pkgs.coreutils}/bin/readlink -f /bin/sh)
 
+    # サンドボックス内では GPG 署名を無効化。
+    # gpg-agent の pinentry はサンドボックス内の TTY に接続できないため、
+    # パスフレーズキャッシュ切れ時に "No pinentry" で失敗する。
+    # 必要なら push 前に git commit --amend -S で署名を追加できる。
+    export GIT_CONFIG_COUNT=1
+    export GIT_CONFIG_KEY_0=commit.gpgsign
+    export GIT_CONFIG_VALUE_0=false
+
     # nono run はアダプティブ実行: Supervised/Direct を自動選択する。
     # v0.37.1 ではネットワークはデフォルト許可（--allow-net は deprecated）。
     # O_CREAT 問題は v0.15.0 (PR #289) で修正済み。
