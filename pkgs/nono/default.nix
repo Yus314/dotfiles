@@ -10,22 +10,22 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "nono";
-  version = "0.25.0";
+  version = "0.37.1";
 
   src = fetchFromGitHub {
     owner = "always-further";
     repo = "nono";
     rev = "v${version}";
-    hash = "sha256-CwlO6qRQ6VrgQGmusJb6/RWKxDyApsh8YLYf5MDBYOY=";
+    hash = "sha256-0x+/Kga8dJFnCLpy9McHZqL5bYSghpGPQtKmsSWxt7k=";
   };
 
-  cargoHash = "sha256-DfGjB1wx7JMXszS8RTbKZl13hdBEKOWUFpaUigNuTGg=";
+  cargoHash = "sha256-i1OiZmdZlPZHJom9eYW5BQs42edjvO00tiiJl2wCgd0=";
 
   # IoctlDev パッチは v0.16.0 で上流修正済み（apply_with_abi() でデバイスパスのみ選択的付与）
   postPatch = ''
     # Seccomp deny should return EACCES (not EPERM) so glibc's dynamic linker
     # continues searching RUNPATH entries instead of aborting on the first miss.
-    # v0.14.0 → v0.25.0 でコードがリファクタリングされ、deny_notif() が
+    # v0.14.0 → v0.37.1 でコードがリファクタリングされ、deny_notif() が
     # respond_notif_errno() ヘルパー関数を使うようになった。
     substituteInPlace crates/nono/src/sandbox/linux.rs \
       --replace-fail \

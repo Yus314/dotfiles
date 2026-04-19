@@ -107,13 +107,11 @@ let
     export SHELL=$(${pkgs.coreutils}/bin/readlink -f /bin/sh)
 
     # nono run はアダプティブ実行: Supervised/Direct を自動選択する。
-    # --allow-net でプロキシを無効化 → Direct モード（Landlock のみ）になる。
+    # v0.37.1 ではネットワークはデフォルト許可（--allow-net は deprecated）。
     # O_CREAT 問題は v0.15.0 (PR #289) で修正済み。
-    # 将来 --allow-net を外せばプロキシフィルタリング付き Supervised モードに移行可能。
     exec ${pkgs.nono}/bin/nono run \
       --profile claude-code-nixos \
       --allow-cwd \
-      --allow-net \
       -- ${claudeCodePkg}/bin/claude \
         --dangerously-skip-permissions \
         "$@"
@@ -135,20 +133,12 @@ in
   # カスタム nono プロファイル: 組み込み claude-code を extends し NixOS 固有設定を追加
   xdg.configFile."nono/profiles/claude-code-nixos.json".text = builtins.toJSON {
     extends = "claude-code";
-    network = {
-      # 組み込み github グループに含まれないが gh run view --log-failed 等で必要なホスト
-      proxy_allow = [
-        "results-receiver.actions.githubusercontent.com"
-      ];
-    };
-    security = {
-      allowed_commands = [
-        "rm"
-        "mv"
-        "cp"
-        "chmod"
-      ];
-    };
+    # network セクション削除: proxy_allow が存在するだけで nono v0.37.1 は
+    # プロキシモードを有効化し、macOS Seatbelt で spawn EPERM を引き起こす。
+    # v0.37.1 ではネットワークはデフォルト許可のため proxy_allow 自体が不要。
+    #
+    # security.allowed_commands 削除: v0.33.0 で deprecated（カーネル非強制）。
+    # ファイルシステム権限で十分にカバーされる。
     filesystem = {
       allow = [
         "$HOME/ghq/github.com/Yus314"
@@ -165,6 +155,8 @@ in
         "$HOME/.config/gh"
         "$HOME/.config/cabal"
         "$HOME/.nix-profile"
+        # ~/.nix-profile → ~/.local/state/nix/profiles/profile のシンボリンク解決に必要
+        "$HOME/.local/state/nix/profiles"
         # Claude Code がブラウザ検出で google-chrome config を probe する。
         # 未許可だと seccomp-notify の対話プロンプトが表示され、その間に
         # 他スレッドの通知がキューに溜まり、応答後にスーパーバイザーがハングする。
