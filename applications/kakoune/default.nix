@@ -4,8 +4,9 @@
     kakoune-lsp
     nixd
     markdown-oxide
+    rust-analyzer
     kak-tree-sitter
-    kakounePlugins.kakoune-markdown-render
+    # kakounePlugins.kakoune-markdown-render
   ];
 
   xdg.configFile."kak-tree-sitter/config.toml".text = ''
@@ -47,7 +48,7 @@
       pkgs.kakounePlugins.kakoune-scrollback
       pkgs.kakounePlugins.kakoune-autothemes
       pkgs.kakounePlugins.kakoune-sprout
-      pkgs.kakounePlugins.kakoune-markdown-render
+      # pkgs.kakounePlugins.kakoune-markdown-render
     ];
     colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;
     extraConfig = ''
@@ -74,6 +75,7 @@
       eval %sh{kak-lsp --kakoune -s $kak_session}
       remove-hooks global lsp-filetype-.*
       lsp-enable
+      set-option global lsp_timeout 120
 
       hook global BufSetOption filetype=nix %{
           set-option buffer lsp_servers %{
@@ -87,6 +89,13 @@
               expr = "(builtins.getFlake (\"git+file://\" + toString ./.)).nixosConfigurations.lawliet.options"
               [nixd.settings.nixd.options.home-manager]
               expr = "(builtins.getFlake (\"git+file://\" + toString ./.)).nixosConfigurations.lawliet.options.home-manager.users.type.getSubOptions []"
+          }
+      }
+
+      hook global BufSetOption filetype=rust %{
+          set-option buffer lsp_servers %{
+              [rust-analyzer]
+              root_globs = ["Cargo.toml", ".git", ".hg"]
           }
       }
 
@@ -111,12 +120,12 @@
 
       # kakoune-markdown-render: Nerd Font 丸囲み数字 (nf-md-numeric_N_circle) は
       # セル全体を埋めるデザインのため、Unicode 丸数字に差し替え
-      set-option global mkdr_heading_char_1 '①'
-      set-option global mkdr_heading_char_2 '②'
-      set-option global mkdr_heading_char_3 '③'
-      set-option global mkdr_heading_char_4 '④'
-      set-option global mkdr_heading_char_5 '⑤'
-      set-option global mkdr_heading_char_6 '⑥'
+      # set-option global mkdr_heading_char_1 '①'
+      # set-option global mkdr_heading_char_2 '②'
+      # set-option global mkdr_heading_char_3 '③'
+      # set-option global mkdr_heading_char_4 '④'
+      # set-option global mkdr_heading_char_5 '⑤'
+      # set-option global mkdr_heading_char_6 '⑥'
 
       map global user l ':enter-user-mode lsp<ret>' -docstring 'LSP mode'
     '';
