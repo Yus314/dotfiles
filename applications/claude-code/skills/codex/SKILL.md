@@ -6,34 +6,40 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 # Codex Skill Guide
 
 ## Running a Task
-1. Ask the user (via `AskUserQuestion`) which model to run (`gpt-5.3-codex` or `gpt-5.2`) AND which reasoning effort to use (`xhigh`, `high`, `medium`, or `low`) in a **single prompt with two questions**.
-2. Select the sandbox mode required for the task; default to `--sandbox read-only` unless edits or network access are necessary.
-3. Assemble the command with the appropriate options:
+1. If the user specifies a model, use it. Otherwise prefer the Codex CLI default model instead of hardcoding model choices in this skill.
+2. If the user specifies a reasoning effort, pass it with `--config model_reasoning_effort="<xhigh|high|medium|low>"`. Otherwise use the CLI or profile default. Only force a higher reasoning effort when the task genuinely needs deeper analysis.
+3. Select the execution mode required for the task:
+   - Use `--sandbox read-only` for read-only review or analysis.
+   - Use `--full-auto` when Claude is delegating substantive implementation or exploration to Codex and approval friction should stay low. `--full-auto` implies `--sandbox workspace-write` and `-a on-request`.
+   - Use `--sandbox danger-full-access` only when the task truly requires broader access.
+4. Assemble the command with the appropriate options:
    - `-m, --model <MODEL>`
    - `--config model_reasoning_effort="<xhigh|high|medium|low>"`
+   - `-a, --ask-for-approval <untrusted|on-request|never>`
    - `--sandbox <read-only|workspace-write|danger-full-access>`
    - `--full-auto`
    - `-C, --cd <DIR>`
    - `--skip-git-repo-check`
-3. Always use --skip-git-repo-check.
-4. When continuing a previous session, use `codex exec --skip-git-repo-check resume --last` via stdin. When resuming don't use any configuration flags unless explicitly requested by the user e.g. if he species the model or the reasoning effort when requesting to resume a session. Resume syntax: `echo "your prompt here" | codex exec --skip-git-repo-check resume --last 2>/dev/null`. All flags have to be inserted between exec and resume.
-5. **IMPORTANT**: By default, append `2>/dev/null` to all `codex exec` commands to suppress thinking tokens (stderr). Only show stderr if the user explicitly requests to see thinking tokens or if debugging is needed.
-6. Run the command, capture stdout/stderr (filtered as appropriate), and summarize the outcome for the user.
-7. **After Codex completes**, inform the user: "You can resume this Codex session at any time by saying 'codex resume' or asking me to continue with additional analysis or changes."
+5. Only add `--skip-git-repo-check` when the task must run outside a Git repository or when Claude is intentionally using Codex for Git-unaware analysis. Do not treat it as a mandatory default.
+6. When continuing a previous session, prefer `codex exec resume --last` and preserve the existing session settings unless there is a concrete reason to override them. Overriding model, approval, or sandbox settings during resume is allowed when the task has changed.
+7. Do not suppress stderr by default. Keep warnings and execution diagnostics visible unless there is a specific reason to reduce noise, and summarize any meaningful warnings for the user.
+8. Run the command, capture stdout/stderr, and summarize the outcome for the user.
+9. After Codex completes, mention that the session can be resumed later with `codex resume` or by asking Claude to continue the existing Codex work.
 
 ### Quick Reference
-| Use case | Sandbox mode | Key flags |
-| --- | --- | --- |
-| Read-only review or analysis | `read-only` | `--sandbox read-only 2>/dev/null` |
-| Apply local edits | `workspace-write` | `--sandbox workspace-write --full-auto 2>/dev/null` |
-| Permit network or broad access | `danger-full-access` | `--sandbox danger-full-access --full-auto 2>/dev/null` |
-| Resume recent session | Inherited from original | `echo "prompt" \| codex exec --skip-git-repo-check resume --last 2>/dev/null` (no flags allowed) |
-| Run from another directory | Match task needs | `-C <DIR>` plus other flags `2>/dev/null` |
+| Use case | Approval | Sandbox mode | Example |
+| --- | --- | --- | --- |
+| Read-only review or analysis | Default or explicit `untrusted` | `read-only` | `codex exec --sandbox read-only "review this code for bugs"` |
+| Delegate edits with low friction | `on-request` via `--full-auto` | `workspace-write` via `--full-auto` | `codex exec --full-auto "implement the requested change"` |
+| Permit broad local or network access | Match task risk explicitly | `danger-full-access` | `codex exec -a on-request --sandbox danger-full-access "investigate and fix the issue"` |
+| Resume recent session | Usually inherit existing session policy | Usually inherit existing session policy | `codex exec resume --last "continue from the prior findings"` |
+| Run outside a Git repo | Match task needs | Match task needs | `codex exec --sandbox read-only --skip-git-repo-check "analyze these files"` |
+| Run from another directory | Match task needs | Match task needs | `codex exec -C <DIR> --full-auto "work on this project"` |
 
 ## Following Up
-- After every `codex` command, immediately use `AskUserQuestion` to confirm next steps, collect clarifications, or decide whether to resume with `codex exec resume --last`.
-- When resuming, pipe the new prompt via stdin: `echo "new prompt" | codex exec resume --last 2>/dev/null`. The resumed session automatically uses the same model, reasoning effort, and sandbox mode from the original session.
-- Restate the chosen model, reasoning effort, and sandbox mode when proposing follow-up actions.
+- Use `AskUserQuestion` when there is a real branching choice to make, such as selecting a follow-up direction or clarifying whether Codex should resume with broader permissions.
+- When resuming, either pass the new prompt as an argument or via stdin: `codex exec resume --last "continue"` or `echo "continue" | codex exec resume --last -`.
+- Restate the chosen model, reasoning effort, and execution mode when proposing follow-up actions if those details matter to the next step.
 
 ## Critical Evaluation of Codex Output
 
@@ -53,7 +59,7 @@ Codex is powered by OpenAI models with their own knowledge cutoffs and limitatio
 2. Provide evidence (your own knowledge, web search, docs)
 3. Optionally resume the Codex session to discuss the disagreement. **Identify yourself as Claude** so Codex knows it's a peer AI discussion. Use your actual model name (e.g., the model you are currently running as) instead of a hardcoded name:
    ```bash
-   echo "This is Claude (<your current model name>) following up. I disagree with [X] because [evidence]. What's your take on this?" | codex exec --skip-git-repo-check resume --last 2>/dev/null
+   echo "This is Claude (<your current model name>) following up. I disagree with [X] because [evidence]. What's your take on this?" | codex exec --skip-git-repo-check resume --last -
    ```
 4. Frame disagreements as discussions, not corrections - either AI could be wrong
 5. Let the user decide how to proceed if there's genuine ambiguity
