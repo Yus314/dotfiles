@@ -25,6 +25,11 @@ stdenv.mkDerivation rec {
     hash = "sha256-UfEmRenWiX2xbIirkDRbix1YQrDz1/sVg6yut8ZRJ0k=";
   };
 
+  postPatch = ''
+    sed -i -e '\|#include <fcitx-utils/standardpath.h>|a #include <fcitx-utils/stringutils.h>' \
+      gui/adddictdialog.cpp
+  '';
+
   nativeBuildInputs = [
     cmake
     extra-cmake-modules
