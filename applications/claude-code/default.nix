@@ -157,6 +157,7 @@ in
         "$HOME/.local/share/gnupg"
         "$HOME/.cache"
         "$HOME/.cargo"
+        "$HOME/.local/state/cabal"
         "$HOME/.config/codex"
         "/tmp"
       ];
