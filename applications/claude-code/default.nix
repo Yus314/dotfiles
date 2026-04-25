@@ -115,7 +115,7 @@ let
     export GIT_CONFIG_VALUE_0=false
 
     # nono run はアダプティブ実行: Supervised/Direct を自動選択する。
-    # v0.37.1 ではネットワークはデフォルト許可（--allow-net は deprecated）。
+    # v0.42.0 ではネットワークはデフォルト許可（--allow-net は deprecated）。
     # O_CREAT 問題は v0.15.0 (PR #289) で修正済み。
     exec ${pkgs.nono}/bin/nono run \
       --profile claude-code-nixos \
@@ -143,7 +143,7 @@ in
     extends = "claude-code";
     # network セクション削除: proxy_allow が存在するだけで nono v0.37.1 は
     # プロキシモードを有効化し、macOS Seatbelt で spawn EPERM を引き起こす。
-    # v0.37.1 ではネットワークはデフォルト許可のため proxy_allow 自体が不要。
+    # v0.42.0 でも引き続きデフォルト許可のため proxy_allow 自体が不要。
     #
     # security.allowed_commands 削除: v0.33.0 で deprecated（カーネル非強制）。
     # ファイルシステム権限で十分にカバーされる。
