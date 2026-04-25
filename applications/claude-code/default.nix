@@ -158,6 +158,7 @@ in
         "$HOME/.cache"
         "$HOME/.cargo"
         "$HOME/.config/codex"
+        "/tmp"
       ];
       read = [
         "$HOME/.config/gh"
