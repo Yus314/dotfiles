@@ -13,7 +13,7 @@
     ../../applications/nyxt
     ../../applications/fcitx5-cskk
     ../../applications/darkman
-    #../../applications/obs-studio
+    ../../applications/obs-studio
   ];
   home.packages = with pkgs; [
     thunar
