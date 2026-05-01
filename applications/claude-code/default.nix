@@ -117,9 +117,15 @@ let
     # nono run はアダプティブ実行: Supervised/Direct を自動選択する。
     # v0.42.0 ではネットワークはデフォルト許可（--allow-net は deprecated）。
     # O_CREAT 問題は v0.15.0 (PR #289) で修正済み。
+    #
+    # --allow-gpu: macOS (Apple Silicon) では Metal の AGXDeviceUserClient へ
+    # iokit-open を許可する。Linux では DRM/NVIDIA/ROCm のデバイスノードを
+    # 列挙し、見つからないと SandboxInit エラーで fail closed するため、
+    # GPU 非搭載ホスト (ryuk/rem 等) を考慮して macOS でのみ有効化する。
     exec ${pkgs.nono}/bin/nono run \
       --profile claude-code-nixos \
       --allow-cwd \
+      ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin "--allow-gpu \\"}
       -- ${claudeCodePkg}/bin/claude \
         --dangerously-skip-permissions \
         "$@"
@@ -147,6 +153,12 @@ in
     #
     # security.allowed_commands 削除: v0.33.0 で deprecated（カーネル非強制）。
     # ファイルシステム権限で十分にカバーされる。
+    #
+    # allow_gpu: macOS (Apple Silicon) では AGXDeviceUserClient への iokit-open を
+    # 許可。nono は CLI 側の --allow-gpu とプロファイル側の opt-in の両方が
+    # 揃ったときだけ Seatbelt にルールを足すため、ここで profile_allowed=true
+    # にする。Linux 側のラッパーは --allow-gpu を付けないので no-op。
+    allow_gpu = true;
     filesystem = {
       allow = [
         "$HOME/ghq/github.com/Yus314"
