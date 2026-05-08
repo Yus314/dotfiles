@@ -35,6 +35,11 @@
       flake = false;
     };
 
+    kasane = {
+      url = "github:Yus314/kasane";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     disko.inputs.nixpkgs.follows = "nixpkgs";
     emacs-overlay.inputs.nixpkgs-stable.follows = "nixpkgs-stable";
     emacs-overlay.inputs.nixpkgs.follows = "nixpkgs";
