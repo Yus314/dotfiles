@@ -5,8 +5,8 @@
     nixd
     markdown-oxide
     rust-analyzer
-    kak-tree-sitter
-    # kakounePlugins.kakoune-markdown-render
+    # kak-tree-sitter # temporarily disabled: depends on tinycc which is marked as broken in nixpkgs
+    kakounePlugins.kakoune-markdown-render
   ];
 
   xdg.configFile."kak-tree-sitter/config.toml".text = ''
@@ -47,7 +47,6 @@
     plugins = [
       pkgs.kakounePlugins.kakoune-scrollback
       pkgs.kakounePlugins.kakoune-autothemes
-      pkgs.kakounePlugins.kakoune-sprout
       # pkgs.kakounePlugins.kakoune-markdown-render
     ];
     colorSchemePackage = pkgs.kakounePlugins.kakoune-themes;
@@ -66,7 +65,7 @@
         try %{ nop %sh{ printf %s "$kak_main_reg_dquote" | ${./osc52-copy.sh} } }
       }
 
-      eval %sh{ kak-tree-sitter -dks --init $kak_session --with-highlighting --with-text-objects }
+      # eval %sh{ kak-tree-sitter -dks --init $kak_session --with-highlighting --with-text-objects } # temporarily disabled: depends on tinycc which is marked as broken in nixpkgs
 
       set-option global autothemes_dark_theme modus-vivendi
       set-option global autothemes_light_theme modus-operandi
