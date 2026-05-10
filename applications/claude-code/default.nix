@@ -125,7 +125,7 @@ let
     exec ${pkgs.nono}/bin/nono run \
       --profile claude-code-nixos \
       --allow-cwd \
-      ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin "--allow-gpu \\"}
+      ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin "--allow-gpu"} \
       -- ${claudeCodePkg}/bin/claude \
         --dangerously-skip-permissions \
         "$@"
