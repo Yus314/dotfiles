@@ -32,6 +32,106 @@ let
 
   # デバイスIDが設定されているかチェック
   isConfigured = !lib.hasPrefix "XXXXXXX" androidDeviceId;
+
+  mkStaggeredVersioning = maxAge: {
+    type = "staggered";
+    params = {
+      cleanInterval = "3600";
+      inherit maxAge;
+    };
+  };
+
+  staggered30d = mkStaggeredVersioning "2592000";
+  staggered1y = mkStaggeredVersioning "31536000";
+
+  mkWatchedFolder =
+    {
+      path,
+      devices,
+      fsWatcherDelayS ? 10,
+      rescanIntervalS ? 3600,
+      ignorePerms ? false,
+    }:
+    {
+      inherit
+        path
+        devices
+        ignorePerms
+        fsWatcherDelayS
+        rescanIntervalS
+        ;
+      type = "sendreceive";
+      fsWatcherEnabled = true;
+      versioning = staggered30d;
+    };
+
+  mobileAndWatariDevices = [
+    "android-mole"
+    "watari"
+  ];
+
+  orgStignore = ''
+    // Emacs temp files
+    .#*
+    *.tmp
+    *~
+    // macOS metadata
+    .DS_Store
+    ._*
+    // Org internal
+    .org-id-locations
+  '';
+
+  orgKnowledgeStignore = ''
+    ${orgStignore}
+    // org-roam DB (SQLite + WAL/SHM) - ローカル生成
+    org-roam.db
+    org-roam.db-wal
+    org-roam.db-shm
+  '';
+
+  obsidianStignore = ''
+    // Obsidian workspace (device-specific)
+    .obsidian/workspace.json
+    .obsidian/workspace-mobile.json
+    .obsidian/workspace-cache.json
+    // Nix-managed plugins (Home Manager)
+    .obsidian/plugins/
+    .obsidian/community-plugins.json
+    // Trash (削除は全端末に反映、ゴミ箱は端末ローカル)
+    .trash/
+    // macOS metadata
+    .DS_Store
+    ._*
+    // Editor temp files
+    .#*
+    *.tmp
+    *~
+    *.swp
+    *.swo
+    *.bak
+    // org-roam DB (SQLite + WAL/SHM) - ローカル生成
+    org-roam.db
+    org-roam.db-wal
+    org-roam.db-shm
+  '';
+
+  moleStignore = ''
+    // MoLe IPC files (do not sync)
+    requests/
+    responses/
+    audit.log
+
+    // Temporary files
+    *.tmp
+    *.swp
+    *~
+
+    // Lock files
+    *.lock
+    .#*
+    *.bak
+  '';
 in
 {
   services.syncthing = {
@@ -85,84 +185,29 @@ in
           path = "/home/${user}/ledger/${profileName}";
           type = "sendreceive";
           devices = [ "android-mole" ];
-          versioning = {
-            type = "staggered";
-            params = {
-              cleanInterval = "3600";
-              maxAge = "31536000";
-            };
-          };
+          versioning = staggered1y;
         };
-        "org-tasks" = {
+        "org-tasks" = mkWatchedFolder {
           path = "/home/${user}/org";
-          type = "sendreceive";
-          devices = [
-            "android-mole"
-            "watari"
-          ];
-          fsWatcherEnabled = true;
+          devices = mobileAndWatariDevices;
           fsWatcherDelayS = 2;
           rescanIntervalS = 300;
-          versioning = {
-            type = "staggered";
-            params = {
-              cleanInterval = "3600";
-              maxAge = "2592000";
-            };
-          };
         };
-        "org-knowledge" = {
+        "org-knowledge" = mkWatchedFolder {
           path = "/home/${user}/org-knowledge";
-          type = "sendreceive";
           devices = [ "watari" ];
-          fsWatcherEnabled = true;
-          fsWatcherDelayS = 10;
-          rescanIntervalS = 3600;
-          versioning = {
-            type = "staggered";
-            params = {
-              cleanInterval = "3600";
-              maxAge = "2592000";
-            };
-          };
         };
-        "weekly-report" = {
+        "weekly-report" = mkWatchedFolder {
           path = "/home/${user}/weekly-report";
-          type = "sendreceive";
-          devices = [
-            "android-mole"
-            "watari"
-          ];
+          devices = mobileAndWatariDevices;
           ignorePerms = true;
-          fsWatcherEnabled = true;
-          fsWatcherDelayS = 10;
-          rescanIntervalS = 3600;
-          versioning = {
-            type = "staggered";
-            params = {
-              cleanInterval = "3600";
-              maxAge = "2592000";
-            };
-          };
         };
-        "obsidian-vault" = {
+        "obsidian-vault" = mkWatchedFolder {
           path = "/home/${user}/obsidian-vault";
-          type = "sendreceive";
-          devices = [
-            "android-mole"
-            "watari"
-          ];
+          devices = mobileAndWatariDevices;
           ignorePerms = true;
-          fsWatcherEnabled = true;
           fsWatcherDelayS = 5;
           rescanIntervalS = 1800;
-          versioning = {
-            type = "staggered";
-            params = {
-              cleanInterval = "3600";
-              maxAge = "2592000";
-            };
-          };
         };
       };
     };
@@ -170,40 +215,20 @@ in
 
   # org同期ディレクトリと.stignore作成
   system.activationScripts.syncthing-org-setup = lib.stringAfter [ "users" ] ''
-        mkdir -p /home/${user}/org/inbox
-        mkdir -p /home/${user}/org-knowledge/zk
-        mkdir -p /home/${user}/org-knowledge/archive
-        chown -R ${user}:${group} /home/${user}/org /home/${user}/org-knowledge
+    mkdir -p /home/${user}/org/inbox
+    mkdir -p /home/${user}/org-knowledge/zk
+    mkdir -p /home/${user}/org-knowledge/archive
+    chown -R ${user}:${group} /home/${user}/org /home/${user}/org-knowledge
 
-        cat > /home/${user}/org/.stignore << 'STEOF'
-    // Emacs temp files
-    .#*
-    *.tmp
-    *~
-    // macOS metadata
-    .DS_Store
-    ._*
-    // Org internal
-    .org-id-locations
+    cat > /home/${user}/org/.stignore << 'STEOF'
+    ${orgStignore}
     STEOF
 
-        cat > /home/${user}/org-knowledge/.stignore << 'STEOF'
-    // Emacs temp files
-    .#*
-    *.tmp
-    *~
-    // macOS metadata
-    .DS_Store
-    ._*
-    // Org internal
-    .org-id-locations
-    // org-roam DB (SQLite + WAL/SHM) - ローカル生成
-    org-roam.db
-    org-roam.db-wal
-    org-roam.db-shm
+    cat > /home/${user}/org-knowledge/.stignore << 'STEOF'
+    ${orgKnowledgeStignore}
     STEOF
 
-        chown ${user}:${group} /home/${user}/org/.stignore /home/${user}/org-knowledge/.stignore
+    chown ${user}:${group} /home/${user}/org/.stignore /home/${user}/org-knowledge/.stignore
   '';
 
   # weekly-report同期ディレクトリ作成
@@ -214,73 +239,38 @@ in
 
   # Obsidian vault同期ディレクトリと.stignore作成
   system.activationScripts.syncthing-obsidian-setup = lib.stringAfter [ "users" ] ''
-        mkdir -p /home/${user}/obsidian-vault
-        chown ${user}:${group} /home/${user}/obsidian-vault
+    mkdir -p /home/${user}/obsidian-vault
+    chown ${user}:${group} /home/${user}/obsidian-vault
 
-        STIGNORE="/home/${user}/obsidian-vault/.stignore"
-        STIGNORE_NEW="$STIGNORE.new"
-        cat > "$STIGNORE_NEW" << 'STEOF'
-    // Obsidian workspace (device-specific)
-    .obsidian/workspace.json
-    .obsidian/workspace-mobile.json
-    .obsidian/workspace-cache.json
-    // Nix-managed plugins (Home Manager)
-    .obsidian/plugins/
-    .obsidian/community-plugins.json
-    // Trash (削除は全端末に反映、ゴミ箱は端末ローカル)
-    .trash/
-    // macOS metadata
-    .DS_Store
-    ._*
-    // Editor temp files
-    .#*
-    *.tmp
-    *~
-    *.swp
-    *.swo
-    *.bak
-    // org-roam DB (SQLite + WAL/SHM) - ローカル生成
-    org-roam.db
-    org-roam.db-wal
-    org-roam.db-shm
+    STIGNORE="/home/${user}/obsidian-vault/.stignore"
+    STIGNORE_NEW="$STIGNORE.new"
+    cat > "$STIGNORE_NEW" << 'STEOF'
+    ${obsidianStignore}
     STEOF
-        # 内容が同じなら上書きしない (mtime 変更による不要な同期を防止)
-        if ! cmp -s "$STIGNORE_NEW" "$STIGNORE" 2>/dev/null; then
-          mv "$STIGNORE_NEW" "$STIGNORE"
-        else
-          rm -f "$STIGNORE_NEW"
-        fi
-        chown ${user}:${group} "$STIGNORE"
+    # 内容が同じなら上書きしない (mtime 変更による不要な同期を防止)
+    if ! cmp -s "$STIGNORE_NEW" "$STIGNORE" 2>/dev/null; then
+      mv "$STIGNORE_NEW" "$STIGNORE"
+    else
+      rm -f "$STIGNORE_NEW"
+    fi
+    chown ${user}:${group} "$STIGNORE"
   '';
 
   # MoLe同期ディレクトリとファイルの作成
   system.activationScripts.syncthing-mole-setup = lib.stringAfter [ "users" ] ''
-        # ディレクトリ作成
-        mkdir -p /home/${user}/ledger/${profileName}
-        chown -R ${user}:${group} /home/${user}/ledger
+    # ディレクトリ作成
+    mkdir -p /home/${user}/ledger/${profileName}
+    chown -R ${user}:${group} /home/${user}/ledger
 
-        # .stignoreファイル作成（MoLe IPCディレクトリを除外）
-        cat > /home/${user}/ledger/${profileName}/.stignore << 'EOF'
-    // MoLe IPC files (do not sync)
-    requests/
-    responses/
-    audit.log
-
-    // Temporary files
-    *.tmp
-    *.swp
-    *~
-
-    // Lock files
-    *.lock
-    .#*
-    *.bak
+    # .stignoreファイル作成（MoLe IPCディレクトリを除外）
+    cat > /home/${user}/ledger/${profileName}/.stignore << 'EOF'
+    ${moleStignore}
     EOF
-        chown ${user}:${group} /home/${user}/ledger/${profileName}/.stignore
+    chown ${user}:${group} /home/${user}/ledger/${profileName}/.stignore
 
-        # journal.ledgerテンプレート作成（存在しない場合のみ）
-        if [ ! -f /home/${user}/ledger/${profileName}/journal.ledger ]; then
-          cat > /home/${user}/ledger/${profileName}/journal.ledger.template << 'EOF'
+    # journal.ledgerテンプレート作成（存在しない場合のみ）
+    if [ ! -f /home/${user}/ledger/${profileName}/journal.ledger ]; then
+      cat > /home/${user}/ledger/${profileName}/journal.ledger.template << 'EOF'
     ; MoLe Journal Template
     ; Copy this to journal.ledger and customize
 
@@ -291,7 +281,7 @@ in
     ; account assets:bank:checking
     ; account expenses:food
     EOF
-          chown ${user}:${group} /home/${user}/ledger/${profileName}/journal.ledger.template
-        fi
+      chown ${user}:${group} /home/${user}/ledger/${profileName}/journal.ledger.template
+    fi
   '';
 }
