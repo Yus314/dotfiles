@@ -22,8 +22,15 @@ let
     # 日本の祝日は変更されないため監視不要
   };
 
-  # sedフィルタ: :END:の次行の不正タイムスタンプを除去
-  sedFilter = "sed '/^:END:$/ { n; /^[[:space:]]*<[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}.*>$/d; }'";
+  # org-lint/Orgzly互換化フィルタ:
+  # khalorg 0.1.2 はユーザー定義テンプレートでも timestamp を見出し直下へ出力するため、
+  # PROPERTIES drawer を見出し直下へ移動する。
+  normalizeOrgProperties = pkgs.writeShellScript "normalize-khalorg-properties" ''
+    ${lib.getExe pkgs.perl} -0pi -e '
+      s/(^\* [^\n]*\n)([^\n]*<[0-9]{4}-[0-9]{2}-[0-9]{2}[^\n]*>[^\n]*\n)(:PROPERTIES:\n(?:(?!:END:\n).)*:END:\n)/$1$3$2/gms;
+      s/^:LOCATION:[[:space:]]*\n//gm;
+    ' "$@"
+  '';
 
   # org更新専用スクリプト（systemd.path からトリガーされる）
   calsyncOrgScript = pkgs.writeShellScriptBin "calsync-org" ''
@@ -56,10 +63,12 @@ let
       echo "#+CATEGORY: calendar"
       echo "#+FILETAGS: :calendar:"
       echo ""
-      ${lib.concatMapStringsSep "\n      " (cal: ''
-        ${lib.getExe pkgs.khalorg} list "${cal}" today 30d 2>/dev/null \
-          | ${sedFilter} || true'') calendars}
+      ${lib.concatMapStringsSep "\n      " (
+        cal: ''${lib.getExe pkgs.khalorg} list "${cal}" today 30d 2>/dev/null || true''
+      ) calendars}
     } > "$CALENDAR_ORG.tmp"
+
+    ${normalizeOrgProperties} "$CALENDAR_ORG.tmp"
 
     # 内容が変わった場合のみ更新（Emacsのauto-revert対策）
     if ! cmp -s "$CALENDAR_ORG" "$CALENDAR_ORG.tmp" 2>/dev/null; then
@@ -133,14 +142,16 @@ in
   };
 
   # フォーマット設定
+  # khalorg 0.1.2 では timestamp の出力位置が固定されるため、最終的なOrgzly互換化は
+  # normalizeOrgProperties で行う。
   xdg.configFile."khalorg/khalorg_format.txt".text = ''
     * {title}
-    {timestamps}
     :PROPERTIES:
     :CALENDAR: {calendar}
     :LOCATION: {location}
     :ID: {uid}
     :END:
+    {timestamps}
     {description}
   '';
 }
