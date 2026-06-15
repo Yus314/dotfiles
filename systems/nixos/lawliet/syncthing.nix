@@ -122,6 +122,14 @@ let
     responses/
     audit.log
 
+    // Local development/cache dirs
+    .git
+    .git/**
+    .git.backup
+    .git.backup/**
+    .direnv
+    .direnv/**
+
     // Temporary files
     *.tmp
     *.swp
