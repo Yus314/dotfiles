@@ -29,6 +29,18 @@
         };
         sendEnv = [ "TERM" ];
       };
+      "pixel9-termux" = {
+        hostname = "pixel-9.tailbd0b41.ts.net";
+        user = "u0_a374";
+        port = 8022;
+        setEnv = {
+          TERM = "xterm-256color";
+        };
+        sendEnv = [ "TERM" ];
+        extraOptions = {
+          StrictHostKeyChecking = "accept-new";
+        };
+      };
       "*" = {
         serverAliveInterval = 60;
         serverAliveCountMax = 3;
