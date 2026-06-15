@@ -23,7 +23,7 @@
 
     settings = {
       default = {
-        default_calendar = "google";
+        default_calendar = "shizhaoyoujie@gmail.com";
         highlight_event_days = true;
       };
     };
