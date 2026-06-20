@@ -13,6 +13,7 @@ let
   calendars = [
     "shizhaoyoujie@gmail.com"
     "共有カレンダー"
+    "日本の祝日"
   ];
 
   # systemd.path で監視するディレクトリ名（実際のディレクトリ名）
@@ -58,25 +59,55 @@ let
 
     echo "Exporting calendars to org format..."
 
+    TMP_FILE="$CALENDAR_ORG.tmp"
+    LOG_FILE="$CALENDAR_ORG.tmp.log"
+    : > "$LOG_FILE"
+
     {
       echo "#+TITLE: Google Calendar"
       echo "#+CATEGORY: calendar"
       echo "#+FILETAGS: :calendar:"
       echo ""
-      ${lib.concatMapStringsSep "\n      " (
-        cal: ''${lib.getExe pkgs.khalorg} list "${cal}" today 30d 2>/dev/null || true''
-      ) calendars}
-    } > "$CALENDAR_ORG.tmp"
+    } > "$TMP_FILE"
 
-    ${normalizeOrgProperties} "$CALENDAR_ORG.tmp"
+    EXPORT_FAILURES=0
+    ${lib.concatMapStringsSep "\n    " (cal: ''
+      echo "Exporting calendar: ${cal}" >&2
+      if ! ${lib.getExe pkgs.khalorg} list ${lib.escapeShellArg cal} today 30d >> "$TMP_FILE" 2>> "$LOG_FILE"; then
+        echo "ERROR: khalorg failed for calendar: ${cal}" >&2
+        EXPORT_FAILURES=$((EXPORT_FAILURES + 1))
+      fi
+    '') calendars}
+
+    if [ -s "$LOG_FILE" ]; then
+      echo "khalorg diagnostics:" >&2
+      sed -n '1,80p' "$LOG_FILE" >&2
+    fi
+
+    if [ "$EXPORT_FAILURES" -ne 0 ]; then
+      rm -f "$TMP_FILE" "$LOG_FILE"
+      echo "ERROR: $EXPORT_FAILURES calendar export(s) failed; keeping existing $CALENDAR_ORG" >&2
+      exit 1
+    fi
+
+    ${normalizeOrgProperties} "$TMP_FILE"
+
+    EVENT_COUNT=$(grep -c '^\* ' "$TMP_FILE" || true)
+    KHAL_NONEMPTY_COUNT=$(${lib.getExe' pkgs.khal "khal"} list today 30d | sed '/^[[:space:]]*$/d' | wc -l)
+    if [ "$EVENT_COUNT" -eq 0 ] && [ "$KHAL_NONEMPTY_COUNT" -gt 0 ]; then
+      rm -f "$TMP_FILE" "$LOG_FILE"
+      echo "ERROR: khal has $KHAL_NONEMPTY_COUNT non-empty line(s), but khalorg exported 0 org headings; keeping existing $CALENDAR_ORG" >&2
+      exit 1
+    fi
 
     # 内容が変わった場合のみ更新（Emacsのauto-revert対策）
-    if ! cmp -s "$CALENDAR_ORG" "$CALENDAR_ORG.tmp" 2>/dev/null; then
-      mv "$CALENDAR_ORG.tmp" "$CALENDAR_ORG"
-      echo "Calendar updated: $CALENDAR_ORG"
+    if ! cmp -s "$CALENDAR_ORG" "$TMP_FILE" 2>/dev/null; then
+      mv "$TMP_FILE" "$CALENDAR_ORG"
+      rm -f "$LOG_FILE"
+      echo "Calendar updated: $CALENDAR_ORG ($EVENT_COUNT events)"
     else
-      rm -f "$CALENDAR_ORG.tmp"
-      echo "No changes detected"
+      rm -f "$TMP_FILE" "$LOG_FILE"
+      echo "No changes detected ($EVENT_COUNT events)"
     fi
   '';
 
