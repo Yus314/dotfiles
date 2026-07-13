@@ -64,6 +64,8 @@ let
   discordUserId = "885083579367972874";
 in
 {
+  imports = [ ./shared-workflows.nix ];
+
   sops.secrets."hermes-gateway-env" = {
     sopsFile = ./secrets.yaml;
     key = "env";
