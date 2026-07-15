@@ -9,6 +9,7 @@ This directory is the user-owned source of truth for procedures intentionally sh
 | `common/` | all configured profiles | Minimal universally safe procedures |
 | `study/` | default, career, economics, english, math | Book/source ingestion and cross-subject study procedures |
 | `engineering/` | default, career, indiedev, researcheval | Shared software/research engineering procedures |
+| `orchestration/` | default, career, english, indiedev | Generic Kanban and multi-worker coordination procedures |
 | `profile-ops/` | default | Profile orchestration and handoff procedures |
 
 Profiles reference the group directories explicitly through `skills.external_dirs`; the repository root itself is not an external skill directory.
@@ -39,11 +40,31 @@ Keep these local instead:
 
 ## Verification
 
-After deployment:
+Every Nix build runs `shared_skills_config.py check-source` before producing the
+read-only shared-skill derivation. The gate rejects malformed frontmatter,
+directory/frontmatter name mismatches, normalized slash or Discord command
+collisions, generated/transient artifacts, duplicate names, orphan packages,
+symlinks, probable secrets, unsafe frontmatter text, broken package-local
+Markdown links, and secret capabilities in `common` skills. The derivation
+includes `.manifest.json` with both `SKILL.md` and whole-package hashes.
 
-1. Start a fresh Hermes session so its prompt index includes the shared directories.
-2. Run `/reload-skills` in long-lived CLI/gateway processes when immediate slash-command refresh is needed. Restart a gateway only when it is idle; do not interrupt active agents solely to refresh skills.
-3. Confirm every configured profile lists only its intended groups.
-4. Confirm each shared skill resolves exactly once and hashes match the repository source.
-5. Confirm runtime edits fail because the Nix store is read-only.
-6. Run one representative task from each profile group that actually uses the skill.
+After deployment, run:
+
+```bash
+python ~/.hermes/scripts/shared_skills_config.py check-live
+```
+
+The live check fails unless:
+
+1. every configured profile is represented in the profile/group matrix;
+2. every profile lists exactly its intended shared skills;
+3. no active profile-local skill shadows a shared skill name;
+4. runtime package hashes match the Nix build manifest; and
+5. the runtime shared root is read-only.
+
+Start a fresh Hermes session after deployment so its prompt index includes the
+new directories. Use `/reload-skills` in a long-lived CLI/gateway process when
+an immediate slash-command refresh is needed. Restart a gateway only when it is
+idle; do not interrupt active agents solely to refresh skills. Finally, run one
+representative task from each changed profile group; discovery health alone
+does not prove workflow value.
