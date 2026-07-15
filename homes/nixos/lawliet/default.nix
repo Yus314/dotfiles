@@ -26,6 +26,7 @@ in
       imports = [
         ../desktop.nix
         ../../../applications/ledger/service.nix
+        ../../../applications/hermes-agent/shared-workflows.nix
       ];
       home.packages = with pkgs; [ bluetui ];
     };
