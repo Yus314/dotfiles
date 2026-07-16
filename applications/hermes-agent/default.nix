@@ -2,9 +2,9 @@
 # user service so the Codex (ChatGPT) OAuth login lives in your own ~/.hermes.
 #
 # Built from the headless fork (web/TUI dashboards stubbed out) because the
-# upstream Nix package's web/tui build is currently broken — see
-# ./headless.patch and upstream NousResearch/hermes-agent#27430. Once that
-# lands, repoint the flake input back to upstream and delete the patch/fork.
+# upstream Nix package's web/tui build is currently broken — see upstream
+# NousResearch/hermes-agent#27430. Once that lands, repoint the flake input
+# back to upstream and retire the fork.
 #
 # One-time interactive setup (run as your user, on this host):
 #   hermes model      # choose "OpenAI Codex" -> device-code login (ChatGPT
