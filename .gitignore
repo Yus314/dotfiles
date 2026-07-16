@@ -14,3 +14,7 @@ plan.txt
 
 # Local Claude settings
 .claude/
+
+# Python bytecode and interpreter caches
+__pycache__/
+*.py[cod]
