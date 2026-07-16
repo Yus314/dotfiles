@@ -31,7 +31,8 @@ Only non-negative integers are accepted."
   (cursor nil :read-only t))
 
 (cl-defstruct (selection-batch-snapshot
-               (:constructor selection-batch-snapshot-create))
+               (:constructor selection-batch--snapshot-create)
+               (:conc-name selection-batch--snapshot-))
   (buffer nil :read-only t)
   (buffer-tick nil :read-only t)
   (generation nil :read-only t)
@@ -119,16 +120,49 @@ SELECTION may be a snapshot value or an entry in the current live session."
   "Copy vector SELECTIONS and all of its values."
   (vconcat (mapcar #'selection-batch--copy-selection (append selections nil))))
 
+(cl-defun selection-batch-snapshot-create
+    (&key buffer buffer-tick generation primary-id narrowing selections)
+  "Create a snapshot, defensively copying its compound values."
+  (selection-batch--snapshot-create
+   :buffer buffer :buffer-tick buffer-tick :generation generation
+   :primary-id primary-id :narrowing (copy-tree narrowing)
+   :selections (selection-batch--copy-selections selections)))
+
+(defun selection-batch-snapshot-buffer (snapshot)
+  "Return SNAPSHOT's source buffer."
+  (selection-batch--snapshot-buffer snapshot))
+
+(defun selection-batch-snapshot-buffer-tick (snapshot)
+  "Return SNAPSHOT's source buffer modification tick."
+  (selection-batch--snapshot-buffer-tick snapshot))
+
+(defun selection-batch-snapshot-generation (snapshot)
+  "Return SNAPSHOT's generation."
+  (selection-batch--snapshot-generation snapshot))
+
+(defun selection-batch-snapshot-primary-id (snapshot)
+  "Return SNAPSHOT's primary selection ID."
+  (selection-batch--snapshot-primary-id snapshot))
+
+(defun selection-batch-snapshot-narrowing (snapshot)
+  "Return a copy of SNAPSHOT's narrowing bounds."
+  (copy-tree (selection-batch--snapshot-narrowing snapshot)))
+
+(defun selection-batch-snapshot-selections (snapshot)
+  "Return a copy of SNAPSHOT's selections vector and values."
+  (selection-batch--copy-selections
+   (selection-batch--snapshot-selections snapshot)))
+
 (defun selection-batch--copy-snapshot (snapshot &optional selections primary-id)
   "Copy SNAPSHOT, optionally replacing SELECTIONS and PRIMARY-ID."
-  (selection-batch-snapshot-create
+  (selection-batch--snapshot-create
    :buffer (selection-batch-snapshot-buffer snapshot)
    :buffer-tick (selection-batch-snapshot-buffer-tick snapshot)
    :generation (selection-batch-snapshot-generation snapshot)
    :primary-id (or primary-id (selection-batch-snapshot-primary-id snapshot))
-   :narrowing (copy-tree (selection-batch-snapshot-narrowing snapshot))
+   :narrowing (copy-tree (selection-batch--snapshot-narrowing snapshot))
    :selections (selection-batch--copy-selections
-                (or selections (selection-batch-snapshot-selections snapshot)))))
+                (or selections (selection-batch--snapshot-selections snapshot)))))
 
 (defun selection-batch--selection-by-id (selections id)
   "Find selection ID in vector SELECTIONS."
@@ -219,7 +253,7 @@ When REQUIRE-CURRENT is non-nil, reject calls outside its owner buffer."
   (unless (selection-batch-snapshot-p snapshot)
     (signal 'wrong-type-argument (list 'selection-batch-snapshot snapshot)))
   (let ((buffer (selection-batch-snapshot-buffer snapshot))
-        (selections (selection-batch-snapshot-selections snapshot))
+        (selections (selection-batch--snapshot-selections snapshot))
         (primary-id (selection-batch-snapshot-primary-id snapshot)))
     (unless (buffer-live-p buffer) (user-error "Snapshot buffer is dead"))
     (unless (and (vectorp selections) (> (length selections) 0))
@@ -249,7 +283,7 @@ initialized at point before installation.  SNAPSHOT itself always supplies the
 projected primary endpoints."
   (selection-batch--validate-snapshot snapshot)
   (let* ((buffer (selection-batch-snapshot-buffer snapshot))
-         (selections (selection-batch-snapshot-selections snapshot))
+         (selections (selection-batch--snapshot-selections snapshot))
          (primary-id (selection-batch-snapshot-primary-id snapshot))
          (primary (selection-batch--selection-by-id selections primary-id)))
     (unless (eq buffer (current-buffer))
@@ -296,7 +330,7 @@ projected primary endpoints."
                    :cursor (selection-batch-selection-cursor selection))
                   values))
           (with-current-buffer buffer
-            (selection-batch-snapshot-create
+            (selection-batch--snapshot-create
              :buffer buffer
              :buffer-tick (buffer-chars-modified-tick)
              :generation (selection-batch--session-generation session)
@@ -396,7 +430,7 @@ Prefer OLD-PRIMARY, then the next retained logical selection, then previous."
     (selection-batch--copy-snapshot
      snapshot new
      (selection-batch--choose-primary
-      (selection-batch-snapshot-selections snapshot) new
+      (selection-batch--snapshot-selections snapshot) new
       (selection-batch-snapshot-primary-id snapshot)))))
 
 (defun selection-batch-normalize (snapshot &optional overlap-policy)
@@ -408,7 +442,7 @@ snapshot and diagnostics."
   (setq overlap-policy (or overlap-policy 'reject))
   (unless (memq overlap-policy '(reject merge))
     (user-error "Unknown overlap policy: %S" overlap-policy))
-  (let* ((original (selection-batch-snapshot-selections snapshot))
+  (let* ((original (selection-batch--snapshot-selections snapshot))
          (primary-id (selection-batch-snapshot-primary-id snapshot))
          (indexed (cl-loop for selection across original for index from 0
                            collect (cons index selection)))
@@ -443,13 +477,19 @@ snapshot and diagnostics."
                                          (selection-batch-selection-end sb))))))))
            groups current)
       (dolist (item sorted)
-        (if (and current
-                 (cl-some (lambda (member)
-                            (selection-batch--overlap-p (cdr member) (cdr item)))
-                          current))
-            (setq current (append current (list item)))
+        (cond
+         ;; Empty selections are singleton groups, but cannot terminate an
+         ;; active nonempty overlap component.
+         ((selection-batch-selection-empty-p (cdr item))
+          (push (list item) groups))
+         ((and current
+               (cl-some (lambda (member)
+                          (selection-batch--overlap-p (cdr member) (cdr item)))
+                        current))
+          (setq current (append current (list item))))
+         (t
           (when current (push current groups))
-          (setq current (list item))))
+          (setq current (list item)))))
       (when current (push current groups))
       (setq groups (nreverse groups))
       (when (and (eq overlap-policy 'reject)
@@ -556,7 +596,7 @@ used to select one match for directional discovery."
             ('previous (let ((match (car (last
                                           (cl-remove-if-not
                                            (lambda (selection)
-                                             (< (selection-batch-selection-end selection) origin))
+                                             (<= (selection-batch-selection-end selection) origin))
                                            values)))))
                          (and match (list match))))
             (_ (user-error "Unknown same-text direction: %S" direction)))))
@@ -628,7 +668,7 @@ The final line is included even when it has no terminating newline."
   (unless (> (length (selection-batch-provider-result-selections result)) 0)
     (user-error "Provider found no selections"))
   (with-current-buffer buffer
-    (selection-batch-snapshot-create
+    (selection-batch--snapshot-create
      :buffer buffer :buffer-tick (buffer-chars-modified-tick)
      :generation (or generation 0)
      :primary-id (selection-batch-provider-result-primary-id result)
@@ -655,7 +695,7 @@ The final line is included even when it has no terminating newline."
    (cl-remove-if-not (lambda (selection)
                        (string-match-p regexp
                                        (selection-batch--selection-text snapshot selection)))
-                     (append (selection-batch-snapshot-selections snapshot) nil))))
+                     (append (selection-batch--snapshot-selections snapshot) nil))))
 
 (defun selection-batch-transform-drop-regexp (snapshot regexp)
   "Drop SNAPSHOT selections whose text matches REGEXP."
@@ -664,11 +704,11 @@ The final line is included even when it has no terminating newline."
    (cl-remove-if (lambda (selection)
                    (string-match-p regexp
                                    (selection-batch--selection-text snapshot selection)))
-                 (append (selection-batch-snapshot-selections snapshot) nil))))
+                 (append (selection-batch--snapshot-selections snapshot) nil))))
 
 (defun selection-batch-transform-split-lines (snapshot)
   "Split each SNAPSHOT selection into per-line content selections."
-  (let ((original-selections (selection-batch-snapshot-selections snapshot))
+  (let ((original-selections (selection-batch--snapshot-selections snapshot))
         output (next-id 0))
     (dolist (selection (append original-selections nil))
       (let ((beginning (selection-batch-selection-beginning selection))
@@ -677,6 +717,16 @@ The final line is included even when it has no terminating newline."
         (with-current-buffer (selection-batch-snapshot-buffer snapshot)
           (setq pieces (selection-batch-provider-result-selections
                         (selection-batch-provider-lines beginning end))))
+        ;; Provider line bounds are inclusive enough to represent an empty
+        ;; final line.  A nonempty selection is half-open, however, so a line
+        ;; beginning exactly at END does not intersect it.
+        (when (< beginning end)
+          (setq pieces
+                (cl-remove-if
+                 (lambda (piece)
+                   (and (selection-batch-selection-empty-p piece)
+                        (= (selection-batch-selection-beginning piece) end)))
+                 (append pieces nil))))
         (dolist (piece (append pieces nil))
           (let ((id (if (= piece-index 0)
                         (selection-batch-snapshot-selection-id selection)
@@ -710,7 +760,7 @@ The final line is included even when it has no terminating newline."
                :id (selection-batch-snapshot-selection-id selection)
                :anchor (selection-batch-snapshot-selection-cursor selection)
                :cursor (selection-batch-snapshot-selection-anchor selection)))
-            (append (selection-batch-snapshot-selections snapshot) nil)))))
+            (append (selection-batch--snapshot-selections snapshot) nil)))))
 
 (defun selection-batch-transform-merge (snapshot)
   "Merge overlapping selections in SNAPSHOT."
@@ -718,7 +768,7 @@ The final line is included even when it has no terminating newline."
 
 (defun selection-batch-transform-rotate-primary (snapshot &optional backward)
   "Rotate SNAPSHOT primary one logical step, BACKWARD when non-nil."
-  (let* ((selections (selection-batch-snapshot-selections snapshot))
+  (let* ((selections (selection-batch--snapshot-selections snapshot))
          (length (length selections))
          (index (cl-position (selection-batch-snapshot-primary-id snapshot)
                              (append selections nil)
@@ -735,7 +785,7 @@ The final line is included even when it has no terminating newline."
                (eq (selection-batch-snapshot-buffer snapshot)
                    (selection-batch--session-buffer session)))
     (user-error "Cannot replace a stale or foreign session"))
-  (let* ((selections (selection-batch-snapshot-selections snapshot))
+  (let* ((selections (selection-batch--snapshot-selections snapshot))
          (primary-id (selection-batch-snapshot-primary-id snapshot))
          (primary (selection-batch--selection-by-id selections primary-id))
          (old-live (selection-batch--session-selections session))
