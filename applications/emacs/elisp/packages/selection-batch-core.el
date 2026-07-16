@@ -60,8 +60,22 @@ Only non-negative integers are accepted."
 (defvar selection-batch--session nil
   "The sole live selection session, or nil.")
 
+(defun selection-batch--prune-dead-owner ()
+  "Destroy and clear a stale global session whose owner buffer is dead."
+  (when (and selection-batch--session
+             (not (buffer-live-p
+                   (selection-batch--session-buffer selection-batch--session))))
+    (let ((stale selection-batch--session))
+      (condition-case nil
+          (selection-batch--cleanup stale nil t)
+        ((error quit) (setq selection-batch--session nil)))
+      (when (eq selection-batch--session stale)
+        (setq selection-batch--session nil))))
+  selection-batch--session)
+
 (defun selection-batch-active-p ()
   "Return non-nil when a live selection transaction exists."
+  (selection-batch--prune-dead-owner)
   (and selection-batch--session
        (buffer-live-p (selection-batch--session-buffer selection-batch--session))
        (not (selection-batch--session-exit-in-progress-p selection-batch--session))))
@@ -407,6 +421,7 @@ Detach every marker already allocated if construction fails."
 The candidate is fully allocated before global state changes.  If projection or
 view creation fails, the previous owner is restored from an integer snapshot;
 an initial failure leaves no session, hooks, markers, or derived artifacts."
+  (selection-batch--prune-dead-owner)
   (selection-batch--validate-snapshot snapshot)
   (selection-batch--assert-activation-allowed
    (selection-batch-snapshot-buffer snapshot))
@@ -1168,7 +1183,7 @@ model slots, generation, and derived view before the candidate is detached."
 
 (defun selection-batch-gather-regexp (regexp &optional scope)
   "Gather REGEXP in accessible text or optional SCOPE."
-  (interactive (list (read-regexp "Gather regexp: ") 'accessible))
+  (interactive (list (selection-batch-read-regexp "Gather regexp: ") 'accessible))
   (selection-batch--promote-provider-result
    (selection-batch-provider-regexp regexp (or scope 'accessible))))
 
@@ -1184,12 +1199,12 @@ produces at least two lines; an existing transaction uses the pure transform."
 
 (defun selection-batch-keep (regexp)
   "Keep live selections whose text matches REGEXP."
-  (interactive (list (read-regexp "Keep selections matching: ")))
+  (interactive (list (selection-batch-read-regexp "Keep selections matching: ")))
   (selection-batch-apply-transform #'selection-batch-transform-keep-regexp regexp))
 
 (defun selection-batch-drop (regexp)
   "Drop live selections whose text matches REGEXP."
-  (interactive (list (read-regexp "Drop selections matching: ")))
+  (interactive (list (selection-batch-read-regexp "Drop selections matching: ")))
   (selection-batch-apply-transform #'selection-batch-transform-drop-regexp regexp))
 
 (defun selection-batch-merge ()

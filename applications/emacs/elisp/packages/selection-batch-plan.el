@@ -51,11 +51,25 @@
   (register-update selection-batch-no-update :read-only t)
   (recipe selection-batch-no-update :read-only t))
 
+(defun selection-batch--plan-copy-string (string)
+  "Deep-copy STRING, including mutable text-property values."
+  (let ((copy (copy-sequence string))
+        (position 0))
+    (while (< position (length copy))
+      (let ((next (or (next-property-change position copy) (length copy)))
+            (properties (text-properties-at position copy)))
+        (while properties
+          (put-text-property position next (pop properties)
+                             (selection-batch--plan-copy-value (pop properties))
+                             copy))
+        (setq position next)))
+    copy))
+
 (defun selection-batch--plan-copy-value (value)
   "Recursively copy mutable containers in VALUE.
 Buffer and marker objects retain identity.  Strings retain text properties."
   (cond
-   ((stringp value) (copy-sequence value))
+   ((stringp value) (selection-batch--plan-copy-string value))
    ((consp value)
     (cons (selection-batch--plan-copy-value (car value))
           (selection-batch--plan-copy-value (cdr value))))
@@ -87,10 +101,27 @@ Buffer and marker objects retain identity.  Strings retain text properties."
         (selection-batch-snapshot-p value)
         (selection-batch--live-selection-p value))
     t)
+   ((stringp value)
+    (let ((position 0) unsafe)
+      (while (and (< position (length value)) (not unsafe))
+        (let ((properties (text-properties-at position value)))
+          (while properties
+            (pop properties)
+            (when (selection-batch--recipe-unsafe-value-p (pop properties))
+              (setq unsafe t))))
+        (setq position (or (next-property-change position value)
+                           (length value))))
+      unsafe))
    ((consp value)
     (or (selection-batch--recipe-unsafe-value-p (car value))
         (selection-batch--recipe-unsafe-value-p (cdr value))))
-   ((or (recordp value) (vectorp value))
+   ((recordp value)
+    (let (unsafe)
+      (dotimes (index (length value))
+        (when (selection-batch--recipe-unsafe-value-p (aref value index))
+          (setq unsafe t)))
+      unsafe))
+   ((vectorp value)
     (cl-some #'selection-batch--recipe-unsafe-value-p (append value nil)))
    ((hash-table-p value)
     (let (unsafe)
@@ -496,6 +527,29 @@ Return PLAN without modifying text, markers, globals, history, or views."
       current
     (selection-batch--plan-copy-value update)))
 
+(defun selection-batch--commit-watched-globals
+    (prepared-register prepared-recipe)
+  "Assign prepared globals, then reject silent watcher mutation."
+  (setq selection-batch-register
+        (selection-batch--plan-copy-value prepared-register)
+        selection-batch-last-recipe
+        (selection-batch--plan-copy-value prepared-recipe))
+  (unless (and (equal selection-batch-register prepared-register)
+               (equal selection-batch-last-recipe prepared-recipe))
+    (error "A variable watcher mutated selection-batch committed state")))
+
+(defun selection-batch--restore-watched-global (symbol value)
+  "Restore SYMBOL to a copy of VALUE without watcher re-corruption."
+  (let ((watchers (and (fboundp 'get-variable-watchers)
+                       (get-variable-watchers symbol))))
+    (unwind-protect
+        (progn
+          (dolist (watcher watchers)
+            (remove-variable-watcher symbol watcher))
+          (set symbol (selection-batch--plan-copy-value value)))
+      (dolist (watcher watchers)
+        (add-variable-watcher symbol watcher)))))
+
 (defun selection-batch-apply-plan (plan)
   "Validate and atomically apply PLAN as one ordinary undo unit.
 Every failure, including `quit', first rolls text back and then compensates all
@@ -548,8 +602,8 @@ package state from copied values.  Command hooks are never replayed."
             (setf (selection-batch--session-history session) future-history
                   (selection-batch--session-redo session) nil
                   (selection-batch--session-state session) 'set)
-            (setq selection-batch-register future-register
-                  selection-batch-last-recipe future-recipe)
+            (selection-batch--commit-watched-globals
+             future-register future-recipe)
             (selection-batch--detach-selections old-live))
         ((error quit) (setq condition err)))
       (if condition
@@ -568,11 +622,11 @@ package state from copied values.  Command hooks are never replayed."
                         (selection-batch--session-generation session) old-generation
                         (selection-batch--session-state session) old-state
                         (selection-batch--session-primary-id session) old-primary)
-                  (setq selection-batch-register
-                        (selection-batch--plan-copy-value old-register)
-                        selection-batch-last-recipe
-                        (selection-batch--plan-copy-value old-recipe)
-                        selection-batch--view-refresh-function old-refresh
+                  (selection-batch--restore-watched-global
+                   'selection-batch-register old-register)
+                  (selection-batch--restore-watched-global
+                   'selection-batch-last-recipe old-recipe)
+                  (setq selection-batch--view-refresh-function old-refresh
                         selection-batch--view-destroy-function old-destroy)
                   (when (functionp old-refresh) (funcall old-refresh session)))
               ((error quit) (setq restoration-error restore)))

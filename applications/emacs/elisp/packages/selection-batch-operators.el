@@ -32,14 +32,18 @@ PRIMARY-INDEX must name one value; METADATA must contain no required shape."
   (unless (and (integerp primary-index)
                (<= 0 primary-index) (< primary-index (length values)))
     (user-error "Text vector primary index is outside its values"))
+  (selection-batch--recipe-check-value metadata)
+  (dolist (text (append values nil))
+    (selection-batch--recipe-check-value text))
   (selection-batch--text-vector-create
-   :values (vconcat (mapcar #'copy-sequence (append values nil)))
+   :values (vconcat (mapcar #'selection-batch--plan-copy-string
+                            (append values nil)))
    :primary-index primary-index
    :metadata (selection-batch--plan-copy-value metadata)))
 
 (defun selection-batch-text-vector-values (register)
   "Return defensive string copies from typed REGISTER."
-  (vconcat (mapcar #'copy-sequence
+  (vconcat (mapcar #'selection-batch--plan-copy-string
                    (append (selection-batch--text-vector-values register) nil))))
 
 (defun selection-batch-text-vector-primary-index (register)
@@ -130,7 +134,7 @@ logical order."
 
 (defun selection-batch--operator-edit-plan
     (source selections replacements operator arguments result-kind
-            &optional cardinality-policy result-directions)
+            &optional cardinality-policy result-directions recipe-arguments)
   "Plan replacements for SELECTIONS in SOURCE without mutating the buffer."
   (unless (= (length selections) (length replacements))
     (user-error "Operator replacement cardinality mismatch"))
@@ -161,7 +165,8 @@ logical order."
        source edits results
        (selection-batch-snapshot-primary-id source)
        (selection-batch--operator-recipe
-        operator arguments (or cardinality-policy 'one-per-selection) result-kind)))))
+        operator (or recipe-arguments arguments)
+        (or cardinality-policy 'one-per-selection) result-kind)))))
 
 (defun selection-batch--plan-copy (source)
   "Plan a property-preserving vector copy from SOURCE."
@@ -317,17 +322,18 @@ A contained primary caret donates its ID to its component."
    (selection-batch--plan-insert
     (selection-batch-current-snapshot) string t)))
 
-(defun selection-batch--require-text-vector ()
-  "Return the valid package register or signal before planning edits."
-  (unless (selection-batch-text-vector-p selection-batch-register)
+(defun selection-batch--require-text-vector (&optional candidate)
+  "Return a valid typed CANDIDATE, defaulting to the package register."
+  (setq candidate (or candidate selection-batch-register))
+  (unless (selection-batch-text-vector-p candidate)
     (user-error "Selection batch register does not contain a text vector"))
   ;; Reconstruct through the checked public constructor.  This catches corrupt
   ;; private values and prevents later cardinality checks from trusting them.
   (selection-batch-text-vector-create
-   :values (selection-batch-text-vector-values selection-batch-register)
+   :values (selection-batch-text-vector-values candidate)
    :primary-index
-   (selection-batch-text-vector-primary-index selection-batch-register)
-   :metadata (selection-batch-text-vector-metadata selection-batch-register)))
+   (selection-batch-text-vector-primary-index candidate)
+   :metadata (selection-batch-text-vector-metadata candidate)))
 
 (defun selection-batch--plan-paste (source register)
   "Plan broadcast or pairwise paste of typed REGISTER over SOURCE."
@@ -346,7 +352,8 @@ A contained primary caret donates its ID to its component."
      (t (user-error "Cannot paste %d values into %d selections"
                     value-count source-count)))
     (selection-batch--operator-edit-plan
-     source selections replacements 'paste nil 'select policy)))
+     source selections replacements 'paste nil 'select policy nil
+     (list register))))
 
 (defun selection-batch-paste ()
   "Broadcast one register value or pair N values with N selections."
@@ -393,8 +400,10 @@ This is the only kill-ring bridge; selection boundaries are otherwise retained."
                      source (car (selection-batch-recipe-arguments recipe)) nil))
     ('insert-after (selection-batch--plan-insert
                     source (car (selection-batch-recipe-arguments recipe)) t))
-    ('paste (selection-batch--plan-paste source
-                                         (selection-batch--require-text-vector)))
+    ('paste (selection-batch--plan-paste
+             source
+             (selection-batch--require-text-vector
+              (car (selection-batch-recipe-arguments recipe)))))
     (_ (user-error "Unsupported selection batch recipe: %S"
                    (selection-batch-recipe-operator recipe)))))
 

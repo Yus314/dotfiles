@@ -113,18 +113,36 @@
 (ert-deftest selection-batch-transaction-map-is-private-and-supported ()
   (selection-batch-ui-test--with-session
       "abcdef" '((primary 1 2) (secondary 3 5)) 'primary
-    (let ((global-t (lookup-key global-map (kbd "t"))))
-      (selection-batch--transaction-install selection-batch--session)
-      (should (eq #'selection-batch--transaction-test-supported
-                  (key-binding (kbd "t"))))
-      (call-interactively #'selection-batch--transaction-test-supported)
-      (should selection-batch--session)
-      (should (functionp
-               (selection-batch--session-transient-exit-function
-                selection-batch--session)))
+    (let ((global-t (lookup-key global-map (kbd "t")))
+          (old-t (lookup-key selection-batch--transaction-map (kbd "t")))
+          (command (make-symbol "selection-batch-test-supported")))
+      (fset command (lambda () (interactive)))
+      (unwind-protect
+          (progn
+            (define-key selection-batch--transaction-map (kbd "t") command)
+            (selection-batch-register-transaction-command command)
+            (selection-batch--transaction-install selection-batch--session)
+            (should (eq command (key-binding (kbd "t"))))
+            (call-interactively command)
+            (should selection-batch--session)
+            (should (functionp
+                     (selection-batch--session-transient-exit-function
+                      selection-batch--session))))
+        (define-key selection-batch--transaction-map (kbd "t")
+                    (and (not (numberp old-t)) old-t))
+        (fmakunbound command))
       (should (eq global-t (lookup-key global-map (kbd "t"))))
       (should-not (where-is-internal 'recursive-edit
                                      selection-batch--transaction-map)))))
+
+(ert-deftest selection-batch-undocumented-key-is-unbound-and-collapses ()
+  (selection-batch-ui-test--with-session
+      "abcdef" '((primary 1 2) (secondary 3 5)) 'primary
+    (selection-batch--transaction-install selection-batch--session)
+    (should-not (lookup-key selection-batch--transaction-map (kbd "t")))
+    (funcall (selection-batch--session-transient-exit-function
+              selection-batch--session))
+    (should-not selection-batch--session)))
 
 (ert-deftest selection-batch-transaction-outside-command-collapses-first ()
   (selection-batch-ui-test--with-session
@@ -158,6 +176,47 @@
       (should (equal "done" (selection-batch-read-string "Value: " "seed")))
       (should (eq session selection-batch--session))
       (should-not (selection-batch--session-suspending-p session))
+      (should (functionp
+               (selection-batch--session-transient-exit-function session))))))
+
+(ert-deftest selection-batch-regexp-commands-use-safe-suspended-prompt ()
+  (dolist (command '(selection-batch-gather-regexp
+                     selection-batch-keep selection-batch-drop))
+    (selection-batch-ui-test--with-session
+        "aa bb" '((primary 1 3) (secondary 4 6)) 'primary
+      (selection-batch--transaction-install selection-batch--session)
+      (let* ((session selection-batch--session)
+             (reads 0)
+             (selection-batch--read-regexp-function
+             (lambda (&rest _)
+               (cl-incf reads)
+               (should (selection-batch--session-suspending-p session))
+               (should-not
+                (selection-batch--session-transient-exit-function session))
+               (pcase command
+                 ('selection-batch-gather-regexp "[[:alpha:]]+")
+                 ('selection-batch-keep "a")
+                 (_ "z")))))
+        (call-interactively command)
+        (should (= 1 reads))
+        (should (selection-batch-active-p))
+        (should (functionp
+                 (selection-batch--session-transient-exit-function
+                  selection-batch--session)))))))
+
+(ert-deftest selection-batch-regexp-prompt-quit-resumes-map ()
+  (selection-batch-ui-test--with-session
+      "aa bb" '((primary 1 3) (secondary 4 6)) 'primary
+    (selection-batch--transaction-install selection-batch--session)
+    (let ((session selection-batch--session)
+          (selection-batch--read-regexp-function
+           (lambda (&rest _) (signal 'quit nil))))
+      (let (quit-seen)
+        (condition-case nil
+            (call-interactively #'selection-batch-keep)
+          (quit (setq quit-seen t)))
+        (should quit-seen))
+      (should (eq session selection-batch--session))
       (should (functionp
                (selection-batch--session-transient-exit-function session))))))
 

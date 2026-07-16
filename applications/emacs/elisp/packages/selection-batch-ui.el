@@ -114,19 +114,15 @@ This operation is idempotent."
       selection-batch--view-destroy-function #'selection-batch--view-destroy)
 
 (defvar selection-batch--read-string-function #'read-string
-  "Function used by `selection-batch-read-string'.
-Kept indirect so batch tests can model completion, quit, and stale sessions
-without claiming to exercise a real minibuffer command loop.")
+  "Indirect string reader used by transaction prompt tests.")
 
-(defun selection-batch--transaction-test-supported ()
-  "Private no-op command used to characterize supported transaction keys."
-  (interactive))
+(defvar selection-batch--read-regexp-function #'read-regexp
+  "Indirect regexp reader used by transaction prompt tests.")
 
 (defvar selection-batch--transaction-map
   (let ((map (make-sparse-keymap)))
     ;; These bindings are active only in a transaction.  Frontend/user keys
     ;; are deliberately deferred; no global or major-mode keymap is changed.
-    (define-key map (kbd "t") #'selection-batch--transaction-test-supported)
     (define-key map (kbd "q") #'selection-batch-collapse)
     (define-key map (kbd "C-g") #'selection-batch-cancel)
     (define-key map [remap undo] #'selection-batch-undo)
@@ -213,11 +209,10 @@ first, hence an undo error cannot leave a stale session or transient map."
       (selection-batch--cleanup session t nil))
     (user-error "Selection session became stale while prompting")))
 
-(defun selection-batch-read-string (prompt &optional initial-input)
-  "Read one string while safely suspending the transaction map.
-PROMPT and INITIAL-INPUT have the same meaning as for `read-string'.  A valid
-completion or quit resumes a fresh map.  A changed owner, current buffer, or
-generation collapses stale state instead."
+(defun selection-batch-safe-prompt (reader &rest arguments)
+  "Call READER with ARGUMENTS while safely suspending the transaction map.
+A completion, error, or `quit' resumes a fresh map.  A changed owner, current
+buffer, or generation collapses stale state instead."
   (let* ((session (selection-batch--owner-session t))
          (owner (selection-batch--session-buffer session))
          (generation (selection-batch--session-generation session))
@@ -231,13 +226,21 @@ generation collapses stale state instead."
        (signal (car err) (cdr err))))
     (unwind-protect
         (condition-case err
-            (setq value (funcall selection-batch--read-string-function
-                                 prompt initial-input))
+            (setq value (apply reader arguments))
           ((error quit) (setq condition err)))
       (selection-batch--prompt-resume session owner generation))
     (when condition
       (signal (car condition) (cdr condition)))
     value))
+
+(defun selection-batch-read-string (prompt &optional initial-input)
+  "Read a string through `selection-batch-safe-prompt'."
+  (selection-batch-safe-prompt selection-batch--read-string-function
+                               prompt initial-input))
+
+(defun selection-batch-read-regexp (prompt)
+  "Read a regexp through `selection-batch-safe-prompt'."
+  (selection-batch-safe-prompt selection-batch--read-regexp-function prompt))
 
 (provide 'selection-batch-ui)
 ;;; selection-batch-ui.el ends here

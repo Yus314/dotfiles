@@ -628,4 +628,20 @@
                      (selection-batch-snapshot-selection-id
                       (aref (selection-batch-snapshot-selections snapshot) 0)))))))
 
+(ert-deftest selection-batch-dead-owner-is-pruned-before-query-and-first-install ()
+  (let ((dead (generate-new-buffer " *selection-batch-dead-owner*")))
+    (with-current-buffer dead
+      (insert "abc")
+      (selection-batch-install-snapshot
+       (selection-batch-test--snapshot dead '((a 1 2) (b 2 3)) 'a))
+      (remove-hook 'kill-buffer-hook #'selection-batch--lifecycle-exit t))
+    (kill-buffer dead)
+    (should-not (selection-batch-active-p))
+    (should-not selection-batch--session)
+    (selection-batch-test--with-buffer "xy"
+      (selection-batch-install-snapshot
+       (selection-batch-test--snapshot (current-buffer) '((x 1 2)) 'x))
+      (should (selection-batch-active-p)))))
+
+(provide 'selection-batch-core-test)
 ;;; selection-batch-core-test.el ends here

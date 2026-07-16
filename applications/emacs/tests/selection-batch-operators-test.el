@@ -412,5 +412,46 @@
                 (lookup-key selection-batch--transaction-map
                             (vector 'remap command))))))
 
+(ert-deftest selection-batch-register-deep-copies-property-values-and-rejects-live-metadata ()
+  (selection-batch-operators-test--with-session "ab" '((a 1 2)) 'a
+    (let* ((property-value (vector (copy-sequence "safe")))
+           (text (propertize "x" 'selection-batch-nested property-value))
+           (register (selection-batch-text-vector-create
+                      :values (vector text) :primary-index 0 :metadata nil)))
+      (aset (aref property-value 0) 0 ?X)
+      (let* ((first (aref (selection-batch-text-vector-values register) 0))
+             (property (get-text-property 0 'selection-batch-nested first)))
+        (should (equal ["safe"] property))
+        (aset (aref property 0) 0 ?Y))
+      (should (equal ["safe"]
+                     (get-text-property
+                      0 'selection-batch-nested
+                      (aref (selection-batch-text-vector-values register) 0)))))
+    (let* ((snapshot (selection-batch-current-snapshot))
+           (selection (aref (selection-batch-snapshot-selections snapshot) 0))
+           (live (aref (selection-batch--session-selections
+                        selection-batch--session) 0))
+           (marker (copy-marker 1)))
+      (unwind-protect
+          (dolist (unsafe (list marker snapshot selection live
+                                (list :nested (vector marker))))
+            (should-error
+             (selection-batch-text-vector-create
+              :values ["x"] :primary-index 0 :metadata unsafe)
+             :type 'user-error))
+        (set-marker marker nil)))))
+
+(ert-deftest selection-batch-repeat-paste-uses-captured-vector-not-current-register ()
+  (selection-batch-operators-test--with-session "aa bb" '((a 1 3) (b 4 6)) 'a
+    (setq selection-batch-register
+          (selection-batch-text-vector-create
+           :values ["X" "Y"] :primary-index 0 :metadata '(:source test)))
+    (selection-batch-paste)
+    (setq selection-batch-register
+          (selection-batch-text-vector-create
+           :values ["wrong"] :primary-index 0 :metadata nil))
+    (selection-batch-repeat)
+    (should (equal "X Y" (buffer-string)))))
+
 (provide 'selection-batch-operators-test)
 ;;; selection-batch-operators-test.el ends here

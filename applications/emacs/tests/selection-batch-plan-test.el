@@ -449,5 +449,58 @@
       (should (equal '(:old ["safe"]) selection-batch-last-recipe))
       (should (equal "abc" (buffer-string))))))
 
+(ert-deftest selection-batch-mutating-watchers-fail-and-restoration-resists-recorruption ()
+  (selection-batch-plan-test--with-session "abc" '((a 1 2)) 'a
+    (let* ((selection-batch-register (list :old (vector "register")))
+           (selection-batch-last-recipe (list :old (vector "recipe")))
+           (before (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  before
+                  (list (selection-batch-plan-test--edit 'a 0 1 2 "X" 1 2))
+                  '((a 1 2)) nil
+                  (list :new (vector "register"))
+                  (list :new (vector "recipe"))))
+           seen
+           (watcher
+            (lambda (symbol new operation _where)
+              (when (eq operation 'set)
+                (push (list symbol (selection-batch--plan-copy-value new)) seen)
+                (when (and (consp new) (vectorp (cadr new)))
+                  (aset (cadr new) 0 "corrupt"))))))
+      (add-variable-watcher 'selection-batch-register watcher)
+      (add-variable-watcher 'selection-batch-last-recipe watcher)
+      (unwind-protect
+          (should-error (selection-batch-apply-plan plan) :type 'error)
+        (remove-variable-watcher 'selection-batch-register watcher)
+        (remove-variable-watcher 'selection-batch-last-recipe watcher))
+      (should (equal "abc" (buffer-string)))
+      (should (equal '(:old ["register"]) selection-batch-register))
+      (should (equal '(:old ["recipe"]) selection-batch-last-recipe))
+      (should (cl-find 'selection-batch-register seen :key #'car))
+      (should (cl-find 'selection-batch-last-recipe seen :key #'car)))))
+
+(ert-deftest selection-batch-successful-watched-commit-equals-prepared-values ()
+  (selection-batch-plan-test--with-session "abc" '((a 1 2)) 'a
+    (let* ((source (selection-batch-current-snapshot))
+           (new-register (list :new (vector "register")))
+           (new-recipe (list :new (vector "recipe")))
+           (plan (selection-batch-plan-test--plan
+                  source nil '((a 1 2)) nil new-register new-recipe))
+           seen
+           (watcher (lambda (symbol new operation _where)
+                      (when (eq operation 'set)
+                        (push (cons symbol
+                                    (selection-batch--plan-copy-value new)) seen)))))
+      (add-variable-watcher 'selection-batch-register watcher)
+      (add-variable-watcher 'selection-batch-last-recipe watcher)
+      (unwind-protect
+          (selection-batch-apply-plan plan)
+        (remove-variable-watcher 'selection-batch-register watcher)
+        (remove-variable-watcher 'selection-batch-last-recipe watcher))
+      (should (equal new-register selection-batch-register))
+      (should (equal new-recipe selection-batch-last-recipe))
+      (should (equal new-register (cdr (assq 'selection-batch-register seen))))
+      (should (equal new-recipe (cdr (assq 'selection-batch-last-recipe seen)))))))
+
 (provide 'selection-batch-plan-test)
 ;;; selection-batch-plan-test.el ends here
