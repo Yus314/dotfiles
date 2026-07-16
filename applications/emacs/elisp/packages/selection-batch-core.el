@@ -59,6 +59,27 @@ Only non-negative integers are accepted."
 (defvar selection-batch--session nil
   "The sole live selection session, or nil.")
 
+(defvar selection-batch--view-refresh-function nil
+  "Optional function called with a session after a committed state change.
+This is the narrow interface by which a replaceable view backend observes the
+core.  The core never requires a particular UI implementation.")
+
+(defvar selection-batch--view-destroy-function nil
+  "Optional function called with a session while that session is cleaned up.")
+
+(defun selection-batch--refresh-derived-view (session)
+  "Refresh SESSION's derived view, when a backend is installed."
+  (when (functionp selection-batch--view-refresh-function)
+    (funcall selection-batch--view-refresh-function session)))
+
+(defun selection-batch--destroy-derived-view (session)
+  "Destroy SESSION's derived view, with a backend-independent fallback."
+  (if (functionp selection-batch--view-destroy-function)
+      (funcall selection-batch--view-destroy-function session)
+    (dolist (overlay (selection-batch--session-overlays session))
+      (when (overlayp overlay) (delete-overlay overlay)))
+    (setf (selection-batch--session-overlays session) nil)))
+
 (defun selection-batch--mark-position ()
   "Return the current buffer's mark position, or nil without asserting."
   (condition-case nil
@@ -311,6 +332,7 @@ projected primary endpoints."
             (add-hook 'kill-buffer-hook #'selection-batch--lifecycle-exit nil t)
             (add-hook 'before-revert-hook #'selection-batch--lifecycle-exit nil t)
             (add-hook 'change-major-mode-hook #'selection-batch--lifecycle-exit nil t)
+            (selection-batch--refresh-derived-view session)
             session)
         ((error quit)
          (selection-batch--detach-selections live)
@@ -355,9 +377,7 @@ mark when DEACTIVATE-MARK-P is non-nil."
               ;; point and mark already are the source of truth.
               (with-current-buffer buffer
                 (when (selection-batch--mark-position) (setq mark-active t))))
-            (dolist (overlay (selection-batch--session-overlays session))
-              (when (overlayp overlay) (delete-overlay overlay)))
-            (setf (selection-batch--session-overlays session) nil)
+            (selection-batch--destroy-derived-view session)
             (selection-batch--detach-selections
              (selection-batch--session-selections session))
             (when (buffer-live-p buffer)
@@ -802,6 +822,7 @@ The final line is included even when it has no terminating newline."
                 (selection-batch--session-primary-id session) primary-id
                 (selection-batch--session-generation session)
                 (1+ (selection-batch--session-generation session)))
+          (selection-batch--refresh-derived-view session)
           session)
       ((error quit)
        (selection-batch--detach-selections new-live)
