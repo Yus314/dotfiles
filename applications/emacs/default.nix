@@ -34,6 +34,20 @@ let
       }
     ) moduleFiles
   );
+
+  # packages/ ディレクトリからローカル Emacs package を自動列挙
+  packagesDir = ./elisp/packages;
+  packageFiles = builtins.attrNames (
+    pkgs.lib.filterAttrs (name: type: type == "regular" && pkgs.lib.hasSuffix ".el" name) (
+      builtins.readDir packagesDir
+    )
+  );
+  packageConfigs = builtins.listToAttrs (
+    map (file: {
+      name = "emacs/packages/${file}";
+      value.source = packagesDir + "/${file}";
+    }) packageFiles
+  );
 in
 {
   programs.emacs = {
@@ -46,7 +60,8 @@ in
     "emacs/early-init.el".text = tangle (builtins.readFile ./elisp/early-init.org);
     "emacs/.authinfo.gpg".source = ./.authinfo.gpg;
   }
-  // moduleConfigs;
+  // moduleConfigs
+  // packageConfigs;
 
   home = {
     packages = with pkgs; [

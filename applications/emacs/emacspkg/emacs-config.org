@@ -13,6 +13,12 @@
       (dolist (f functions)
         (autoload f file docstring interactive type))))
 #+end_src
+* Load local packages
+#+begin_src emacs-lisp :tangle yes
+  (let ((packages-dir (expand-file-name "packages" user-emacs-directory)))
+    (when (file-directory-p packages-dir)
+      (add-to-list 'load-path packages-dir)))
+#+end_src
 * Load modules
 file-name-handler-alist を一時的に無効化し、全モジュールロード後に復元する。
 unwind-protect により、途中でエラーが発生しても確実に復元される。
