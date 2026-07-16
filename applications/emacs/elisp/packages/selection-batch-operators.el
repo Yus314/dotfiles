@@ -188,12 +188,49 @@ explicit scalar kill-ring bridge."
    (selection-batch--plan-copy (selection-batch-current-snapshot))))
 
 (defun selection-batch--plan-delete (source)
-  "Plan deletion from SOURCE, coalescing only overlapping ranges."
+  "Plan deletion from SOURCE under half-open empty-caret semantics.
+Overlapping nonempty ranges are coalesced.  Empty carets at a component's
+beginning or interior are absorbed; standalone and end-boundary carets remain.
+A contained primary caret donates its ID to its component."
   (let* ((normalized (selection-batch-normalize-snapshot source 'merge))
-         (selections (selection-batch--operator-selections normalized))
-         (replacements (make-list (length selections) "")))
+         (normalized-selections
+          (selection-batch--operator-selections normalized))
+         (primary-id (selection-batch-snapshot-primary-id source))
+         (primary (selection-batch--selection-by-id
+                   (selection-batch-snapshot-selections source) primary-id))
+         (primary-position
+          (and (selection-batch-selection-empty-p primary)
+               (selection-batch-selection-beginning primary)))
+         selections)
+    (dolist (selection normalized-selections)
+      (let ((containing
+             (and (selection-batch-selection-empty-p selection)
+                  (cl-find-if
+                   (lambda (component)
+                     (and (not (selection-batch-selection-empty-p component))
+                          (<= (selection-batch-selection-beginning component)
+                              (selection-batch-selection-beginning selection))
+                          (< (selection-batch-selection-beginning selection)
+                             (selection-batch-selection-end component))))
+                   normalized-selections))))
+        (unless containing
+          (push
+           (if (and primary-position
+                    (not (selection-batch-selection-empty-p selection))
+                    (<= (selection-batch-selection-beginning selection)
+                        primary-position)
+                    (< primary-position
+                       (selection-batch-selection-end selection)))
+               (selection-batch-snapshot-selection-create
+                :id primary-id
+                :anchor (selection-batch-snapshot-selection-anchor selection)
+                :cursor (selection-batch-snapshot-selection-cursor selection))
+             selection)
+           selections))))
+    (setq selections (nreverse selections))
     (selection-batch--operator-edit-plan
-     source selections replacements 'delete nil 'caret 'merge-overlaps)))
+     source selections (make-list (length selections) "")
+     'delete nil 'caret 'merge-overlaps)))
 
 (defun selection-batch-delete ()
   "Delete selections atomically and leave carets at their starts."
@@ -332,7 +369,7 @@ No newline splitting or kill-ring inference is performed."
 (defun selection-batch-register-to-kill-ring (separator)
   "Join the typed register with explicit SEPARATOR and call `kill-new' once.
 This is the only kill-ring bridge; selection boundaries are otherwise retained."
-  (interactive (list (read-string "Join register with: " "\n")))
+  (interactive (list (selection-batch-read-string "Join register with: " "\n")))
   (unless (stringp separator)
     (signal 'wrong-type-argument (list 'stringp separator)))
   (let* ((register (selection-batch--require-text-vector))

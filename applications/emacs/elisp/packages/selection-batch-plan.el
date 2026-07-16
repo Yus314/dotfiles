@@ -59,6 +59,14 @@ Buffer and marker objects retain identity.  Strings retain text properties."
    ((consp value)
     (cons (selection-batch--plan-copy-value (car value))
           (selection-batch--plan-copy-value (cdr value))))
+   ;; `cl-defstruct' values are records, not ordinary vectors on current Emacs.
+   ;; Rebuilding one with `vconcat' loses its type tag and public accessors.
+   ((recordp value)
+    (let ((copy (copy-sequence value)))
+      (dotimes (index (length value))
+        (aset copy index
+              (selection-batch--plan-copy-value (aref value index))))
+      copy))
    ((vectorp value)
     (vconcat (mapcar #'selection-batch--plan-copy-value (append value nil))))
    ((hash-table-p value)
@@ -71,11 +79,54 @@ Buffer and marker objects retain identity.  Strings retain text properties."
       copy))
    (t value)))
 
+(defun selection-batch--recipe-unsafe-value-p (value)
+  "Return non-nil when VALUE recursively retains live selection position state."
+  (cond
+   ((or (markerp value)
+        (selection-batch-snapshot-selection-p value)
+        (selection-batch-snapshot-p value)
+        (selection-batch--live-selection-p value))
+    t)
+   ((consp value)
+    (or (selection-batch--recipe-unsafe-value-p (car value))
+        (selection-batch--recipe-unsafe-value-p (cdr value))))
+   ((or (recordp value) (vectorp value))
+    (cl-some #'selection-batch--recipe-unsafe-value-p (append value nil)))
+   ((hash-table-p value)
+    (let (unsafe)
+      (maphash
+       (lambda (key item)
+         (when (or (selection-batch--recipe-unsafe-value-p key)
+                   (selection-batch--recipe-unsafe-value-p item))
+           (setq unsafe t)))
+       value)
+      unsafe))))
+
+(defun selection-batch--recipe-check-value (value)
+  "Return VALUE, or reject recursively retained markers/selections."
+  (when (selection-batch--recipe-unsafe-value-p value)
+    (user-error "A semantic recipe cannot retain markers or selection state"))
+  value)
+
+(defun selection-batch--recipe-check (recipe)
+  "Return valid position-free RECIPE, including its private stored slots."
+  (unless (selection-batch-recipe-p recipe)
+    (signal 'wrong-type-argument (list 'selection-batch-recipe recipe)))
+  (dolist (value (list (selection-batch--recipe-operator recipe)
+                       (selection-batch--recipe-arguments recipe)
+                       (selection-batch--recipe-cardinality-policy recipe)
+                       (selection-batch--recipe-result-policy recipe)
+                       (selection-batch--recipe-adapter-id recipe)))
+    (selection-batch--recipe-check-value value))
+  recipe)
+
 (cl-defun selection-batch-recipe-create
     (&key operator arguments cardinality-policy result-policy adapter-id)
   "Create an immutable semantic recipe with no live positions or markers."
   (unless (symbolp operator)
     (signal 'wrong-type-argument (list 'symbolp operator)))
+  (dolist (value (list operator arguments cardinality-policy result-policy adapter-id))
+    (selection-batch--recipe-check-value value))
   (selection-batch--recipe-create
    :operator operator
    :arguments (selection-batch--plan-copy-value arguments)
@@ -85,19 +136,24 @@ Buffer and marker objects retain identity.  Strings retain text properties."
 
 (defun selection-batch-recipe-operator (recipe)
   "Return RECIPE's operator."
+  (selection-batch--recipe-check recipe)
   (selection-batch--recipe-operator recipe))
 (defun selection-batch-recipe-arguments (recipe)
   "Return a defensive copy of RECIPE's arguments."
+  (selection-batch--recipe-check recipe)
   (selection-batch--plan-copy-value (selection-batch--recipe-arguments recipe)))
 (defun selection-batch-recipe-cardinality-policy (recipe)
   "Return a defensive copy of RECIPE's cardinality policy."
+  (selection-batch--recipe-check recipe)
   (selection-batch--plan-copy-value
    (selection-batch--recipe-cardinality-policy recipe)))
 (defun selection-batch-recipe-result-policy (recipe)
   "Return a defensive copy of RECIPE's result policy."
+  (selection-batch--recipe-check recipe)
   (selection-batch--plan-copy-value (selection-batch--recipe-result-policy recipe)))
 (defun selection-batch-recipe-adapter-id (recipe)
   "Return a defensive copy of RECIPE's adapter identifier."
+  (selection-batch--recipe-check recipe)
   (selection-batch--plan-copy-value (selection-batch--recipe-adapter-id recipe)))
 
 (defun selection-batch--copy-result-selection (selection)
