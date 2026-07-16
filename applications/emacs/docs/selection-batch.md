@@ -42,6 +42,15 @@ A key outside the transient grammar collapses to the primary standard region
 before Emacs dispatches that key once. Package loading does not enable a global
 or session mode and does not start a session.
 
+### Explicit kill-ring bridge
+
+The typed vector register never enters the scalar kill ring implicitly.  Call
+`selection-batch-register-to-kill-ring` explicitly and supply the exact
+separator used to join vector elements (the interactive default is a newline).
+Selection boundaries cannot be reconstructed from that scalar.  This bridge has
+no direct key in either the `g` grammar or the active transaction map; invoke it
+by command name or add an intentional user binding.
+
 ## Handoff contract
 
 `selection-batch-export-ranges` returns logical-order integer plists containing

@@ -5,6 +5,8 @@
 (ert-deftest selection-batch-configured-artifacts-and-meow-are-present ()
   (should (locate-library "selection-batch"))
   (should (locate-library "meow"))
+  (should (locate-library "puni"))
+  (should (featurep 'init-editing))
   (should (require 'init-selection-batch nil t))
   (should-not selection-batch-enable-meow-bindings)
   (should-not (lookup-key meow-normal-state-keymap (kbd "g")))

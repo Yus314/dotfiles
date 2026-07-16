@@ -7,7 +7,10 @@ let
   inherit (testPkgs) lib;
 
   baseEmacs = if testPkgs.stdenv.hostPlatform.isLinux then testPkgs.emacs-nox else testPkgs.emacs;
-  emacs = (testPkgs.emacsPackagesFor baseEmacs).emacsWithPackages (epkgs: [ epkgs.meow ]);
+  emacs = (testPkgs.emacsPackagesFor baseEmacs).emacsWithPackages (epkgs: [
+    epkgs.meow
+    epkgs.puni
+  ]);
 
   home = inputs.home-manager.lib.homeManagerConfiguration {
     pkgs = testPkgs;
@@ -59,11 +62,11 @@ pkgs.runCommandLocal "selection-batch-configured-smoke" { nativeBuildInputs = [ 
   test -f "$XDG_CONFIG_HOME/emacs/modules/init-selection-batch.el"
   test -f "$XDG_CONFIG_HOME/emacs/packages/selection-batch.el"
 
-  # Load the relevant configured module through the generated init.el while
-  # skipping unrelated full-desktop modules that this bounded smoke omits.
+  # Load the real editing module and then selection-batch through generated
+  # init.el, while skipping only unrelated full-desktop modules.
   emacs --batch --quick \
     --eval '(require '\'''meow)' \
-    --eval '(advice-add '\'''require :around (lambda (original feature &rest args) (if (and (string-prefix-p "init-" (symbol-name feature)) (not (eq feature '\'''init-selection-batch))) t (apply original feature args))))' \
+    --eval '(advice-add '\'''require :around (lambda (original feature &rest args) (if (and (string-prefix-p "init-" (symbol-name feature)) (not (memq feature '\'''(init-editing init-selection-batch)))) t (apply original feature args))))' \
     --load "$XDG_CONFIG_HOME/emacs/init.el" \
     --load ${fixture} \
     --funcall ert-run-tests-batch-and-exit \
