@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "control_plane": "default",
+  "principles": [
+    "default routes, schedules, integrates, and orchestrates without absorbing domain raw data",
+    "domain profiles own raw data, detailed sessions, specialist memory, and owner-attested summaries",
+    "Discord is a human routing surface, summaries are the low-volume integration bus, and Kanban is the durable work-order bus",
+    "Hermes profile separation is state separation, not an operating-system sandbox"
+  ],
+  "profiles": {
+    "default": {
+      "role": "control-plane personal secretary and cross-profile orchestrator",
+      "primary_domains": [
+        "routing",
+        "calendar",
+        "org tasks",
+        "reminders",
+        "housing",
+        "cross-domain synthesis"
+      ],
+      "non_goals": [
+        "own domain raw data",
+        "replace domain specialist judgment",
+        "write curated weekly reports without request"
+      ],
+      "canonical_paths": [
+        "~/org",
+        "~/org/profile-summaries"
+      ],
+      "summary_path": null,
+      "memory_provider": "honcho",
+      "shared_skill_groups": [
+        "common",
+        "study",
+        "engineering",
+        "orchestration",
+        "profile-ops"
+      ],
+      "gateway_expected": "running",
+      "kanban_role": "shared-board leader and final synthesizer"
+    },
+    "career": {
+      "role": "career and work specialist",
+      "primary_domains": [
+        "work",
+        "career hypotheses",
+        "technical expertise",
+        "employer and role research"
+      ],
+      "non_goals": [
+        "calendar ownership",
+        "raw finance operations",
+        "English correction history"
+      ],
+      "canonical_paths": [
+        "~/career"
+      ],
+      "summary_path": "~/career/reviews/weekly/{week}.md",
+      "memory_provider": "honcho",
+      "shared_skill_groups": [
+        "common",
+        "study",
+        "engineering",
+        "orchestration"
+      ],
+      "gateway_expected": "running",
+      "kanban_role": "domain worker"
+    },
+    "economics": {
+      "role": "Socratic economics tutor and study-log owner",
+      "primary_domains": [
+        "economics",
+        "economic models",
+        "empirical reasoning",
+        "economics study"
+      ],
+      "non_goals": [
+        "pure mathematics proofs",
+        "household ledger operations",
+        "global task scheduling"
+      ],
+      "canonical_paths": [
+        "~/study_log/economics"
+      ],
+      "summary_path": "~/study_log/economics/reviews/weekly/{week}.md",
+      "memory_provider": "builtin",
+      "memory_policy_reason": "intentional compact study-local continuity; do not silently migrate to shared Honcho",
+      "shared_skill_groups": [
+        "common",
+        "study",
+        "orchestration"
+      ],
+      "gateway_expected": "running",
+      "kanban_role": "domain worker"
+    },
+    "english": {
+      "role": "English-learning planner and TOEIC/technical-English specialist",
+      "primary_domains": [
+        "TOEIC",
+        "English study planning",
+        "technical English",
+        "recurring error patterns"
+      ],
+      "non_goals": [
+        "be the only profile that corrects English",
+        "calendar ownership",
+        "copy line-by-line corrections to default"
+      ],
+      "canonical_paths": [
+        "~/study_log/english"
+      ],
+      "summary_path": "~/study_log/english/reviews/weekly/{week}.md",
+      "memory_provider": "honcho",
+      "shared_skill_groups": [
+        "common",
+        "study",
+        "orchestration"
+      ],
+      "gateway_expected": "running",
+      "kanban_role": "domain worker"
+    },
+    "finance": {
+      "role": "personal-finance and hledger specialist",
+      "primary_domains": [
+        "ledger integrity",
+        "imports",
+        "reconciliation",
+        "budget analysis"
+      ],
+      "non_goals": [
+        "expose transactions or balances to default",
+        "own housing value judgments",
+        "automatic financial edits from review cron"
+      ],
+      "canonical_paths": [
+        "~/ledger/personal"
+      ],
+      "summary_path": "~/ledger/personal/reports/weekly/{week}.md",
+      "memory_provider": "honcho",
+      "shared_skill_groups": [
+        "common",
+        "orchestration"
+      ],
+      "gateway_expected": "running",
+      "kanban_role": "sensitive domain worker"
+    },
+    "food": {
+      "role": "food-photo, meal-log, and practical nutrition specialist",
+      "primary_domains": [
+        "meal photos",
+        "food logs",
+        "nutrition estimates",
+        "meal-level adjustments"
+      ],
+      "non_goals": [
+        "medical diagnosis",
+        "copy raw meals to default",
+        "edit generated summaries directly"
+      ],
+      "canonical_paths": [
+        "~/org/food"
+      ],
+      "summary_path": "~/org/food/weekly/{week}.md",
+      "memory_provider": "honcho",
+      "shared_skill_groups": [
+        "common",
+        "orchestration"
+      ],
+      "gateway_expected": "running",
+      "kanban_role": "domain worker"
+    },
+    "health": {
+      "role": "health-data and lifestyle-context specialist",
+      "primary_domains": [
+        "Google Health",
+        "Pixel Watch",
+        "sleep",
+        "recovery",
+        "basketball training load"
+      ],
+      "non_goals": [
+        "diagnosis",
+        "expose raw health streams",
+        "own general basketball schedules"
+      ],
+      "canonical_paths": [
+        "~/org/health/google-health"
+      ],
+      "summary_path": "~/org/health/google-health/weekly/{week}.md",
+      "memory_provider": "honcho",
+      "shared_skill_groups": [
+        "common",
+        "orchestration"
+      ],
+      "gateway_expected": "running",
+      "kanban_role": "sensitive domain worker"
+    },
+    "indiedev": {
+      "role": "personal software-product experiment specialist",
+      "primary_domains": [
+        "market validation",
+        "prototypes",
+        "product experiments",
+        "implementation"
+      ],
+      "non_goals": [
+        "publish, spend, contact customers, or handle real customer data without approval"
+      ],
+      "canonical_paths": [
+        "~/indiedev"
+      ],
+      "summary_path": "~/indiedev/reviews/weekly/{week}.md",
+      "memory_provider": "honcho",
+      "shared_skill_groups": [
+        "common",
+        "engineering",
+        "orchestration"
+      ],
+      "gateway_expected": "running",
+      "kanban_role": "domain worker"
+    },
+    "math": {
+      "role": "Socratic mathematics study specialist",
+      "primary_domains": [
+        "mathematics",
+        "proofs",
+        "exercises",
+        "confusion logs",
+        "study review"
+      ],
+      "non_goals": [
+        "economic interpretation",
+        "global scheduling",
+        "replace the user's proof attempt"
+      ],
+      "canonical_paths": [
+        "~/study_log"
+      ],
+      "summary_path": "~/study_log/reviews/weekly/{week}.md",
+      "memory_provider": "honcho",
+      "shared_skill_groups": [
+        "common",
+        "study",
+        "orchestration"
+      ],
+      "gateway_expected": "running",
+      "kanban_role": "domain worker"
+    },
+    "researcheval": {
+      "role": "isolated Deep Research evaluation profile",
+      "primary_domains": [
+        "evaluation",
+        "privacy and cost regression testing"
+      ],
+      "non_goals": [
+        "production personal-assistant continuity",
+        "consume domain summaries",
+        "gateway chat"
+      ],
+      "canonical_paths": [],
+      "summary_path": null,
+      "memory_provider": "disabled",
+      "memory_policy_reason": "clean-room evaluation",
+      "shared_skill_groups": [
+        "common",
+        "engineering",
+        "orchestration"
+      ],
+      "gateway_expected": "stopped",
+      "kanban_role": "explicit evaluation worker only"
+    }
+  },
+  "routing": {
+    "TOEIC": {
+      "primary": "english",
+      "coordination": [
+        "default",
+        "career"
+      ]
+    },
+    "monthly_apartment": {
+      "primary": "default",
+      "coordination": [
+        "career",
+        "finance"
+      ]
+    },
+    "work": {
+      "primary": "career",
+      "coordination": [
+        "default",
+        "english",
+        "economics",
+        "math"
+      ]
+    },
+    "economics": {
+      "primary": "economics",
+      "coordination": [
+        "math",
+        "default"
+      ]
+    },
+    "math": {
+      "primary": "math",
+      "coordination": [
+        "economics",
+        "default"
+      ]
+    },
+    "basketball": {
+      "primary": "default",
+      "coordination": [
+        "health",
+        "food"
+      ]
+    }
+  }
+}

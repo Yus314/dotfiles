@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Maintain the default profile's cross-profile weekly summary source index.
 
-This is intentionally deterministic/no-agent: it checks whether compact weekly
-summary artifacts exist, rewrites ~/org/profile-summaries/YYYY-Www.md as a
-source-status index, and prints only when the status changed since the previous
-run. It never reads/copies raw domain data and never invents missing summaries.
+This deterministic/no-agent checker distinguishes file presence from semantic
+readiness. A bootstrap/source-health file is never reported as a domain-owned
+summary. It never copies raw domain data and prints only when status changes.
 """
 from __future__ import annotations
 
@@ -12,6 +11,7 @@ import datetime as dt
 import hashlib
 import json
 import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -23,84 +23,82 @@ GENERATED = TODAY.isoformat()
 STATE_DIR = HOME / ".local/state/hermes/profile-summary-source-check"
 STATE_FILE = STATE_DIR / f"{WEEK}.json"
 INDEX_PATH = HOME / "org/profile-summaries" / f"{WEEK}.md"
+BOOTSTRAP_MARKER = "<!-- hermes-bootstrap-weekly-summary -->"
+WEEK_PATTERN = re.compile(r"\b20\d{2}-W\d{2}\b")
 
 SOURCES = [
     {
+        "kind": "source",
         "domain": "Calendar",
         "profile": "default",
         "path": HOME / "org/calendar.org",
-        "exists_text": "Available: local calendar export exists. Check health status before assuming completeness.",
+        "exists_text": "Source present: local calendar export exists; check its dedicated health status before assuming completeness.",
         "missing_text": "Missing: local calendar export is unavailable; do not infer no events.",
     },
     {
+        "kind": "source",
         "domain": "Org tasks / diary context",
         "profile": "default",
         "path": HOME / "org",
-        "exists_text": "Available: read directly; preserve curated weekly-report structure.",
+        "exists_text": "Source present: read selectively; preserve curated weekly-report structure.",
         "missing_text": "Missing: org directory unavailable.",
     },
     {
+        "kind": "summary",
         "domain": "Food",
         "profile": "food",
         "path": HOME / "org/food/weekly" / f"{WEEK}.md",
-        "exists_text": "Available: use compact food weekly summary; do not read raw meal logs by default.",
-        "missing_text": "Missing: do not invent food content.",
     },
     {
+        "kind": "summary",
         "domain": "Finance",
         "profile": "finance",
         "path": HOME / "ledger/personal/reports/weekly" / f"{WEEK}.md",
-        "exists_text": "Available: use compact finance weekly summary; do not copy raw ledger data into default.",
-        "missing_text": "Missing: do not copy raw ledger data into default.",
     },
     {
+        "kind": "summary",
         "domain": "Math",
         "profile": "math",
         "path": HOME / "study_log/reviews/weekly" / f"{WEEK}.md",
-        "exists_text": "Available: use compact math progress/confusion/next-step summary.",
-        "missing_text": "Missing: ask math profile / study_log when needed; do not invent progress.",
     },
     {
+        "kind": "summary",
         "domain": "Economics",
         "profile": "economics",
         "path": HOME / "study_log/economics/reviews/weekly" / f"{WEEK}.md",
-        "exists_text": "Available: use compact economics progress/confusion/restart summary; keep detailed source/OCR work in economics.",
-        "missing_text": "Missing: ask the economics profile to summarize progress; do not infer study progress from source preparation.",
     },
     {
+        "kind": "summary",
         "domain": "Health",
         "profile": "health",
         "path": HOME / "org/health/google-health/weekly" / f"{WEEK}.md",
-        "exists_text": "Available: use compact health weekly summary; avoid raw streams.",
-        "missing_text": "Missing: use compact daily/coach summaries only when explicitly needed.",
     },
     {
+        "kind": "summary",
         "domain": "English learning",
         "profile": "english",
         "path": HOME / "study_log/english/reviews/weekly" / f"{WEEK}.md",
-        "exists_text": "Available: use learning progress/error-pattern summary; avoid line-by-line correction history.",
-        "missing_text": "Missing: use English profile artifacts, not raw chat history.",
     },
     {
+        "kind": "summary",
         "domain": "Career",
         "profile": "career",
         "path": HOME / "career/reviews/weekly" / f"{WEEK}.md",
-        "exists_text": "Available: use compact career weekly summary.",
-        "missing_text": "Missing: no standard career weekly artifact has been produced yet.",
     },
     {
+        "kind": "summary",
         "domain": "Indie dev",
         "profile": "indiedev",
         "path": HOME / "indiedev/reviews/weekly" / f"{WEEK}.md",
-        "exists_text": "Available: use compact indie-dev weekly summary.",
-        "missing_text": "Missing: profile exists but is not yet in the regular summary loop.",
     },
 ]
 
 
 def atomic_write(path: Path, content: str, mode: int = 0o600) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    fd, temporary_name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", text=True)
+    fd, temporary_name = tempfile.mkstemp(
+        dir=path.parent, prefix=f".{path.name}.", text=True
+    )
     temporary_path = Path(temporary_name)
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
@@ -120,64 +118,296 @@ def rel(path: Path) -> str:
         return str(path)
 
 
+def _clean_value(value: str) -> str:
+    return value.strip().strip("`\"'")
+
+
+def _frontmatter(text: str) -> dict[str, str]:
+    if not text.startswith("---\n"):
+        return {}
+    parts = text.split("---", 2)
+    if len(parts) != 3:
+        return {}
+    result: dict[str, str] = {}
+    for raw in parts[1].splitlines():
+        if not raw.strip() or raw.lstrip().startswith("#") or ":" not in raw:
+            continue
+        key, value = raw.split(":", 1)
+        result[key.strip().lower()] = _clean_value(value)
+    return result
+
+
+def _legacy_field(text: str, label: str) -> str | None:
+    match = re.search(rf"(?im)^{re.escape(label)}:\s*(.+?)\s*$", text)
+    return _clean_value(match.group(1)) if match else None
+
+
+def _declared_week(text: str, metadata: dict) -> tuple[str | None, str | None]:
+    """Return the canonical summary week and an optional validation error.
+
+    Only structured metadata or a Markdown heading may declare the week. Week
+    strings in prose are deliberately ignored so a stale summary cannot become
+    ready merely by mentioning the current week in its body.
+    """
+    candidates: list[str] = []
+    raw_metadata_week = metadata.get("week")
+    if raw_metadata_week is not None:
+        metadata_weeks = WEEK_PATTERN.findall(str(raw_metadata_week))
+        if len(metadata_weeks) != 1:
+            return None, "invalid frontmatter week"
+        candidates.append(metadata_weeks[0])
+    legacy_week = _legacy_field(text, "Week")
+    if legacy_week:
+        legacy_weeks = WEEK_PATTERN.findall(legacy_week)
+        if len(legacy_weeks) != 1:
+            return None, "invalid legacy week"
+        candidates.append(legacy_weeks[0])
+    for line in text.splitlines():
+        if not re.match(r"^#{1,6}\s+", line):
+            continue
+        heading_weeks = WEEK_PATTERN.findall(line)
+        if len(heading_weeks) > 1:
+            return None, "multiple weeks in summary heading"
+        if heading_weeks:
+            candidates.append(heading_weeks[0])
+            break
+    unique = set(candidates)
+    if len(unique) > 1:
+        return None, "conflicting declared weeks"
+    return (next(iter(unique)) if unique else None), None
+
+
+def classify_summary(
+    path: Path, *, expected_profile: str, expected_week: str
+) -> dict:
+    """Classify one compact summary without reading any referenced raw sources."""
+    if not path.exists():
+        return {
+            "exists": False,
+            "size": 0,
+            "state": "missing",
+            "ready": False,
+            "status": "Missing: no compact summary has been produced.",
+            "reason": "file missing",
+            "sha256": "",
+            "schema_version": "",
+        }
+    if not path.is_file():
+        return {
+            "exists": True,
+            "size": None,
+            "state": "invalid",
+            "ready": False,
+            "status": "Invalid: expected a summary file but found another path type.",
+            "reason": "not a regular file",
+            "sha256": "",
+            "schema_version": "",
+        }
+
+    content = path.read_bytes()
+    size = len(content)
+    digest = hashlib.sha256(content).hexdigest()
+    text = content.decode("utf-8", errors="replace")
+    metadata = _frontmatter(text)
+    schema = metadata.get("schema_version", "")
+    status = metadata.get("status") or _legacy_field(text, "Status") or ""
+    owner = (
+        metadata.get("owner_profile")
+        or _legacy_field(text, "Owner profile")
+        or ""
+    )
+    status_lower = status.lower()
+    declared_week, week_error = _declared_week(text, metadata)
+
+    base = {
+        "exists": True,
+        "size": size,
+        "sha256": digest,
+        "schema_version": schema,
+    }
+    if size == 0:
+        return {
+            **base,
+            "state": "invalid",
+            "ready": False,
+            "status": "Invalid: present but empty.",
+            "reason": "empty file",
+        }
+    if BOOTSTRAP_MARKER in text or "bootstrap" in status_lower:
+        return {
+            **base,
+            "state": "bootstrap",
+            "ready": False,
+            "status": "Bootstrap only: file exists but the owner profile has not attested a weekly handoff.",
+            "reason": "bootstrap marker/status",
+        }
+    if owner and owner != expected_profile:
+        return {
+            **base,
+            "state": "invalid",
+            "ready": False,
+            "status": f"Invalid: owner `{owner}` does not match expected `{expected_profile}`.",
+            "reason": "owner mismatch",
+        }
+    if week_error:
+        return {
+            **base,
+            "state": "invalid",
+            "ready": False,
+            "status": f"Invalid: {week_error}.",
+            "reason": week_error,
+        }
+    if declared_week and declared_week != expected_week:
+        return {
+            **base,
+            "state": "stale",
+            "ready": False,
+            "status": f"Stale: content does not cover `{expected_week}`.",
+            "reason": "week mismatch",
+        }
+    if status_lower in {"degraded", "error"} or status_lower.startswith("degraded"):
+        return {
+            **base,
+            "state": "degraded",
+            "ready": False,
+            "status": "Degraded: owner reported a source or generation problem.",
+            "reason": status or "degraded",
+        }
+    if "source-status" in status_lower or "health summary" in status_lower:
+        return {
+            **base,
+            "state": "source-health-only",
+            "ready": False,
+            "status": "Source health only: not a reviewed domain summary.",
+            "reason": status,
+        }
+    if status_lower.startswith("domain-owned"):
+        if not owner:
+            return {
+                **base,
+                "state": "invalid",
+                "ready": False,
+                "status": "Invalid: domain-owned status has no owner profile.",
+                "reason": "missing owner",
+            }
+        if declared_week != expected_week:
+            return {
+                **base,
+                "state": "stale",
+                "ready": False,
+                "status": f"Stale: domain-owned summary does not identify `{expected_week}`.",
+                "reason": "missing current week",
+            }
+        return {
+            **base,
+            "state": "domain-owned",
+            "ready": True,
+            "status": "Ready: owner-attested domain summary.",
+            "reason": "owner-attested",
+        }
+    return {
+        **base,
+        "state": "needs-owner-review",
+        "ready": False,
+        "status": "Present but not ready: owner profile review/attestation is required.",
+        "reason": status or "missing recognized status",
+    }
+
+
 def status_for(src: dict) -> dict:
-    p = src["path"]
-    exists = p.exists()
-    size = p.stat().st_size if exists and p.is_file() else None
-    if exists:
-        status = src["exists_text"]
-        if size == 0:
-            status = "Present but empty: treat as not yet summarized."
+    path = src["path"]
+    if src.get("kind") == "summary":
+        result = classify_summary(
+            path,
+            expected_profile=src["profile"],
+            expected_week=WEEK,
+        )
     else:
-        status = src["missing_text"]
+        exists = path.exists()
+        size = path.stat().st_size if exists and path.is_file() else None
+        state = "source-present" if exists else "missing"
+        result = {
+            "exists": exists,
+            "size": size,
+            "state": state,
+            "ready": exists,
+            "status": src["exists_text"] if exists else src["missing_text"],
+            "reason": state,
+            "sha256": "",
+            "schema_version": "",
+        }
     return {
         "domain": src["domain"],
         "profile": src["profile"],
-        "path": rel(p),
-        "exists": exists,
-        "size": size,
-        "status": status,
+        "path": rel(path),
+        **result,
     }
 
 
 def render(rows: list[dict]) -> str:
+    summary_rows = [row for row in rows if row["profile"] != "default"]
+    ready_count = sum(row["state"] == "domain-owned" for row in summary_rows)
+    not_ready_count = len(summary_rows) - ready_count
     lines = [
         f"# Profile summary index — {WEEK}",
         "",
-        "Status: source-status index, not a curated weekly report",
+        "Status: semantic source-status index, not a curated weekly report",
         "Owner profile: `default`",
         f"Generated: {GENERATED}",
         "",
-        "This file tracks whether each profile-separated domain has produced a compact weekly summary for the current ISO week. Missing files are treated as ‘not summarized yet,’ not as evidence that nothing happened.",
+        "File presence is not treated as summary readiness. Bootstrap, stale, degraded, and unreviewed files remain not ready.",
+        "",
+        "## Readiness summary",
+        "",
+        f"- domain-owned: {ready_count}",
+        f"- not ready: {not_ready_count}",
         "",
         "## Source status",
         "",
-        "| Domain | Owner profile | Expected source | Status |",
-        "|---|---|---|---|",
+        "| Domain | Owner profile | Expected source | State | Status |",
+        "|---|---|---|---|---|",
     ]
-    for r in rows:
-        lines.append(f"| {r['domain']} | {r['profile']} | `{r['path']}` | {r['status']} |")
+    for row in rows:
+        lines.append(
+            f"| {row['domain']} | {row['profile']} | `{row['path']}` | "
+            f"`{row['state']}` | {row['status']} |"
+        )
     lines += [
         "",
         "## Default integration rule",
         "",
-        "- Use this as a source-health index only.",
-        "- If a source is missing, report that briefly and continue with available sources.",
+        "- Treat only `domain-owned` summaries as reviewed domain signals.",
+        "- Bootstrap/missing/stale/degraded means ‘not summarized or not ready,’ never ‘nothing happened.’",
+        "- Do not inspect domain raw data to compensate for a missing handoff.",
         "- Do not rewrite `~/weekly-report` unless explicitly asked.",
         "- Do not merge domain raw data into default profile memory.",
-        "- Carry-forward candidates should stay short and go under `来週のこと` when drafting for the weekly report.",
+        "- Nightly review may surface at most two deadline/blocker/degraded signals; weekly review handles broader integration.",
         "",
     ]
     return "\n".join(lines)
 
 
 def main() -> int:
-    rows = [status_for(s) for s in SOURCES]
+    rows = [status_for(source) for source in SOURCES]
     content = render(rows)
     atomic_write(INDEX_PATH, content)
 
     digest_payload = json.dumps(
-        [{k: r[k] for k in ("domain", "path", "exists", "size")} for r in rows],
+        [
+            {
+                key: row[key]
+                for key in (
+                    "domain",
+                    "path",
+                    "exists",
+                    "size",
+                    "state",
+                    "ready",
+                    "sha256",
+                )
+            }
+            for row in rows
+        ],
         sort_keys=True,
         ensure_ascii=False,
     )
@@ -191,19 +421,24 @@ def main() -> int:
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     atomic_write(
         STATE_FILE,
-        json.dumps({"week": WEEK, "date": GENERATED, "digest": digest, "rows": rows}, ensure_ascii=False, indent=2),
+        json.dumps(
+            {"week": WEEK, "date": GENERATED, "digest": digest, "rows": rows},
+            ensure_ascii=False,
+            indent=2,
+        ),
     )
 
     if old != digest:
-        missing = [r for r in rows if not r["exists"] or r["size"] == 0]
-        available = [r for r in rows if r["exists"] and r["size"] != 0]
-        print(f"Profile summary source status changed for {WEEK}.")
+        domain_rows = [row for row in rows if row["profile"] != "default"]
+        ready = [row for row in domain_rows if row["ready"]]
+        not_ready = [row for row in domain_rows if not row["ready"]]
+        print(f"Profile summary readiness changed for {WEEK}.")
         print(f"Index: {rel(INDEX_PATH)}")
-        print(f"Available summaries/files: {len(available)}/{len(rows)}")
-        if missing:
-            print("Missing/not-ready compact summaries:")
-            for r in missing:
-                print(f"- {r['domain']} ({r['profile']}): {r['path']}")
+        print(f"Domain-owned summaries: {len(ready)}/{len(domain_rows)}")
+        if not_ready:
+            print("Not-ready domain handoffs:")
+            for row in not_ready:
+                print(f"- {row['domain']} ({row['profile']}): {row['state']}")
     return 0
 
 
