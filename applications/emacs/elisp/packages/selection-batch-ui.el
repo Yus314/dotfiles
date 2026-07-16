@@ -129,8 +129,21 @@ without claiming to exercise a real minibuffer command loop.")
     (define-key map (kbd "t") #'selection-batch--transaction-test-supported)
     (define-key map (kbd "q") #'selection-batch-collapse)
     (define-key map (kbd "C-g") #'selection-batch-cancel)
+    (define-key map [remap undo] #'selection-batch-undo)
+    (define-key map [remap undo-only] #'selection-batch-undo)
     map)
   "Private transient map for an active selection transaction.")
+
+(defun selection-batch-undo ()
+  "End the selection transaction, then undo one whole-buffer unit.
+The live primary region is deliberately deactivated before `undo-only' so it
+cannot silently turn the operation into undo-in-region.  Teardown happens
+first, hence an undo error cannot leave a stale session or transient map."
+  (interactive)
+  (let ((session (selection-batch--owner-session t)))
+    (selection-batch--cleanup session nil t))
+  (let ((mark-active nil))
+    (undo-only 1)))
 
 (defun selection-batch--transaction-on-exit (session)
   "Collapse SESSION when its map exits outside a supported command."

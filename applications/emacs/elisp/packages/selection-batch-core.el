@@ -25,7 +25,8 @@ Only non-negative integers are accepted."
   id anchor-marker cursor-marker)
 
 (cl-defstruct (selection-batch-snapshot-selection
-               (:constructor selection-batch-snapshot-selection-create))
+               (:constructor selection-batch--snapshot-selection-create)
+               (:conc-name selection-batch--snapshot-selection-))
   (id nil :read-only t)
   (anchor nil :read-only t)
   (cursor nil :read-only t))
@@ -130,10 +131,48 @@ SELECTION may be a snapshot value or an entry in the current live session."
   (= (selection-batch-selection-anchor selection)
      (selection-batch-selection-cursor selection)))
 
+(defun selection-batch--copy-value (value)
+  "Recursively copy mutable containers in VALUE."
+  (cond
+   ((stringp value) (copy-sequence value))
+   ((consp value)
+    (cons (selection-batch--copy-value (car value))
+          (selection-batch--copy-value (cdr value))))
+   ((vectorp value)
+    (vconcat (mapcar #'selection-batch--copy-value (append value nil))))
+   ((hash-table-p value)
+    (let ((copy (copy-hash-table value)))
+      (clrhash copy)
+      (maphash (lambda (key item)
+                 (puthash (selection-batch--copy-value key)
+                          (selection-batch--copy-value item) copy))
+               value)
+      copy))
+   (t value)))
+
+(cl-defun selection-batch-snapshot-selection-create (&key id anchor cursor)
+  "Create a selection value without retaining a mutable ID reference."
+  (selection-batch--snapshot-selection-create
+   :id (selection-batch--copy-value id) :anchor anchor :cursor cursor))
+
+(defun selection-batch-snapshot-selection-id (selection)
+  "Return a defensive copy of SELECTION's identifier."
+  (selection-batch--copy-value
+   (selection-batch--snapshot-selection-id selection)))
+
+(defun selection-batch-snapshot-selection-anchor (selection)
+  "Return SELECTION's integer anchor."
+  (selection-batch--snapshot-selection-anchor selection))
+
+(defun selection-batch-snapshot-selection-cursor (selection)
+  "Return SELECTION's integer cursor."
+  (selection-batch--snapshot-selection-cursor selection))
+
 (defun selection-batch--copy-selection (selection)
   "Copy snapshot SELECTION by value."
   (selection-batch-snapshot-selection-create
-   :id (selection-batch-snapshot-selection-id selection)
+   :id (selection-batch--copy-value
+        (selection-batch-snapshot-selection-id selection))
    :anchor (selection-batch-snapshot-selection-anchor selection)
    :cursor (selection-batch-snapshot-selection-cursor selection)))
 
@@ -146,7 +185,8 @@ SELECTION may be a snapshot value or an entry in the current live session."
   "Create a snapshot, defensively copying its compound values."
   (selection-batch--snapshot-create
    :buffer buffer :buffer-tick buffer-tick :generation generation
-   :primary-id primary-id :narrowing (copy-tree narrowing)
+   :primary-id (selection-batch--copy-value primary-id)
+   :narrowing (selection-batch--copy-value narrowing)
    :selections (selection-batch--copy-selections selections)))
 
 (defun selection-batch-snapshot-buffer (snapshot)
@@ -162,12 +202,12 @@ SELECTION may be a snapshot value or an entry in the current live session."
   (selection-batch--snapshot-generation snapshot))
 
 (defun selection-batch-snapshot-primary-id (snapshot)
-  "Return SNAPSHOT's primary selection ID."
-  (selection-batch--snapshot-primary-id snapshot))
+  "Return a defensive copy of SNAPSHOT's primary selection ID."
+  (selection-batch--copy-value (selection-batch--snapshot-primary-id snapshot)))
 
 (defun selection-batch-snapshot-narrowing (snapshot)
   "Return a copy of SNAPSHOT's narrowing bounds."
-  (copy-tree (selection-batch--snapshot-narrowing snapshot)))
+  (selection-batch--copy-value (selection-batch--snapshot-narrowing snapshot)))
 
 (defun selection-batch-snapshot-selections (snapshot)
   "Return a copy of SNAPSHOT's selections vector and values."
@@ -180,8 +220,10 @@ SELECTION may be a snapshot value or an entry in the current live session."
    :buffer (selection-batch-snapshot-buffer snapshot)
    :buffer-tick (selection-batch-snapshot-buffer-tick snapshot)
    :generation (selection-batch-snapshot-generation snapshot)
-   :primary-id (or primary-id (selection-batch-snapshot-primary-id snapshot))
-   :narrowing (copy-tree (selection-batch--snapshot-narrowing snapshot))
+   :primary-id (selection-batch--copy-value
+                (or primary-id (selection-batch--snapshot-primary-id snapshot)))
+   :narrowing (selection-batch--copy-value
+               (selection-batch--snapshot-narrowing snapshot))
    :selections (selection-batch--copy-selections
                 (or selections (selection-batch--snapshot-selections snapshot)))))
 
@@ -422,7 +464,8 @@ an initial failure leaves no session, hooks, markers, or derived artifacts."
         (progn
           (dolist (selection (append (selection-batch--session-selections session) nil))
             (push (selection-batch-snapshot-selection-create
-                   :id (selection-batch--live-selection-id selection)
+                   :id (selection-batch--copy-value
+                        (selection-batch--live-selection-id selection))
                    :anchor (selection-batch-selection-anchor selection)
                    :cursor (selection-batch-selection-cursor selection))
                   values))
@@ -431,7 +474,8 @@ an initial failure leaves no session, hooks, markers, or derived artifacts."
              :buffer buffer
              :buffer-tick (buffer-chars-modified-tick)
              :generation (selection-batch--session-generation session)
-             :primary-id (selection-batch--session-primary-id session)
+             :primary-id (selection-batch--copy-value
+                          (selection-batch--session-primary-id session))
              :narrowing (cons (point-min) (point-max))
              :selections (vconcat (nreverse values)))))
       ((error quit)

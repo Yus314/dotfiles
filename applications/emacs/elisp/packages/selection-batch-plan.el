@@ -198,10 +198,34 @@ Buffer and marker objects retain identity.  Strings retain text properties."
         (end (selection-batch--edit-end edit)))
     (if (< beginning end)
         (text-property-not-all beginning end 'read-only nil)
-      (or (and (< beginning (point-max))
-               (get-char-property beginning 'read-only))
-          (and (> beginning (point-min))
-               (get-char-property (1- beginning) 'read-only))))))
+      (let* ((left (and (> beginning (point-min)) (1- beginning)))
+             (right (and (< beginning (point-max)) beginning))
+             (rear-nonsticky
+              (and left (get-text-property left 'rear-nonsticky)))
+             (front-sticky
+              (and right (get-text-property right 'front-sticky))))
+        ;; Insertion properties are rear-sticky and front-nonsticky by default.
+        (or (and left (get-text-property left 'read-only)
+                 (not (or (eq rear-nonsticky t)
+                          (and (listp rear-nonsticky)
+                               (memq 'read-only rear-nonsticky)))))
+            (and right (get-text-property right 'read-only)
+                 (or (eq front-sticky t)
+                     (and (listp front-sticky)
+                          (memq 'read-only front-sticky)))))))))
+
+(defun selection-batch--edits-collide-p (left right)
+  "Return non-nil when LEFT and RIGHT do not denote independent edits.
+Nonempty ranges are half-open.  An insertion at a range's beginning or in its
+interior collides; insertion at its end is adjacent and is allowed."
+  (let ((lb (selection-batch--edit-beginning left))
+        (le (selection-batch--edit-end left))
+        (rb (selection-batch--edit-beginning right))
+        (re (selection-batch--edit-end right)))
+    (cond
+     ((= lb le) (and (< rb re) (<= rb lb) (< lb re)))
+     ((= rb re) (and (<= lb rb) (< rb le)))
+     (t (and (< lb re) (< rb le))))))
 
 (defun selection-batch--validate-result (plan source expected-max)
   "Validate PLAN's explicit result against SOURCE and EXPECTED-MAX."
@@ -293,17 +317,10 @@ Return PLAN without modifying text, markers, globals, history, or views."
                              (selection-batch--edit-beginning edit)))))
       (cl-loop for tail on (append edits nil)
                for left = (car tail)
-               when (< (selection-batch--edit-beginning left)
-                       (selection-batch--edit-end left))
                do (dolist (right (cdr tail))
-                    (when (and (< (selection-batch--edit-beginning right)
-                                  (selection-batch--edit-end right))
-                               (< (selection-batch--edit-beginning left)
-                                  (selection-batch--edit-end right))
-                               (< (selection-batch--edit-beginning right)
-                                  (selection-batch--edit-end left)))
+                    (when (selection-batch--edits-collide-p left right)
                       (selection-batch--plan-error
-                       left "nonempty range overlaps selection %S"
+                       left "edit collides with selection %S"
                        (selection-batch--edit-selection-id right)))))
       (selection-batch--validate-result plan source (+ maximum delta)))
     plan))
@@ -385,7 +402,7 @@ Return PLAN without modifying text, markers, globals, history, or views."
 (defun selection-batch-apply-plan (plan)
   "Validate and atomically apply PLAN as one ordinary undo unit.
 Every failure, including `quit', first rolls text back and then compensates all
-package state from integer values.  Command hooks are never replayed."
+package state from copied values.  Command hooks are never replayed."
   (let* ((session (selection-batch--owner-session t)))
     ;; Reentry is checked before stale tick diagnostics so callers receive the
     ;; useful lifecycle error even after an outer primitive changed text.
@@ -394,18 +411,24 @@ package state from integer values.  Command hooks are never replayed."
     (selection-batch-validate-plan plan)
     (let* ((before (selection-batch-current-snapshot))
            (old-live (selection-batch--session-selections session))
-           (old-primary (selection-batch--session-primary-id session))
+           (old-primary (selection-batch--plan-copy-value
+                         (selection-batch--session-primary-id session)))
            (old-history (selection-batch--session-history session))
            (old-redo (selection-batch--session-redo session))
            (old-generation (selection-batch--session-generation session))
            (old-state (selection-batch--session-state session))
-           (old-register selection-batch-register)
-           (old-recipe selection-batch-last-recipe)
+           ;; Change hooks and variable watchers are untrusted.  Compensation
+           ;; must not share their mutable register/recipe containers.
+           (old-register (selection-batch--plan-copy-value
+                          selection-batch-register))
+           (old-recipe (selection-batch--plan-copy-value
+                        selection-batch-last-recipe))
            (old-refresh selection-batch--view-refresh-function)
            (old-destroy selection-batch--view-destroy-function)
-           ;; Copy every replacement before setting applying or touching text.
+           ;; Prepare every value that can fail validation before touching text.
            (edits (vconcat (mapcar #'selection-batch--copy-edit
                                    (append (selection-batch--plan-edits plan) nil))))
+           (future-history (selection-batch--history-push before old-history))
            (future-register
             (selection-batch--apply-update
              selection-batch-register (selection-batch--plan-register-update plan)))
@@ -413,16 +436,23 @@ package state from integer values.  Command hooks are never replayed."
             (selection-batch--apply-update
              selection-batch-last-recipe (selection-batch--plan-recipe plan)))
            condition)
-      (setf (selection-batch--session-state session) 'applying)
       (undo-boundary)
       (condition-case err
           (atomic-change-group
+            (setf (selection-batch--session-state session) 'applying)
             (dolist (edit (append edits nil))
               (funcall selection-batch--plan-primitive-edit-function edit))
             (let ((result (selection-batch--plan-result-snapshot plan)))
               (funcall selection-batch--plan-install-result-function
                        session result)
               (funcall selection-batch--plan-refresh-view-function session))
+            ;; All package commits, especially watcher-capable globals, remain
+            ;; inside both the text rollback and state compensation boundary.
+            (setf (selection-batch--session-history session) future-history
+                  (selection-batch--session-redo session) nil
+                  (selection-batch--session-state session) 'set)
+            (setq selection-batch-register future-register
+                  selection-batch-last-recipe future-recipe)
             (selection-batch--detach-selections old-live))
         ((error quit) (setq condition err)))
       (if condition
@@ -441,8 +471,10 @@ package state from integer values.  Command hooks are never replayed."
                         (selection-batch--session-generation session) old-generation
                         (selection-batch--session-state session) old-state
                         (selection-batch--session-primary-id session) old-primary)
-                  (setq selection-batch-register old-register
-                        selection-batch-last-recipe old-recipe
+                  (setq selection-batch-register
+                        (selection-batch--plan-copy-value old-register)
+                        selection-batch-last-recipe
+                        (selection-batch--plan-copy-value old-recipe)
                         selection-batch--view-refresh-function old-refresh
                         selection-batch--view-destroy-function old-destroy)
                   (when (functionp old-refresh) (funcall old-refresh session)))
@@ -453,12 +485,6 @@ package state from integer values.  Command hooks are never replayed."
               (error "Plan failed (%S); compensation failed (%S)"
                      condition restoration-error))
             (signal (car condition) (cdr condition)))
-        (setf (selection-batch--session-history session)
-              (selection-batch--history-push before old-history)
-              (selection-batch--session-redo session) nil
-              (selection-batch--session-state session) 'set)
-        (setq selection-batch-register future-register
-              selection-batch-last-recipe future-recipe)
         (undo-boundary)
         (selection-batch-current-snapshot)))))
 
