@@ -19,6 +19,15 @@
 (defvar selection-batch-last-recipe nil
   "Last semantic operator recipe, or nil.")
 
+(cl-defstruct (selection-batch-recipe
+               (:constructor selection-batch--recipe-create)
+               (:conc-name selection-batch--recipe-))
+  (operator nil :read-only t)
+  (arguments nil :read-only t)
+  (cardinality-policy nil :read-only t)
+  (result-policy nil :read-only t)
+  (adapter-id nil :read-only t))
+
 (cl-defstruct (selection-batch-edit
                (:constructor selection-batch--edit-create)
                (:conc-name selection-batch--edit-))
@@ -61,6 +70,35 @@ Buffer and marker objects retain identity.  Strings retain text properties."
                value)
       copy))
    (t value)))
+
+(cl-defun selection-batch-recipe-create
+    (&key operator arguments cardinality-policy result-policy adapter-id)
+  "Create an immutable semantic recipe with no live positions or markers."
+  (unless (symbolp operator)
+    (signal 'wrong-type-argument (list 'symbolp operator)))
+  (selection-batch--recipe-create
+   :operator operator
+   :arguments (selection-batch--plan-copy-value arguments)
+   :cardinality-policy (selection-batch--plan-copy-value cardinality-policy)
+   :result-policy (selection-batch--plan-copy-value result-policy)
+   :adapter-id (selection-batch--plan-copy-value adapter-id)))
+
+(defun selection-batch-recipe-operator (recipe)
+  "Return RECIPE's operator."
+  (selection-batch--recipe-operator recipe))
+(defun selection-batch-recipe-arguments (recipe)
+  "Return a defensive copy of RECIPE's arguments."
+  (selection-batch--plan-copy-value (selection-batch--recipe-arguments recipe)))
+(defun selection-batch-recipe-cardinality-policy (recipe)
+  "Return a defensive copy of RECIPE's cardinality policy."
+  (selection-batch--plan-copy-value
+   (selection-batch--recipe-cardinality-policy recipe)))
+(defun selection-batch-recipe-result-policy (recipe)
+  "Return a defensive copy of RECIPE's result policy."
+  (selection-batch--plan-copy-value (selection-batch--recipe-result-policy recipe)))
+(defun selection-batch-recipe-adapter-id (recipe)
+  "Return a defensive copy of RECIPE's adapter identifier."
+  (selection-batch--plan-copy-value (selection-batch--recipe-adapter-id recipe)))
 
 (defun selection-batch--copy-result-selection (selection)
   "Return a fresh integer value copied from result SELECTION."
@@ -236,16 +274,19 @@ interior collides; insertion at its end is adjacent and is allowed."
          (minimum (car (selection-batch--plan-source-narrowing plan))))
     (unless (and (eq (selection-batch-snapshot-buffer result)
                      (selection-batch--plan-buffer plan))
-                 (= (length source-selections) (length edits))
-                 (= (length result-selections) (length edits)))
+                 (or (= (length result-selections) (length edits))
+                     (and (= (length edits) 0)
+                          (not (eq (selection-batch--plan-register-update plan)
+                                   selection-batch-no-update))
+                          (equal source-selections result-selections))))
       (user-error "Plan edit/source/result cardinality mismatch"))
     (dolist (edit (append edits nil))
       (let* ((index (selection-batch--edit-logical-index edit))
              (id (selection-batch--edit-selection-id edit)))
-        (unless (and (integerp index) (<= 0 index) (< index (length edits)))
+        (unless (and (integerp index) (<= 0 index)
+                     (< index (length result-selections)))
           (selection-batch--plan-error edit "invalid logical index"))
-        (unless (and (equal id (selection-batch-snapshot-selection-id
-                                (aref source-selections index)))
+        (unless (and (selection-batch--selection-by-id source-selections id)
                      (equal id (selection-batch-snapshot-selection-id
                                 (aref result-selections index)))
                      (equal (selection-batch--edit-result edit)

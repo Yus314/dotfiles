@@ -134,6 +134,15 @@ without claiming to exercise a real minibuffer command loop.")
     map)
   "Private transient map for an active selection transaction.")
 
+(defun selection-batch-register-transaction-command (command)
+  "Treat COMMAND as supported in the private transaction map.
+A remapping entry records command capability without selecting a final frontend
+or Meow key."
+  (unless (commandp command)
+    (signal 'wrong-type-argument (list 'commandp command)))
+  (define-key selection-batch--transaction-map (vector 'remap command) command)
+  command)
+
 (defun selection-batch-undo ()
   "End the selection transaction, then undo one whole-buffer unit.
 The live primary region is deliberately deactivated before `undo-only' so it
