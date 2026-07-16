@@ -579,10 +579,11 @@ matches become empty selections and search always makes progress."
              (cons beginning end))
             (_ (user-error "Unknown regexp scope: %S" scope))))
          (limit (min (cdr bounds) (point-max)))
-         values (id 0))
+         values (id 0) done)
     (save-excursion
       (goto-char (max (car bounds) (point-min)))
-      (while (and (<= (point) limit) (re-search-forward regexp limit t))
+      (while (and (not done) (<= (point) limit)
+                  (re-search-forward regexp limit t))
         (let ((beginning (match-beginning 0))
               (end (match-end 0)))
           (push (selection-batch-snapshot-selection-create
@@ -590,8 +591,10 @@ matches become empty selections and search always makes progress."
           (setq id (1+ id))
           ;; Emacs normally advances repeated empty matches itself.  The
           ;; explicit guard also makes this true for boundary-only regexps.
-          (when (and (= beginning end) (= (point) beginning) (< (point) limit))
-            (forward-char 1)))))
+          (when (and (= beginning end) (= (point) beginning))
+            (if (< (point) limit)
+                (forward-char 1)
+              (setq done t))))))
     (selection-batch--provider-result
      (nreverse values) nil (list :provider 'regexp :regexp (copy-sequence regexp)
                                  :scope scope))))
@@ -665,8 +668,9 @@ The final line is included even when it has no terminating newline."
 
 (defun selection-batch-transform-split-lines (snapshot)
   "Split each SNAPSHOT selection into per-line content selections."
-  (let (output (next-id 0))
-    (dolist (selection (append (selection-batch-snapshot-selections snapshot) nil))
+  (let ((original-selections (selection-batch-snapshot-selections snapshot))
+        output (next-id 0))
+    (dolist (selection (append original-selections nil))
       (let ((beginning (selection-batch-selection-beginning selection))
             (end (selection-batch-selection-end selection))
             pieces (piece-index 0))
@@ -676,17 +680,24 @@ The final line is included even when it has no terminating newline."
         (dolist (piece (append pieces nil))
           (let ((id (if (= piece-index 0)
                         (selection-batch-snapshot-selection-id selection)
-                      (while (selection-batch--selection-by-id
-                              (vconcat output) (format "split-%d" next-id))
+                      (while (or (selection-batch--selection-by-id
+                                  original-selections (format "split-%d" next-id))
+                                 (selection-batch--selection-by-id
+                                  (vconcat output) (format "split-%d" next-id)))
                         (setq next-id (1+ next-id)))
                       (prog1 (format "split-%d" next-id)
                         (setq next-id (1+ next-id))))))
-            (push (selection-batch-snapshot-selection-create
-                   :id id
-                   :anchor (selection-batch-snapshot-selection-anchor piece)
-                   :cursor (selection-batch-snapshot-selection-cursor piece))
-                  output)
-            (setq piece-index (1+ piece-index))))))
+            (let ((piece-beginning
+                   (selection-batch-snapshot-selection-anchor piece))
+                  (piece-end (selection-batch-snapshot-selection-cursor piece)))
+              (push (selection-batch-snapshot-selection-create
+                     :id id
+                     :anchor (if (selection-batch-selection-forward-p selection)
+                                 piece-beginning piece-end)
+                     :cursor (if (selection-batch-selection-forward-p selection)
+                                 piece-end piece-beginning))
+                    output)
+              (setq piece-index (1+ piece-index)))))))
     (selection-batch--filtered-snapshot snapshot (nreverse output))))
 
 (defun selection-batch-transform-reverse (snapshot)

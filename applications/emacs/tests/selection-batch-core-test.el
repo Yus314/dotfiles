@@ -365,4 +365,90 @@
     (should (equal '((a 2 1) (b 3 2))
                    (selection-batch-test--triples (selection-batch-current-snapshot))))))
 
+(ert-deftest selection-batch-public-snapshot-slots-are-read-only ()
+  (let ((selection (selection-batch-test--selection 'a 1 2)))
+    (should-error
+     (eval `(setf (selection-batch-snapshot-selection-anchor ,selection) 9)))))
+
+(ert-deftest selection-batch-normalization-merges-transitive-overlap-chain ()
+  (selection-batch-test--with-buffer "abcdefghijklmnop"
+    (let ((result
+           (selection-batch-normalize
+            (selection-batch-test--snapshot
+             (current-buffer) '((wide 1 11) (nested 2 4) (tail 10 14)) 'tail)
+            'merge)))
+      (should (equal '((tail 1 14))
+                     (selection-batch-test--triples
+                      (selection-batch-normalization-snapshot result))))
+      (should (equal '(wide nested tail)
+                     (plist-get (selection-batch-normalization-diagnostics result)
+                                :merged-ids))))))
+
+(ert-deftest selection-batch-install-replaces-the-single-owner-safely ()
+  (let ((first (generate-new-buffer " *selection-first*"))
+        (second (generate-new-buffer " *selection-second*"))
+        old-marker)
+    (unwind-protect
+        (progn
+          (with-current-buffer first
+            (insert "abc")
+            (selection-batch-install-snapshot
+             (selection-batch-test--snapshot first '((a 1 2) (b 2 3)) 'a))
+            (setq old-marker
+                  (selection-batch--live-selection-anchor-marker
+                   (selection-batch--live-by-id selection-batch--session 'b))))
+          (with-current-buffer second
+            (insert "xyz")
+            (selection-batch-install-snapshot
+             (selection-batch-test--snapshot second '((x 1 2)) 'x)))
+          (should (eq second (selection-batch--session-buffer selection-batch--session)))
+          (should-not (marker-buffer old-marker)))
+      (when selection-batch--session
+        (selection-batch--cleanup selection-batch--session nil t))
+      (kill-buffer first)
+      (kill-buffer second))))
+
+(ert-deftest selection-batch-cleanup-destroys-derived-artifacts-once ()
+  (selection-batch-test--with-buffer "abc"
+    (selection-batch-install-snapshot
+     (selection-batch-test--snapshot (current-buffer) '((a 1 2)) 'a))
+    (let ((overlay (make-overlay 1 2))
+          (calls 0)
+          (session selection-batch--session))
+      (setf (selection-batch--session-overlays session) (list overlay)
+            (selection-batch--session-transient-exit-function session)
+            (lambda () (setq calls (1+ calls))))
+      (selection-batch--cleanup session nil t)
+      (selection-batch--cleanup session nil t)
+      (should-not (overlay-buffer overlay))
+      (should (= 1 calls)))))
+
+(ert-deftest selection-batch-empty-regexp-terminates-at-character-boundaries ()
+  (selection-batch-test--with-buffer "日本"
+    (let ((result (selection-batch-provider-regexp "" 'accessible)))
+      (should (equal '((0 1 1) (1 2 2) (2 3 3))
+                     (selection-batch-test--triples
+                      (selection-batch-provider-snapshot result)))))))
+
+(ert-deftest selection-batch-split-lines-preserves-source-ids-and-direction ()
+  (selection-batch-test--with-buffer "aa\nbb xx\nyy"
+    (let ((result
+           (selection-batch-transform-split-lines
+            (selection-batch-test--snapshot
+             (current-buffer) '((a 1 6) (b 11 7)) 'b))))
+      (should (equal '((a 1 3) ("split-0" 4 6)
+                       (b 9 7) ("split-1" 11 10))
+                     (selection-batch-test--triples result)))
+      (should (eq 'b (selection-batch-snapshot-primary-id result))))))
+
+(ert-deftest selection-batch-split-lines-does-not-collide-with-existing-ids ()
+  (selection-batch-test--with-buffer "aa\nbb\ncc"
+    (let* ((snapshot (selection-batch-test--snapshot
+                      (current-buffer) '((a 1 6) ("split-0" 7 9)) 'a))
+           (result (selection-batch-transform-split-lines snapshot))
+           (ids (mapcar #'selection-batch-snapshot-selection-id
+                        (append (selection-batch-snapshot-selections result) nil))))
+      (should (equal '(a "split-1" "split-0") ids))
+      (should (= (length ids) (length (delete-dups (copy-sequence ids))))))))
+
 ;;; selection-batch-core-test.el ends here
