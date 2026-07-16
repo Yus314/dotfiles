@@ -6,7 +6,16 @@
 let
   configPython = pkgs.python3.withPackages (ps: [ ps.pyyaml ]);
   sharedSkillsScript = ./scripts/shared_skills_config.py;
+  sharedSkillsUnitTests = pkgs.runCommand "hermes-shared-skills-tests" { src = ./.; } ''
+    cp -R "$src" source
+    chmod -R u+w source
+    cd source
+    PYTHONDONTWRITEBYTECODE=1 ${configPython}/bin/python -m unittest \
+      tests/test_shared_skills_config.py
+    touch "$out"
+  '';
   validatedSharedSkills = pkgs.runCommand "hermes-shared-skills" { } ''
+    test -e ${sharedSkillsUnitTests}
     mkdir -p "$out"
     ${configPython}/bin/python ${sharedSkillsScript} \
       check-source \

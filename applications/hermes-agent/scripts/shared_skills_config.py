@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 import tempfile
@@ -27,14 +28,14 @@ PROFILE_GROUPS: dict[str, tuple[str, ...]] = {
         "profile-ops",
     ),
     "career": ("common", "study", "engineering", "orchestration"),
-    "economics": ("common", "study"),
+    "economics": ("common", "study", "orchestration"),
     "english": ("common", "study", "orchestration"),
-    "finance": ("common",),
-    "food": ("common",),
-    "health": ("common",),
+    "finance": ("common", "orchestration"),
+    "food": ("common", "orchestration"),
+    "health": ("common", "orchestration"),
     "indiedev": ("common", "engineering", "orchestration"),
-    "math": ("common", "study"),
-    "researcheval": ("common", "engineering"),
+    "math": ("common", "study", "orchestration"),
+    "researcheval": ("common", "engineering", "orchestration"),
 }
 NAME_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 MARKDOWN_LINK_PATTERN = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
@@ -45,8 +46,15 @@ TRANSIENT_ARTIFACT_NAMES = {".manifest.json", "__pycache__"}
 TRANSIENT_ARTIFACT_SUFFIXES = {".pyc", ".pyo"}
 SECRET_PATTERNS = (
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
+    re.compile(r"-----BEGIN ENCRYPTED PRIVATE KEY-----"),
+    re.compile(r"-----BEGIN PGP PRIVATE KEY BLOCK-----"),
     re.compile(r"\bsk-(?:or-v1-)?[A-Za-z0-9_-]{20,}\b"),
     re.compile(r"\bgh[oprsu]_[A-Za-z0-9]{20,}\b"),
+    re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,}\b"),
+    re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"),
+    re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{20,}\b"),
+    re.compile(r"\bAIza[0-9A-Za-z_-]{30,}\b"),
+    re.compile(r"\bAuthorization:\s*Bearer\s+[A-Za-z0-9._~+/=-]{20,}\b", re.I),
 )
 SECRET_CAPABILITY_KEYS = {
     "required_environment_variables",
@@ -54,6 +62,12 @@ SECRET_CAPABILITY_KEYS = {
     "credential_files",
     "environment_variables",
 }
+# Shared procedures are credential-free by default. Add narrowly reviewed
+# (group, skill) entries only when a package genuinely requires a secret.
+SECRET_CAPABILITY_ALLOWLIST: dict[tuple[str, str], dict[str, frozenset[str]]] = {}
+README_GROUP_ROW = re.compile(r"^\|\s*`([^`]+)/`\s*\|\s*([^|]+?)\s*\|")
+MANIFEST_SCHEMA_VERSION = 2
+MANIFEST_OWNER = "dotfiles-hermes-shared-skills"
 
 
 @dataclass(frozen=True)
@@ -63,6 +77,8 @@ class SkillRecord:
     path: str
     sha256: str
     package_sha256: str
+    platforms: tuple[str, ...]
+    environments: tuple[str, ...]
 
 
 def profile_config_path(home: Path, profile: str) -> Path:
@@ -98,13 +114,49 @@ def _walk_values(value, key: str = "") -> Iterable[tuple[str, object]]:
             yield from _walk_values(item, key)
 
 
-def _has_secret_capability(frontmatter: dict) -> bool:
+def _secret_capabilities(frontmatter: dict) -> dict[str, set[str]]:
+    capabilities: dict[str, set[str]] = {}
     for key, value in _walk_values(frontmatter):
         if key in SECRET_CAPABILITY_KEYS and value not in (None, "", [], {}):
-            return True
+            values = value if isinstance(value, list) else [value]
+            capabilities.setdefault(key, set()).update(str(item) for item in values)
         if key == "env" and value not in (None, "", [], {}):
-            return True
-    return False
+            values = value if isinstance(value, list) else [value]
+            capabilities.setdefault(key, set()).update(str(item) for item in values)
+    prerequisites = frontmatter.get("prerequisites")
+    if isinstance(prerequisites, dict):
+        env_vars = prerequisites.get("env_vars")
+        if env_vars not in (None, "", [], {}):
+            values = env_vars if isinstance(env_vars, list) else [env_vars]
+            capabilities.setdefault("prerequisites.env_vars", set()).update(
+                str(item) for item in values
+            )
+    setup = frontmatter.get("setup")
+    if isinstance(setup, dict):
+        collected = setup.get("collect_secrets")
+        if collected not in (None, "", [], {}):
+            values = collected if isinstance(collected, list) else [collected]
+            capabilities.setdefault("setup.collect_secrets", set()).update(
+                str(item) for item in values
+            )
+    return capabilities
+
+
+def _validate_secret_capabilities(
+    group: str, name: str, frontmatter: dict, skill_file: Path
+) -> None:
+    actual = _secret_capabilities(frontmatter)
+    allowed = SECRET_CAPABILITY_ALLOWLIST.get((group, name), {})
+    unexpected = {
+        key: sorted(values - set(allowed.get(key, frozenset())))
+        for key, values in actual.items()
+        if values - set(allowed.get(key, frozenset()))
+    }
+    if unexpected:
+        raise ValueError(
+            "shared skill declares an unapproved secret capability: "
+            f"{skill_file}: {unexpected}"
+        )
 
 
 def _skill_command_slug(name: str) -> str:
@@ -158,8 +210,10 @@ def _validate_shared_tree_security(
             continue
         try:
             text = path.read_text()
-        except UnicodeDecodeError:
-            continue
+        except UnicodeDecodeError as error:
+            raise ValueError(
+                f"non-UTF-8 file is not allowed in shared skill source: {path}"
+            ) from error
         for pattern in SECRET_PATTERNS:
             if pattern.search(text):
                 raise ValueError(f"probable secret in shared skill source: {path}")
@@ -180,6 +234,42 @@ def _package_hash(package_root: Path) -> str:
 def _validate_package(package_root: Path) -> None:
     for markdown_file in package_root.rglob("*.md"):
         _validate_local_links(markdown_file, package_root)
+
+
+def _validate_readme_matrix(
+    shared_root: Path, profile_groups: dict[str, tuple[str, ...]]
+) -> None:
+    readme = shared_root / "README.md"
+    if not readme.is_file():
+        raise ValueError(f"missing shared skill matrix README: {readme}")
+    documented: dict[str, set[str]] = {}
+    all_profiles = set(profile_groups)
+    for line in readme.read_text().splitlines():
+        match = README_GROUP_ROW.match(line)
+        if not match:
+            continue
+        group, consumers_text = match.groups()
+        if group in documented:
+            raise ValueError(f"duplicate shared skill README group row: {group}")
+        if consumers_text == "all configured profiles":
+            consumers = all_profiles
+        else:
+            consumers = {
+                item.strip() for item in consumers_text.split(",") if item.strip()
+            }
+        documented[group] = consumers
+    declared_groups = {group for groups in profile_groups.values() for group in groups}
+    expected = {
+        group: {
+            profile for profile, groups in profile_groups.items() if group in groups
+        }
+        for group in declared_groups
+    }
+    if documented != expected:
+        raise ValueError(
+            "shared skill README profile matrix drift: "
+            f"expected={expected}, documented={documented}"
+        )
 
 
 def validate_source(
@@ -206,6 +296,7 @@ def validate_source(
     _validate_shared_tree_security(
         shared_root, allow_build_manifest=allow_build_manifest
     )
+    _validate_readme_matrix(shared_root, profile_groups)
 
     records: list[SkillRecord] = []
     names: dict[str, Path] = {}
@@ -267,6 +358,21 @@ def validate_source(
                 )
             if not isinstance(description, str) or not description.strip():
                 raise ValueError(f"missing shared skill description: {skill_file}")
+            raw_platforms = frontmatter.get("platforms", [])
+            if not isinstance(raw_platforms, list) or any(
+                not isinstance(item, str) or not item.strip() for item in raw_platforms
+            ):
+                raise ValueError(f"invalid shared skill platforms: {skill_file}")
+            platforms = tuple(item.strip().lower() for item in raw_platforms)
+            raw_environments = frontmatter.get("environments", [])
+            if not isinstance(raw_environments, list) or any(
+                not isinstance(item, str) or not item.strip()
+                for item in raw_environments
+            ):
+                raise ValueError(f"invalid shared skill environments: {skill_file}")
+            environments = tuple(
+                item.strip().lower() for item in raw_environments
+            )
             combined_frontmatter_text = f"{name}{description}"
             if (
                 "<" in combined_frontmatter_text
@@ -276,10 +382,7 @@ def validate_source(
                 raise ValueError(
                     f"unsafe frontmatter text in shared skill: {skill_file}"
                 )
-            if group == "common" and _has_secret_capability(frontmatter):
-                raise ValueError(
-                    f"common skill declares a secret capability: {skill_file}"
-                )
+            _validate_secret_capabilities(group, name, frontmatter, skill_file)
             _validate_package(package_root)
             names[name] = skill_file
             command_slugs[command_slug] = skill_file
@@ -291,6 +394,8 @@ def validate_source(
                     path=str(skill_file.resolve()),
                     sha256=hashlib.sha256(skill_file.read_bytes()).hexdigest(),
                     package_sha256=_package_hash(package_root),
+                    platforms=platforms,
+                    environments=environments,
                 )
             )
     return records
@@ -341,10 +446,6 @@ def _write_yaml_atomic(path: Path, value: dict) -> None:
         temporary_path.unlink(missing_ok=True)
 
 
-def _managed_paths(shared_root: Path) -> set[str]:
-    return {str(shared_root), *(str(shared_root / group) for group in SHARED_GROUPS)}
-
-
 def _expected_external_dirs(shared_root: Path, groups: tuple[str, ...]) -> list[str]:
     return [str(shared_root / group) for group in groups]
 
@@ -370,6 +471,158 @@ def _logical_absolute(path: Path) -> Path:
     return Path(os.path.abspath(path.expanduser()))
 
 
+def _profile_home(home: Path, profile: str) -> Path:
+    return (
+        home / ".hermes"
+        if profile == "default"
+        else home / ".hermes/profiles" / profile
+    )
+
+
+def _expand_external_dir(raw: str, profile_home: Path) -> Path:
+    expanded = Path(os.path.expandvars(os.path.expanduser(raw)))
+    if not expanded.is_absolute():
+        expanded = profile_home / expanded
+    return _logical_absolute(expanded)
+
+
+def _same_physical_path(left: Path, right: Path) -> bool:
+    try:
+        return os.path.samefile(left, right)
+    except (FileNotFoundError, OSError):
+        return left.resolve(strict=False) == right.resolve(strict=False)
+
+
+def _nix_store_root() -> Path:
+    return Path(os.environ.get("NIX_STORE_DIR", "/nix/store")).resolve(strict=False)
+
+
+def _managed_path_kind(
+    raw: str, shared_root: Path, profile_home: Path
+) -> tuple[str, str | None] | None:
+    candidate = _expand_external_dir(raw, profile_home)
+    expected = [
+        (shared_root, None),
+        *[(shared_root / group, group) for group in SHARED_GROUPS],
+    ]
+    for expected_path, group in expected:
+        if candidate == expected_path:
+            return ("managed-current-logical", group)
+        if _same_physical_path(candidate, expected_path):
+            return ("managed-current-alias", group)
+
+    if candidate.name in SHARED_GROUPS:
+        artifact_root = candidate.parent
+        store_root = _nix_store_root()
+        try:
+            relative_artifact = artifact_root.relative_to(store_root)
+        except ValueError:
+            return None
+        if len(relative_artifact.parts) != 1 or not artifact_root.name.endswith(
+            "-hermes-shared-skills"
+        ):
+            return None
+        manifest_path = artifact_root / ".manifest.json"
+        if manifest_path.is_file():
+            try:
+                manifest = json.loads(manifest_path.read_text())
+            except (OSError, json.JSONDecodeError):
+                manifest = {}
+            owner = manifest.get("managed_by") if isinstance(manifest, dict) else None
+            records = manifest.get("skills", []) if isinstance(manifest, dict) else []
+            legacy_owned = any(
+                isinstance(item, dict) and item.get("group") == candidate.name
+                for item in records
+            )
+            if owner == MANIFEST_OWNER or legacy_owned:
+                return ("managed-stale-artifact", candidate.name)
+        if not artifact_root.exists():
+            return ("managed-stale-artifact", candidate.name)
+    return None
+
+
+def _validate_profile_config_security(path: Path) -> dict:
+    if os.name != "posix":
+        return {"mode_check": "unsupported"}
+    file_stat = path.stat()
+    mode = stat.S_IMODE(file_stat.st_mode)
+    if not stat.S_ISREG(file_stat.st_mode) or mode != 0o600:
+        raise ValueError(
+            f"Hermes profile config must be a regular file with mode 0600: "
+            f"{path}: mode={mode:04o}"
+        )
+    if hasattr(os, "getuid") and file_stat.st_uid != os.getuid():
+        raise ValueError(
+            f"Hermes profile config is not owned by the current user: {path}: "
+            f"uid={file_stat.st_uid}"
+        )
+    return {"mode_check": "ok", "mode": "0600", "uid": file_stat.st_uid}
+
+
+def _frontmatter_matches_platform(
+    frontmatter: dict, platform_names: set[str] | None
+) -> bool:
+    if platform_names is None:
+        return True
+    raw_platforms = frontmatter.get("platforms", [])
+    if not isinstance(raw_platforms, list) or any(
+        not isinstance(item, str) for item in raw_platforms
+    ):
+        return True
+    normalized = {item.strip().lower() for item in raw_platforms if item.strip()}
+    return not normalized or bool(normalized & platform_names)
+
+
+def _external_skill_sources(
+    root: Path, platform_names: set[str] | None = None
+) -> dict[str, list[str]]:
+    sources: dict[str, list[str]] = {}
+    if not root.is_dir():
+        return sources
+    # Hermes resolves any Markdown document carrying skill frontmatter, including
+    # absorbed skills below another package's references tree. Match the runtime
+    # resolver so these hidden names cannot bypass collision checks.
+    for skill_file in root.rglob("*.md"):
+        relative = skill_file.relative_to(root)
+        if any(part.startswith(".") for part in relative.parts):
+            continue
+        try:
+            frontmatter = _frontmatter(skill_file)
+        except (OSError, ValueError):
+            frontmatter = {}
+        if frontmatter and not _frontmatter_matches_platform(
+            frontmatter, platform_names
+        ):
+            continue
+        name = frontmatter.get("name") or skill_file.stem
+        if isinstance(name, str):
+            sources.setdefault(name, []).append(str(skill_file.resolve()))
+    return sources
+
+
+def _normalized_command_collisions(
+    expected_names: set[str], candidate_names: set[str]
+) -> dict[str, list[str]]:
+    expected_slugs = {_skill_command_slug(name): name for name in expected_names}
+    expected_discord = {
+        _skill_command_slug(name)[:DISCORD_COMMAND_NAME_LIMIT]: name
+        for name in expected_names
+    }
+    collisions: dict[str, list[str]] = {}
+    for candidate in candidate_names - expected_names:
+        slug = _skill_command_slug(candidate)
+        if slug in expected_slugs:
+            collisions.setdefault("slash", []).append(
+                f"{candidate} -> {slug} conflicts with {expected_slugs[slug]}"
+            )
+        discord = slug[:DISCORD_COMMAND_NAME_LIMIT]
+        if discord in expected_discord:
+            collisions.setdefault("discord", []).append(
+                f"{candidate} -> {discord} conflicts with {expected_discord[discord]}"
+            )
+    return {key: sorted(values) for key, values in collisions.items()}
+
+
 def apply(
     home: Path,
     shared_root: Path,
@@ -381,7 +634,6 @@ def apply(
     _check_profile_matrix(home, profile_groups, require_complete=False)
     available_profiles = _discover_profiles(home)
 
-    managed = _managed_paths(shared_root)
     updates: list[tuple[Path, dict]] = []
     for profile, groups in profile_groups.items():
         if profile not in available_profiles:
@@ -399,7 +651,12 @@ def apply(
             not isinstance(item, str) for item in external_dirs
         ):
             raise ValueError(f"skills.external_dirs is not a string list: {path}")
-        unmanaged = [item for item in external_dirs if item not in managed]
+        profile_home = _profile_home(home, profile)
+        unmanaged = [
+            item
+            for item in external_dirs
+            if _managed_path_kind(item, shared_root, profile_home) is None
+        ]
         skills["external_dirs"] = [
             *_expected_external_dirs(shared_root, groups),
             *unmanaged,
@@ -434,15 +691,50 @@ def _verify_expected_manifest(shared_root: Path, records: list[SkillRecord]) -> 
         raise ValueError(f"missing shared skill build manifest: {manifest_path}")
     try:
         manifest = json.loads(manifest_path.read_text())
-        expected_records = manifest["skills"]
-    except (json.JSONDecodeError, KeyError, TypeError) as error:
+    except (OSError, json.JSONDecodeError) as error:
         raise ValueError(
             f"invalid shared skill build manifest: {manifest_path}"
         ) from error
+    if not isinstance(manifest, dict):
+        raise ValueError(f"invalid shared skill build manifest: {manifest_path}")
+    schema = manifest.get("schema_version")
+    owner = manifest.get("managed_by")
+    is_legacy = schema is None and owner is None
+    if not is_legacy and (schema != MANIFEST_SCHEMA_VERSION or owner != MANIFEST_OWNER):
+        raise ValueError(
+            f"shared skill build manifest ownership/schema mismatch: {manifest_path}: "
+            f"schema={schema!r}, owner={owner!r}"
+        )
+    expected_records = manifest.get("skills")
+    if not isinstance(expected_records, list) or any(
+        not isinstance(item, dict) for item in expected_records
+    ):
+        raise ValueError(
+            f"invalid shared skill build manifest records: {manifest_path}"
+        )
     fields = ("group", "name", "sha256", "package_sha256")
-    expected = sorted(
-        tuple(item[field] for field in fields) for item in expected_records
-    )
+    expected: list[tuple[str, ...]] = []
+    try:
+        for item in expected_records:
+            row = tuple(item[field] for field in fields)
+            if any(not isinstance(value, str) for value in row):
+                raise TypeError
+            if (
+                row[0] not in SHARED_GROUPS
+                or not NAME_PATTERN.fullmatch(row[1])
+                or any(not re.fullmatch(r"[0-9a-f]{64}", value) for value in row[2:])
+            ):
+                raise ValueError
+            expected.append(row)
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError(
+            f"invalid shared skill build manifest record: {manifest_path}"
+        ) from error
+    if len(set(expected)) != len(expected):
+        raise ValueError(
+            f"duplicate shared skill build manifest record: {manifest_path}"
+        )
+    expected.sort()
     actual = sorted(
         tuple(getattr(record, field) for field in fields) for record in records
     )
@@ -467,7 +759,9 @@ def _listed_skill_names(output: str) -> set[str]:
     return names
 
 
-def _active_local_skill_names(home: Path, profile: str) -> set[str]:
+def _active_local_skill_names(
+    home: Path, profile: str, platform_names: set[str] | None = None
+) -> set[str]:
     profile_home = (
         home / ".hermes"
         if profile == "default"
@@ -477,18 +771,38 @@ def _active_local_skill_names(home: Path, profile: str) -> set[str]:
     names: set[str] = set()
     if not skills_root.is_dir():
         return names
-    for skill_file in skills_root.rglob("SKILL.md"):
+    # Nested reference documents with YAML skill frontmatter are also addressable
+    # by Hermes and can make a shared skill name ambiguous.
+    for skill_file in skills_root.rglob("*.md"):
         relative = skill_file.relative_to(skills_root)
         if any(part.startswith(".") for part in relative.parts):
             continue
         try:
             frontmatter = _frontmatter(skill_file)
         except (OSError, ValueError):
+            frontmatter = {}
+        if frontmatter and not _frontmatter_matches_platform(
+            frontmatter, platform_names
+        ):
             continue
-        name = frontmatter.get("name")
+        name = frontmatter.get("name") or skill_file.stem
         if isinstance(name, str):
             names.add(name)
     return names
+
+
+def _current_platform_names() -> set[str]:
+    if sys.platform.startswith("linux"):
+        return {"linux"}
+    if sys.platform == "darwin":
+        return {"darwin", "macos"}
+    if sys.platform.startswith("win"):
+        return {"windows", "win32"}
+    return {sys.platform.lower()}
+
+
+def _visible_on_platform(record: SkillRecord, platform_names: set[str]) -> bool:
+    return not record.platforms or bool(set(record.platforms) & platform_names)
 
 
 def check_live(
@@ -496,12 +810,11 @@ def check_live(
     shared_root: Path,
     profile_groups: dict[str, tuple[str, ...]] = PROFILE_GROUPS,
     cli_runner: Callable[[str], str] = _default_cli_runner,
+    platform_names: set[str] | None = None,
 ) -> dict:
     home = _logical_absolute(home)
     shared_root = _logical_absolute(shared_root)
-    records = validate_source(
-        shared_root, profile_groups, allow_build_manifest=True
-    )
+    records = validate_source(shared_root, profile_groups, allow_build_manifest=True)
     _verify_expected_manifest(shared_root, records)
     _check_profile_matrix(home, profile_groups, require_complete=True)
     if os.access(shared_root, os.W_OK):
@@ -509,43 +822,110 @@ def check_live(
             f"shared skill root must be read-only for consumers: {shared_root}"
         )
 
+    platform_names = platform_names or _current_platform_names()
     names_by_group: dict[str, set[str]] = {group: set() for group in SHARED_GROUPS}
-    for record in records:
+    ambient_names_by_group: dict[str, set[str]] = {
+        group: set() for group in SHARED_GROUPS
+    }
+    visible_records = [
+        record for record in records if _visible_on_platform(record, platform_names)
+    ]
+    for record in visible_records:
         names_by_group[record.group].add(record.name)
-    all_shared_names = {record.name for record in records}
-    managed = _managed_paths(shared_root)
+        # Environment-scoped skills are resolved only when Hermes launches
+        # that environment, so normal `hermes skills list` output omits them.
+        if not record.environments:
+            ambient_names_by_group[record.group].add(record.name)
+    all_shared_names = {record.name for record in visible_records}
+    records_by_name = {record.name: record for record in visible_records}
 
     report: dict = {
         "shared_root": str(shared_root),
+        "platform_names": sorted(platform_names),
         "skills": [asdict(record) for record in records],
         "profiles": {},
     }
     for profile, groups in profile_groups.items():
         path = profile_config_path(home, profile)
         config = _load_config(path)
+        config_security = _validate_profile_config_security(path)
         skills_config = config.get("skills", {})
         if not isinstance(skills_config, dict):
             raise ValueError(f"skills config is not a mapping: {path}")
         external_dirs = skills_config.get("external_dirs", [])
-        if not isinstance(external_dirs, list):
-            raise ValueError(f"skills.external_dirs is not a list: {path}")
-        actual_managed = [item for item in external_dirs if item in managed]
+        if not isinstance(external_dirs, list) or any(
+            not isinstance(item, str) for item in external_dirs
+        ):
+            raise ValueError(f"skills.external_dirs is not a string list: {path}")
+        profile_home = _profile_home(home, profile)
+        classifications = [
+            _managed_path_kind(item, shared_root, profile_home)
+            for item in external_dirs
+        ]
+        actual_managed = [
+            item
+            for item, classification in zip(external_dirs, classifications)
+            if classification is not None
+        ]
         expected_dirs = _expected_external_dirs(shared_root, groups)
         if actual_managed != expected_dirs:
+            details = [
+                {"raw": item, "classification": classification}
+                for item, classification in zip(external_dirs, classifications)
+                if classification is not None
+            ]
             raise ValueError(
-                f"shared skill config mismatch for {profile}: "
-                f"expected={expected_dirs}, actual={actual_managed}"
+                f"shared skill config mismatch or stale managed alias for {profile}: "
+                f"expected={expected_dirs}, actual={details}"
             )
 
+        unmanaged_roots = [
+            _expand_external_dir(item, profile_home)
+            for item, classification in zip(external_dirs, classifications)
+            if classification is None
+        ]
+        unmanaged_sources: dict[str, list[str]] = {}
+        for root in unmanaged_roots:
+            for name, sources in _external_skill_sources(root, platform_names).items():
+                unmanaged_sources.setdefault(name, []).extend(sources)
+
         expected_names = set().union(*(names_by_group[group] for group in groups))
-        local_names = _active_local_skill_names(home, profile)
+        ambient_expected_names = set().union(
+            *(ambient_names_by_group[group] for group in groups)
+        )
+        local_names = _active_local_skill_names(home, profile, platform_names)
         local_collisions = sorted(expected_names & local_names)
         if local_collisions:
             raise ValueError(
                 f"local/shared skill name collision for {profile}: {local_collisions}"
             )
+        local_command_collisions = _normalized_command_collisions(
+            expected_names, local_names
+        )
+        if local_command_collisions:
+            raise ValueError(
+                f"local/shared skill command collision for {profile}: "
+                f"{local_command_collisions}"
+            )
+        external_collisions = sorted(expected_names & set(unmanaged_sources))
+        if external_collisions:
+            collision_sources = {
+                name: unmanaged_sources[name] for name in external_collisions
+            }
+            raise ValueError(
+                f"unmanaged-external/shared skill name collision for {profile}: "
+                f"{collision_sources}"
+            )
+        external_command_collisions = _normalized_command_collisions(
+            expected_names, set(unmanaged_sources)
+        )
+        if external_command_collisions:
+            raise ValueError(
+                f"unmanaged-external/shared skill command collision for {profile}: "
+                f"{external_command_collisions}"
+            )
         listed_names = _listed_skill_names(cli_runner(profile))
-        missing_names = sorted(expected_names - listed_names)
+        missing_names = sorted(ambient_expected_names - listed_names)
         unexpected_names = sorted(
             ((all_shared_names - expected_names) & listed_names) - local_names
         )
@@ -559,6 +939,30 @@ def check_live(
             "groups": list(groups),
             "skills": sorted(expected_names),
             "config": str(path),
+            "config_security": config_security,
+            "external_roots": [
+                {
+                    "raw": item,
+                    "logical": str(_expand_external_dir(item, profile_home)),
+                    "resolved": str(
+                        _expand_external_dir(item, profile_home).resolve(strict=False)
+                    ),
+                    "exists": _expand_external_dir(item, profile_home).is_dir(),
+                    "classification": (
+                        classification[0] if classification is not None else "unmanaged"
+                    ),
+                }
+                for item, classification in zip(external_dirs, classifications)
+            ],
+            "provenance": {
+                name: {
+                    "kind": "managed-shared",
+                    "skill_file": records_by_name[name].path,
+                    "sha256": records_by_name[name].sha256,
+                    "package_sha256": records_by_name[name].package_sha256,
+                }
+                for name in sorted(expected_names)
+            },
         }
     return report
 
@@ -583,9 +987,11 @@ def main(argv: list[str]) -> int:
             result = {"configured_profiles": sorted(PROFILE_GROUPS)}
         elif arguments.command == "check-source":
             result = {
+                "schema_version": MANIFEST_SCHEMA_VERSION,
+                "managed_by": MANIFEST_OWNER,
                 "skills": [
                     asdict(record) for record in validate_source(arguments.shared_root)
-                ]
+                ],
             }
         else:
             result = check_live(arguments.home, arguments.shared_root)

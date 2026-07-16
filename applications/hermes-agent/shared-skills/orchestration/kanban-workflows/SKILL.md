@@ -43,6 +43,31 @@ This umbrella covers both sides of Hermes Kanban work: the orchestrator that dec
 
 Use the board for durable, parallel, or cross-profile work. Do direct tool work for small single-session tasks where board overhead would hide rather than clarify progress.
 
+Do not treat Kanban as a synonym for synchronous `delegate_task`. Use synchronous
+delegation when no durable state, retry, dispatcher, or cross-session handoff is
+needed.
+
+## Recovery and Notification
+
+1. **Stale card:** inspect the last heartbeat and output, then explicitly retry,
+   split, reassign, block, or cancel it. Do not silently create a duplicate.
+2. **Vague blocker:** request only the minimum missing credential, path, decision,
+   or acceptance criterion.
+3. **Long-running work:** retain a process/session handle and bounded verification
+   evidence; a green process alone does not prove completion.
+4. **Wrong tenant/profile:** stop and reroute instead of patching another profile's
+   state.
+5. **Completion routing:** confirm where the result will be delivered. A completed
+   card whose artifact or notification cannot be found is not operationally done.
+
+## Common Commands and Tools
+
+- CLI: `hermes kanban init/create/list/show/assign/link/comment/complete/block/unblock/archive/tail`.
+- Worker tools commonly include `kanban_show`, `kanban_comment`,
+  `kanban_heartbeat`, `kanban_complete`, and `kanban_block`.
+- Confirm the board and task IDs before mutations; do not infer them from another
+  profile's current chat.
+
 ## Tenant and Workspace Safety
 
 - Treat profile, repository, channel, and user identity as isolation boundaries.
@@ -63,3 +88,5 @@ Use the board for durable, parallel, or cross-profile work. Do direct tool work 
 - [ ] Dependencies and blockers are explicit.
 - [ ] Worker summaries include real verification output.
 - [ ] Orchestrator final response reconciles all cards and user-facing deliverables.
+- [ ] Stuck-card recovery leaves a visible decision trail without duplicate work.
+- [ ] Completion artifacts and notifications reach the intended destination.

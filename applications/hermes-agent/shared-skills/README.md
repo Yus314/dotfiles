@@ -6,10 +6,10 @@ This directory is the user-owned source of truth for procedures intentionally sh
 
 | Group | Profiles | Purpose |
 |---|---|---|
-| `common/` | all configured profiles | Minimal universally safe procedures |
+| `common/` | all configured profiles | Minimal universally safe procedures and safe user handoffs |
 | `study/` | default, career, economics, english, math | Book/source ingestion and cross-subject study procedures |
 | `engineering/` | default, career, indiedev, researcheval | Shared software/research engineering procedures |
-| `orchestration/` | default, career, english, indiedev | Generic Kanban and multi-worker coordination procedures |
+| `orchestration/` | all configured profiles | Generic Kanban and multi-worker coordination procedures |
 | `profile-ops/` | default | Profile orchestration and handoff procedures |
 
 Profiles reference the group directories explicitly through `skills.external_dirs`; the repository root itself is not an external skill directory.
@@ -45,8 +45,10 @@ read-only shared-skill derivation. The gate rejects malformed frontmatter,
 directory/frontmatter name mismatches, normalized slash or Discord command
 collisions, generated/transient artifacts, duplicate names, orphan packages,
 symlinks, probable secrets, unsafe frontmatter text, broken package-local
-Markdown links, and secret capabilities in `common` skills. The derivation
-includes `.manifest.json` with both `SKILL.md` and whole-package hashes.
+Markdown links, unapproved secret capabilities in every shared group, and drift
+between this profile/group table and the Python matrix. The derivation runs the
+shared-skill unit tests and includes `.manifest.json` with both `SKILL.md` and
+whole-package hashes plus an ownership/schema marker.
 
 After deployment, run:
 
@@ -58,9 +60,14 @@ The live check fails unless:
 
 1. every configured profile is represented in the profile/group matrix;
 2. every profile lists exactly its intended shared skills;
-3. no active profile-local skill shadows a shared skill name;
-4. runtime package hashes match the Nix build manifest; and
-5. the runtime shared root is read-only.
+3. no active profile-local or unmanaged external skill shadows a shared name;
+4. runtime package hashes match the Nix build manifest;
+5. the runtime shared root is read-only;
+6. profile configs are private regular files (`0600`) owned by the current user;
+7. configured managed roots use only the stable logical paths, with stale store
+   paths and symlink aliases rejected; and
+8. the report records each external root's resolved path and each shared skill's
+   source and content/package hashes.
 
 Start a fresh Hermes session after deployment so its prompt index includes the
 new directories. Use `/reload-skills` in a long-lived CLI/gateway process when

@@ -2,4 +2,5 @@
 
 Shared procedures for the `default`, `career`, `indiedev`, and `researcheval` profiles.
 
-Keep this directory empty until a skill has demonstrated value across at least two of those profiles. Domain-specific product, career, or evaluation procedures remain profile-local.
+Only generic, repeatedly used engineering procedures belong here. Domain-specific
+product, career, personal, or evaluation corpora remain profile-local.
