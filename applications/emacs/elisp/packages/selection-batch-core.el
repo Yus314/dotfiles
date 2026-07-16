@@ -60,6 +60,34 @@ Only non-negative integers are accepted."
 (defvar selection-batch--session nil
   "The sole live selection session, or nil.")
 
+(defun selection-batch-active-p ()
+  "Return non-nil when a live selection transaction exists."
+  (and selection-batch--session
+       (buffer-live-p (selection-batch--session-buffer selection-batch--session))
+       (not (selection-batch--session-exit-in-progress-p selection-batch--session))))
+
+(defun selection-batch-current ()
+  "Return the current immutable snapshot, or nil outside a transaction."
+  (and (selection-batch-active-p) (selection-batch-current-snapshot)))
+
+(defun selection-batch-count ()
+  "Return the number of live selections, or zero outside a transaction."
+  (if (selection-batch-active-p)
+      (length (selection-batch--session-selections selection-batch--session))
+    0))
+
+(defun selection-batch-activation-allowed-p (&optional buffer)
+  "Return non-nil when BUFFER supports an editable text transaction."
+  (with-current-buffer (or buffer (current-buffer))
+    (and (not buffer-read-only)
+         (not (minibufferp))
+         (not (derived-mode-p 'special-mode)))))
+
+(defun selection-batch--assert-activation-allowed (&optional buffer)
+  "Reject selection activation in unsupported BUFFER."
+  (unless (selection-batch-activation-allowed-p buffer)
+    (user-error "Selection batches require an editable text buffer")))
+
 (defvar selection-batch--view-refresh-function nil
   "Optional function called with a session after a committed state change.
 This is the narrow interface by which a replaceable view backend observes the
@@ -380,6 +408,8 @@ The candidate is fully allocated before global state changes.  If projection or
 view creation fails, the previous owner is restored from an integer snapshot;
 an initial failure leaves no session, hooks, markers, or derived artifacts."
   (selection-batch--validate-snapshot snapshot)
+  (selection-batch--assert-activation-allowed
+   (selection-batch-snapshot-buffer snapshot))
   (let* ((buffer (selection-batch-snapshot-buffer snapshot))
          (selections (selection-batch--snapshot-selections snapshot))
          (primary-id (selection-batch-snapshot-primary-id snapshot)))
@@ -535,16 +565,21 @@ owner have all been cleared."
     (selection-batch--cleanup selection-batch--session nil t)))
 
 (defun selection-batch-collapse ()
-  "End the live session while preserving its primary region."
+  "End the live session while preserving its primary region.
+Do nothing when no session exists.  A session owned by another buffer remains
+an error, so this command cannot project point and mark across buffers."
   (interactive)
-  (let ((session (selection-batch--owner-session t)))
-    (selection-batch--cleanup session t nil)))
+  (when selection-batch--session
+    (let ((session (selection-batch--owner-session t)))
+      (selection-batch--cleanup session t nil))))
 
 (defun selection-batch-cancel ()
-  "Cancel the live session and deactivate its primary region."
+  "Cancel the live session and deactivate its primary region.
+Do nothing when no session exists."
   (interactive)
-  (let ((session (selection-batch--owner-session t)))
-    (selection-batch--cleanup session nil t)))
+  (when selection-batch--session
+    (let ((session (selection-batch--owner-session t)))
+      (selection-batch--cleanup session nil t))))
 
 (defun selection-batch--overlap-p (left right)
   "Return non-nil when nonempty LEFT and RIGHT overlap.
@@ -1032,6 +1067,145 @@ model slots, generation, and derived view before the candidate is detached."
             (selection-batch--session-history session)
             (selection-batch--history-push current old-history))
       (selection-batch-current-snapshot))))
+
+;; Public frontend commands are defined below the model so they can compose the
+;; pure provider and transformer protocols without exposing live markers.
+
+(defun selection-batch--source-selection ()
+  "Return the primary selection used by gather commands."
+  (if (selection-batch-active-p)
+      (let ((snapshot (selection-batch-current-snapshot)))
+        (selection-batch--selection-by-id
+         (selection-batch-snapshot-selections snapshot)
+         (selection-batch-snapshot-primary-id snapshot)))
+    (aref (selection-batch-provider-result-selections
+           (selection-batch-provider-region)) 0)))
+
+(defun selection-batch--project-single-result (selection)
+  "Leave SELECTION as an ordinary point/mark region without a session."
+  (when (selection-batch-active-p) (selection-batch-collapse))
+  (goto-char (selection-batch-snapshot-selection-cursor selection))
+  (set-mark (selection-batch-snapshot-selection-anchor selection))
+  (setq mark-active t)
+  (activate-mark)
+  nil)
+
+(defun selection-batch--promote-provider-result (result)
+  "Install RESULT only at cardinality two or greater."
+  (selection-batch--assert-activation-allowed)
+  (let* ((selections (selection-batch-provider-result-selections result))
+         (count (length selections)))
+    (cond
+     ((= count 0) (user-error "Provider found no selections"))
+     ((= count 1) (selection-batch--project-single-result (aref selections 0)))
+     (t
+      (selection-batch-install-snapshot
+       (selection-batch-provider-snapshot result) t)
+      (when (fboundp 'selection-batch--transaction-install)
+        (selection-batch--transaction-install selection-batch--session))
+      (selection-batch-current-snapshot)))))
+
+(defun selection-batch--same-result (direction)
+  "Build same-text gather result for DIRECTION, retaining source primary."
+  (let* ((source (selection-batch--source-selection))
+         (beginning (selection-batch-selection-beginning source))
+         (end (selection-batch-selection-end source))
+         (text (buffer-substring-no-properties beginning end))
+         (all (selection-batch-provider-result-selections
+               (selection-batch-provider-same-text text 'all)))
+         (source-match
+          (cl-find-if (lambda (selection)
+                        (and (= beginning (selection-batch-selection-beginning selection))
+                             (= end (selection-batch-selection-end selection))))
+                      (append all nil)))
+         selected)
+    (unless source-match (user-error "Current selection is not a same-text match"))
+    (setq selected
+          (pcase direction
+            ('all (append all nil))
+            ('next
+             (let ((other (cl-find-if
+                           (lambda (selection)
+                             (> (selection-batch-selection-beginning selection) beginning))
+                           (append all nil))))
+               (delq nil (list source-match other))))
+            ('previous
+             (let ((other (car (last
+                                (cl-remove-if-not
+                                 (lambda (selection)
+                                   (< (selection-batch-selection-beginning selection) beginning))
+                                 (append all nil))))))
+               (delq nil (list other source-match))))
+            (_ (user-error "Unknown gather direction: %S" direction))))
+    (setq selected
+          (mapcar (lambda (selection)
+                    (if (eq selection source-match)
+                        (selection-batch-snapshot-selection-create
+                         :id (selection-batch-snapshot-selection-id selection)
+                         :anchor (selection-batch-selection-anchor source)
+                         :cursor (selection-batch-selection-cursor source))
+                      selection))
+                  selected))
+    (selection-batch-provider-result-create
+     :selections (vconcat selected)
+     :primary-id (selection-batch-snapshot-selection-id source-match)
+     :metadata (list :provider 'same-text :direction direction))))
+
+(defun selection-batch-gather-same-next ()
+  "Gather the current selection and its next equal occurrence."
+  (interactive)
+  (selection-batch--promote-provider-result (selection-batch--same-result 'next)))
+
+(defun selection-batch-gather-same-previous ()
+  "Gather the current selection and its previous equal occurrence."
+  (interactive)
+  (selection-batch--promote-provider-result (selection-batch--same-result 'previous)))
+
+(defun selection-batch-gather-same-all ()
+  "Gather every occurrence equal to the current selection."
+  (interactive)
+  (selection-batch--promote-provider-result (selection-batch--same-result 'all)))
+
+(defun selection-batch-gather-regexp (regexp &optional scope)
+  "Gather REGEXP in accessible text or optional SCOPE."
+  (interactive (list (read-regexp "Gather regexp: ") 'accessible))
+  (selection-batch--promote-provider-result
+   (selection-batch-provider-regexp regexp (or scope 'accessible))))
+
+(defun selection-batch-split-lines ()
+  "Split selections into line ranges.
+An ordinary region is discovered without installing a session unless it
+produces at least two lines; an existing transaction uses the pure transform."
+  (interactive)
+  (if (selection-batch-active-p)
+      (selection-batch-apply-transform #'selection-batch-transform-split-lines)
+    (selection-batch--promote-provider-result
+     (selection-batch-provider-lines))))
+
+(defun selection-batch-keep (regexp)
+  "Keep live selections whose text matches REGEXP."
+  (interactive (list (read-regexp "Keep selections matching: ")))
+  (selection-batch-apply-transform #'selection-batch-transform-keep-regexp regexp))
+
+(defun selection-batch-drop (regexp)
+  "Drop live selections whose text matches REGEXP."
+  (interactive (list (read-regexp "Drop selections matching: ")))
+  (selection-batch-apply-transform #'selection-batch-transform-drop-regexp regexp))
+
+(defun selection-batch-merge ()
+  "Merge overlapping live selections."
+  (interactive)
+  (selection-batch-apply-transform #'selection-batch-transform-merge))
+
+(defun selection-batch-rotate-primary-next ()
+  "Rotate the primary selection forward."
+  (interactive)
+  (selection-batch-apply-transform #'selection-batch-transform-rotate-primary nil))
+
+(defun selection-batch-rotate-primary-previous ()
+  "Rotate the primary selection backward."
+  (interactive)
+  (selection-batch-apply-transform #'selection-batch-transform-rotate-primary t))
 
 (provide 'selection-batch-core)
 ;;; selection-batch-core.el ends here
