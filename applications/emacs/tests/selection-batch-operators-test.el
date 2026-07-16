@@ -76,6 +76,44 @@
     (should (equal "abc" (buffer-string)))
     (should (equal '((a 2 2)) (selection-batch-operators-test--ranges)))))
 
+(ert-deftest selection-batch-delete-absorbs-contained-carets-half-open ()
+  ;; The beginning and interior of [2,5) are deleted.  Their empty selections
+  ;; are absorbed instead of becoming colliding no-op edits.
+  (dolist (position '(2 3))
+    (selection-batch-operators-test--with-session
+        "abcdef" `((range 2 5) (inside ,position ,position)) 'range
+      (selection-batch-delete)
+      (should (equal "aef" (buffer-string)))
+      (should (equal 'range
+                     (selection-batch-snapshot-primary-id
+                      (selection-batch-current-snapshot))))
+      (should (equal '((range 2 2))
+                     (selection-batch-operators-test--ranges)))))
+  ;; If the absorbed caret was primary, its ID deterministically represents
+  ;; the merged delete component and remains primary.
+  (selection-batch-operators-test--with-session
+      "abcdef" '((range 2 5) (inside 3 3)) 'inside
+    (selection-batch-delete)
+    (should (equal "aef" (buffer-string)))
+    (should (eq 'inside
+                (selection-batch-snapshot-primary-id
+                 (selection-batch-current-snapshot))))
+    (should (equal '((inside 2 2))
+                   (selection-batch-operators-test--ranges)))))
+
+(ert-deftest selection-batch-delete-preserves-standalone-and-end-boundary-carets ()
+  ;; A caret at 5 is outside the half-open deletion [2,5), while the caret at 1
+  ;; is standalone.  Both survive and are translated by the deletion.
+  (selection-batch-operators-test--with-session
+      "abcdef" '((range 2 5) (before 1 1) (end 5 5)) 'end
+    (selection-batch-delete)
+    (should (equal "aef" (buffer-string)))
+    (should (eq 'end
+                (selection-batch-snapshot-primary-id
+                 (selection-batch-current-snapshot))))
+    (should (equal '((range 2 2) (before 1 1) (end 2 2))
+                   (selection-batch-operators-test--ranges)))))
+
 (ert-deftest selection-batch-replace-preserves-direction-and-selects-multibyte-result ()
   (selection-batch-operators-test--with-session
       "ab cd" '((forward 1 3) (backward 6 4)) 'forward
@@ -192,6 +230,28 @@
       (should (equal "a|b" (selection-batch-register-to-kill-ring "|")))
       (should (equal "a|b" (current-kill 0))))))
 
+(ert-deftest selection-batch-kill-ring-bridge-prompts-through-suspending-reader-once ()
+  (selection-batch-operators-test--with-session "a" '((a 1 2)) 'a
+    (setq selection-batch-register
+          (selection-batch-text-vector-create
+           :values ["a" "b"] :primary-index 0 :metadata nil))
+    (let ((batch-calls 0)
+          (raw-calls 0)
+          (kill-ring nil))
+      (cl-letf (((symbol-function 'selection-batch-read-string)
+                 (lambda (&rest _)
+                   (cl-incf batch-calls)
+                   "|"))
+                ((symbol-function 'read-string)
+                 (lambda (&rest _)
+                   (cl-incf raw-calls)
+                   (ert-fail "raw reader bypassed transaction suspension"))))
+        (should (equal "a|b"
+                       (call-interactively
+                        #'selection-batch-register-to-kill-ring))))
+      (should (= 1 batch-calls))
+      (should (= 0 raw-calls)))))
+
 (ert-deftest selection-batch-recipe-is-defensive-and-position-free ()
   (let* ((argument (copy-sequence "x"))
          (recipe (selection-batch-recipe-create
@@ -207,6 +267,34 @@
                          ((consp value) (or (unsafe (car value)) (unsafe (cdr value))))
                          ((vectorp value) (cl-some #'unsafe (append value nil))))))
        (unsafe recipe)))))
+
+(ert-deftest selection-batch-recipe-rejects-live-position-values-recursively ()
+  (selection-batch-operators-test--with-session "abc" '((a 1 2) (b 2 3)) 'a
+    (let* ((snapshot (selection-batch-current-snapshot))
+           (selection (aref (selection-batch-snapshot-selections snapshot) 0))
+           (live (aref (selection-batch--session-selections
+                        selection-batch--session) 1))
+           (marker (selection-batch--live-selection-anchor-marker live)))
+      (dolist (unsafe (list marker selection snapshot live
+                            (list :nested (vector snapshot))))
+        (should-error
+         (selection-batch-recipe-create
+          :operator 'replace :arguments (list unsafe))
+         :type 'user-error))
+      ;; Ordinary numbers are semantic arguments, not implicit positions.
+      (let ((recipe (selection-batch-recipe-create
+                     :operator 'numeric :arguments '(42 (:count 7))
+                     :cardinality-policy 2 :result-policy 'select
+                     :adapter-id 9)))
+        (should (equal '(42 (:count 7))
+                       (selection-batch-recipe-arguments recipe)))
+        (should (= 2 (selection-batch-recipe-cardinality-policy recipe)))
+        (should (= 9 (selection-batch-recipe-adapter-id recipe))))
+      ;; Accessors revalidate private storage rather than leaking corruption.
+      (let ((recipe (selection-batch-recipe-create :operator 'copy)))
+        (aset recipe 2 (list marker))
+        (should-error (selection-batch-recipe-arguments recipe)
+                      :type 'user-error)))))
 
 (ert-deftest selection-batch-repeat-replans-current-selections ()
   (selection-batch-operators-test--with-session "aa bb" '((a 1 3) (b 4 6)) 'a
@@ -273,6 +361,46 @@
       (should (equal "abc" (buffer-string)))
       (should (equal old-register selection-batch-register))
       (should (equal old-recipe selection-batch-last-recipe)))))
+
+(ert-deftest selection-batch-compensation-restores-deep-copied-typed-values ()
+  (selection-batch-operators-test--with-session "abc" '((a 1 2)) 'a
+    (let* ((register-text (propertize "safe-register" 'face 'bold))
+           (recipe-text (propertize "safe-recipe" 'face 'italic))
+           (selection-batch-register
+            (selection-batch-text-vector-create
+             :values (vector register-text) :primary-index 0
+             :metadata (list :nested (vector (copy-sequence "metadata")))))
+           (selection-batch-last-recipe
+            (selection-batch-recipe-create
+             :operator 'replace :arguments (list recipe-text)
+             :cardinality-policy 'one-per-selection :result-policy 'select
+             :adapter-id 'fixed))
+           (mutated nil)
+           (selection-batch--plan-refresh-view-function
+            (lambda (&rest _) (error "injected typed compensation failure"))))
+      (add-hook 'after-change-functions
+                (lambda (&rest _)
+                  (unless mutated
+                    (setq mutated t)
+                    (aset (aref (selection-batch--text-vector-values
+                                 selection-batch-register) 0) 0 ?X)
+                    (aset (car (selection-batch--recipe-arguments
+                                selection-batch-last-recipe)) 0 ?Y)))
+                nil t)
+      (should-error (selection-batch-replace "X") :type 'error)
+      (should (selection-batch-text-vector-p selection-batch-register))
+      (should (selection-batch-recipe-p selection-batch-last-recipe))
+      (let ((restored-register
+             (aref (selection-batch-text-vector-values
+                    selection-batch-register) 0))
+            (restored-recipe
+             (car (selection-batch-recipe-arguments
+                   selection-batch-last-recipe))))
+        (should (equal "safe-register" restored-register))
+        (should (eq 'bold (get-text-property 0 'face restored-register)))
+        (should (equal "safe-recipe" restored-recipe))
+        (should (eq 'italic (get-text-property 0 'face restored-recipe))))
+      (should (equal "abc" (buffer-string))))))
 
 (ert-deftest selection-batch-supported-operators-are-remapped-without-final-keys ()
   (dolist (command '(selection-batch-copy selection-batch-delete
