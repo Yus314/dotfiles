@@ -179,7 +179,9 @@
                   '((a 1 2) (b 6 7)))))
       (selection-batch-apply-plan plan)
       (should (equal "A bb C" (buffer-string)))
-      (undo)
+      ;; A live primary keeps the region active; deactivate it so the standard
+      ;; command performs whole-buffer undo rather than Emacs' undo-in-region.
+      (let ((mark-active nil)) (undo))
       (should (equal "aa bb cc" (buffer-string))))))
 
 (ert-deftest selection-batch-result-uses-explicit-integers-not-moving-markers ()
@@ -235,7 +237,16 @@
       (should (equal "abcdef" (buffer-string)))
       (should (eq session selection-batch--session))
       (should (eq old-live (selection-batch--session-selections session)))
-      (should (equal before (selection-batch-current-snapshot)))
+      ;; Character modification ticks are intentionally monotonic in Emacs,
+      ;; including an aborted change group.  Every restorable integer field is
+      ;; exact; the fresh snapshot necessarily reports the newer live tick.
+      (let ((restored (selection-batch-current-snapshot)))
+        (should (equal (selection-batch-plan-test--triples before)
+                       (selection-batch-plan-test--triples restored)))
+        (should (= (selection-batch-snapshot-generation before)
+                   (selection-batch-snapshot-generation restored)))
+        (should (equal (selection-batch-snapshot-narrowing before)
+                       (selection-batch-snapshot-narrowing restored))))
       (should (eq old-history (selection-batch--session-history session)))
       (should (eq old-redo (selection-batch--session-redo session)))
       (should (equal '(:old "register") selection-batch-register))
@@ -311,7 +322,12 @@
              (lambda (edit)
                (cl-incf calls)
                (when (= calls 1)
-                 (aset second 0 ?Z))
+                 ;; Corrupt the not-yet-applied descriptor through its private
+                 ;; string object.  The engine must already own a full copy.
+                 (let ((pending (cl-find 'a
+                                         (append (selection-batch--plan-edits plan) nil)
+                                         :key #'selection-batch--edit-selection-id)))
+                   (aset (selection-batch--edit-replacement pending) 0 ?Z)))
                (funcall real edit))))
         (selection-batch-apply-plan plan))
       (should (equal "XbcdYf" (buffer-string))))))
@@ -327,7 +343,7 @@
            (refresh-calls 0)
            (selection-batch--plan-install-result-function
             (lambda (&rest _) (error "install failure")))
-           (selection-batch--plan-refresh-view-function
+           (selection-batch--view-refresh-function
             (lambda (&rest _)
               (cl-incf refresh-calls)
               (error "restore view failure"))))
