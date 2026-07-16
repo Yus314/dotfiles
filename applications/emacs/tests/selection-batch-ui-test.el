@@ -3,6 +3,7 @@
 (require 'ert)
 (require 'cl-lib)
 (require 'selection-batch-ui)
+(require 'selection-batch-plan)
 
 (defun selection-batch-ui-test--snapshot (buffer triples primary)
   (with-current-buffer buffer
@@ -219,5 +220,54 @@
       (funcall exit)
       (funcall exit)
       (should-not selection-batch--session))))
+
+(ert-deftest selection-batch-transaction-remaps-undo-to-whole-buffer-unit ()
+  (with-temp-buffer
+    (buffer-enable-undo)
+    (insert "abc")
+    (setq buffer-undo-list nil)
+    (selection-batch-install-snapshot
+     (selection-batch-ui-test--snapshot (current-buffer) '((primary 1 2)) 'primary))
+    (let* ((source (selection-batch-current-snapshot))
+           (edit (selection-batch-edit-create
+                  :selection-id 'primary :logical-index 0
+                  :beginning 1 :end 2 :replacement "X"
+                  :result (selection-batch-snapshot-selection-create
+                           :id 'primary :anchor 1 :cursor 2)))
+           (plan (selection-batch-plan-create
+                  :buffer (current-buffer)
+                  :source-buffer-tick (selection-batch-snapshot-buffer-tick source)
+                  :source-generation (selection-batch-snapshot-generation source)
+                  :source-narrowing (selection-batch-snapshot-narrowing source)
+                  :edits (vector edit)
+                  :result-policy
+                  (selection-batch-snapshot-create
+                   :buffer (current-buffer) :buffer-tick 0 :generation 1
+                   :primary-id 'primary :narrowing '(1 . 4)
+                   :selections
+                   (vector (selection-batch-snapshot-selection-create
+                            :id 'primary :anchor 1 :cursor 2))))))
+      (selection-batch-apply-plan plan)
+      (selection-batch--transaction-install selection-batch--session)
+      (should mark-active)
+      (should (eq #'selection-batch-undo
+                  (command-remapping 'undo nil selection-batch--transaction-map)))
+      (should (eq #'selection-batch-undo
+                  (command-remapping 'undo-only nil selection-batch--transaction-map)))
+      (call-interactively (command-remapping 'undo))
+      (should (equal "abc" (buffer-string)))
+      (should-not selection-batch--session)
+      (should-not mark-active))))
+
+(ert-deftest selection-batch-transaction-undo-error-still-cleans-session ()
+  (selection-batch-ui-test--with-session
+      "abc" '((primary 1 2)) 'primary
+    (buffer-enable-undo)
+    (setq buffer-undo-list nil)
+    (selection-batch--transaction-install selection-batch--session)
+    (should-error (call-interactively (command-remapping 'undo))
+                  :type 'user-error)
+    (should-not selection-batch--session)
+    (should-not mark-active)))
 
 ;;; selection-batch-ui-test.el ends here

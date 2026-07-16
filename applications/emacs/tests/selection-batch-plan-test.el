@@ -351,5 +351,103 @@
       (should-not selection-batch--session)
       (should (equal "abc" (buffer-string))))))
 
+(ert-deftest selection-batch-plan-empty-nonempty-collision-is-half-open ()
+  (selection-batch-plan-test--with-session "abcdef" '((range 2 5) (point 3 3)) 'range
+    (let ((source (selection-batch-current-snapshot)))
+      (dolist (position '(2 3 4))
+        (let ((collision
+               (selection-batch-plan-test--plan
+                source
+                (list (selection-batch-plan-test--edit 'range 0 2 5 "R" 2 3)
+                      (selection-batch-plan-test--edit
+                       'point 1 position position "P" 3 4))
+                '((range 2 3) (point 3 4)))))
+          (should-error (selection-batch-validate-plan collision source)
+                        :type 'user-error)))
+      ;; A replacement is half-open [2,5): insertion at 5 is adjacent.
+      (dolist (position '(1 5))
+        (let ((adjacent
+               (selection-batch-plan-test--plan
+                source
+                (list (selection-batch-plan-test--edit 'range 0 2 5 "R" 2 3)
+                      (selection-batch-plan-test--edit
+                       'point 1 position position "P" 3 4))
+                '((range 2 3) (point 3 4)))))
+          (should (eq adjacent (selection-batch-validate-plan adjacent source))))))))
+
+(ert-deftest selection-batch-plan-read-only-insertion-obeys-boundary-stickiness ()
+  (selection-batch-plan-test--with-session "abc" '((a 2 2)) 'a
+    (let ((inhibit-read-only t))
+      (put-text-property 1 2 'read-only t)
+      (put-text-property 1 2 'rear-nonsticky '(read-only)))
+    (let* ((source (selection-batch-current-snapshot))
+           (allowed (selection-batch-plan-test--plan
+                     source
+                     (list (selection-batch-plan-test--edit 'a 0 2 2 "X" 2 3))
+                     '((a 2 3)))))
+      (should (eq allowed (selection-batch-validate-plan allowed source)))
+      (selection-batch-apply-plan allowed)
+      (should (equal "aXbc" (buffer-string)))))
+  (selection-batch-plan-test--with-session "abc" '((a 2 2)) 'a
+    (put-text-property 1 2 'read-only t)
+    (let* ((source (selection-batch-current-snapshot))
+           (forbidden (selection-batch-plan-test--plan
+                       source
+                       (list (selection-batch-plan-test--edit 'a 0 2 2 "X" 2 3))
+                       '((a 2 3)))))
+      (should-error (selection-batch-validate-plan forbidden source)
+                    :type 'user-error))))
+
+(ert-deftest selection-batch-signalling-register-commit-rolls-back-text-and-state ()
+  (selection-batch-plan-test--with-session "abc" '((a 1 2)) 'a
+    (let* ((selection-batch-register '(:old "register"))
+           (selection-batch-last-recipe '(:old "recipe"))
+           (session selection-batch--session)
+           (before (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  before
+                  (list (selection-batch-plan-test--edit 'a 0 1 2 "X" 1 2))
+                  '((a 1 2)) nil '(:new "register") '(:new "recipe")))
+           (watcher (lambda (_symbol new operation _where)
+                      (when (and (eq operation 'set)
+                                 (equal new '(:new "register")))
+                        (error "injected register watcher failure")))))
+      (add-variable-watcher 'selection-batch-register watcher)
+      (unwind-protect
+          (should-error (selection-batch-apply-plan plan) :type 'error)
+        (remove-variable-watcher 'selection-batch-register watcher))
+      (should (equal "abc" (buffer-string)))
+      (should (eq session selection-batch--session))
+      (should (equal '(:old "register") selection-batch-register))
+      (should (equal '(:old "recipe") selection-batch-last-recipe))
+      (should (equal (selection-batch-plan-test--triples before)
+                     (selection-batch-plan-test--triples
+                      (selection-batch-current-snapshot))))
+      (should (eq 'set (selection-batch--session-state session))))))
+
+(ert-deftest selection-batch-compensation-deep-copies-register-and-recipe ()
+  (selection-batch-plan-test--with-session "abc" '((a 1 2)) 'a
+    (let* ((selection-batch-register (list :old (vector (copy-sequence "safe"))))
+           (selection-batch-last-recipe (list :old (vector (copy-sequence "safe"))))
+           (source (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source
+                  (list (selection-batch-plan-test--edit 'a 0 1 2 "X" 1 2))
+                  '((a 1 2))))
+           (mutated nil)
+           (selection-batch--plan-refresh-view-function
+            (lambda (&rest _) (error "injected post-hook failure"))))
+      (add-hook 'after-change-functions
+                (lambda (&rest _)
+                  (unless mutated
+                    (setq mutated t)
+                    (aset (aref (cadr selection-batch-register) 0) 0 ?X)
+                    (aset (aref (cadr selection-batch-last-recipe) 0) 0 ?Y)))
+                nil t)
+      (should-error (selection-batch-apply-plan plan) :type 'error)
+      (should (equal '(:old ["safe"]) selection-batch-register))
+      (should (equal '(:old ["safe"]) selection-batch-last-recipe))
+      (should (equal "abc" (buffer-string))))))
+
 (provide 'selection-batch-plan-test)
 ;;; selection-batch-plan-test.el ends here

@@ -608,4 +608,24 @@
                     (selection-batch-provider-snapshot
                      (selection-batch-provider-same-text "foo" 'previous 4)))))))
 
+(ert-deftest selection-batch-snapshot-deep-copies-compound-identifiers ()
+  (selection-batch-test--with-buffer "abc"
+    (let* ((id (list 'compound (vector (copy-sequence "id"))))
+           (snapshot (selection-batch-snapshot-create
+                      :buffer (current-buffer) :buffer-tick 0 :generation 0
+                      :primary-id id :narrowing (cons 1 4)
+                      :selections
+                      (vector (selection-batch-test--selection id 1 2)))))
+      (aset (aref (cadr id) 0) 0 ?X)
+      (let* ((exposed (aref (selection-batch-snapshot-selections snapshot) 0))
+             (exposed-id (selection-batch-snapshot-selection-id exposed))
+             (exposed-primary (selection-batch-snapshot-primary-id snapshot)))
+        (aset (aref (cadr exposed-id) 0) 0 ?Y)
+        (aset (aref (cadr exposed-primary) 0) 0 ?Z))
+      (should (equal '(compound ["id"])
+                     (selection-batch-snapshot-primary-id snapshot)))
+      (should (equal '(compound ["id"])
+                     (selection-batch-snapshot-selection-id
+                      (aref (selection-batch-snapshot-selections snapshot) 0)))))))
+
 ;;; selection-batch-core-test.el ends here
