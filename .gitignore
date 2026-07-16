@@ -18,3 +18,6 @@ plan.txt
 # Python bytecode and interpreter caches
 __pycache__/
 *.py[cod]
+
+# Local OCI retry logs (runtime state, potentially very large)
+/infra/scripts/oci-a1-retry.log
