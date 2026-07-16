@@ -130,7 +130,13 @@
           packages = rec {
             tf-wrapper = pkgs.tf-wrapper;
             adb-mcp = pkgs.adb-mcp;
+            selection-batch-configured-smoke =
+              import ./applications/emacs/tests/selection-batch-configured-smoke.nix
+                {
+                  inherit inputs pkgs;
+                };
           };
+          checks.selection-batch-configured-smoke = config.packages.selection-batch-configured-smoke;
           pre-commit = {
             check.enable = true;
             settings = {

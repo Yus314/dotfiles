@@ -77,3 +77,16 @@ and disconnected, prompt `C-g`, undo/redo/vundo, buffer switch/kill, narrowing,
 multiple windows, and rejection in Dired/Magit/Org agenda. Record only intent,
 selection-count class, result, latency class, fallback, and missing adapter; do
 not retain buffer contents.
+
+## Tests
+
+Run the fast source tests and the disposable Home Manager configured smoke with:
+
+```bash
+applications/emacs/tests/run-selection-batch-tests.sh
+nix build .#checks.x86_64-linux.selection-batch-configured-smoke
+```
+
+The Nix check evaluates `applications/emacs/default.nix`, replaces its heavyweight
+Emacs and unrelated home packages only inside a disposable configuration, and
+runs ERT against the resulting XDG Emacs files.
