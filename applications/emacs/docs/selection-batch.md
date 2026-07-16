@@ -90,3 +90,40 @@ nix build .#checks.x86_64-linux.selection-batch-configured-smoke
 The Nix check evaluates `applications/emacs/default.nix`, replaces its heavyweight
 Emacs and unrelated home packages only inside a disposable configuration, and
 runs ERT against the resulting XDG Emacs files.
+
+## Opt-in benchmark
+
+The ordinary runner remains the quick ERT allowlist. Run the performance fixture
+explicitly; it does not tangle files or read user configuration:
+
+```bash
+applications/emacs/tests/run-selection-batch-tests.sh --benchmark
+```
+
+The benchmark loads the actual package before timing, then uses fresh synthetic
+`fundamental-mode` ASCII buffers with 10, 100, and 1000 disjoint selections. For
+each count it measures three paths separately: snapshot/session installation
+(including its initial view), an explicit overlay refresh of an installed
+session, and fixed insertion plan construction plus atomic apply. Each median is
+from five timed iterations after two untimed warmups. Process startup, package
+loading, fixture construction, and teardown are outside samples.
+
+Every iteration checks exact final text (plus SHA-256 for insertion), selection
+count, generation where applicable, and overlay cardinality. Cleanup checks the
+captured marker and overlay objects are detached, no tagged buffer overlay or
+lifecycle hook remains, and the global session is nil. Thus the 1000-selection
+rows are also deterministic completion/leak tests, not just timings.
+
+Output contains human-readable `BENCH` lines and one machine-readable
+`SELECTION_BATCH_BENCHMARK_JSON` line with raw elapsed samples, median, GC counts,
+and GC seconds. The command exits nonzero unless the provisional engineering
+gates hold: at 100 selections, insertion plan+apply median is below 200 ms and
+overlay refresh median is below 100 ms. These are regression gates, not latency
+promises across machines.
+
+Baseline methodology recorded on Emacs 31.0.90, x86_64 Linux: three independent
+batch processes, each with two warmups and five samples per row. The observed
+100-selection medians were 76.3--77.3 ms for insertion plan+apply and 1.69--1.91 ms for
+overlay refresh; all three 1000-selection runs completed and passed cleanup.
+Raw per-process summaries should be retained in the validation report because
+host load and garbage collection affect individual samples.
