@@ -18,7 +18,14 @@ from typing import Callable, Iterable
 
 import yaml
 
-SHARED_GROUPS = ("common", "study", "engineering", "orchestration", "profile-ops")
+SHARED_GROUPS = (
+    "common",
+    "study",
+    "engineering",
+    "orchestration",
+    "profile-ops",
+    "usage-ops",
+)
 PROFILE_GROUPS: dict[str, tuple[str, ...]] = {
     "default": (
         "common",
@@ -26,16 +33,17 @@ PROFILE_GROUPS: dict[str, tuple[str, ...]] = {
         "engineering",
         "orchestration",
         "profile-ops",
+        "usage-ops",
     ),
-    "career": ("common", "study", "engineering", "orchestration"),
+    "career": ("common", "study", "engineering", "orchestration", "usage-ops"),
     "economics": ("common", "study", "orchestration"),
-    "english": ("common", "study", "orchestration"),
+    "english": ("common", "study", "orchestration", "usage-ops"),
     "finance": ("common", "orchestration"),
     "food": ("common", "orchestration"),
     "health": ("common", "orchestration"),
-    "indiedev": ("common", "engineering", "orchestration"),
+    "indiedev": ("common", "engineering", "orchestration", "usage-ops"),
     "math": ("common", "study", "orchestration"),
-    "researcheval": ("common", "engineering", "orchestration"),
+    "researcheval": ("common", "engineering", "orchestration", "usage-ops"),
 }
 NAME_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 MARKDOWN_LINK_PATTERN = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")

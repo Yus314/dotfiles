@@ -11,6 +11,7 @@ This directory is the user-owned source of truth for procedures intentionally sh
 | `engineering/` | default, career, indiedev, researcheval | Shared software/research engineering procedures |
 | `orchestration/` | all configured profiles | Generic Kanban and multi-worker coordination procedures |
 | `profile-ops/` | default | Profile orchestration and handoff procedures |
+| `usage-ops/` | default, career, english, indiedev, researcheval | Local usage accounting and context-efficiency diagnostics |
 
 Profiles reference the group directories explicitly through `skills.external_dirs`; the repository root itself is not an external skill directory.
 

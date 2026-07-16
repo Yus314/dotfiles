@@ -41,6 +41,14 @@ class SharedSkillsConfigTests(unittest.TestCase):
             },
             {"default", "career", "indiedev", "researcheval"},
         )
+        self.assertEqual(
+            {
+                profile
+                for profile, groups in shared_skills_config.PROFILE_GROUPS.items()
+                if "usage-ops" in groups
+            },
+            {"default", "career", "english", "indiedev", "researcheval"},
+        )
 
     @staticmethod
     def skill_table(*names: str) -> str:
