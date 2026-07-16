@@ -12,7 +12,8 @@ let
     cd source
     PYTHONDONTWRITEBYTECODE=1 ${configPython}/bin/python -m unittest \
       tests/test_shared_skills_config.py \
-      tests/test_usage_analysis_shared.py
+      tests/test_usage_analysis_shared.py \
+      tests/test_usage_adapters.py
     touch "$out"
   '';
   validatedSharedSkills = pkgs.runCommand "hermes-shared-skills" { } ''
