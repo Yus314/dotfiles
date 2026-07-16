@@ -68,11 +68,20 @@ needed.
 - Confirm the board and task IDs before mutations; do not infer them from another
   profile's current chat.
 
-## Tenant and Workspace Safety
+## Tenant, board, and workspace safety
 
-- Treat profile, repository, channel, and user identity as isolation boundaries.
-- Never assume a worker has the same current directory, credentials, memory, or tool state as the orchestrator.
-- Pass explicit paths, branch names, target channels, and acceptance criteria.
+- Hermes profiles separate agent state but are **not** a Kanban privacy boundary.
+  A shared board's task bodies, comments, paths, events, and handoffs are durable
+  cross-profile data; tenant labels are routing metadata, not hard isolation.
+- Put only redacted work orders and owner-attested compact summaries on the
+  integration board. Never copy ledger transactions/balances, raw health
+  streams, meal records, credentials, or sensitive attachment paths into it.
+- If a task genuinely requires sensitive raw data, use a separate domain-owned
+  board and return only a sanitized result to the integration board.
+- Never assume a worker has the same current directory, credentials, memory, or
+  tool state as the orchestrator.
+- Pass explicit paths only when every profile allowed to read the board may also
+  know that path; otherwise use a domain-local handle and sanitized handoff.
 
 ## Common Pitfalls
 

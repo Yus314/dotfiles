@@ -1,0 +1,99 @@
+diff --git a/hermes_cli/kanban_db.py b/hermes_cli/kanban_db.py
+index b684450e6..cc865b0de 100644
+--- a/hermes_cli/kanban_db.py
++++ b/hermes_cli/kanban_db.py
+@@ -6611,38 +6611,66 @@ def _resolve_hermes_argv() -> list[str]:
+
+
+ def _kanban_worker_skill_available(hermes_home: Optional[str]) -> bool:
+-    """True if the bundled ``kanban-worker`` skill resolves for the home the
+-    spawned worker will run under.
+-
+-    The dispatcher injects ``--skills kanban-worker`` into every worker. When
+-    the worker activates a profile (``hermes -p <name>``), its ``SKILLS_DIR``
+-    becomes ``<profile_home>/skills`` — which on many profiles does NOT contain
+-    the bundled skill (it ships in the *default* root home, not every
+-    profile-scoped skills dir). Preloading a missing skill is fatal at CLI
+-    startup (``ValueError: Unknown skill(s): kanban-worker``), aborting the
+-    worker before the agent loop runs. Gate the flag on actual resolvability;
+-    the kanban lifecycle contract is still injected via ``KANBAN_GUIDANCE``, so
+-    omitting the flag only drops the supplementary pattern library.
++    """True if ``kanban-worker`` resolves for the spawned worker's home.
++
++    Check both the profile-local skills tree and configured
++    ``skills.external_dirs``. Hidden/archive directories are intentionally
++    excluded: archived copies are not active skills and must not make the
++    dispatcher emit a fatal ``--skills kanban-worker`` argument.
+     """
+     from pathlib import Path as _Path
+
+-    # An unset HERMES_HOME means the worker falls back to the default root
+-    # home (``~/.hermes``), which ships the bundled skill.
+-    base = _Path(hermes_home) if hermes_home else (_Path.home() / ".hermes")
+-    skills_root = base / "skills"
+-    if not skills_root.is_dir():
++    def _root_contains_worker(root: _Path) -> bool:
++        if not root.is_dir():
++            return False
++        direct_candidates = (
++            root / "kanban-worker" / "SKILL.md",
++            root / "devops" / "kanban-worker" / "SKILL.md",
++        )
++        if any(candidate.is_file() for candidate in direct_candidates):
++            return True
++        try:
++            for skill_md in root.rglob("kanban-worker/SKILL.md"):
++                try:
++                    relative_parts = skill_md.relative_to(root).parts
++                except ValueError:
++                    continue
++                if any(part.startswith(".") for part in relative_parts):
++                    continue
++                if skill_md.is_file():
++                    return True
++        except OSError:
++            pass
+         return False
+-    # Canonical bundled location first (cheap), then a bounded scan for
+-    # profiles that have it nested elsewhere.
+-    if (skills_root / "devops" / "kanban-worker" / "SKILL.md").is_file():
+-        return True
+-    try:
+-        for skill_md in skills_root.rglob("kanban-worker/SKILL.md"):
+-            if skill_md.is_file():
+-                return True
+-    except OSError:
+-        pass
+-    return False
++
++    base = _Path(hermes_home) if hermes_home else (_Path.home() / ".hermes")
++    roots = [base / "skills"]
++    config_path = base / "config.yaml"
++    if config_path.is_file():
++        try:
++            import yaml as _yaml
++
++            loaded = _yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
++            if not isinstance(loaded, dict):
++                loaded = {}
++            skills_config = loaded.get("skills") or {}
++            if not isinstance(skills_config, dict):
++                skills_config = {}
++            raw_dirs = skills_config.get("external_dirs") or []
++            if isinstance(raw_dirs, str):
++                raw_dirs = [raw_dirs]
++            if isinstance(raw_dirs, list):
++                for raw_dir in raw_dirs:
++                    if not isinstance(raw_dir, str) or not raw_dir.strip():
++                        continue
++                    expanded = _Path(
++                        os.path.expanduser(os.path.expandvars(raw_dir.strip()))
++                    )
++                    roots.append(expanded if expanded.is_absolute() else base / expanded)
++        except (OSError, UnicodeError, ValueError, TypeError):
++            pass
++
++    return any(_root_contains_worker(root) for root in roots)
+
+
+ def _worker_terminal_timeout_env(
