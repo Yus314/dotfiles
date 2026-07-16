@@ -89,4 +89,115 @@
         (selection-batch-apply-transform #'identity)
         (should (= 1 calls))))))
 
+(ert-deftest selection-batch-transaction-map-is-private-and-supported ()
+  (selection-batch-ui-test--with-session
+      "abcdef" '((primary 1 2) (secondary 3 5)) 'primary
+    (let ((global-t (lookup-key global-map (kbd "t"))))
+      (selection-batch--transaction-install selection-batch--session)
+      (should (eq #'selection-batch--transaction-test-supported
+                  (key-binding (kbd "t"))))
+      (call-interactively #'selection-batch--transaction-test-supported)
+      (should selection-batch--session)
+      (should (functionp
+               (selection-batch--session-transient-exit-function
+                selection-batch--session)))
+      (should (eq global-t (lookup-key global-map (kbd "t"))))
+      (should-not (where-is-internal 'recursive-edit
+                                     selection-batch--transaction-map)))))
+
+(ert-deftest selection-batch-transaction-outside-command-collapses-first ()
+  (selection-batch-ui-test--with-session
+      "abcdef" '((primary 1 2) (secondary 3 5)) 'primary
+    (selection-batch--transaction-install selection-batch--session)
+    (let ((exit (selection-batch--session-transient-exit-function
+                 selection-batch--session))
+          events)
+      ;; This is the callback ordering used by the command loop for a key not
+      ;; in the transient map; the real command remains untouched.
+      (funcall exit)
+      (push (if selection-batch--session 'session-live 'collapsed) events)
+      (push 'normal-command events)
+      (should (equal '(collapsed normal-command) (nreverse events)))
+      (should mark-active))))
+
+(ert-deftest selection-batch-prompt-suspends-validates-and-resumes ()
+  (selection-batch-ui-test--with-session
+      "abcdef" '((primary 1 2) (secondary 3 5)) 'primary
+    (selection-batch--transaction-install selection-batch--session)
+    (let ((session selection-batch--session)
+          (selection-batch--read-string-function
+           (lambda (prompt initial)
+             (should (equal "Value: " prompt))
+             (should (equal "seed" initial))
+             (should (selection-batch--session-suspending-p
+                      selection-batch--session))
+             (should-not (selection-batch--session-transient-exit-function
+                          selection-batch--session))
+             "done")))
+      (should (equal "done" (selection-batch-read-string "Value: " "seed")))
+      (should (eq session selection-batch--session))
+      (should-not (selection-batch--session-suspending-p session))
+      (should (functionp
+               (selection-batch--session-transient-exit-function session))))))
+
+(ert-deftest selection-batch-prompt-quit-resumes-exactly-once ()
+  (selection-batch-ui-test--with-session
+      "abcdef" '((primary 1 2) (secondary 3 5)) 'primary
+    (selection-batch--transaction-install selection-batch--session)
+    (let ((session selection-batch--session)
+          (resumes 0)
+          (real-install (symbol-function 'selection-batch--transaction-install))
+          (selection-batch--read-string-function
+           (lambda (&rest _arguments) (signal 'quit nil))))
+      (let (quit-seen)
+        (cl-letf (((symbol-function 'selection-batch--transaction-install)
+                   (lambda (candidate)
+                     (setq resumes (1+ resumes))
+                     (funcall real-install candidate))))
+          (condition-case nil
+              (selection-batch-read-string "Quit: ")
+            (quit (setq quit-seen t))))
+        (should quit-seen))
+      (should (= 1 resumes))
+      (should (eq session selection-batch--session))
+      (should (functionp
+               (selection-batch--session-transient-exit-function session))))))
+
+(ert-deftest selection-batch-prompt-generation-change-collapses-stale-session ()
+  (selection-batch-ui-test--with-session
+      "abcdef" '((primary 1 2) (secondary 3 5)) 'primary
+    (selection-batch--transaction-install selection-batch--session)
+    (let ((selection-batch--read-string-function
+           (lambda (&rest _arguments)
+             (cl-incf (selection-batch--session-generation
+                       selection-batch--session))
+             "stale")))
+      (should-error (selection-batch-read-string "Stale: ") :type 'user-error)
+      (should-not selection-batch--session))))
+
+(ert-deftest selection-batch-prompt-buffer-switch-collapses-stale-session ()
+  (selection-batch-ui-test--with-session
+      "abcdef" '((primary 1 2) (secondary 3 5)) 'primary
+    (selection-batch--transaction-install selection-batch--session)
+    (let ((foreign (generate-new-buffer " *selection-prompt-foreign*")))
+      (unwind-protect
+          (let ((selection-batch--read-string-function
+                 (lambda (&rest _arguments)
+                   (set-buffer foreign)
+                   "foreign")))
+            (should-error (selection-batch-read-string "Switch: ")
+                          :type 'user-error)
+            (should-not selection-batch--session))
+        (kill-buffer foreign)))))
+
+(ert-deftest selection-batch-transaction-exit-is-idempotent ()
+  (selection-batch-ui-test--with-session
+      "abcdef" '((primary 1 2) (secondary 3 5)) 'primary
+    (selection-batch--transaction-install selection-batch--session)
+    (let ((exit (selection-batch--session-transient-exit-function
+                 selection-batch--session)))
+      (funcall exit)
+      (funcall exit)
+      (should-not selection-batch--session))))
+
 ;;; selection-batch-ui-test.el ends here
