@@ -451,4 +451,50 @@
       (should (equal '(a "split-1" "split-0") ids))
       (should (= (length ids) (length (delete-dups (copy-sequence ids))))))))
 
+(ert-deftest selection-batch-normalization-empty-does-not-break-overlap-group ()
+  (selection-batch-test--with-buffer "abcdefghij"
+    (let ((snapshot (selection-batch-test--snapshot
+                     (current-buffer) '((a 1 6) (empty 3 3) (b 4 8)) 'a)))
+      (should-error (selection-batch-normalize-snapshot snapshot 'reject)
+                    :type 'user-error)
+      (should (equal '((a 1 8) (empty 3 3))
+                     (selection-batch-test--triples
+                      (selection-batch-normalize-snapshot snapshot 'merge)))))))
+
+(ert-deftest selection-batch-snapshot-defensively-copies-compound-slots ()
+  (selection-batch-test--with-buffer "abcdef"
+    (let* ((selection (selection-batch-test--selection 'a 1 3))
+           (input-selections (vector selection))
+           (input-narrowing (cons 1 7))
+           (snapshot (selection-batch-snapshot-create
+                      :buffer (current-buffer) :buffer-tick 0 :generation 0
+                      :primary-id 'a :narrowing input-narrowing
+                      :selections input-selections)))
+      ;; Mutating constructor arguments cannot alter the snapshot.
+      (aset input-selections 0 (selection-batch-test--selection 'bad 2 4))
+      (setcar input-narrowing 2)
+      (should (equal '((a 1 3)) (selection-batch-test--triples snapshot)))
+      (should (equal '(1 . 7) (selection-batch-snapshot-narrowing snapshot)))
+      ;; Nor can mutating values returned by public accessors.
+      (let ((exposed-selections (selection-batch-snapshot-selections snapshot))
+            (exposed-narrowing (selection-batch-snapshot-narrowing snapshot)))
+        (aset exposed-selections 0 (selection-batch-test--selection 'bad 3 5))
+        (setcdr exposed-narrowing 6))
+      (should (equal '((a 1 3)) (selection-batch-test--triples snapshot)))
+      (should (equal '(1 . 7) (selection-batch-snapshot-narrowing snapshot))))))
+
+(ert-deftest selection-batch-split-lines-obeys-half-open-end ()
+  (selection-batch-test--with-buffer "aa\nbb"
+    (let ((result (selection-batch-transform-split-lines
+                   (selection-batch-test--snapshot
+                    (current-buffer) '((a 1 4)) 'a))))
+      (should (equal '((a 1 3)) (selection-batch-test--triples result))))))
+
+(ert-deftest selection-batch-same-text-previous-includes-match-ending-at-origin ()
+  (selection-batch-test--with-buffer "foo bar foo"
+    (should (equal '((0 1 4))
+                   (selection-batch-test--triples
+                    (selection-batch-provider-snapshot
+                     (selection-batch-provider-same-text "foo" 'previous 4)))))))
+
 ;;; selection-batch-core-test.el ends here
