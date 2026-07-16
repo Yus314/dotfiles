@@ -13,8 +13,14 @@ let
     ++ map (f: builtins.readFile (modulesDir + "/${f}")) moduleFiles
   );
 
-  # .org 拡張子のファイルとして書き出し（emacsWithPackagesFromUsePackage が org として解析するため）
-  combinedConfig = pkgs.writeText "emacs-config.org" allOrgContent;
+  # emacsWithPackagesFromUsePackage reads this during evaluation, so it must
+  # be a source path rather than a derivation. The assertion prevents the
+  # generated package-discovery input from drifting from the modular config.
+  combinedConfig =
+    assert pkgs.lib.assertMsg (
+      builtins.readFile ./emacs-config.org == allOrgContent
+    ) "emacs-config.org is stale; run applications/emacs/generate-package-config.py";
+    ./emacs-config.org;
 in
 {
   emacs-unstable = pkgs.emacsWithPackagesFromUsePackage {

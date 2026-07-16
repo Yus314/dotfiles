@@ -13,6 +13,11 @@ stdenvNoCC.mkDerivation {
 
   dontUnpack = true;
 
+  # Home Manager can use this without realizing the package to read
+  # manifest.json during evaluation. This keeps `nix flake check --no-build`
+  # free of import-from-derivation requirements in clean CI stores.
+  passthru.manifestId = "biblib";
+
   mainJs = fetchurl {
     url = "${baseUrl}/main.js";
     hash = "sha256-S3hy1sK45ofxz7PlWOIS/P996stX4BqTdxvfcfNXdRY=";
