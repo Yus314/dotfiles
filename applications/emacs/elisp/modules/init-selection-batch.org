@@ -1,0 +1,18 @@
+#+TITLE: Selection Batch Integration
+* Header
+#+begin_src emacs-lisp :tangle yes
+  ;;; init-selection-batch.el --- Selection batch frontend -*- lexical-binding: t; -*-
+#+end_src
+* Package and optional frontend
+The package is loaded declaratively, but the Meow key is guarded by
+~selection-batch-enable-meow-bindings~ and remains disabled by default.
+#+begin_src emacs-lisp :tangle yes
+  (require 'selection-batch)
+  (require 'selection-batch-meow)
+
+  (selection-batch-meow-initialize)
+#+end_src
+* Provide
+#+begin_src emacs-lisp :tangle yes
+  (provide 'init-selection-batch)
+#+end_src
