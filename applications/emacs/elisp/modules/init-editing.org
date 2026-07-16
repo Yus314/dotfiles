@@ -75,7 +75,7 @@
        '("8" . digit-argument)
        '("9" . digit-argument)
        '("0" . digit-argument)
-       '("-" . negativargument)
+       '("-" . negative-argument)
        '(";" . meow-reverse)
        '("*" . meow-inner-of-thing)
        '("." . meow-bounds-of-thing)
@@ -182,7 +182,7 @@
   ;       '("8" . digit-argument)
   ;       '("9" . digit-argument)
   ;       '("0" . digit-argument)
-  ;       '("-" . negativargument)
+  ;       '("-" . negative-argument)
   ;       '(";" . meow-reverse)
   ;       '("*" . meow-inner-of-thing)
   ;       '("." . meow-bounds-of-thing)
@@ -296,22 +296,14 @@
       "Select from the current point to the end of the buffer."
       (interactive)
       (set-mark (point)) ;; 現在のポイントをマークに設定
-     (use-package multiple-cursors
+      (goto-char (point-max))) ;; バッファ末尾に移動
+      (global-set-key (kbd "M->") 'select-to-end-of-buffer)
       )
-     (goto-char (point-max))) ;; バッファ末尾に移動
-      (use-package multiple-cursors
-      )
-  (global-set-key (kbd "M->") 'select-to-end-of-buffer)
-      (use-package multiple-cursors
-      )
-  )
 #+end_src
 * multiple-cursors
 #+begin_src emacs-lisp :tangle yes
-  (autoload-if-found '(mc/mark-next-like-this) "multiple-cursors" nil t)
-  (
-with-eval-after-load 'multiple-cursors
-    )
+  (autoload-if-found '(mc/mark-next-like-this)
+                     "multiple-cursors" nil t)
 #+end_src
 * yasnippet
 #+begin_src emacs-lisp :tangle yes
