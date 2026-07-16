@@ -23,40 +23,87 @@
 (defconst selection-batch--overlay-priority '(nil . 10)
   "Non-invasive overlay priority used by the default view backend.")
 
+(defun selection-batch--view-delete-overlays (overlays)
+  "Delete every overlay in OVERLAYS."
+  (dolist (overlay overlays)
+    (when (overlayp overlay) (delete-overlay overlay))))
+
+(defun selection-batch--view-configure-overlay (overlay beginning end)
+  "Move OVERLAY to BEGINNING and END and configure its current shape."
+  (move-overlay overlay beginning end)
+  (overlay-put overlay 'after-string nil)
+  (overlay-put overlay 'face nil)
+  ;; Do not evaporate a range that can become an empty live selection after a
+  ;; buffer edit; the markers, not the overlay, decide its next shape.
+  (overlay-put overlay 'evaporate nil)
+  (if (= beginning end)
+      (overlay-put
+       overlay 'after-string
+       (propertize " " 'face 'selection-batch-secondary-cursor 'cursor t))
+    (overlay-put overlay 'face 'selection-batch-secondary)))
+
+(defun selection-batch--view-after-modification
+    (overlay after _beginning _end &optional _old-length)
+  "Reconcile OVERLAY with its live markers AFTER a buffer modification."
+  (when after
+    (let ((session (overlay-get overlay 'selection-batch-session))
+          (selection (overlay-get overlay 'selection-batch-selection)))
+      (when (and (eq session selection-batch--session)
+                 (overlay-buffer overlay)
+                 (memq selection
+                       (append (selection-batch--session-selections session) nil)))
+        (let ((anchor (selection-batch--live-selection-anchor-marker selection))
+              (cursor (selection-batch--live-selection-cursor-marker selection)))
+          (when (and (marker-buffer anchor) (marker-buffer cursor))
+            (selection-batch--view-configure-overlay
+             overlay (min (marker-position anchor) (marker-position cursor))
+             (max (marker-position anchor) (marker-position cursor)))))))))
+
 (defun selection-batch--view-destroy (session)
   "Delete all derived view objects belonging to SESSION.
 This operation is idempotent."
-  (dolist (overlay (selection-batch--session-overlays session))
-    (when (overlayp overlay)
-      (delete-overlay overlay)))
+  (selection-batch--view-delete-overlays
+   (selection-batch--session-overlays session))
   (setf (selection-batch--session-overlays session) nil))
 
 (defun selection-batch--view-refresh (session)
-  "Replace SESSION's view from its live selection model."
+  "Transactionally replace SESSION's view from its live selection model."
   (unless (and (eq session selection-batch--session)
                (buffer-live-p (selection-batch--session-buffer session)))
     (user-error "Cannot render a stale selection session"))
-  (selection-batch--view-destroy session)
   (let ((buffer (selection-batch--session-buffer session))
         (primary-id (selection-batch--session-primary-id session))
-        overlays)
-    (with-current-buffer buffer
-      (dolist (selection (append (selection-batch--session-selections session) nil))
-        (unless (equal (selection-batch--live-selection-id selection) primary-id)
-          (let* ((beginning (selection-batch-selection-beginning selection))
-                 (end (selection-batch-selection-end selection))
-                 (overlay (make-overlay beginning end buffer nil t)))
-            (overlay-put overlay 'selection-batch-view t)
-            (overlay-put overlay 'priority selection-batch--overlay-priority)
-            (if (= beginning end)
-                (overlay-put
-                 overlay 'after-string
-                 (propertize " " 'face 'selection-batch-secondary-cursor
-                             'cursor t))
-              (overlay-put overlay 'evaporate t)
-              (overlay-put overlay 'face 'selection-batch-secondary))
-            (push overlay overlays)))))
-    (setf (selection-batch--session-overlays session) (nreverse overlays))))
+        (old-overlays (selection-batch--session-overlays session))
+        overlays completed)
+    (unwind-protect
+        (progn
+          (with-current-buffer buffer
+            (dolist (selection
+                     (append (selection-batch--session-selections session) nil))
+              (unless (equal (selection-batch--live-selection-id selection)
+                             primary-id)
+                (let* ((beginning (selection-batch-selection-beginning selection))
+                       (end (selection-batch-selection-end selection))
+                       (overlay (make-overlay beginning end buffer nil t)))
+                  (push overlay overlays)
+                  (overlay-put overlay 'selection-batch-view t)
+                  (overlay-put overlay 'selection-batch-session session)
+                  (overlay-put overlay 'selection-batch-selection selection)
+                  (overlay-put overlay 'priority selection-batch--overlay-priority)
+                  (overlay-put overlay 'modification-hooks
+                               '(selection-batch--view-after-modification))
+                  (overlay-put overlay 'insert-in-front-hooks
+                               '(selection-batch--view-after-modification))
+                  (overlay-put overlay 'insert-behind-hooks
+                               '(selection-batch--view-after-modification))
+                  (selection-batch--view-configure-overlay
+                   overlay beginning end)))))
+          (setq overlays (nreverse overlays))
+          (setf (selection-batch--session-overlays session) overlays)
+          (selection-batch--view-delete-overlays old-overlays)
+          (setq completed t))
+      (unless completed
+        (selection-batch--view-delete-overlays overlays)))))
 
 (defun selection-batch--view-create (session)
   "Create the default derived view for SESSION."

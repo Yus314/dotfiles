@@ -72,7 +72,7 @@
                                     (overlay-end overlay))))
       (should-not (overlay-get overlay 'after-string))
       (should (eq 'selection-batch-secondary (overlay-get overlay 'face)))
-      (should (equal '((primary 1 2) (secondary 4 6))
+      (should (equal '((primary 1 6) (secondary 4 6))
                      (mapcar
                       (lambda (selection)
                         (list (selection-batch-snapshot-selection-id selection)
