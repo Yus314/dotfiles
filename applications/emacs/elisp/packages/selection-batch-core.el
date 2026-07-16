@@ -10,6 +10,8 @@
 (require 'cl-lib)
 (require 'subr-x)
 
+(declare-function selection-batch-read-regexp "selection-batch-ui" (prompt &optional initial history))
+
 (defgroup selection-batch nil
   "Short-lived ordered selection sets."
   :group 'editing)
