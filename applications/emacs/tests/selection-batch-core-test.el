@@ -435,7 +435,9 @@
            candidate-live)
       (cl-letf (((symbol-value 'selection-batch--view-refresh-function)
                  (lambda (candidate)
-                   (setq candidate-live (selection-batch--session-selections candidate))
+                   (unless candidate-live
+                     (setq candidate-live
+                           (selection-batch--session-selections candidate)))
                    (error "injected refresh failure"))))
         (should-error
          (selection-batch-apply-transform #'selection-batch-transform-reverse)

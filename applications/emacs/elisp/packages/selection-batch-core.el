@@ -249,25 +249,33 @@ When REQUIRE-CURRENT is non-nil, reject calls outside its owner buffer."
   (activate-mark))
 
 (defun selection-batch--make-live-selections (buffer selections primary-id)
-  "Create live entries for SELECTIONS in BUFFER with PRIMARY-ID marker-free."
-  (vconcat
-   (mapcar
-    (lambda (selection)
-      (let ((id (selection-batch-snapshot-selection-id selection)))
-        (if (equal id primary-id)
-            (selection-batch--live-selection-create :id id)
-          (selection-batch--live-selection-create
-           :id id
-           :anchor-marker (set-marker
-                           (make-marker)
-                           (selection-batch-snapshot-selection-anchor selection)
-                           buffer)
-           :cursor-marker (let ((marker (make-marker)))
-                            (set-marker-insertion-type marker t)
-                            (set-marker marker
-                                        (selection-batch-snapshot-selection-cursor selection)
-                                        buffer))))))
-    (append selections nil))))
+  "Create live entries for SELECTIONS in BUFFER with PRIMARY-ID marker-free.
+Detach every marker already allocated if construction fails."
+  (let (live)
+    (condition-case err
+        (progn
+          (dolist (selection (append selections nil))
+            (let ((id (selection-batch-snapshot-selection-id selection)))
+              (push
+               (if (equal id primary-id)
+                   (selection-batch--live-selection-create :id id)
+                 (selection-batch--live-selection-create
+                  :id id
+                  :anchor-marker
+                  (set-marker (make-marker)
+                              (selection-batch-snapshot-selection-anchor selection)
+                              buffer)
+                  :cursor-marker
+                  (let ((marker (make-marker)))
+                    (set-marker-insertion-type marker t)
+                    (set-marker marker
+                                (selection-batch-snapshot-selection-cursor selection)
+                                buffer))))
+               live)))
+          (vconcat (nreverse live)))
+      ((error quit)
+       (selection-batch--detach-selections (vconcat live))
+       (signal (car err) (cdr err))))))
 
 (defun selection-batch--validate-snapshot (snapshot)
   "Validate integer-only SNAPSHOT and return it."
@@ -297,45 +305,112 @@ When REQUIRE-CURRENT is non-nil, reject calls outside its owner buffer."
                         (selection-batch-snapshot-selection-id selection))))))
     snapshot))
 
-(defun selection-batch-install-snapshot (snapshot &optional allow-empty-primary)
-  "Install SNAPSHOT as the sole live session.
-When ALLOW-EMPTY-PRIMARY is non-nil, an initially unset mark is explicitly
-initialized at point before installation.  SNAPSHOT itself always supplies the
-projected primary endpoints."
+(defun selection-batch--install-lifecycle-hooks (buffer)
+  "Install the session lifecycle hooks locally in BUFFER."
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (add-hook 'kill-buffer-hook #'selection-batch--lifecycle-exit nil t)
+      (add-hook 'before-revert-hook #'selection-batch--lifecycle-exit nil t)
+      (add-hook 'change-major-mode-hook #'selection-batch--lifecycle-exit nil t))))
+
+(defun selection-batch--remove-lifecycle-hooks (buffer)
+  "Remove the session lifecycle hooks locally from BUFFER."
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (remove-hook 'kill-buffer-hook #'selection-batch--lifecycle-exit t)
+      (remove-hook 'before-revert-hook #'selection-batch--lifecycle-exit t)
+      (remove-hook 'change-major-mode-hook #'selection-batch--lifecycle-exit t))))
+
+(defun selection-batch--project-snapshot-primary (session snapshot)
+  "Project SNAPSHOT's primary endpoints for SESSION."
+  (let ((primary (selection-batch--selection-by-id
+                  (selection-batch--snapshot-selections snapshot)
+                  (selection-batch-snapshot-primary-id snapshot))))
+    (with-current-buffer (selection-batch--session-buffer session)
+      (selection-batch--project-primary
+       session
+       (selection-batch-snapshot-selection-anchor primary)
+       (selection-batch-snapshot-selection-cursor primary)))))
+
+(defun selection-batch-install-snapshot (snapshot &optional _allow-empty-primary)
+  "Transactionally install SNAPSHOT as the sole live session.
+The candidate is fully allocated before global state changes.  If projection or
+view creation fails, the previous owner is restored from an integer snapshot;
+an initial failure leaves no session, hooks, markers, or derived artifacts."
   (selection-batch--validate-snapshot snapshot)
   (let* ((buffer (selection-batch-snapshot-buffer snapshot))
          (selections (selection-batch--snapshot-selections snapshot))
-         (primary-id (selection-batch-snapshot-primary-id snapshot))
-         (primary (selection-batch--selection-by-id selections primary-id)))
+         (primary-id (selection-batch-snapshot-primary-id snapshot)))
     (unless (eq buffer (current-buffer))
       (user-error "Install must run in the snapshot buffer"))
-    (when (and allow-empty-primary
-               (selection-batch-selection-empty-p primary)
-               (null (selection-batch--mark-position)))
-      (set-mark (point))
-      (setq mark-active t))
-    (when selection-batch--session
-      (selection-batch--cleanup selection-batch--session nil t))
-    (let* ((live (selection-batch--make-live-selections buffer selections primary-id))
-           (session (selection-batch--session-create
-                     :buffer buffer :selections live :primary-id primary-id
-                     :history nil :redo nil
-                     :generation (selection-batch-snapshot-generation snapshot)
-                     :state 'set :overlays nil)))
+    (let* ((old-session selection-batch--session)
+           (old-snapshot (and old-session
+                              (selection-batch-current-snapshot)))
+           (saved-point (point))
+           (saved-mark (selection-batch--mark-position))
+           (saved-mark-active mark-active)
+           (live (selection-batch--make-live-selections
+                  buffer selections primary-id))
+           (candidate (selection-batch--session-create
+                       :buffer buffer :selections live :primary-id primary-id
+                       :history nil :redo nil
+                       :generation (selection-batch-snapshot-generation snapshot)
+                       :state 'set :overlays nil))
+           committed)
       (condition-case err
           (progn
-            (selection-batch--project-primary
-             session
-             (selection-batch-snapshot-selection-anchor primary)
-             (selection-batch-snapshot-selection-cursor primary))
-            (setq selection-batch--session session)
-            (add-hook 'kill-buffer-hook #'selection-batch--lifecycle-exit nil t)
-            (add-hook 'before-revert-hook #'selection-batch--lifecycle-exit nil t)
-            (add-hook 'change-major-mode-hook #'selection-batch--lifecycle-exit nil t)
-            (selection-batch--refresh-derived-view session)
-            session)
+            ;; The backend's validity check intentionally sees the candidate.
+            ;; The old live markers and view remain available as compensation
+            ;; until candidate projection and rendering have both succeeded.
+            (setq selection-batch--session candidate)
+            (selection-batch--install-lifecycle-hooks buffer)
+            (selection-batch--project-snapshot-primary candidate snapshot)
+            (selection-batch--refresh-derived-view candidate)
+            (setq committed t)
+            (when old-session
+              (let (cleanup-error)
+                (condition-case cleanup-err
+                    (selection-batch--cleanup
+                     old-session
+                     (eq buffer (selection-batch--session-buffer old-session))
+                     (not (eq buffer (selection-batch--session-buffer old-session))))
+                  ((error quit) (setq cleanup-error cleanup-err)))
+                ;; Same-buffer old cleanup removes shared local hooks.  It may
+                ;; also run a hostile backend, so reassert the committed state.
+                (setq selection-batch--session candidate)
+                (selection-batch--install-lifecycle-hooks buffer)
+                (selection-batch--project-snapshot-primary candidate snapshot)
+                (when cleanup-error
+                  (signal (car cleanup-error) (cdr cleanup-error)))))
+            candidate)
         ((error quit)
-         (selection-batch--detach-selections live)
+         (if committed
+             ;; Candidate rendering succeeded.  A later old-session teardown
+             ;; error is reportable, but must not roll back to detached state.
+             (progn
+               (setq selection-batch--session candidate)
+               (selection-batch--install-lifecycle-hooks buffer)
+               (selection-batch--project-snapshot-primary candidate snapshot))
+           ;; Cleanup itself is best-effort and can report a backend failure;
+           ;; the installation error remains the useful caller condition.
+           (ignore-errors (selection-batch--cleanup candidate nil t))
+           (if old-session
+               (progn
+                 (setq selection-batch--session old-session)
+                 (selection-batch--install-lifecycle-hooks
+                  (selection-batch--session-buffer old-session))
+                 (selection-batch--project-snapshot-primary
+                  old-session old-snapshot)
+                 ;; Transactional backends leave the old view intact.  This
+                 ;; repairs a backend that replaced its view before signalling.
+                 (ignore-errors
+                   (selection-batch--refresh-derived-view old-session)))
+             (setq selection-batch--session nil)
+             (goto-char saved-point)
+             (if saved-mark
+                 (set-mark saved-mark)
+               (set-marker (mark-marker) nil))
+             (setq mark-active saved-mark-active)))
          (signal (car err) (cdr err)))))))
 
 (defun selection-batch-current-snapshot ()
@@ -365,32 +440,49 @@ projected primary endpoints."
        (signal (car err) (cdr err))))))
 
 (defun selection-batch--cleanup (session preserve-primary deactivate-mark-p)
-  "Idempotently clean SESSION.
+  "Idempotently clean SESSION, continuing after every teardown error.
 Keep its primary projection when PRESERVE-PRIMARY is non-nil.  Deactivate the
-mark when DEACTIVATE-MARK-P is non-nil."
+mark when DEACTIVATE-MARK-P is non-nil.  The first teardown condition is
+re-signalled only after views, markers, hooks, transient state, and the global
+owner have all been cleared."
   (when (and session (not (selection-batch--session-exit-in-progress-p session)))
     (setf (selection-batch--session-exit-in-progress-p session) t)
-    (let ((buffer (selection-batch--session-buffer session)))
-      (unwind-protect
-          (progn
-            (when (and preserve-primary (buffer-live-p buffer))
-              ;; point and mark already are the source of truth.
-              (with-current-buffer buffer
-                (when (selection-batch--mark-position) (setq mark-active t))))
-            (selection-batch--destroy-derived-view session)
-            (selection-batch--detach-selections
-             (selection-batch--session-selections session))
-            (when (buffer-live-p buffer)
-              (with-current-buffer buffer
-                (remove-hook 'kill-buffer-hook #'selection-batch--lifecycle-exit t)
-                (remove-hook 'before-revert-hook #'selection-batch--lifecycle-exit t)
-                (remove-hook 'change-major-mode-hook #'selection-batch--lifecycle-exit t)
-                (when deactivate-mark-p (ignore-errors (deactivate-mark)))))
-            (let ((exit (selection-batch--session-transient-exit-function session)))
-              (setf (selection-batch--session-transient-exit-function session) nil)
-              (when (functionp exit) (ignore-errors (funcall exit)))))
+    (let ((buffer (selection-batch--session-buffer session))
+          first-error)
+      (cl-labels ((attempt (function)
+                    (condition-case err
+                        (funcall function)
+                      ((error quit)
+                       (unless first-error (setq first-error err))))))
+        (attempt
+         (lambda ()
+           (when (and preserve-primary (buffer-live-p buffer))
+             (with-current-buffer buffer
+               (when (selection-batch--mark-position) (setq mark-active t))))))
+        (attempt (lambda () (selection-batch--destroy-derived-view session)))
+        ;; A backend is not trusted to have deleted every artifact before it
+        ;; failed.  The core-owned list is therefore always swept as fallback.
+        (dolist (overlay (selection-batch--session-overlays session))
+          (attempt (lambda ()
+                     (when (overlayp overlay) (delete-overlay overlay)))))
+        (setf (selection-batch--session-overlays session) nil)
+        (attempt
+         (lambda ()
+           (selection-batch--detach-selections
+            (selection-batch--session-selections session))))
+        (attempt (lambda () (selection-batch--remove-lifecycle-hooks buffer)))
+        (when (and deactivate-mark-p (buffer-live-p buffer))
+          (attempt (lambda ()
+                     (with-current-buffer buffer
+                       (when (selection-batch--mark-position)
+                         (deactivate-mark))))))
+        (let ((exit (selection-batch--session-transient-exit-function session)))
+          (setf (selection-batch--session-transient-exit-function session) nil)
+          (when (functionp exit) (attempt exit)))
         (when (eq selection-batch--session session)
-          (setq selection-batch--session nil))))))
+          (setq selection-batch--session nil))
+        (when first-error
+          (signal (car first-error) (cdr first-error)))))))
 
 (defun selection-batch--lifecycle-exit ()
   "Exit the session owned by the current buffer."
@@ -798,7 +890,10 @@ The final line is included even when it has no terminating newline."
      snapshot selections (selection-batch-snapshot-selection-id (aref selections next)))))
 
 (defun selection-batch--replace-with-snapshot (session snapshot)
-  "Replace SESSION's live state with SNAPSHOT once."
+  "Transactionally replace SESSION's live state with SNAPSHOT once.
+Old live markers remain attached as compensation until the candidate view has
+been validated.  Any failure restores the old integer primary projection,
+model slots, generation, and derived view before the candidate is detached."
   (selection-batch--validate-snapshot snapshot)
   (unless (and (eq session selection-batch--session)
                (eq (current-buffer) (selection-batch--session-buffer session))
@@ -807,24 +902,32 @@ The final line is included even when it has no terminating newline."
     (user-error "Cannot replace a stale or foreign session"))
   (let* ((selections (selection-batch--snapshot-selections snapshot))
          (primary-id (selection-batch-snapshot-primary-id snapshot))
-         (primary (selection-batch--selection-by-id selections primary-id))
+         (before (selection-batch-current-snapshot))
          (old-live (selection-batch--session-selections session))
+         (old-primary-id (selection-batch--session-primary-id session))
+         (old-generation (selection-batch--session-generation session))
          (new-live (selection-batch--make-live-selections
                     (current-buffer) selections primary-id)))
     (condition-case err
         (progn
-          (selection-batch--project-primary
-           session
-           (selection-batch-snapshot-selection-anchor primary)
-           (selection-batch-snapshot-selection-cursor primary))
-          (selection-batch--detach-selections old-live)
           (setf (selection-batch--session-selections session) new-live
                 (selection-batch--session-primary-id session) primary-id
                 (selection-batch--session-generation session)
-                (1+ (selection-batch--session-generation session)))
+                (1+ old-generation))
+          (selection-batch--project-snapshot-primary session snapshot)
           (selection-batch--refresh-derived-view session)
+          ;; The candidate model and view are now both valid; only now may the
+          ;; compensation markers be detached.
+          (selection-batch--detach-selections old-live)
           session)
       ((error quit)
+       (setf (selection-batch--session-selections session) old-live
+             (selection-batch--session-primary-id session) old-primary-id
+             (selection-batch--session-generation session) old-generation)
+       (selection-batch--project-snapshot-primary session before)
+       ;; A transactional backend still has the old view.  Calling refresh also
+       ;; repairs wrappers that completed rendering and then signalled.
+       (ignore-errors (selection-batch--refresh-derived-view session))
        (selection-batch--detach-selections new-live)
        (signal (car err) (cdr err))))))
 
