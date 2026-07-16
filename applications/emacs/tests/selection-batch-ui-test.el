@@ -61,6 +61,26 @@
       (should-not (eq old (car (selection-batch--session-overlays
                                 selection-batch--session)))))))
 
+(ert-deftest selection-batch-empty-secondary-becomes-range-after-insertion ()
+  (selection-batch-ui-test--with-session
+      "abcdef" '((primary 1 2) (secondary 4 4)) 'primary
+    (let ((overlay (car (selection-batch--session-overlays
+                         selection-batch--session))))
+      (goto-char 4)
+      (insert "XY")
+      (should (equal '(4 . 6) (cons (overlay-start overlay)
+                                    (overlay-end overlay))))
+      (should-not (overlay-get overlay 'after-string))
+      (should (eq 'selection-batch-secondary (overlay-get overlay 'face)))
+      (should (equal '((primary 1 2) (secondary 4 6))
+                     (mapcar
+                      (lambda (selection)
+                        (list (selection-batch-snapshot-selection-id selection)
+                              (selection-batch-snapshot-selection-anchor selection)
+                              (selection-batch-snapshot-selection-cursor selection)))
+                      (append (selection-batch-snapshot-selections
+                               (selection-batch-current-snapshot)) nil)))))))
+
 (ert-deftest selection-batch-view-is-derived-and-collapse-destroys-it ()
   (selection-batch-ui-test--with-session
       "abcdef" '((primary 1 2) (secondary 3 5)) 'primary

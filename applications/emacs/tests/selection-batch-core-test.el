@@ -423,6 +423,115 @@
       (should-not (overlay-buffer overlay))
       (should (= 1 calls)))))
 
+(ert-deftest selection-batch-transform-refresh-failure-restores-live-state ()
+  (selection-batch-test--with-buffer "abcdef"
+    (selection-batch-install-snapshot
+     (selection-batch-test--snapshot (current-buffer)
+                                     '((primary 1 3) (secondary 4 6)) 'primary))
+    (let* ((session selection-batch--session)
+           (before (selection-batch-current-snapshot))
+           (old-live (selection-batch--session-selections session))
+           (old-generation (selection-batch--session-generation session))
+           candidate-live)
+      (cl-letf (((symbol-value 'selection-batch--view-refresh-function)
+                 (lambda (candidate)
+                   (setq candidate-live (selection-batch--session-selections candidate))
+                   (error "injected refresh failure"))))
+        (should-error
+         (selection-batch-apply-transform #'selection-batch-transform-reverse)
+         :type 'error))
+      (should (eq session selection-batch--session))
+      (should (eq old-live (selection-batch--session-selections session)))
+      (should (= old-generation (selection-batch--session-generation session)))
+      (should (equal before (selection-batch-current-snapshot)))
+      (should-not (selection-batch--session-history session))
+      (dolist (selection (append candidate-live nil))
+        (dolist (marker (list (selection-batch--live-selection-anchor-marker selection)
+                              (selection-batch--live-selection-cursor-marker selection)))
+          (when (markerp marker) (should-not (marker-buffer marker))))))))
+
+(ert-deftest selection-batch-initial-install-refresh-failure-leaves-no-zombie ()
+  (selection-batch-test--with-buffer "abcdef"
+    (let (candidate marker)
+      (cl-letf (((symbol-value 'selection-batch--view-refresh-function)
+                 (lambda (session)
+                   (setq candidate session
+                         marker (selection-batch--live-selection-anchor-marker
+                                 (selection-batch--live-by-id session 'secondary)))
+                   (error "injected refresh failure"))))
+        (should-error
+         (selection-batch-install-snapshot
+          (selection-batch-test--snapshot (current-buffer)
+                                          '((primary 1 3) (secondary 4 6)) 'primary))
+         :type 'error))
+      (should candidate)
+      (should-not selection-batch--session)
+      (should-not (marker-buffer marker))
+      (dolist (hook '(kill-buffer-hook before-revert-hook change-major-mode-hook))
+        (should-not (memq #'selection-batch--lifecycle-exit (symbol-value hook)))))))
+
+(ert-deftest selection-batch-replacement-refresh-failure-restores-old-owner ()
+  (let ((old-buffer (generate-new-buffer " *selection-old-owner*"))
+        (new-buffer (generate-new-buffer " *selection-new-owner*"))
+        old-session old-snapshot old-marker candidate-marker)
+    (unwind-protect
+        (progn
+          (with-current-buffer old-buffer
+            (insert "abcdef")
+            (selection-batch-install-snapshot
+             (selection-batch-test--snapshot
+              old-buffer '((old 1 3) (old-secondary 4 6)) 'old))
+            (setq old-session selection-batch--session
+                  old-snapshot (selection-batch-current-snapshot)
+                  old-marker (selection-batch--live-selection-anchor-marker
+                              (selection-batch--live-by-id old-session 'old-secondary))))
+          (with-current-buffer new-buffer
+            (insert "uvwxyz")
+            (cl-letf (((symbol-value 'selection-batch--view-refresh-function)
+                       (lambda (session)
+                         (setq candidate-marker
+                               (selection-batch--live-selection-anchor-marker
+                                (selection-batch--live-by-id session 'new-secondary)))
+                         (error "injected refresh failure"))))
+              (should-error
+               (selection-batch-install-snapshot
+                (selection-batch-test--snapshot
+                 new-buffer '((new 1 3) (new-secondary 4 6)) 'new))
+               :type 'error)))
+          (should (eq old-session selection-batch--session))
+          (with-current-buffer old-buffer
+            (should (equal old-snapshot (selection-batch-current-snapshot)))
+            (should (memq #'selection-batch--lifecycle-exit kill-buffer-hook)))
+          (should (marker-buffer old-marker))
+          (should-not (marker-buffer candidate-marker)))
+      (when selection-batch--session
+        (selection-batch--cleanup selection-batch--session nil t))
+      (kill-buffer old-buffer)
+      (kill-buffer new-buffer))))
+
+(ert-deftest selection-batch-cleanup-continues-after-view-destroy-error ()
+  (selection-batch-test--with-buffer "abcdef"
+    (selection-batch-install-snapshot
+     (selection-batch-test--snapshot (current-buffer)
+                                     '((primary 1 3) (secondary 4 6)) 'primary))
+    (let* ((session selection-batch--session)
+           (marker (selection-batch--live-selection-anchor-marker
+                    (selection-batch--live-by-id session 'secondary)))
+           (overlay (make-overlay 1 2))
+           (exit-calls 0))
+      (setf (selection-batch--session-overlays session) (list overlay)
+            (selection-batch--session-transient-exit-function session)
+            (lambda () (setq exit-calls (1+ exit-calls))))
+      (cl-letf (((symbol-value 'selection-batch--view-destroy-function)
+                 (lambda (_candidate) (error "injected destroy failure"))))
+        (should-error (selection-batch--cleanup session nil t) :type 'error))
+      (should-not selection-batch--session)
+      (should-not (marker-buffer marker))
+      (should-not (overlay-buffer overlay))
+      (should (= 1 exit-calls))
+      (dolist (hook '(kill-buffer-hook before-revert-hook change-major-mode-hook))
+        (should-not (memq #'selection-batch--lifecycle-exit (symbol-value hook)))))))
+
 (ert-deftest selection-batch-empty-regexp-terminates-at-character-boundaries ()
   (selection-batch-test--with-buffer "日本"
     (let ((result (selection-batch-provider-regexp "" 'accessible)))
