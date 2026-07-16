@@ -74,8 +74,7 @@ let
     '';
   };
 
-  # Your Discord user id — only this account may talk to the bot
-  # (same id used by the openclaw gateway).
+  # Your Discord user id — only this account may talk to the bot.
   discordUserId = "885083579367972874";
 
   gatewayPath = "${agentBrowser}/bin:${pkgs.nodejs_24}/bin:%h/.nix-profile/bin:/run/current-system/sw/bin:/usr/local/bin:/usr/bin:/bin";
