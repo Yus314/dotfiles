@@ -8,9 +8,33 @@
   programs.waybar = {
     enable = true;
 
-    # CFFI機能付きWaybarパッケージを使用
-    package = pkgs.waybar.overrideAttrs (oldAttrs: {
-      mesonFlags = oldAttrs.mesonFlags ++ [ "-Dexperimental=true" ];
+    # Use Waybar master for newer niri/workspaces taskbar support and niri 26.04 IPC compatibility.
+    package = (pkgs.waybar.override { runTests = false; }).overrideAttrs (oldAttrs: {
+      # Upstream master still reports Waybar v0.15.0, so keep the package version
+      # matching --version to satisfy nixpkgs' versionCheckHook.
+      version = "0.15.0";
+      src = pkgs.fetchFromGitHub {
+        owner = "Alexays";
+        repo = "Waybar";
+        rev = "98b2a563f398f63f99ec8a6f7fb2b19a172abd5d";
+        hash = "sha256-gVYj72W4L5FJwtfkT/m8PxgDKBT/3HIq1BdnxhFtlPQ=";
+      };
+      postPatch = (oldAttrs.postPatch or "") + ''
+        # Upstream workspace-taskbar currently hides the workspace label unconditionally.
+        # Keep the label visible so niri's vertical workspace number and horizontal window icons
+        # are both visible in the bar.
+        substituteInPlace src/modules/niri/workspace.cpp \
+          --replace-fail 'label_.hide();' 'label_.show();'
+      '';
+      mesonFlags = oldAttrs.mesonFlags ++ [
+        "-Dexperimental=true"
+        "-Dwwan=disabled"
+        "-Dcava=disabled"
+      ];
+      # Upstream master test utils currently try to exec a captured
+      # bash-interactive store path that is not available in the sandbox. Runtime
+      # Waybar is already smoke-tested via the user service after activation.
+      doCheck = false;
     });
 
     # Waybarをsystemdユーザーサービスとして有効化
@@ -46,8 +70,9 @@
         ];
 
         "modules-left" = [
-          "cffi/niri-taskbar"
-          #"niri/workspaces"  # フォールバック：CFFI失敗時に表示
+          # cffi/niri-taskbar is currently incompatible with niri 26.04 event stream
+          # (e.g. unknown variant `CastsChanged`), causing intermittent taskbar icons.
+          "niri/workspaces"
         ];
 
         # --- 各モジュールの詳細設定 ---
@@ -64,9 +89,9 @@
         };
 
         mpd = {
-          format = "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ";
-          "format-disconnected" = "Disconnected ";
-          "format-stopped" = "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ";
+          format = "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ♪";
+          "format-disconnected" = "Disconnected ♪";
+          "format-stopped" = "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ♪";
           "unknown-tag" = "N/A";
           interval = 5;
           "consume-icons".on = " ";
@@ -114,9 +139,9 @@
           "critical-threshold" = 80;
           format = "{temperatureC}°C {icon}";
           "format-icons" = [
-            ""
             ""
-            ""
+            ""
+            ""
           ];
         };
 
@@ -142,7 +167,7 @@
           };
           format = "{capacity}% {icon}";
           "format-full" = "{capacity}% {icon}";
-          "format-charging" = "{capacity}% ";
+          "format-charging" = "{capacity}% ";
           "format-plugged" = "{capacity}% ";
           "format-alt" = "{time} {icon}";
           "format-icons" = [
@@ -160,9 +185,9 @@
 
         network = {
           "format-wifi" = "{essid} ({signalStrength}%) ";
-          "format-ethernet" = "{ipaddr}/{cidr} ";
-          "tooltip-format" = "{ifname} via {gwaddr} ";
-          "format-linked" = "{ifname} (No IP) ";
+          "format-ethernet" = "{ipaddr}/{cidr} ";
+          "tooltip-format" = "{ifname} via {gwaddr} ";
+          "format-linked" = "{ifname} (No IP) ";
           "format-disconnected" = "Disconnected ⚠";
           "format-alt" = "{ifname}: {ipaddr}/{cidr}";
         };
@@ -170,14 +195,14 @@
         pulseaudio = {
           format = "{volume}% {icon} {format_source}";
           "format-bluetooth" = "{volume}% {icon} {format_source}";
-          "format-bluetooth-muted" = " {icon} {format_source}";
-          "format-muted" = " {format_source}";
+          "format-bluetooth-muted" = " {icon} {format_source}";
+          "format-muted" = " {format_source}";
           "format-source" = "{volume}% ";
           "format-source-muted" = "";
           "format-icons" = {
             headphone = "";
-            "hands-free" = "";
-            headset = "";
+            "hands-free" = "";
+            headset = "";
             phone = "";
             portable = "";
             car = "";
@@ -190,14 +215,22 @@
           "on-click" = "pavucontrol";
         };
         "niri/workspaces" = {
-          "format" = "{icon}";
+          "format" = "{index}";
           "on-click" = "activate";
           "all-outputs" = true;
+          "sort-by-coordinates" = true;
+          "format-window-separator" = " ";
+          "workspace-taskbar" = {
+            enable = true;
+            "icon-size" = 16;
+          };
         };
 
         "niri/window" = {
           "format" = "{title}";
           "max-length" = 50;
+          icon = true;
+          "icon-size" = 18;
         };
 
         # niri-taskbar CFFI統合設定（完全構成）
@@ -207,10 +240,11 @@
       }
     ];
     style = ''
-            #workspaces button.active {
-                background-color: green;
-                box-shadow: inset 0 -3px #ffffff;
-            }
+      /* niri workspace state: background only; focused window gets the underline. */
+      #workspaces button.active {
+          background-color: rgba(46, 204, 113, 0.35);
+          box-shadow: inset 0 -3px transparent;
+      }
 
       /* niri-taskbar専用スタイル */
       #cffi-niri-taskbar {
@@ -243,8 +277,8 @@
       }
 
       * {
-          /* `otf-font-awesome` is required to be installed for icons */
-          font-family: FontAwesome, Roboto, Helvetica, Arial, sans-serif;
+          /* Prefer installed Nerd Font families for icon glyphs. */
+          font-family: "Hack Nerd Font", "Symbols Nerd Font", "Bizin Gothic Discord NF", "Noto Sans CJK JP", sans-serif;
           font-size: 13px;
       }
 
@@ -305,10 +339,33 @@
 
       #workspaces button:hover {
           background: rgba(0, 0, 0, 0.2);
+          box-shadow: inset 0 -3px transparent;
       }
 
       #workspaces button.focused {
-          background-color: #64727D;
+          background-color: rgba(100, 114, 125, 0.55);
+          box-shadow: inset 0 -3px transparent;
+      }
+
+      #workspaces button .niri-taskbar-btn {
+          padding: 0 3px;
+          margin: 0 1px;
+          background-color: transparent;
+          box-shadow: inset 0 -3px transparent;
+      }
+
+      #workspaces button .niri-taskbar-btn.focused {
+          background-color: rgba(255, 255, 255, 0.14);
+          box-shadow: inset 0 -3px #ffffff;
+      }
+
+      #workspaces button .niri-taskbar-btn:hover {
+          background-color: rgba(255, 255, 255, 0.10);
+          box-shadow: inset 0 -3px rgba(255, 255, 255, 0.35);
+      }
+
+      #workspaces button .niri-taskbar-btn.focused:hover {
+          background-color: rgba(255, 255, 255, 0.18);
           box-shadow: inset 0 -3px #ffffff;
       }
 
