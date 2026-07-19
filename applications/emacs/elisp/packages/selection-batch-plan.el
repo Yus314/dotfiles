@@ -1,4 +1,7 @@
-;;; selection-batch-plan.el --- Immutable atomic edit plans -*- lexical-binding: t; -*-
+;;; selection-batch-plan.el --- Immutable edit planning -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2026 Yus314
+;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;;; Commentary:
 ;; Pure, defensively copied edit descriptors and the single-buffer transaction
@@ -281,14 +284,20 @@ Buffer and marker objects retain identity.  Strings retain text properties."
 (cl-defun selection-batch-plan-create
     (&key buffer source-buffer-tick source-generation source-narrowing edits
           result-policy (register-update selection-batch-no-update)
-          (recipe selection-batch-no-update))
+          (recipe selection-batch-no-update) edits-ordered-p)
   "Create an immutable plan with copied edits in deterministic apply order."
   (let ((copied (mapcar #'selection-batch--copy-edit (append edits nil))))
+    (when edits-ordered-p
+      (cl-loop for left on copied while (cdr left)
+               unless (selection-batch--edit-before-p (car left) (cadr left))
+               do (user-error "Preordered plan edits are out of order")))
     (selection-batch--plan-create
      :buffer buffer :source-buffer-tick source-buffer-tick
      :source-generation source-generation
      :source-narrowing (selection-batch--plan-copy-value source-narrowing)
-     :edits (vconcat (sort copied #'selection-batch--edit-before-p))
+     :edits (vconcat (if edits-ordered-p
+                         copied
+                       (sort copied #'selection-batch--edit-before-p)))
      :result-policy (selection-batch--copy-result-snapshot result-policy)
      :register-update (selection-batch--plan-copy-value register-update)
      :recipe (selection-batch--plan-copy-value recipe))))
@@ -358,7 +367,10 @@ interior collides; insertion at its end is adjacent and is allowed."
          (source-selections (selection-batch-snapshot-selections source))
          (result-selections (selection-batch-snapshot-selections result))
          (edits (selection-batch--plan-edits plan))
-         (minimum (car (selection-batch--plan-source-narrowing plan))))
+         (minimum (car (selection-batch--plan-source-narrowing plan)))
+         (source-ids (make-hash-table :test #'equal)))
+    (dolist (selection (append source-selections nil))
+      (puthash (selection-batch-snapshot-selection-id selection) t source-ids))
     (unless (and (eq (selection-batch-snapshot-buffer result)
                      (selection-batch--plan-buffer plan))
                  (or (= (length result-selections) (length edits))
@@ -373,7 +385,7 @@ interior collides; insertion at its end is adjacent and is allowed."
         (unless (and (integerp index) (<= 0 index)
                      (< index (length result-selections)))
           (selection-batch--plan-error edit "invalid logical index"))
-        (unless (and (selection-batch--selection-by-id source-selections id)
+        (unless (and (gethash id source-ids)
                      (equal id (selection-batch-snapshot-selection-id
                                 (aref result-selections index)))
                      (equal (selection-batch--edit-result edit)
@@ -421,7 +433,8 @@ Return PLAN without modifying text, markers, globals, history, or views."
       (user-error "Selection generation changed after planning"))
     (when buffer-read-only (user-error "Plan buffer is read-only"))
     (let ((minimum (point-min)) (maximum (point-max)) (delta 0)
-          (edits (selection-batch--plan-edits plan)) seen-indices)
+          (edits (selection-batch--plan-edits plan))
+          (seen-indices (make-hash-table :test #'eql)))
       (dolist (edit (append edits nil))
         (unless (and (integerp (selection-batch--edit-beginning edit))
                      (integerp (selection-batch--edit-end edit))
@@ -435,32 +448,266 @@ Return PLAN without modifying text, markers, globals, history, or views."
         (unless (and (integerp (selection-batch--edit-tie-break edit))
                      (integerp (selection-batch--edit-logical-index edit)))
           (selection-batch--plan-error edit "tie-break/index is not an integer"))
-        (when (member (selection-batch--edit-logical-index edit) seen-indices)
+        (when (gethash (selection-batch--edit-logical-index edit) seen-indices)
           (selection-batch--plan-error edit "logical index is duplicated"))
-        (push (selection-batch--edit-logical-index edit) seen-indices)
+        (puthash (selection-batch--edit-logical-index edit) t seen-indices)
         (when (selection-batch--edit-read-only-p edit)
           (selection-batch--plan-error edit "range has a read-only text property"))
         (cl-incf delta (- (length (selection-batch--edit-replacement edit))
                           (- (selection-batch--edit-end edit)
                              (selection-batch--edit-beginning edit)))))
-      (cl-loop for tail on (append edits nil)
-               for left = (car tail)
-               do (dolist (right (cdr tail))
-                    (when (selection-batch--edits-collide-p left right)
-                      (selection-batch--plan-error
-                       left "edit collides with selection %S"
-                       (selection-batch--edit-selection-id right)))))
+      ;; PLAN stores edits by descending beginning.  Reverse once, then validate
+      ;; all overlap and insertion/range collisions in one ordered interval pass.
+      (let ((furthest-end minimum) active same-begin insert-at-begin)
+        (dolist (edit (reverse (append edits nil)))
+          (let ((beginning (selection-batch--edit-beginning edit))
+                (end (selection-batch--edit-end edit)))
+            (unless (equal beginning same-begin)
+              (setq same-begin beginning insert-at-begin nil))
+            (when (< beginning furthest-end)
+              (selection-batch--plan-error
+               edit "edit collides with selection %S"
+               (selection-batch--edit-selection-id active)))
+            (if (= beginning end)
+                (setq insert-at-begin edit)
+              (when insert-at-begin
+                (selection-batch--plan-error
+                 edit "edit collides with selection %S"
+                 (selection-batch--edit-selection-id insert-at-begin)))
+              (when (> end furthest-end)
+                (setq furthest-end end active edit))))))
       (selection-batch--validate-result plan source (+ maximum delta)))
     plan))
 
+(defvar-local selection-batch--change-ledger nil
+  "Dynamically bound expected change notification for plan application.")
+
+(defvar-local selection-batch--trusted-property-rollbacks nil
+  "Rollback refresh functions registered by trusted property adapters.")
+
+(cl-defstruct (selection-batch--property-adapter
+               (:constructor selection-batch--property-adapter-create))
+  "Capability for one exact trusted property refresher and its rollback."
+  function rollback validator)
+
+(defvar selection-batch--property-adapters nil
+  "Registered trusted property-refresh capabilities.")
+
+(defvar selection-batch--plan-application-active nil
+  "Non-nil throughout a selection plan application lifecycle.")
+
+(defun selection-batch--ensure-property-adapters-mutable ()
+  "Reject property-adapter mutation during plan application."
+  (when selection-batch--plan-application-active
+    (error "Cannot mutate property adapters during plan application")))
+
+(defun selection-batch--register-property-adapter
+    (function rollback &optional validator)
+  "Register exact FUNCTION with ROLLBACK and optional VALIDATOR capability."
+  (selection-batch--ensure-property-adapters-mutable)
+  (unless (functionp function)
+    (signal 'wrong-type-argument (list 'functionp function)))
+  (unless (functionp rollback)
+    (signal 'wrong-type-argument (list 'functionp rollback)))
+  (when (and validator (not (functionp validator)))
+    (signal 'wrong-type-argument (list 'functionp validator)))
+  (let ((adapter (selection-batch--property-adapter-create
+                  :function function :rollback rollback
+                  :validator validator)))
+    (push adapter selection-batch--property-adapters)
+    adapter))
+
+(defun selection-batch--unregister-property-adapter (adapter)
+  "Revoke trusted property-refresh capability ADAPTER."
+  (selection-batch--ensure-property-adapters-mutable)
+  (setq selection-batch--property-adapters
+        (delq adapter selection-batch--property-adapters)))
+
+(defun selection-batch--validate-property-adapters ()
+  "Fail before mutation when any registered adapter has become unsafe."
+  (dolist (adapter selection-batch--property-adapters)
+    (let ((validator (selection-batch--property-adapter-validator adapter)))
+      (when validator (funcall validator adapter)))))
+
+(defun selection-batch--change-ledger-before (beginning end)
+  "Open the expected change notification at BEGINNING and END."
+  ;; Emacs normally inhibits recursive modification hooks while calling a
+  ;; change hook.  Re-enable them before ordinary hooks run so their nested
+  ;; edits cannot be silent to this transaction guard.
+  (setq inhibit-modification-hooks nil)
+  (unless (and selection-batch--change-ledger
+               (eq (plist-get selection-batch--change-ledger :phase) 'before)
+               (= beginning (plist-get selection-batch--change-ledger :beginning))
+               (= end (plist-get selection-batch--change-ledger :before-end)))
+    (error "Unexpected or nested buffer change before (%S %S)" beginning end))
+  (setf (plist-get selection-batch--change-ledger :phase) 'before-hooks
+        (plist-get selection-batch--change-ledger :modified-tick)
+        (buffer-modified-tick)
+        (plist-get selection-batch--change-ledger :chars-tick)
+        (buffer-chars-modified-tick)))
+
+(defun selection-batch--change-ledger-before-last (&rest _)
+  "Close the before-change phase after every ordinary hook has run."
+  (unless (and (eq (plist-get selection-batch--change-ledger :phase)
+                   'before-hooks)
+               (equal (cons (point-min) (point-max))
+                      (plist-get selection-batch--change-ledger :narrowing))
+               (= (buffer-modified-tick)
+                  (plist-get selection-batch--change-ledger :modified-tick))
+               (= (buffer-chars-modified-tick)
+                  (plist-get selection-batch--change-ledger :chars-tick)))
+    (error "A before-change hook performed an unexpected buffer change"))
+  (setf (plist-get selection-batch--change-ledger :phase) 'after))
+
+(defun selection-batch--change-ledger-after-first (beginning end old-length)
+  "Validate the leading after-change notification arguments."
+  (setq inhibit-modification-hooks nil)
+  (unless (and selection-batch--change-ledger
+               (eq (plist-get selection-batch--change-ledger :phase) 'after)
+               (= beginning (plist-get selection-batch--change-ledger :beginning))
+               (= end (plist-get selection-batch--change-ledger :after-end))
+               (= old-length (plist-get selection-batch--change-ledger :old-length)))
+    (error "Unexpected buffer change after (%S %S %S)"
+           beginning end old-length))
+  (setf (plist-get selection-batch--change-ledger :phase) 'after-hooks
+        (plist-get selection-batch--change-ledger :modified-tick)
+        (buffer-modified-tick)
+        (plist-get selection-batch--change-ledger :chars-tick)
+        (buffer-chars-modified-tick)))
+
+(defun selection-batch--call-trusted-property-refresh
+    (adapter function arguments)
+  "Call ADAPTER's trusted property FUNCTION with ARGUMENTS.
+
+Outside an active plan notification, call FUNCTION normally.  During one,
+FUNCTION may change only undo-suppressed properties: characters, narrowing,
+modified state, undo ownership, buffer ownership, and ledger phase must stay
+unchanged.  ADAPTER must be a registered capability for this exact FUNCTION;
+ordinary change hooks cannot nominate arbitrary functions during a plan."
+  (unless (and (memq adapter selection-batch--property-adapters)
+               (eq function
+                   (selection-batch--property-adapter-function adapter)))
+    (error "Unregistered or mismatched trusted property adapter"))
+  (if (not (and selection-batch--change-ledger
+                (eq (plist-get selection-batch--change-ledger :phase)
+                    'after-hooks)))
+      (apply function arguments)
+    (let ((buffer (current-buffer))
+          (ledger selection-batch--change-ledger)
+          (narrowing (cons (point-min) (point-max)))
+          (modified-p (buffer-modified-p))
+          (undo-list buffer-undo-list)
+          (modified-tick (buffer-modified-tick))
+          (chars-tick (buffer-chars-modified-tick)))
+      (unless (and
+               (equal narrowing
+                      (plist-get selection-batch--change-ledger
+                                 :after-narrowing))
+               (= modified-tick
+                  (plist-get selection-batch--change-ledger :modified-tick))
+               (= chars-tick
+                  (plist-get selection-batch--change-ledger :chars-tick)))
+        (error "Dirty ledger before trusted property refresh"))
+      ;; Register compensation before calling the trusted refresher.  It may
+      ;; signal after a partial undo-suppressed property mutation.
+      (cl-pushnew (selection-batch--property-adapter-rollback adapter)
+                  selection-batch--trusted-property-rollbacks
+                  :test #'eq)
+      (prog1
+          (save-current-buffer
+            (unwind-protect
+                (apply function arguments)
+              (unless (and (eq buffer (current-buffer))
+                           (buffer-live-p buffer)
+                           (with-current-buffer buffer
+                             (and (eq ledger selection-batch--change-ledger)
+                                  (eq (plist-get ledger :phase) 'after-hooks)
+                                  (equal narrowing
+                                         (cons (point-min) (point-max)))
+                                  (= chars-tick (buffer-chars-modified-tick))
+                                  (eq undo-list buffer-undo-list)
+                                  (equal modified-p (buffer-modified-p)))))
+                (error "Trusted property refresh changed protected state"))))
+        ;; Approve only the property tick produced by this exact wrapper.
+        ;; Any silent mutation in an earlier or later ordinary hook remains
+        ;; visible to this wrapper or the trailing ledger sentinel.
+        (setf (plist-get ledger :modified-tick) (buffer-modified-tick))))))
+
+(defun selection-batch--change-ledger-after-last (&rest _)
+  "Close a notification after every ordinary after-change hook has run."
+  (unless (and (eq (plist-get selection-batch--change-ledger :phase) 'after-hooks)
+               (equal (cons (point-min) (point-max))
+                      (plist-get selection-batch--change-ledger
+                                 :after-narrowing))
+               (= (buffer-modified-tick)
+                  (plist-get selection-batch--change-ledger :modified-tick))
+               (= (buffer-chars-modified-tick)
+                  (plist-get selection-batch--change-ledger :chars-tick)))
+    (error "Missing or nested buffer change notification"))
+  (setf (plist-get selection-batch--change-ledger :phase) 'done))
+
+(defun selection-batch--run-trusted-property-rollbacks ()
+  "Run every registered derived-property rollback refresh, then clear them."
+  (let (condition)
+    (dolist (function (prog1 selection-batch--trusted-property-rollbacks
+                        (setq selection-batch--trusted-property-rollbacks nil)))
+      (condition-case err
+          (funcall function)
+        ((error quit) (unless condition (setq condition err)))))
+    (when condition
+      (signal (car condition) (cdr condition)))))
+
+(defun selection-batch--change-ledger-call (function expected)
+  "Call FUNCTION while accepting exactly EXPECTED, or no notification if nil."
+  (let* ((narrowing (cons (point-min) (point-max)))
+         (after-narrowing
+          (and expected
+               (cons (car narrowing)
+                     (+ (cdr narrowing)
+                        (- (plist-get expected :after-end)
+                           (plist-get expected :beginning)
+                           (plist-get expected :old-length))))))
+         (selection-batch--change-ledger
+          (and expected
+               (append expected
+                       (list :phase 'before :narrowing narrowing
+                             :after-narrowing after-narrowing))))
+         (modified-tick (buffer-modified-tick))
+         (chars-tick (buffer-chars-modified-tick)))
+    ;; A hook is not allowed to transfer ownership of the accessible portion.
+    ;; Restore it even when the hook signals before the ledger can reject it.
+    (save-restriction (funcall function))
+    (unless (if expected
+                (and (eq (plist-get selection-batch--change-ledger :phase) 'done)
+                     (equal after-narrowing (cons (point-min) (point-max))))
+              (and (null selection-batch--change-ledger)
+                   (equal narrowing (cons (point-min) (point-max)))
+                   (= (buffer-modified-tick) modified-tick)
+                   (= (buffer-chars-modified-tick) chars-tick)))
+      (error "Invalid change ledger phase=%S modified-delta=%S chars-delta=%S"
+             (and selection-batch--change-ledger
+                  (plist-get selection-batch--change-ledger :phase))
+             (- (buffer-modified-tick) modified-tick)
+             (- (buffer-chars-modified-tick) chars-tick)))))
+
 (defun selection-batch--plan-primitive-edit (edit)
-  "Apply one already validated EDIT and expose ordinary change hooks."
-  (let ((beginning (selection-batch--edit-beginning edit))
-        (end (selection-batch--edit-end edit))
-        (replacement (selection-batch--edit-replacement edit)))
-    (delete-region beginning end)
+  "Apply one already validated EDIT and expose guarded ordinary change hooks."
+  (let* ((beginning (selection-batch--edit-beginning edit))
+         (end (selection-batch--edit-end edit))
+         (replacement (selection-batch--edit-replacement edit))
+         (deleted (- end beginning))
+         (inserted (length replacement)))
+    (selection-batch--change-ledger-call
+     (lambda () (delete-region beginning end))
+     (and (> deleted 0)
+          (list :beginning beginning :before-end end :after-end beginning
+                :old-length deleted)))
     (goto-char beginning)
-    (insert replacement)))
+    (selection-batch--change-ledger-call
+     (lambda () (insert replacement))
+     (and (> inserted 0)
+          (list :beginning beginning :before-end beginning
+                :after-end (+ beginning inserted) :old-length 0)))))
 
 (defvar selection-batch--plan-primitive-edit-function
   #'selection-batch--plan-primitive-edit
@@ -559,8 +806,10 @@ package state from copied values.  Command hooks are never replayed."
     ;; useful lifecycle error even after an outer primitive changed text.
     (when (eq (selection-batch--session-state session) 'applying)
       (user-error "A selection plan is already being applied"))
-    (selection-batch-validate-plan plan)
-    (let* ((before (selection-batch-current-snapshot))
+    (let ((selection-batch--plan-application-active t))
+      (selection-batch-validate-plan plan)
+      (selection-batch--validate-property-adapters)
+      (let* ((before (selection-batch-current-snapshot))
            (old-live (selection-batch--session-selections session))
            (old-primary (selection-batch--plan-copy-value
                          (selection-batch--session-primary-id session)))
@@ -576,68 +825,151 @@ package state from copied values.  Command hooks are never replayed."
                         selection-batch-last-recipe))
            (old-refresh selection-batch--view-refresh-function)
            (old-destroy selection-batch--view-destroy-function)
+           (selection-batch--trusted-property-rollbacks nil)
            ;; Prepare every value that can fail validation before touching text.
            (edits (vconcat (mapcar #'selection-batch--copy-edit
                                    (append (selection-batch--plan-edits plan) nil))))
-           (future-history (selection-batch--history-push before old-history))
            (future-register
             (selection-batch--apply-update
              selection-batch-register (selection-batch--plan-register-update plan)))
            (future-recipe
             (selection-batch--apply-update
              selection-batch-last-recipe (selection-batch--plan-recipe plan)))
-           condition)
+           condition completed compensation-attempted result
+           (restore
+            (lambda ()
+              (let (restoration-error)
+                (condition-case err
+                    (progn
+                      (when (and (selection-batch--session-selections session)
+                                 (not (eq (selection-batch--session-selections
+                                           session)
+                                          old-live)))
+                        (selection-batch--detach-selections
+                         (selection-batch--session-selections session)))
+                      (selection-batch--restore-live-markers
+                       session before old-live)
+                      (setf (selection-batch--session-history session) old-history
+                            (selection-batch--session-redo session) old-redo
+                            (selection-batch--session-generation session)
+                            old-generation
+                            (selection-batch--session-state session) old-state
+                            (selection-batch--session-primary-id session)
+                            old-primary)
+                      (selection-batch--restore-watched-global
+                       'selection-batch-register old-register)
+                      (selection-batch--restore-watched-global
+                       'selection-batch-last-recipe old-recipe)
+                      (setq selection-batch--view-refresh-function old-refresh
+                            selection-batch--view-destroy-function old-destroy)
+                      (selection-batch--run-trusted-property-rollbacks)
+                      (when (functionp old-refresh)
+                        (funcall old-refresh session)))
+                  ((error quit) (setq restoration-error err)))
+                restoration-error)))
+           (compensate
+            (lambda ()
+              (let (returned restoration-error)
+                (unwind-protect
+                    (progn
+                      (setq restoration-error (funcall restore)
+                            returned t)
+                      restoration-error)
+                  (unless returned
+                    ;; Publish the fail-closed state before invoking any
+                    ;; potentially hostile teardown callback.  Direct marker
+                    ;; detachment also makes the abandoned session unusable if
+                    ;; callback cleanup itself exits nonlocally.
+                    (setq selection-batch--session nil)
+                    (selection-batch--detach-selections
+                     (selection-batch--session-selections session))
+                    (unwind-protect
+                        (ignore-errors
+                          (selection-batch--cleanup session nil t))
+                      (error "Plan compensation exited nonlocally"))))))))
       (undo-boundary)
-      (condition-case err
-          (atomic-change-group
+      (unwind-protect
+          (progn
+            (condition-case err
+                (setq result
+                      (atomic-change-group
             (setf (selection-batch--session-state session) 'applying)
-            (dolist (edit (append edits nil))
-              (funcall selection-batch--plan-primitive-edit-function edit))
+            ;; Original-coordinate edits must not pay for shifting every
+            ;; secondary marker and overlay after every primitive mutation.
+            ;; BEFORE retains all integer positions for compensation.
+            (selection-batch--destroy-derived-view session)
+            (selection-batch--detach-selections old-live)
+            (add-hook 'before-change-functions
+                        #'selection-batch--change-ledger-before
+                        most-negative-fixnum t)
+              (add-hook 'before-change-functions
+                        #'selection-batch--change-ledger-before-last
+                        most-positive-fixnum t)
+              (add-hook 'after-change-functions
+                        #'selection-batch--change-ledger-after-first
+                        most-negative-fixnum t)
+              (add-hook 'after-change-functions
+                        #'selection-batch--change-ledger-after-last
+                        most-positive-fixnum t)
+              ;; Remove the sentinels before `atomic-change-group' performs
+              ;; rollback: compensation changes are not plan primitives.
+              (unwind-protect
+                  (dolist (edit (append edits nil))
+                    (funcall selection-batch--plan-primitive-edit-function edit))
+                (remove-hook 'before-change-functions
+                             #'selection-batch--change-ledger-before t)
+                (remove-hook 'before-change-functions
+                             #'selection-batch--change-ledger-before-last t)
+                (remove-hook 'after-change-functions
+                             #'selection-batch--change-ledger-after-first t)
+                (remove-hook 'after-change-functions
+                             #'selection-batch--change-ledger-after-last t))
             (let ((result (selection-batch--plan-result-snapshot plan)))
               (funcall selection-batch--plan-install-result-function
                        session result)
               (funcall selection-batch--plan-refresh-view-function session))
             ;; All package commits, especially watcher-capable globals, remain
             ;; inside both the text rollback and state compensation boundary.
-            (setf (selection-batch--session-history session) future-history
+            ;; Text edits invalidate integer-only selection history.  Treat every
+            ;; successful plan as a barrier while rollback still restores both.
+            (setf (selection-batch--session-history session) nil
                   (selection-batch--session-redo session) nil
                   (selection-batch--session-state session) 'set)
-            (selection-batch--commit-watched-globals
-             future-register future-recipe)
-            (selection-batch--detach-selections old-live))
-        ((error quit) (setq condition err)))
-      (if condition
-          (let (restoration-error)
-            ;; `atomic-change-group' has aborted before this handler continues.
-            (condition-case restore
-                (progn
-                  (when (and (selection-batch--session-selections session)
-                             (not (eq (selection-batch--session-selections session)
-                                      old-live)))
+                        (selection-batch--commit-watched-globals
+                         future-register future-recipe)
+                        (selection-batch--detach-selections old-live)
+                        ;; These operations can run hooks or validate live
+                        ;; state, so they must precede transaction commit.
+                        (undo-boundary)
+                        (selection-batch-current-snapshot))
+                      completed t)
+              ((error quit) (setq condition err)))
+            (if condition
+                (let ((restoration-error
+                       (progn
+                         (setq compensation-attempted t)
+                         (funcall compensate))))
+                  (when restoration-error
+                    (setq selection-batch--session nil)
                     (selection-batch--detach-selections
-                     (selection-batch--session-selections session)))
-                  (selection-batch--restore-live-markers session before old-live)
-                  (setf (selection-batch--session-history session) old-history
-                        (selection-batch--session-redo session) old-redo
-                        (selection-batch--session-generation session) old-generation
-                        (selection-batch--session-state session) old-state
-                        (selection-batch--session-primary-id session) old-primary)
-                  (selection-batch--restore-watched-global
-                   'selection-batch-register old-register)
-                  (selection-batch--restore-watched-global
-                   'selection-batch-last-recipe old-recipe)
-                  (setq selection-batch--view-refresh-function old-refresh
-                        selection-batch--view-destroy-function old-destroy)
-                  (when (functionp old-refresh) (funcall old-refresh session)))
-              ((error quit) (setq restoration-error restore)))
+                     (selection-batch--session-selections session))
+                    (ignore-errors (selection-batch--cleanup session nil t))
+                    (error "Plan failed (%S); compensation failed (%S)"
+                           condition restoration-error))
+                  (signal (car condition) (cdr condition)))
+              result))
+        ;; This cleanup also runs for a clean `throw', after the atomic change
+        ;; group has restored text but before the original throw propagates.
+        (unless (or completed compensation-attempted)
+          (setq compensation-attempted t)
+          (let ((restoration-error (funcall compensate)))
             (when restoration-error
-              (ignore-errors (selection-batch--cleanup session nil t))
               (setq selection-batch--session nil)
-              (error "Plan failed (%S); compensation failed (%S)"
-                     condition restoration-error))
-            (signal (car condition) (cdr condition)))
-        (undo-boundary)
-        (selection-batch-current-snapshot)))))
+              (selection-batch--detach-selections
+               (selection-batch--session-selections session))
+              (ignore-errors (selection-batch--cleanup session nil t))
+              (error "Plan compensation failed during nonlocal exit (%S)"
+                     restoration-error)))))))))
 
 (provide 'selection-batch-plan)
 ;;; selection-batch-plan.el ends here

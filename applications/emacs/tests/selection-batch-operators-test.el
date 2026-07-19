@@ -339,6 +339,19 @@
     (should (equal '((a 1 2) (b 2 3))
                    (selection-batch-operators-test--ranges)))))
 
+(ert-deftest selection-batch-text-plan-clears-selection-history-and-redo ()
+  (selection-batch-operators-test--with-session "abc" '((a 1 2) (b 2 3)) 'a
+    (selection-batch-apply-transform #'selection-batch-transform-reverse)
+    (selection-batch-apply-transform #'selection-batch-transform-rotate-primary)
+    (selection-batch-selection-undo)
+    (should (selection-batch--session-history selection-batch--session))
+    (should (selection-batch--session-redo selection-batch--session))
+    (selection-batch-replace "X")
+    (should-not (selection-batch--session-history selection-batch--session))
+    (should-not (selection-batch--session-redo selection-batch--session))
+    (should-error (selection-batch-selection-undo) :type 'user-error)
+    (should-error (selection-batch-selection-redo) :type 'user-error)))
+
 (ert-deftest selection-batch-safe-text-undo-collapses-stale-secondary-state ()
   (selection-batch-operators-test--with-session "abc" '((a 1 2) (b 2 3)) 'a
     (selection-batch-replace "X")

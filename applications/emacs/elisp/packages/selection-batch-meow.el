@@ -1,5 +1,8 @@
 ;;; selection-batch-meow.el --- Optional Meow frontend -*- lexical-binding: t; -*-
 
+;; Copyright (C) 2026 Yus314
+;; SPDX-License-Identifier: GPL-3.0-or-later
+
 ;;; Commentary:
 ;; One opt-in `g' prefix exposes the same grammar as the short-lived transaction
 ;; map.  Loading this library neither enables Meow nor starts a batch session.

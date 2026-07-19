@@ -1,4 +1,7 @@
-;;; selection-batch-operators.el --- Typed selection batch operators -*- lexical-binding: t; -*-
+;;; selection-batch-operators.el --- Batch operators -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2026 Yus314
+;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;;; Commentary:
 ;; Pure planners for fixed batch operations.  Public text commands snapshot once,
@@ -88,7 +91,8 @@ PRIMARY-INDEX must name one value; METADATA must contain no required shape."
    :selections (vconcat selections)))
 
 (defun selection-batch--operator-plan (source edits results primary recipe
-                                              &optional register-update)
+                                              &optional register-update
+                                              edits-ordered-p)
   "Build a validated immutable operator plan from SOURCE."
   (selection-batch-plan-create
    :buffer (selection-batch-snapshot-buffer source)
@@ -96,6 +100,7 @@ PRIMARY-INDEX must name one value; METADATA must contain no required shape."
    :source-generation (selection-batch-snapshot-generation source)
    :source-narrowing (selection-batch-snapshot-narrowing source)
    :edits (vconcat edits)
+   :edits-ordered-p edits-ordered-p
    :result-policy (selection-batch--operator-result-snapshot
                    source results primary)
    :register-update (if (null register-update)
@@ -307,6 +312,37 @@ A contained primary caret donates its ID to its component."
      source points (make-list (length points) string)
      (if after-p 'insert-after 'insert-before)
      (list (copy-sequence string)) 'select nil original)))
+
+(defun selection-batch--plan-caret-insert (source string)
+  "Plan literal STRING insertion at each empty caret in SOURCE in O(N).
+Result positions are computed by one position-sorted pass.  Duplicate caret
+positions are rejected because they cannot have unambiguous ownership."
+  (unless (stringp string) (signal 'wrong-type-argument (list 'stringp string)))
+  (let* ((selections (selection-batch--operator-selections source))
+         (results (make-vector (length selections) nil))
+         (delta 0) previous edits)
+    (cl-loop for selection in selections for index from 0
+      do
+      (unless (selection-batch-selection-empty-p selection)
+        (user-error "Batch insertion requires empty carets"))
+      (let ((position (selection-batch-selection-beginning selection)))
+        (when (and previous (<= position previous))
+          (user-error "Batch insertion carets share position %d" position))
+        (setq previous position)
+        (let* ((result-position (+ position delta (length string)))
+               (result (selection-batch-snapshot-selection-create
+                        :id (selection-batch-snapshot-selection-id selection)
+                        :anchor result-position :cursor result-position)))
+          (aset results index result)
+          (push (selection-batch-edit-create
+                 :selection-id (selection-batch-snapshot-selection-id selection)
+                 :logical-index index :beginning position :end position
+                 :replacement string :result result :tie-break index)
+                edits)
+          (cl-incf delta (length string)))))
+    (selection-batch--operator-plan
+     source edits (append results nil)
+     (selection-batch-snapshot-primary-id source) nil nil t)))
 
 (defun selection-batch-insert-before (string)
   "Insert fixed STRING before every selection in deterministic logical order."

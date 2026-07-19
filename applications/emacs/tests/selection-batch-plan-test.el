@@ -259,6 +259,104 @@
 (ert-deftest selection-batch-quit-rolls-back-every-domain ()
   (selection-batch-plan-test--failure-case 'quit 'edit))
 
+(ert-deftest selection-batch-clean-throw-rolls-back-and-propagates ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 1 2) (b 5 6)) 'a
+    (let* ((session selection-batch--session)
+           (before (selection-batch-current-snapshot))
+           (old-live (selection-batch--session-selections session))
+           (selection-batch-register '(:old "register"))
+           (selection-batch-last-recipe '(:old "recipe"))
+           (plan (selection-batch-plan-test--plan
+                  before
+                  (list (selection-batch-plan-test--edit 'a 0 1 2 "XX" 1 3)
+                        (selection-batch-plan-test--edit 'b 1 5 6 "YY" 6 8))
+                  '((a 1 3) (b 6 8)) nil
+                  '(:new "register") '(:new "recipe")))
+           (primitive selection-batch--plan-primitive-edit-function)
+           (calls 0)
+           (selection-batch--plan-primitive-edit-function
+            (lambda (edit)
+              (funcall primitive edit)
+              (when (= (cl-incf calls) 1)
+                (throw 'selection-batch-test-exit 'original-throw)))))
+      (should (eq 'original-throw
+                  (catch 'selection-batch-test-exit
+                    (selection-batch-apply-plan plan))))
+      (should (equal "abcdef" (buffer-string)))
+      (should (eq old-live (selection-batch--session-selections session)))
+      (should (equal (selection-batch-plan-test--triples before)
+                     (selection-batch-plan-test--triples
+                      (selection-batch-current-snapshot))))
+      (should (equal '(:old "register") selection-batch-register))
+      (should (equal '(:old "recipe") selection-batch-last-recipe))
+      (should (eq 'set (selection-batch--session-state session)))
+      (dolist (selection (append old-live nil))
+        (dolist (marker
+                 (list (selection-batch--live-selection-anchor-marker selection)
+                       (selection-batch--live-selection-cursor-marker selection)))
+          (when (markerp marker)
+            (should (marker-buffer marker))))))))
+
+(ert-deftest selection-batch-clean-throw-compensation-throw-fails-closed ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 1 2)) 'a
+    (let* ((session selection-batch--session)
+           (live (selection-batch--session-selections session))
+           (source (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source
+                  (list (selection-batch-plan-test--edit 'a 0 1 2 "X" 1 2))
+                  '((a 1 2))))
+           (selection-batch--view-refresh-function
+            (lambda (&rest _) (throw 'compensation-exit t)))
+           (selection-batch--plan-primitive-edit-function
+            (lambda (_edit) (throw 'original-exit t)))
+           (error
+            (should-error
+             (catch 'compensation-exit
+               (catch 'original-exit
+                 (selection-batch-apply-plan plan)))
+             :type 'error)))
+      (should (string-match-p "compensation exited nonlocally"
+                              (error-message-string error)))
+      (should-not selection-batch--session)
+      (should-not (selection-batch-active-p))
+      (dolist (selection (append live nil))
+        (dolist (marker
+                 (list (selection-batch--live-selection-anchor-marker selection)
+                       (selection-batch--live-selection-cursor-marker selection)))
+          (when (markerp marker)
+            (should-not (marker-buffer marker))))))))
+
+(ert-deftest selection-batch-final-snapshot-throw-rolls-back-and-propagates ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 1 2)) 'a
+    (let* ((session selection-batch--session)
+           (before (selection-batch-current-snapshot))
+           (old-live (selection-batch--session-selections session))
+           (plan (selection-batch-plan-test--plan
+                  before
+                  (list (selection-batch-plan-test--edit 'a 0 1 2 "XX" 1 3))
+                  '((a 1 3))))
+           (snapshot-function (symbol-function 'selection-batch-current-snapshot))
+           (calls 0))
+      (cl-letf (((symbol-function 'selection-batch-current-snapshot)
+                 (lambda ()
+                   ;; The first call captures compensation state before any
+                   ;; mutation; fail only at the final snapshot inside the
+                   ;; atomic change group.
+                   (if (= (cl-incf calls) 2)
+                       (throw 'final-snapshot-exit 'original-final-throw)
+                     (funcall snapshot-function)))))
+        (should (eq 'original-final-throw
+                    (catch 'final-snapshot-exit
+                      (selection-batch-apply-plan plan)))))
+      (should (= calls 2))
+      (should (equal "abcdef" (buffer-string)))
+      (should (eq session selection-batch--session))
+      (should (eq old-live (selection-batch--session-selections session)))
+      (should (equal (selection-batch-plan-test--triples before)
+                     (selection-batch-plan-test--triples
+                      (selection-batch-current-snapshot)))))))
+
 (ert-deftest selection-batch-result-install-error-rolls-back-every-domain ()
   (selection-batch-plan-test--failure-case 'error 'install))
 
@@ -303,6 +401,367 @@
       (should (= 4 (length after)))
       (should-not pre-command)
       (should-not post-command))))
+
+(ert-deftest selection-batch-silent-hook-text-edit-rolls-back-entire-plan ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 1 2) (b 5 6)) 'a
+    (let* ((source (selection-batch-current-snapshot))
+           (before (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source
+                  (list (selection-batch-plan-test--edit 'a 0 1 2 "X" 1 2)
+                        (selection-batch-plan-test--edit 'b 1 5 6 "Y" 5 6))
+                  '((a 1 2) (b 5 6))))
+           (mutated nil))
+      (add-hook 'after-change-functions
+                (lambda (&rest _)
+                  (unless mutated
+                    (setq mutated t)
+                    (save-excursion
+                      (goto-char 3)
+                      (insert "!"))))
+                nil t)
+      (should-error (selection-batch-apply-plan plan) :type 'error)
+      (should (equal "abcdef" (buffer-string)))
+      (should (equal (selection-batch-plan-test--triples before)
+                     (selection-batch-plan-test--triples
+                      (selection-batch-current-snapshot)))))))
+
+(ert-deftest selection-batch-hook-property-edit-rolls-back-properties-and-state ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 2 3)) 'a
+    (let* ((source (selection-batch-current-snapshot))
+           (before (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source (list (selection-batch-plan-test--edit
+                                'a 0 2 3 "X" 2 3)) '((a 2 3))))
+           (changed nil))
+      (add-hook 'after-change-functions
+                (lambda (&rest _)
+                  (unless changed
+                    (setq changed t)
+                    (put-text-property 4 5 'face 'bold))) nil t)
+      (should-error (selection-batch-apply-plan plan) :type 'error)
+      (should (equal "abcdef" (buffer-string)))
+      (should-not (text-property-any (point-min) (point-max) 'face 'bold))
+      (should (equal (selection-batch-plan-test--triples before)
+                     (selection-batch-plan-test--triples
+                      (selection-batch-current-snapshot)))))))
+
+(ert-deftest selection-batch-explicit-trusted-property-refresh-is-accepted ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 2 3)) 'a
+    (let* ((source (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source (list (selection-batch-plan-test--edit
+                                'a 0 2 3 "X" 2 3)) '((a 2 3))))
+           (refresh
+            (lambda (beginning end _old-length)
+              (with-silent-modifications
+                (put-text-property beginning end 'selection-derived t))))
+           (rollback
+            (lambda ()
+              (with-silent-modifications
+                (remove-text-properties (point-min) (point-max)
+                                        '(selection-derived nil)))))
+           (adapter (selection-batch--register-property-adapter
+                     refresh rollback)))
+      (unwind-protect
+          (progn
+            (add-hook
+             'after-change-functions
+             (lambda (&rest args)
+               (selection-batch--call-trusted-property-refresh
+                adapter refresh args))
+             0 t)
+            (selection-batch-apply-plan plan)
+            (should (equal "aXcdef" (buffer-string)))
+            (should (text-property-any 2 3 'selection-derived t)))
+        (selection-batch--unregister-property-adapter adapter)))))
+
+(ert-deftest selection-batch-untrusted-silent-property-after-trusted-is-rejected ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 2 3)) 'a
+    (let* ((source (selection-batch-current-snapshot))
+           (before (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source (list (selection-batch-plan-test--edit
+                                'a 0 2 3 "X" 2 3)) '((a 2 3))))
+           (refresh
+            (lambda (&rest _)
+              (with-silent-modifications
+                (put-text-property 2 3 'selection-derived t))))
+           (rollback
+            (lambda ()
+              (with-silent-modifications
+                (remove-text-properties (point-min) (point-max)
+                                        '(selection-derived nil)))))
+           (adapter (selection-batch--register-property-adapter
+                     refresh rollback)))
+      (unwind-protect
+          (progn
+            (add-hook
+             'after-change-functions
+             (lambda (&rest args)
+               (selection-batch--call-trusted-property-refresh
+                adapter refresh args))
+             0 t)
+            (add-hook
+             'after-change-functions
+             (lambda (&rest _)
+               (with-silent-modifications
+                 (put-text-property 4 5 'read-only t)))
+             10 t)
+            (should-error (selection-batch-apply-plan plan) :type 'error)
+            (should (equal "abcdef" (buffer-string)))
+            (should-not (text-property-any (point-min) (point-max)
+                                           'selection-derived t))
+            (should (equal (selection-batch-plan-test--triples before)
+                           (selection-batch-plan-test--triples
+                            (selection-batch-current-snapshot)))))
+        (selection-batch--unregister-property-adapter adapter)))))
+
+(ert-deftest selection-batch-signalling-trusted-property-refresh-is-compensated ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 2 3)) 'a
+    (let* ((source (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source (list (selection-batch-plan-test--edit
+                                'a 0 2 3 "X" 2 3)) '((a 2 3))))
+           (refresh
+            (lambda (&rest _)
+              (with-silent-modifications
+                (put-text-property 4 5 'selection-derived t))
+              (error "trusted refresh failed after mutation")))
+           (rollback
+            (lambda ()
+              (with-silent-modifications
+                (remove-text-properties (point-min) (point-max)
+                                        '(selection-derived nil)))))
+           (adapter (selection-batch--register-property-adapter
+                     refresh rollback)))
+      (unwind-protect
+          (progn
+            (add-hook
+             'after-change-functions
+             (lambda (&rest args)
+               (selection-batch--call-trusted-property-refresh
+                adapter refresh args))
+             0 t)
+            (should-error (selection-batch-apply-plan plan) :type 'error)
+            (should (equal "abcdef" (buffer-string)))
+            (should-not (text-property-any (point-min) (point-max)
+                                           'selection-derived t)))
+        (selection-batch--unregister-property-adapter adapter)))))
+
+(ert-deftest selection-batch-signalling-trusted-refresh-validates-protected-state ()
+  (dolist (mutation
+           (list
+            (lambda (_owner _other)
+              (switch-to-buffer
+               (get-buffer-create " *selection-batch-other*")))
+            (lambda (_owner _other) (narrow-to-region 2 4))
+            (lambda (_owner _other)
+              (let ((inhibit-modification-hooks t)) (insert "!")))
+            (lambda (_owner _other) (set-buffer-modified-p nil))
+            (lambda (_owner _other)
+              (setq buffer-undo-list (cons nil buffer-undo-list)))))
+    (selection-batch-plan-test--with-session "abcdef" '((a 2 3)) 'a
+      (let* ((owner (current-buffer))
+             (other (get-buffer-create " *selection-batch-other*"))
+             (source (selection-batch-current-snapshot))
+             (plan (selection-batch-plan-test--plan
+                    source (list (selection-batch-plan-test--edit
+                                  'a 0 2 3 "X" 2 3)) '((a 2 3))))
+             (rollback-buffer nil)
+             (refresh (lambda (&rest _)
+                        (funcall mutation owner other)
+                        (error "original trusted refresh failure")))
+             (rollback (lambda () (setq rollback-buffer (current-buffer))))
+             (adapter
+              (selection-batch--register-property-adapter refresh rollback)))
+        (unwind-protect
+            (progn
+              (add-hook 'after-change-functions
+                        (lambda (&rest args)
+                          (selection-batch--call-trusted-property-refresh
+                           adapter refresh args))
+                        0 t)
+              (let ((error (should-error (selection-batch-apply-plan plan)
+                                         :type 'error)))
+                (should (string-match-p "changed protected state"
+                                        (error-message-string error))))
+              (should (eq rollback-buffer owner))
+              (should (eq (current-buffer) owner))
+              (should (equal "abcdef" (buffer-string))))
+          (selection-batch--unregister-property-adapter adapter)
+          (when (buffer-live-p other) (kill-buffer other)))))))
+
+(ert-deftest selection-batch-signalling-trusted-refresh-preserves-original-error ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 2 3)) 'a
+    (let* ((source (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source (list (selection-batch-plan-test--edit
+                                'a 0 2 3 "X" 2 3)) '((a 2 3))))
+           (refresh (lambda (&rest _) (error "original trusted failure")))
+           (adapter (selection-batch--register-property-adapter refresh #'ignore)))
+      (unwind-protect
+          (progn
+            (add-hook 'after-change-functions
+                      (lambda (&rest args)
+                        (selection-batch--call-trusted-property-refresh
+                         adapter refresh args))
+                      0 t)
+            (let ((error (should-error (selection-batch-apply-plan plan))))
+              (should (string-match-p "original trusted failure"
+                                      (error-message-string error)))))
+        (selection-batch--unregister-property-adapter adapter)))))
+
+(ert-deftest selection-batch-trusted-refresh-validates-quit-and-throw ()
+  (dolist (exit (list (lambda () (signal 'quit nil))
+                      (lambda () (throw 'trusted-refresh-exit t))))
+    (selection-batch-plan-test--with-session "abcdef" '((a 2 3)) 'a
+      (let* ((source (selection-batch-current-snapshot))
+             (plan (selection-batch-plan-test--plan
+                    source (list (selection-batch-plan-test--edit
+                                  'a 0 2 3 "X" 2 3)) '((a 2 3))))
+             (refresh (lambda (&rest _)
+                        (set-buffer-modified-p nil)
+                        (funcall exit)))
+             (adapter (selection-batch--register-property-adapter
+                       refresh #'ignore)))
+        (unwind-protect
+            (progn
+              (add-hook 'after-change-functions
+                        (lambda (&rest args)
+                          (selection-batch--call-trusted-property-refresh
+                           adapter refresh args))
+                        0 t)
+              (let ((error
+                     (should-error
+                      (catch 'trusted-refresh-exit
+                        (selection-batch-apply-plan plan))
+                      :type 'error)))
+                (should (string-match-p "changed protected state"
+                                        (error-message-string error))))
+              (should (equal "abcdef" (buffer-string))))
+          (selection-batch--unregister-property-adapter adapter))))))
+
+(ert-deftest selection-batch-property-adapters-immutable-after-ledger-phase ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 2 3)) 'a
+    (let* ((source (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source (list (selection-batch-plan-test--edit
+                                'a 0 2 3 "X" 2 3)) '((a 2 3))))
+           (adapter (selection-batch--register-property-adapter #'ignore #'ignore))
+           (original selection-batch--plan-install-result-function))
+      (unwind-protect
+          (dolist (operation
+                   (list (lambda ()
+                           (selection-batch--register-property-adapter
+                            #'ignore #'ignore))
+                         (lambda ()
+                           (selection-batch--unregister-property-adapter adapter))))
+            (let ((selection-batch--plan-install-result-function
+                   (lambda (&rest arguments)
+                     (should-not selection-batch--change-ledger)
+                     (funcall operation)
+                     (apply original arguments))))
+              (should-error (selection-batch-apply-plan plan) :type 'error)
+              (should (memq adapter selection-batch--property-adapters))
+              (should (equal "abcdef" (buffer-string)))))
+        (selection-batch--unregister-property-adapter adapter)))))
+
+(ert-deftest selection-batch-unregistered-hook-cannot-nominate-property-refresh ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 2 3)) 'a
+    (let* ((source (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source (list (selection-batch-plan-test--edit
+                                'a 0 2 3 "X" 2 3)) '((a 2 3)))))
+      (add-hook
+       'after-change-functions
+       (lambda (&rest args)
+         (selection-batch--call-trusted-property-refresh
+          nil
+          (lambda (&rest _)
+            (with-silent-modifications
+              (put-text-property 4 5 'read-only t)))
+          args))
+       0 t)
+      (should-error (selection-batch-apply-plan plan) :type 'error)
+      (should (equal "abcdef" (buffer-string)))
+      (should-not (text-property-any (point-min) (point-max) 'read-only t)))))
+
+(ert-deftest selection-batch-hook-widened-edit-rolls-back-outside-narrowing ()
+  (selection-batch-plan-test--with-session "0123456789" '((a 3 4)) 'a
+    (narrow-to-region 2 7)
+    (let* ((source (selection-batch-current-snapshot))
+           (before (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source (list (selection-batch-plan-test--edit
+                                'a 0 3 4 "X" 3 4)) '((a 3 4))))
+           (changed nil))
+      (add-hook 'after-change-functions
+                (lambda (&rest _)
+                  (unless changed
+                    (setq changed t)
+                    (save-restriction
+                      (widen)
+                      (goto-char (point-max))
+                      (insert "!")))) nil t)
+      (should-error (selection-batch-apply-plan plan) :type 'error)
+      (save-restriction
+        (widen)
+        (should (equal "0123456789" (buffer-string))))
+      (should (equal (selection-batch-plan-test--triples before)
+                     (selection-batch-plan-test--triples
+                      (selection-batch-current-snapshot)))))))
+
+(ert-deftest selection-batch-change-ledger-precedes-hostile-hook-depth ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 2 2)) 'a
+    (let* ((source (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source (list (selection-batch-plan-test--edit
+                                'a 0 2 2 "X" 2 3)) '((a 2 3))))
+           (changed nil))
+      (add-hook 'before-change-functions
+                (lambda (&rest _)
+                  (unless changed
+                    (setq changed t)
+                    (save-excursion
+                      (goto-char (point-max))
+                      (insert "!"))))
+                -200 t)
+      (should-error (selection-batch-apply-plan plan) :type 'error)
+      (should (equal "abcdef" (buffer-string))))))
+
+(ert-deftest selection-batch-change-ledger-restores-hook-narrowing ()
+  (selection-batch-plan-test--with-session "0123456789" '((a 3 3)) 'a
+    (narrow-to-region 2 7)
+    (let* ((bounds (cons (point-min) (point-max)))
+           (source (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source (list (selection-batch-plan-test--edit
+                                'a 0 3 3 "X" 3 4)) '((a 3 4)))))
+      (add-hook 'after-change-functions (lambda (&rest _) (widen)) nil t)
+      (should-error (selection-batch-apply-plan plan) :type 'error)
+      (should (equal bounds (cons (point-min) (point-max))))
+      (save-restriction
+        (widen)
+        (should (equal "0123456789" (buffer-string)))))))
+
+(ert-deftest selection-batch-change-ledger-preserves-observation-hook-sequence ()
+  (selection-batch-plan-test--with-session "abcdef" '((a 2 4)) 'a
+    (let* ((source (selection-batch-current-snapshot))
+           (plan (selection-batch-plan-test--plan
+                  source (list (selection-batch-plan-test--edit
+                                'a 0 2 4 "XYZ" 2 5)) '((a 2 5))))
+           events)
+      (add-hook 'before-change-functions
+                (lambda (beginning end) (push (list 'before beginning end) events))
+                nil t)
+      (add-hook 'after-change-functions
+                (lambda (beginning end old-length)
+                  (push (list 'after beginning end old-length) events)) nil t)
+      (selection-batch-apply-plan plan)
+      (should (equal '((before 2 4) (after 2 2 2)
+                       (before 2 2) (after 2 5 0))
+                     (nreverse events))))))
 
 (ert-deftest selection-batch-replacements-are-fully-copied-before-first-edit ()
   (selection-batch-plan-test--with-session "abcdef" '((a 1 2) (b 5 6)) 'a

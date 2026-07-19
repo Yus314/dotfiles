@@ -267,6 +267,86 @@
                      (selection-batch-test--triples
                       (selection-batch-provider-snapshot matches)))))))
 
+(ert-deftest selection-batch-add-same-occurrence-is-incremental-and-primary ()
+  (selection-batch-test--with-buffer "aa x aa y aa"
+    (let* ((start (selection-batch-test--snapshot
+                   (current-buffer) '((origin 1 3)) 'origin))
+           (second (selection-batch-transform-add-same start 'next))
+           (third (selection-batch-transform-add-same second 'next)))
+      (should (equal '((origin 1 3) ("occurrence-0" 6 8))
+                     (selection-batch-test--triples second)))
+      (should (equal "occurrence-0"
+                     (selection-batch-snapshot-primary-id second)))
+      (should (equal '((origin 1 3)
+                       ("occurrence-0" 6 8)
+                       ("occurrence-1" 11 13))
+                     (selection-batch-test--triples third)))
+      (should (equal "occurrence-1"
+                     (selection-batch-snapshot-primary-id third)))
+      (should-error (selection-batch-transform-add-same third 'previous)
+                    :type 'user-error))))
+
+(ert-deftest selection-batch-add-same-previous-sorts-and-preserves-direction ()
+  (selection-batch-test--with-buffer "aa x aa y aa"
+    (let* ((start (selection-batch-test--snapshot
+                   (current-buffer) '((source 8 6)) 'source))
+           (result (selection-batch-transform-add-same start 'previous)))
+      (should (equal '(("occurrence-0" 1 3) (source 8 6))
+                     (selection-batch-test--triples result)))
+      (should (equal "occurrence-0"
+                     (selection-batch-snapshot-primary-id result))))))
+
+(ert-deftest selection-batch-add-same-rejects-invalid-or-missing-match ()
+  (selection-batch-test--with-buffer "aa bb aa"
+    (let ((mixed (selection-batch-test--snapshot
+                  (current-buffer) '((a 1 3) (b 4 6)) 'a))
+          (empty (selection-batch-test--snapshot
+                  (current-buffer) '((a 1 1)) 'a))
+          (last (selection-batch-test--snapshot
+                 (current-buffer) '((a 7 9)) 'a)))
+      (should-error (selection-batch-transform-add-same mixed 'next)
+                    :type 'user-error)
+      (should-error (selection-batch-transform-add-same empty 'next)
+                    :type 'user-error)
+      (should-error (selection-batch-transform-add-same last 'next)
+                    :type 'user-error)
+      (should-error (selection-batch-transform-add-same last 'sideways)
+                    :type 'user-error)))
+  (selection-batch-test--with-buffer "aa aa aa"
+    (narrow-to-region 4 (point-max))
+    (let* ((start (selection-batch-test--snapshot
+                   (current-buffer) '((a 4 6)) 'a))
+           (result (selection-batch-transform-add-same start 'next)))
+      (should (equal '((a 4 6) ("occurrence-0" 7 9))
+                     (selection-batch-test--triples result))))))
+
+(ert-deftest selection-batch-add-same-rejects-stale-tick-and-scope ()
+  (selection-batch-test--with-buffer "aa aa aa"
+    (let ((stale (selection-batch-test--snapshot
+                  (current-buffer) '((a 1 3)) 'a)))
+      (goto-char (point-max))
+      (insert "!")
+      (should-error (selection-batch-transform-add-same stale 'next)
+                    :type 'user-error))
+    (narrow-to-region 1 6)
+    (let ((narrowed (selection-batch-test--snapshot
+                     (current-buffer) '((a 1 3)) 'a)))
+      (widen)
+      (should-error (selection-batch-transform-add-same narrowed 'next)
+                    :type 'user-error))))
+
+(ert-deftest selection-batch-add-same-avoids-explicit-id-collision ()
+  (selection-batch-test--with-buffer "aa aa"
+    (let ((result
+           (selection-batch-transform-add-same
+            (selection-batch-test--snapshot
+             (current-buffer) '(("occurrence-0" 1 3)) "occurrence-0")
+            'next)))
+      (should (equal '(("occurrence-0" 1 3) ("occurrence-1" 4 6))
+                     (selection-batch-test--triples result)))
+      (should (equal "occurrence-1"
+                     (selection-batch-snapshot-primary-id result))))))
+
 (ert-deftest selection-batch-provider-lines-final-line-without-newline ()
   (selection-batch-test--with-buffer "aa\nbb"
     (should (equal '((0 1 3) (1 4 6))
@@ -369,6 +449,53 @@
   (let ((selection (selection-batch-test--selection 'a 1 2)))
     (should-error
      (eval `(setf (selection-batch-snapshot-selection-anchor ,selection) 9)))))
+
+(ert-deftest selection-batch-public-ownership-facade-collapses-foreign-owner ()
+  (let ((owner (generate-new-buffer " *selection-batch-public-owner*")))
+    (unwind-protect
+        (progn
+          (with-current-buffer owner
+            (insert "abc")
+            (selection-batch-install-snapshot
+             (selection-batch-test--snapshot owner '((a 1 2) (b 2 3)) 'a)))
+          (should (eq owner (selection-batch-owner-buffer)))
+          (should (selection-batch-owned-by-p owner))
+          (should-not (selection-batch-owned-by-p (current-buffer)))
+          (selection-batch-collapse-owner)
+          (should-not (selection-batch-active-p))
+          (with-current-buffer owner
+            (should (= (point) 2))
+            (should (= (mark) 1))))
+      (when (selection-batch-active-p)
+        (selection-batch-collapse-owner))
+      (kill-buffer owner))))
+
+(ert-deftest selection-batch-public-snapshot-replacement-is-defensive ()
+  (selection-batch-test--with-buffer "abc"
+    (let* ((source (selection-batch-test--snapshot
+                    (current-buffer) '((a 1 2) (b 2 3)) 'a))
+           (replacement (vector (selection-batch-test--selection '(id) 3 2)))
+           (result (selection-batch-snapshot-with-selections
+                    source replacement '(id))))
+      (setcar (selection-batch-snapshot-selection-id (aref replacement 0)) 'mutated)
+      (aset replacement 0 (selection-batch-test--selection 'other 1 1))
+      (should (equal '((id) 3 2)
+                     (let ((selection
+                            (aref (selection-batch-snapshot-selections result) 0)))
+                       (list (selection-batch-snapshot-selection-id selection)
+                             (selection-batch-snapshot-selection-anchor selection)
+                             (selection-batch-snapshot-selection-cursor selection))))))))
+
+(ert-deftest selection-batch-public-snapshot-replacement-distinguishes-nil-primary ()
+  (selection-batch-test--with-buffer "abc"
+    (let* ((source (selection-batch-test--snapshot
+                    (current-buffer) '((a 1 2)) 'a))
+           (nil-id (selection-batch-test--selection nil 1 2))
+           (result (selection-batch-snapshot-with-selections
+                    source (vector nil-id) nil)))
+      (should-not (selection-batch-snapshot-primary-id result))
+      (should-not (selection-batch-snapshot-selection-id
+                   (aref (selection-batch-snapshot-selections result) 0))))))
 
 (ert-deftest selection-batch-normalization-merges-transitive-overlap-chain ()
   (selection-batch-test--with-buffer "abcdefghijklmnop"

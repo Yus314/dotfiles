@@ -1,4 +1,7 @@
-;;; selection-batch-core.el --- Selection batch state -*- lexical-binding: t; -*-
+;;; selection-batch-core.el --- Ordered selection transaction core -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2026 Yus314
+;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;;; Commentary:
 ;; Integer snapshots, live selection sessions, providers, and pure selection
@@ -81,6 +84,18 @@ Only non-negative integers are accepted."
   (and selection-batch--session
        (buffer-live-p (selection-batch--session-buffer selection-batch--session))
        (not (selection-batch--session-exit-in-progress-p selection-batch--session))))
+
+(defun selection-batch-owner-buffer ()
+  "Return the live session owner buffer, or nil when no session is active.
+This is the public ownership query for frontends; callers need not inspect the
+private session representation."
+  (and (selection-batch-active-p)
+       (selection-batch--session-buffer selection-batch--session)))
+
+(defun selection-batch-owned-by-p (&optional buffer)
+  "Return non-nil when BUFFER owns the live selection session.
+BUFFER defaults to the current buffer."
+  (eq (or buffer (current-buffer)) (selection-batch-owner-buffer)))
 
 (defun selection-batch-current ()
   "Return the current immutable snapshot, or nil outside a transaction."
@@ -258,14 +273,31 @@ SELECTION may be a snapshot value or an entry in the current live session."
   (selection-batch--copy-selections
    (selection-batch--snapshot-selections snapshot)))
 
-(defun selection-batch--copy-snapshot (snapshot &optional selections primary-id)
+(cl-defun selection-batch-snapshot-with-selections
+    (snapshot selections &optional (primary-id nil primary-id-supplied-p))
+  "Copy SNAPSHOT while replacing its immutable SELECTIONS.
+PRIMARY-ID defaults to SNAPSHOT's primary identifier when omitted.  Passing nil
+explicitly selects a nil identifier.  The snapshot context is deliberately
+preserved; callers must apply the value through
+`selection-batch-apply-transform' or otherwise validate its generation, buffer
+tick, and narrowing before install.
+This public value-level operation lets frontends build pure transforms without
+using private struct constructors or retaining mutable selection identifiers."
+  (if primary-id-supplied-p
+      (selection-batch--copy-snapshot snapshot selections primary-id)
+    (selection-batch--copy-snapshot snapshot selections)))
+
+(cl-defun selection-batch--copy-snapshot
+    (snapshot &optional selections (primary-id nil primary-id-supplied-p))
   "Copy SNAPSHOT, optionally replacing SELECTIONS and PRIMARY-ID."
   (selection-batch--snapshot-create
    :buffer (selection-batch-snapshot-buffer snapshot)
    :buffer-tick (selection-batch-snapshot-buffer-tick snapshot)
    :generation (selection-batch-snapshot-generation snapshot)
    :primary-id (selection-batch--copy-value
-                (or primary-id (selection-batch--snapshot-primary-id snapshot)))
+                (if primary-id-supplied-p
+                    primary-id
+                  (selection-batch-snapshot-primary-id snapshot)))
    :narrowing (selection-batch--copy-value
                (selection-batch--snapshot-narrowing snapshot))
    :selections (selection-batch--copy-selections
@@ -508,23 +540,39 @@ an initial failure leaves no session, hooks, markers, or derived artifacts."
          (buffer (selection-batch--session-buffer session))
          values)
     (condition-case err
-        (progn
+        (with-current-buffer buffer
           (dolist (selection (append (selection-batch--session-selections session) nil))
-            (push (selection-batch-snapshot-selection-create
-                   :id (selection-batch--copy-value
-                        (selection-batch--live-selection-id selection))
-                   :anchor (selection-batch-selection-anchor selection)
-                   :cursor (selection-batch-selection-cursor selection))
-                  values))
-          (with-current-buffer buffer
-            (selection-batch--snapshot-create
-             :buffer buffer
-             :buffer-tick (buffer-chars-modified-tick)
-             :generation (selection-batch--session-generation session)
-             :primary-id (selection-batch--copy-value
-                          (selection-batch--session-primary-id session))
-             :narrowing (cons (point-min) (point-max))
-             :selections (vconcat (nreverse values)))))
+            (let* ((id (selection-batch--live-selection-id selection))
+                   (primary-p (equal id (selection-batch--session-primary-id session)))
+                   (anchor-marker
+                    (selection-batch--live-selection-anchor-marker selection))
+                   (cursor-marker
+                    (selection-batch--live-selection-cursor-marker selection))
+                   (anchor (if primary-p
+                               (selection-batch--mark-position)
+                             (and (markerp anchor-marker)
+                                  (marker-position anchor-marker))))
+                   (cursor (if primary-p
+                               (point)
+                             (and (markerp cursor-marker)
+                                  (marker-position cursor-marker)))))
+              ;; Iteration already proves membership; validate only the actual
+              ;; endpoint storage instead of rescanning the whole vector twice.
+              (unless (and anchor cursor)
+                (selection-batch--broken-invariant
+                 session "a snapshot endpoint is stale"))
+              (push (selection-batch-snapshot-selection-create
+                     :id (selection-batch--copy-value id)
+                     :anchor anchor :cursor cursor)
+                    values)))
+          (selection-batch--snapshot-create
+           :buffer buffer
+           :buffer-tick (buffer-chars-modified-tick)
+           :generation (selection-batch--session-generation session)
+           :primary-id (selection-batch--copy-value
+                        (selection-batch--session-primary-id session))
+           :narrowing (cons (point-min) (point-max))
+           :selections (vconcat (nreverse values))))
       ((error quit)
        ;; Endpoint helpers already clean invariant failures.  Preserve other
        ;; errors, such as a caller-provided quit.
@@ -589,6 +637,14 @@ an error, so this command cannot project point and mark across buffers."
   (when selection-batch--session
     (let ((session (selection-batch--owner-session t)))
       (selection-batch--cleanup session t nil))))
+
+(defun selection-batch-collapse-owner ()
+  "Collapse whichever live buffer currently owns the selection session.
+Return nil when no session is active.  This is an explicit cross-buffer
+ownership handoff; dead owners are pruned by `selection-batch-owner-buffer'."
+  (when-let* ((owner (selection-batch-owner-buffer)))
+    (with-current-buffer owner
+      (selection-batch-collapse))))
 
 (defun selection-batch-cancel ()
   "Cancel the live session and deactivate its primary region.
@@ -914,6 +970,93 @@ The final line is included even when it has no terminating newline."
                                    (selection-batch--selection-text snapshot selection)))
                  (append (selection-batch--snapshot-selections snapshot) nil))))
 
+(defun selection-batch-transform-add-same (snapshot direction)
+  "Add one unselected same-text occurrence to SNAPSHOT in DIRECTION.
+DIRECTION is `next' or `previous'.  The newly added occurrence becomes primary;
+existing selections keep their IDs and direction, and output is in buffer order."
+  (unless (memq direction '(next previous))
+    (user-error "Unknown same-text direction: %S" direction))
+  (selection-batch--validate-snapshot snapshot)
+  (with-current-buffer (selection-batch-snapshot-buffer snapshot)
+    (unless (= (selection-batch-snapshot-buffer-tick snapshot)
+               (buffer-chars-modified-tick))
+      (user-error "Selection snapshot is stale"))
+    (unless (equal (selection-batch-snapshot-narrowing snapshot)
+                   (cons (point-min) (point-max)))
+      (user-error "Selection snapshot narrowing changed"))
+    (let* ((selections
+            (append (selection-batch--snapshot-selections snapshot) nil))
+           (primary
+            (selection-batch--selection-by-id
+             (selection-batch--snapshot-selections snapshot)
+             (selection-batch-snapshot-primary-id snapshot)))
+           (text (selection-batch--selection-text snapshot primary)))
+      (when (string-empty-p text)
+        (user-error "Same-text search cannot use an empty selection"))
+      (unless (cl-every
+               (lambda (selection)
+                 (string= text
+                          (selection-batch--selection-text snapshot selection)))
+               selections)
+        (user-error "Incremental same-text gather requires equal selections"))
+      (let* ((all
+              (append
+               (selection-batch-provider-result-selections
+                (selection-batch-provider-same-text text 'all))
+               nil))
+             (same-endpoints-p
+              (lambda (left right)
+                (and (= (selection-batch-selection-beginning left)
+                        (selection-batch-selection-beginning right))
+                     (= (selection-batch-selection-end left)
+                        (selection-batch-selection-end right)))))
+             (selected-p
+              (lambda (match)
+                (cl-some (lambda (selection)
+                           (funcall same-endpoints-p selection match))
+                         selections))))
+        (unless (cl-every
+                 (lambda (selection)
+                   (cl-some (lambda (match)
+                              (funcall same-endpoints-p selection match))
+                            all))
+                 selections)
+          (user-error "Selection set contains a non-occurrence range"))
+        (let* ((origin (selection-batch-selection-beginning primary))
+               (eligible
+                (cl-remove-if-not
+                 (lambda (match)
+                   (and (not (funcall selected-p match))
+                        (if (eq direction 'next)
+                            (> (selection-batch-selection-beginning match) origin)
+                          (< (selection-batch-selection-beginning match) origin))))
+                 all))
+               (candidate
+                (if (eq direction 'next) (car eligible) (car (last eligible)))))
+          (unless candidate
+            (user-error "No unselected %s occurrence" direction))
+          (let ((serial 0) id)
+            (while (progn
+                     (setq id (format "occurrence-%d" serial))
+                     (setq serial (1+ serial))
+                     (selection-batch--selection-by-id
+                      (selection-batch--snapshot-selections snapshot) id)))
+            (let* ((added
+                    (selection-batch-snapshot-selection-create
+                     :id id
+                     :anchor (selection-batch-snapshot-selection-anchor candidate)
+                     :cursor (selection-batch-snapshot-selection-cursor candidate)))
+                   (ordered
+                    (sort (append selections (list added))
+                          (lambda (left right)
+                            (or (< (selection-batch-selection-beginning left)
+                                   (selection-batch-selection-beginning right))
+                                (and (= (selection-batch-selection-beginning left)
+                                        (selection-batch-selection-beginning right))
+                                     (< (selection-batch-selection-end left)
+                                        (selection-batch-selection-end right))))))))
+              (selection-batch--copy-snapshot snapshot (vconcat ordered) id))))))))
+
 (defun selection-batch-transform-split-lines (snapshot)
   "Split each SNAPSHOT selection into per-line content selections."
   (let ((original-selections (selection-batch--snapshot-selections snapshot))
@@ -1167,6 +1310,12 @@ model slots, generation, and derived view before the candidate is detached."
      :selections (vconcat selected)
      :primary-id (selection-batch-snapshot-selection-id source-match)
      :metadata (list :provider 'same-text :direction direction))))
+
+(defun selection-batch-provider-current-same-text (direction)
+  "Return a same-text provider result around the current primary selection.
+DIRECTION is `all', `next', or `previous'.  The result retains the current
+primary selection's direction while exposing no live session representation."
+  (selection-batch--same-result direction))
 
 (defun selection-batch-gather-same-next ()
   "Gather the current selection and its next equal occurrence."

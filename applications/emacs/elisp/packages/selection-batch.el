@@ -1,4 +1,7 @@
 ;;; selection-batch.el --- Batch editing over explicit selections -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2026 Yus314
+;; SPDX-License-Identifier: GPL-3.0-or-later
 ;; Package-Requires: ((emacs "31.0"))
 
 ;;; Commentary:
@@ -8,6 +11,7 @@
 
 (require 'selection-batch-core)
 (require 'selection-batch-plan)
+(require 'selection-batch-org)
 (require 'selection-batch-ui)
 (require 'selection-batch-operators)
 
