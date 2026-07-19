@@ -1,12 +1,8 @@
-{ pkgs, ... }:
-let
-  sources = pkgs.callPackage ../../sources/generated.nix;
-  emacsPkg = import ./emacspkg { inherit pkgs sources; };
-in
+{ config, pkgs, ... }:
 {
   services.emacs = {
     enable = pkgs.stdenv.isLinux;
-    package = emacsPkg.emacs-unstable;
+    package = config.programs.emacs.finalPackage;
     defaultEditor = false;
     startWithUserSession = "graphical";
   };
