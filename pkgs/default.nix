@@ -7,7 +7,7 @@ in
   #fcitx5-cskk = super.libFortQt5.callPackage (import ./fcitx5-cskk) { };
   #fcitx5-cskk-qt = self.fcitx-cskk-override { enableQt = true; };
   adb-mcp = super.callPackage ./adb-mcp { };
-  nono = super.callPackage ./nono { };
+  nono = super.callPackage ./nono { nono = super.nono; };
   tf-wrapper = super.callPackage ./tf-wrapper { };
   #  nyxt-4 = super.callPackage ./nyxt { };
   khalorg = super.callPackage ./khalorg { };
