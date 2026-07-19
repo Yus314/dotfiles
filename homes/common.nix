@@ -41,7 +41,6 @@ in
     ../applications/less
     ../applications/claude-code
     ../applications/rbw
-    ../applications/sprout
     ../applications/tf-wrapper
     ../applications/nh
     ../applications/vdirsyncer
