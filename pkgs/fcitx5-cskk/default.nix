@@ -50,8 +50,8 @@ stdenv.mkDerivation rec {
   #dontWrapQtApps = true;
 
   cmakeFlags = [
-    "-DENABLE_QT=${toString enableQt}"
-    "-DUSE_QT6=${toString useQt6}"
+    (lib.cmakeBool "ENABLE_QT" enableQt)
+    (lib.cmakeBool "USE_QT6" useQt6)
     "-DSKK_DICT_DEFAULT_PATH=${skkDictionaries.l}/share/skk/SKK-JISYO.L"
   ];
 }

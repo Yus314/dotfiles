@@ -61,7 +61,7 @@
     ))
 
     # --- GUI Applications ---
-    anki-bin # Spaced repetition flashcard program (binary version)
+    anki # Build against the same Nixpkgs Qt stack as the fcitx5 input method.
     # mpv # temporarily disabled: jeepney test fails on Darwin (D-Bus unavailable in sandbox)
     rquickshare
   ];

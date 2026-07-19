@@ -7,8 +7,11 @@
 let
   inherit (inputs) xremap;
   cskk = pkgs.callPackage ../../pkgs/cskk { };
-  fcitx5-cskk = pkgs.libsForQt5.callPackage ../../pkgs/fcitx5-cskk { inherit cskk; };
-  fcitx5-cskk-qt = fcitx5-cskk.override { enableQt = true; };
+  fcitx5-cskk = pkgs.kdePackages.callPackage ../../pkgs/fcitx5-cskk { inherit cskk; };
+  fcitx5-cskk-qt = fcitx5-cskk.override {
+    enableQt = true;
+    useQt6 = true;
+  };
 in
 {
   imports = [
