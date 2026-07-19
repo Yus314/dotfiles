@@ -127,6 +127,7 @@
       # set-option global mkdr_heading_char_6 '⑥'
 
       map global user l ':enter-user-mode lsp<ret>' -docstring 'LSP mode'
+      map global user s ':enter-user-mode sprout<ret>' -docstring 'sprout mode'
     '';
     config = {
       keyMappings = [
