@@ -65,11 +65,16 @@ in
       global = {
         # === レイアウト（showcaseデザイン準拠）===
         width = "(100,600)";
-        height = "(0,300)";
+        # Dunst #1533: on Wayland, a notification surface taller than the
+        # output can freeze visually even after Dunst removes its contents.
+        # Four 200 px slots plus frames, gaps, and the 50 px offset stay below
+        # lawliet's 1080 px logical output height.
+        height = "(0,200)";
         offset = "(30,50)";
         origin = "top-right";
 
-        notification_limit = 10;
+        notification_limit = 4;
+        indicate_hidden = true;
 
         # === テキスト ===
         font = "Bizin Gothic Discord NF 12";
