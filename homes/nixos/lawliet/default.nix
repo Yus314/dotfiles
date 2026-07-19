@@ -30,6 +30,7 @@ in
         ../../../applications/hermes-agent
       ];
       home.packages = with pkgs; [ bluetui ];
+      programs.emacs.selectionFirst.enable = true;
     };
     extraSpecialArgs = {
       inherit inputs;
