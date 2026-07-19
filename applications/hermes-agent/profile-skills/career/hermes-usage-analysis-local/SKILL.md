@@ -1,7 +1,7 @@
 ---
 name: hermes-usage-analysis-local
 description: "Profile-local routing and outcome policy adapter for the shared Hermes usage-analysis core."
-version: 1.0.0
+version: 1.1.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -25,5 +25,7 @@ Load `hermes-usage-analysis` for the shared procedure, then apply this adapter.
 ## Local outcome policy
 
 Career outcomes: clearer decisions, stronger applications/interviews, completed work, and reduced restart cost.
+
+Distinguish career work—reflection, applications, technical growth, and workplace decisions—from Hermes meta-work. Do not treat a high-cost session as waste when it creates a verified artifact or resolves an important decision.
 
 Keep generated reports under `~/tmp` unless the user explicitly asks to promote a result. Do not create curated notes, diary entries, weekly reports, or domain records automatically. Process health and token reduction are supporting signals, not outcomes by themselves.

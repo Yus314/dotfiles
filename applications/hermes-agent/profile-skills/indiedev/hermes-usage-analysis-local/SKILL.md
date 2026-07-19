@@ -1,7 +1,7 @@
 ---
 name: hermes-usage-analysis-local
 description: "Profile-local routing and outcome policy adapter for the shared Hermes usage-analysis core."
-version: 1.0.0
+version: 1.1.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -25,5 +25,9 @@ Load `hermes-usage-analysis` for the shared procedure, then apply this adapter.
 ## Local outcome policy
 
 Indie-development outcomes: shipped artifacts, validated product decisions, resolved blockers, and reduced iteration cost.
+
+Distinguish product discovery, research, implementation, tests, and shipped artifacts from Hermes meta-work. Apply an ROI gate to infrastructure changes: smallest reversible change, real execution, measurable benefit, and rollback when the gain is unproven. Do not turn a heuristic meta-work share into a hard quota.
+
+Before restarting a heavy implementation session, preserve branch/path, changed files, test output, artifact handles, blockers, and the exact next command.
 
 Keep generated reports under `~/tmp` unless the user explicitly asks to promote a result. Do not create curated notes, diary entries, weekly reports, or domain records automatically. Process health and token reduction are supporting signals, not outcomes by themselves.

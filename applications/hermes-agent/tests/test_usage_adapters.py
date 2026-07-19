@@ -26,7 +26,11 @@ class UsageAdapterTests(unittest.TestCase):
             self.assertEqual(metadata["name"], "hermes-usage-analysis-local")
             self.assertIn(f"`--profile {profile}`", text)
             self.assertIn(f"`{db_path}`", text)
-            self.assertIn("does not implicitly analyze this profile", text)
+            self.assertIn("routing failure", text)
+            if profile == "default":
+                self.assertIn("process health only", text)
+            else:
+                self.assertIn("does not implicitly analyze this profile", text)
 
     def test_non_consumers_have_no_adapter_source(self) -> None:
         for profile in {"economics", "finance", "food", "health", "math"}:
