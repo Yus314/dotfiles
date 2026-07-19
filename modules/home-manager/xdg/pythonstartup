@@ -3,13 +3,17 @@ from pathlib import Path
 import readline
 
 histfile = Path.home() / Path('.cache/python/history')
+histfile.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+histfile.parent.chmod(0o700)
 
 try:
     readline.read_history_file(histfile)
     h_len = readline.get_current_history_length()
 except FileNotFoundError:
-    open(histfile, 'wb').close()
+    histfile.touch(mode=0o600)
     h_len = 0
+
+histfile.chmod(0o600)
 
 
 def save(prev_h_len, histfile):
