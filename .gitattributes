@@ -1,3 +1,4 @@
 applications/neovim/SKK-JISYO.L linguist-vendored
 applications/emacs/emacspkg/emacs-config.org linguist-generated=true -whitespace
 applications/emacs-minimal/emacspkg/emacs-config.org linguist-generated=true -whitespace
+applications/emacs/patches/*.patch linguist-generated=true -whitespace

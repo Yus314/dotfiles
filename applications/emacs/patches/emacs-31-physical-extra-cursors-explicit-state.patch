@@ -1,0 +1,1422 @@
+diff --git a/doc/lispref/windows.texi b/doc/lispref/windows.texi
+index ddc8524ddb6b03a6de6d8f65ce398e9d8af8d1c0..563be4a902d6c107fcacf6475a811e4470d94c8d 100644
+--- a/doc/lispref/windows.texi
++++ b/doc/lispref/windows.texi
+@@ -5982,6 +5982,28 @@ Window Point
+ selected window.
+ @end defun
+
++@defun set-window-extra-cursors window cursors
++Set the display-only extra cursor positions of @var{window} to
++@var{cursors}, a proper list of integer buffer positions or live markers in
++the buffer displayed by @var{window}.  Markers track buffer edits; integers
++do not.  Changing the displayed buffer clears the list.
++
++On graphical displays, visible positions are drawn as filled box cursors by
++the native cursor glyph renderer.  They do not act as point or mark, cause
++scrolling, execute commands, or own the system input, IME, or accessibility
++caret.  Text terminals do not display extra cursors.  Dead markers,
++positions that become inaccessible, and off-screen positions are skipped.
++Extra cursors at exact-window-width line endings that must be represented in
++the fringe are not yet displayed; ordinary end-of-line and horizontally
++scrolled margin positions are supported.
++The return value is @var{cursors}.
++@end defun
++
++@defun window-extra-cursors &optional window
++Return the list installed for @var{window}, which defaults to the selected
++window.
++@end defun
++
+ @defun window-cursor-info &optional window
+ This function returns information about the cursor of @var{window},
+ defaulting to the selected window.
+diff --git a/etc/NEWS b/etc/NEWS
+index 1270b95e6224913f1bff2d8ccf101c65fe25bedd..3e00a25fce7c1b4641e9aa447d56ad5e4813a2fd 100644
+--- a/etc/NEWS
++++ b/etc/NEWS
+@@ -4327,6 +4327,12 @@ If you want Emacs to exit, your program will now have to call
+
+ * Lisp Changes in Emacs 31.1
+
+++++
++** Prototype support for extra physical GUI cursors.
++The new functions 'set-window-extra-cursors' and 'window-extra-cursors'
++manage display-only, window-local filled-box cursors.  They don't affect
++editing state or the system caret.  Text-terminal display is unsupported.
++
+ +++
+ ** The API to manipulate error descriptors has been improved.
+ There are new functions: 'error-type-p', 'error-type',
+diff --git a/src/dispextern.h b/src/dispextern.h
+index b75bdff7bc68754d7067fbcd1543f736f2132fea..9b7f01ff9ceb57200ca33fbd83d0812bd47701a3 100644
+--- a/src/dispextern.h
++++ b/src/dispextern.h
+@@ -1347,6 +1347,8 @@ #define MATRIX_ROW_OVERLAPS_SUCC_P(ROW)		\
+
+ /* A sequence of glyphs to be drawn in the same face.  */
+
++struct window_cursor_state;
++
+ struct glyph_string
+ {
+   /* X-origin of the string.  */
+@@ -1398,6 +1400,10 @@ #define MATRIX_ROW_OVERLAPS_SUCC_P(ROW)		\
+   /* A face-override for drawing cursors, mouse face and similar.  */
+   enum draw_glyphs_face hl;
+
++  /* Non-null when DRAW_CURSOR describes a display-only cursor rather than
++     W's primary physical cursor.  */
++  struct window_cursor_state *cursor_state;
++
+   /* Face in which this string is to be drawn.  */
+   struct face *face;
+
+@@ -3044,6 +3050,19 @@ reset_mouse_highlight (Mouse_HLInfo *hlinfo)
+   int height, nrows;
+ };
+
++/* Explicit state for a cursor image.  Window backends may update WIDTH,
++   TYPE and ON_P while drawing, but must not use the live window's primary
++   physical-cursor fields as storage for this state.  */
++struct window_cursor_state
++{
++  enum text_cursor_kinds type;
++  int x, y, hpos, vpos;
++  int width, ascent, height;
++  bool on_p;
++  bool mouse_face_checked_p, mouse_face_p;
++  bool overlap_clip_checked_p;
++};
++
+
+ /* Handlers for setting frame parameters.  */
+
+@@ -3631,6 +3650,10 @@ #define DEFAULT_TOOL_BAR_IMAGE_HEIGHT 24
+ extern void draw_phys_cursor_glyph (struct window *,
+                                     struct glyph_row *,
+                                     enum draw_glyphs_face);
++extern void draw_window_cursor_state_glyph (struct window *,
++                                            struct glyph_row *,
++                                            struct window_cursor_state *,
++                                            enum draw_glyphs_face);
+ extern void get_phys_cursor_geometry (struct window *, struct glyph_row *,
+                                       struct glyph *, int *, int *, int *);
+ extern void erase_phys_cursor (struct window *);
+diff --git a/src/window.c b/src/window.c
+index e4b0e62f3a35193d3cfb7f09790f21a2e79b4cd2..4c9c0c82cfaad57efbef5e822e01f199c2bf9da9 100644
+--- a/src/window.c
++++ b/src/window.c
+@@ -2452,6 +2452,67 @@ DEFUN ("set-window-parameter", Fset_window_parameter,
+   return value;
+ }
+
++DEFUN ("window-extra-cursors", Fwindow_extra_cursors,
++       Swindow_extra_cursors, 0, 1, 0,
++       doc: /* Return the display-only extra cursor positions of WINDOW.
++WINDOW must be live and defaults to the selected window.  The returned list
++contains the same integer positions and markers supplied to
++`set-window-extra-cursors'.  */)
++  (Lisp_Object window)
++{
++  return decode_live_window (window)->extra_cursors;
++}
++
++DEFUN ("set-window-extra-cursors", Fset_window_extra_cursors,
++       Sset_window_extra_cursors, 2, 2, 0,
++       doc: /* Set WINDOW's display-only extra cursor positions to CURSORS.
++CURSORS must be a proper list of integer positions or live markers in the
++buffer displayed by WINDOW.  Integers must be within the buffer's accessible
++portion when installed.  Markers follow edits; integers do not.  A marker
++that later becomes dead or positions that later become inaccessible are
++silently skipped by redisplay.  Positions outside the visible portion of
++WINDOW are also skipped.
++
++Extra cursors are filled boxes on graphical displays.  They don't affect
++point, mark, command execution, scrolling, the system input caret, IME, or
++accessibility caret.  Text terminals don't display them.  Return CURSORS.  */)
++  (Lisp_Object window, Lisp_Object cursors)
++{
++  struct window *w = decode_live_window (window);
++  struct buffer *b = XBUFFER (w->contents);
++  Lisp_Object tail;
++  ptrdiff_t count = 0;
++
++  for (tail = cursors; CONSP (tail); tail = XCDR (tail))
++    {
++      Lisp_Object pos = XCAR (tail);
++      if (MARKERP (pos))
++        {
++          if (!XMARKER (pos)->buffer || XMARKER (pos)->buffer != b)
++            error ("Extra cursor marker is dead or belongs to another buffer");
++        }
++      else
++        {
++          CHECK_FIXNUM (pos);
++          if (XFIXNUM (pos) < BUF_BEGV (b) || XFIXNUM (pos) > BUF_ZV (b))
++            args_out_of_range (pos, w->contents);
++        }
++      count++;
++    }
++  CHECK_LIST_END (tail, cursors);
++
++#ifdef HAVE_WINDOW_SYSTEM
++  if (FRAME_WINDOW_P (XFRAME (w->frame)))
++    gui_clear_cursor (w);
++#endif
++  wset_extra_cursors (w, Fcopy_sequence (cursors));
++  wset_extra_phys_cursors (w, count ? make_vector (count * 8, make_fixnum (0)) : Qnil);
++  mark_window_display_accurate (window, false);
++  w->update_mode_line = true;
++  windows_or_buffers_changed = 31;
++  return cursors;
++}
++
+ DEFUN ("window-display-table", Fwindow_display_table, Swindow_display_table,
+        0, 1, 0,
+        doc: /* Return the display-table that WINDOW is using.
+@@ -2576,6 +2637,8 @@ replace_window (Lisp_Object old, Lisp_Object new, bool setflag)
+       n->vscroll = 0;
+       memset (&n->cursor, 0, sizeof (n->cursor));
+       memset (&n->phys_cursor, 0, sizeof (n->phys_cursor));
++      wset_extra_cursors (n, Qnil);
++      wset_extra_phys_cursors (n, Qnil);
+       n->last_cursor_vpos = 0;
+ #ifdef HAVE_WINDOW_SYSTEM
+       n->phys_cursor_type = NO_CURSOR;
+@@ -4465,12 +4528,16 @@ buffer (that is `window-dedicated-p' returns t for WINDOW) and does not
+ 	{
+ 	  if (EQ (w->dedicated, Qt))
+ 	    /* WINDOW is strongly dedicated to its buffer, signal an
+-	       error.  */
++	       error before changing any window-local display state.  */
+ 	    error ("Window is dedicated to `%s'", SDATA (BVAR (XBUFFER (tem), name)));
+-	  else
+-	    /* WINDOW is weakly dedicated to its buffer, reset
+-	       dedication.  */
+-	    wset_dedicated (w, Qnil);
++#ifdef HAVE_WINDOW_SYSTEM
++	  if (FRAME_WINDOW_P (XFRAME (w->frame)))
++	    gui_clear_cursor (w);
++#endif
++	  wset_extra_cursors (w, Qnil);
++	  wset_extra_phys_cursors (w, Qnil);
++	  /* WINDOW is weakly dedicated to its buffer, reset dedication.  */
++	  wset_dedicated (w, Qnil);
+
+ 	  calln (Qrecord_window_buffer, window);
+ 	}
+@@ -5781,6 +5848,8 @@ DEFUN ("delete-window-internal", Fdelete_window_internal, Sdelete_window_interna
+ 	  unchain_marker (XMARKER (w->pointm));
+ 	  unchain_marker (XMARKER (w->old_pointm));
+ 	  unchain_marker (XMARKER (w->start));
++	  wset_extra_cursors (w, Qnil);
++	  wset_extra_phys_cursors (w, Qnil);
+ 	  wset_buffer (w, Qnil);
+ 	  /* Add WINDOW to table of dead windows so when killing a buffer
+ 	     WINDOW mentions, all references to that buffer can be removed
+@@ -6014,7 +6083,12 @@ mark_window_cursors_off (struct window *w)
+       if (WINDOWP (w->contents))
+ 	mark_window_cursors_off (XWINDOW (w->contents));
+       else
+-	w->phys_cursor_on_p = false;
++	{
++	  w->phys_cursor_on_p = false;
++	  if (VECTORP (w->extra_phys_cursors))
++	    for (ptrdiff_t i = 7; i < ASIZE (w->extra_phys_cursors); i += 8)
++	      ASET (w->extra_phys_cursors, i, make_fixnum (0));
++	}
+
+       w = NILP (w->next) ? 0 : XWINDOW (w->next);
+     }
+@@ -8131,6 +8205,8 @@ delete_all_child_windows (Lisp_Object window)
+ 	 only, we use this slot to save the buffer for the sake of
+ 	 possible resurrection in Fset_window_configuration.  */
+       wset_combination_limit (w, w->contents);
++	  wset_extra_cursors (w, Qnil);
++	  wset_extra_phys_cursors (w, Qnil);
+       wset_buffer (w, Qnil);
+       /* Add WINDOW to table of dead windows so when killing a buffer
+ 	 WINDOW mentions, all references to that buffer can be removed
+@@ -9684,6 +9760,8 @@ syms_of_window (void)
+   defsubr (&Swindow_parameters);
+   defsubr (&Swindow_parameter);
+   defsubr (&Sset_window_parameter);
++  defsubr (&Swindow_extra_cursors);
++  defsubr (&Sset_window_extra_cursors);
+   defsubr (&Swindow_discard_buffer);
+   defsubr (&Swindow_cursor_type);
+   defsubr (&Swindow_cursor_info);
+diff --git a/src/window.h b/src/window.h
+index 1b4939b40a628f33e05c19578959d8dc19bc5253..8108181f6e0d31cdf28325bb7d785d4781a7d278 100644
+--- a/src/window.h
++++ b/src/window.h
+@@ -214,6 +214,12 @@ #define WINDOW_H_INCLUDED
+     /* `cursor-type' to use in this window.  */
+     Lisp_Object cursor_type;
+
++    /* Display-only cursor positions requested by Lisp, and packed physical
++       state maintained by redisplay.  These are deliberately separate from
++       point, mark, and the primary cursor/caret state.  */
++    Lisp_Object extra_cursors;
++    Lisp_Object extra_phys_cursors;
++
+     /* The help echo text for this window.  Qnil if there's none.  */
+     Lisp_Object mode_line_help_echo;
+
+@@ -549,6 +555,18 @@ wset_cursor_type (struct window *w, Lisp_Object val)
+   w->cursor_type = val;
+ }
+
++INLINE void
++wset_extra_cursors (struct window *w, Lisp_Object val)
++{
++  w->extra_cursors = val;
++}
++
++INLINE void
++wset_extra_phys_cursors (struct window *w, Lisp_Object val)
++{
++  w->extra_phys_cursors = val;
++}
++
+ INLINE void
+ wset_prev_buffers (struct window *w, Lisp_Object val)
+ {
+diff --git a/src/xdisp.c b/src/xdisp.c
+index 5377d5e8ada78af5b1bab2fda31989cf2add1bc2..15ba29dc5e02167f383b6a8dc86d51402de6c038 100644
+--- a/src/xdisp.c
++++ b/src/xdisp.c
+@@ -1158,6 +1158,9 @@ #define THIN_SPACE_WIDTH 1
+ static bool set_cursor_from_row (struct window *, struct glyph_row *,
+ 				 struct glyph_matrix *, ptrdiff_t, ptrdiff_t,
+ 				 int, int);
++static bool set_cursor_from_row_1 (struct window *, struct glyph_row *,
++				   struct glyph_matrix *, ptrdiff_t, ptrdiff_t,
++				   int, int, ptrdiff_t, struct cursor_pos *, bool);
+ static bool cursor_row_fully_visible_p (struct window *, bool, bool, bool);
+ static bool update_menu_bar (struct frame *, bool, bool, struct window *);
+ static bool try_window_reusing_current_matrix (struct window *);
+@@ -1218,7 +1221,8 @@ #define face_after_it_pos(IT)  face_before_or_after_it_pos (IT, false)
+ static void gui_draw_bottom_divider (struct window *w);
+ static void notice_overwritten_cursor (struct window *,
+                                        enum glyph_row_area,
+-                                       int, int, int, int);
++                                       int, int, int, int,
++                                       const struct window_cursor_state *);
+ static int  normal_char_height (struct font *, int);
+ static void normal_char_ascent_descent (struct font *, int, int *, int *);
+
+@@ -2558,10 +2562,19 @@ get_glyph_string_clip_rects (struct glyph_string *s, NativeRectangle *rects, int
+ 	{
+ 	  Emacs_Rectangle rc, r_save = r;
+
+-	  rc.x = WINDOW_TEXT_TO_FRAME_PIXEL_X (s->w, s->w->phys_cursor.x);
+-	  rc.y = s->w->phys_cursor.y;
+-	  rc.width = s->w->phys_cursor_width;
+-	  rc.height = s->w->phys_cursor_height;
++	  struct window_cursor_state *state = s->cursor_state;
++	  rc.x = WINDOW_TEXT_TO_FRAME_PIXEL_X
++	    (s->w, state ? state->x : s->w->phys_cursor.x);
++	  rc.y = state ? state->y : s->w->phys_cursor.y;
++	  rc.width = state ? state->width : s->w->phys_cursor_width;
++	  rc.height = state ? state->height : s->w->phys_cursor_height;
++	  if (state)
++	    {
++	      eassert (rc.x == WINDOW_TEXT_TO_FRAME_PIXEL_X (s->w, state->x)
++		       && rc.y == state->y && rc.width == state->width
++		       && rc.height == state->height);
++	      state->overlap_clip_checked_p = true;
++	    }
+
+ 	  gui_intersect_rectangles (&r_save, &rc, &r);
+ 	}
+@@ -18598,10 +18611,11 @@ update_redisplay_ticks (int ticks, struct window *w)
+    Return true iff cursor is on this row.  */
+
+ static bool
+-set_cursor_from_row (struct window *w, struct glyph_row *row,
+-		     struct glyph_matrix *matrix,
+-		     ptrdiff_t delta, ptrdiff_t delta_bytes,
+-		     int dy, int dvpos)
++set_cursor_from_row_1 (struct window *w, struct glyph_row *row,
++		       struct glyph_matrix *matrix,
++		       ptrdiff_t delta, ptrdiff_t delta_bytes,
++		       int dy, int dvpos, ptrdiff_t target,
++		       struct cursor_pos *result, bool primary_p)
+ {
+   struct glyph *glyph = row->glyphs[TEXT_AREA];
+   struct glyph *end = glyph + row->used[TEXT_AREA];
+@@ -18609,7 +18623,7 @@ set_cursor_from_row (struct window *w, struct glyph_row *row,
+   /* The last known character position in row.  */
+   ptrdiff_t last_pos = MATRIX_ROW_START_CHARPOS (row) + delta;
+   int x = row->x;
+-  ptrdiff_t pt_old = PT - delta;
++  ptrdiff_t pt_old = target - delta;
+   ptrdiff_t pos_before = MATRIX_ROW_START_CHARPOS (row) + delta;
+   ptrdiff_t pos_after = MATRIX_ROW_END_CHARPOS (row) + delta;
+   struct glyph *glyph_before = glyph - 1, *glyph_after = end;
+@@ -19127,20 +19141,20 @@ set_cursor_from_row (struct window *w, struct glyph_row *row,
+      approximation to the cursor position than we have from previously
+      examined candidate rows belonging to the same continued line.  */
+   if (/* We already have a candidate row.  */
+-      w->cursor.vpos >= 0
++      result->vpos >= 0
+       /* That candidate is not the row we are processing.  */
+-      && MATRIX_ROW (matrix, w->cursor.vpos) != row
++      && MATRIX_ROW (matrix, result->vpos) != row
+       /* Make sure cursor.vpos specifies a row whose start and end
+ 	 charpos occlude point, and it is valid candidate for being a
+ 	 cursor-row.  This is because some callers of this function
+ 	 leave cursor.vpos at the row where the cursor was displayed
+ 	 during the last redisplay cycle.  */
+-      && MATRIX_ROW_START_CHARPOS (MATRIX_ROW (matrix, w->cursor.vpos)) <= pt_old
+-      && pt_old <= MATRIX_ROW_END_CHARPOS (MATRIX_ROW (matrix, w->cursor.vpos))
+-      && cursor_row_p (MATRIX_ROW (matrix, w->cursor.vpos)))
++      && MATRIX_ROW_START_CHARPOS (MATRIX_ROW (matrix, result->vpos)) <= pt_old
++      && pt_old <= MATRIX_ROW_END_CHARPOS (MATRIX_ROW (matrix, result->vpos))
++      && cursor_row_p (MATRIX_ROW (matrix, result->vpos)))
+     {
+       struct glyph *g1
+-	= MATRIX_ROW_GLYPH_START (matrix, w->cursor.vpos) + w->cursor.hpos;
++	= MATRIX_ROW_GLYPH_START (matrix, result->vpos) + result->hpos;
+
+       /* Don't consider glyphs that are outside TEXT_AREA.  */
+       if (!(row->reversed_p ? glyph > glyphs_end : glyph < glyphs_end))
+@@ -19148,8 +19162,8 @@ set_cursor_from_row (struct window *w, struct glyph_row *row,
+       /* Keep the candidate whose buffer position is the closest to
+ 	 point or has the `cursor' property.  */
+       if (/* Previous candidate is a glyph in TEXT_AREA of that row.  */
+-	  w->cursor.hpos >= 0
+-	  && w->cursor.hpos < MATRIX_ROW_USED (matrix, w->cursor.vpos)
++	  result->hpos >= 0
++	  && result->hpos < MATRIX_ROW_USED (matrix, result->vpos)
+ 	  && ((BUFFERP (g1->object)
+ 	       && (g1->charpos == pt_old /* An exact match always wins.  */
+ 		   || (BUFFERP (glyph->object)
+@@ -19184,17 +19198,17 @@ set_cursor_from_row (struct window *w, struct glyph_row *row,
+ 	     both candidate positions are on glyphs that came from
+ 	     display strings, for which we cannot compare buffer
+ 	     positions.  */
+-	  && MATRIX_ROW_END_CHARPOS (MATRIX_ROW (matrix, w->cursor.vpos))
+-	     - MATRIX_ROW_START_CHARPOS (MATRIX_ROW (matrix, w->cursor.vpos))
++	  && MATRIX_ROW_END_CHARPOS (MATRIX_ROW (matrix, result->vpos))
++	     - MATRIX_ROW_START_CHARPOS (MATRIX_ROW (matrix, result->vpos))
+ 	     < MATRIX_ROW_END_CHARPOS (row) - MATRIX_ROW_START_CHARPOS (row))
+ 	return false;
+     }
+-  w->cursor.hpos = glyph - row->glyphs[TEXT_AREA];
+-  w->cursor.x = x;
+-  w->cursor.vpos = MATRIX_ROW_VPOS (row, matrix) + dvpos;
+-  w->cursor.y = row->y + dy;
++  result->hpos = glyph - row->glyphs[TEXT_AREA];
++  result->x = x;
++  result->vpos = MATRIX_ROW_VPOS (row, matrix) + dvpos;
++  result->y = row->y + dy;
+
+-  if (w == XWINDOW (selected_window))
++  if (primary_p && w == XWINDOW (selected_window))
+     {
+       if (!row->continued_p
+ 	  && !MATRIX_ROW_CONTINUATION_LINE_P (row)
+@@ -19212,9 +19226,9 @@ set_cursor_from_row (struct window *w, struct glyph_row *row,
+ 	  BYTEPOS (this_line_end_pos)
+ 	    = Z_BYTE - (MATRIX_ROW_END_BYTEPOS (row) + delta_bytes);
+
+-	  this_line_y = w->cursor.y;
++	  this_line_y = result->y;
+ 	  this_line_pixel_height = row->height;
+-	  this_line_vpos = w->cursor.vpos;
++	  this_line_vpos = result->vpos;
+ 	  this_line_start_x = row->x;
+ 	}
+       else
+@@ -19224,6 +19238,18 @@ set_cursor_from_row (struct window *w, struct glyph_row *row,
+   return true;
+ }
+
++/* Locate the primary cursor.  Keeping this wrapper makes all existing
++   callers retain their delta/delta_bytes/dy/dvpos behavior.  */
++static bool
++set_cursor_from_row (struct window *w, struct glyph_row *row,
++		     struct glyph_matrix *matrix,
++		     ptrdiff_t delta, ptrdiff_t delta_bytes,
++		     int dy, int dvpos)
++{
++  return set_cursor_from_row_1 (w, row, matrix, delta, delta_bytes, dy,
++				dvpos, PT, &w->cursor, true);
++}
++
+
+ /* Run window scroll functions, if any, for WINDOW with new window
+    start STARTP.  Sets the window start of WINDOW to that position.
+@@ -30667,7 +30693,8 @@ init_glyph_string (struct glyph_string *s,
+ 		   HDC hdc,
+ #endif
+ 		   unsigned *char2b, struct window *w, struct glyph_row *row,
+-		   enum glyph_row_area area, int start, enum draw_glyphs_face hl)
++		   enum glyph_row_area area, int start, enum draw_glyphs_face hl,
++		   struct window_cursor_state *cursor_state)
+ {
+   memset (s, 0, sizeof *s);
+   s->w = w;
+@@ -30677,6 +30704,7 @@ init_glyph_string (struct glyph_string *s,
+ #endif
+   s->char2b = char2b;
+   s->hl = hl;
++  s->cursor_state = cursor_state;
+   s->row = row;
+   s->area = area;
+   s->first_glyph = row->glyphs[area] + start;
+@@ -30685,6 +30713,29 @@ init_glyph_string (struct glyph_string *s,
+   s->ybase = s->y + row->ascent;
+ }
+
++static bool cursor_state_in_mouse_face_p
++  (struct window *, const struct window_cursor_state *);
++
++static bool
++glyph_string_cursor_in_mouse_face_p (struct glyph_string *s)
++{
++  struct window_cursor_state *state = s->cursor_state;
++  int vpos = state ? state->vpos : s->w->phys_cursor.vpos;
++  bool in_mouse_face
++    = (0 <= vpos && vpos < s->w->current_matrix->nrows
++	&& MATRIX_ROW (s->w->current_matrix, vpos)->mouse_face_p
++	&& (state ? cursor_state_in_mouse_face_p (s->w, state)
++	    : cursor_in_mouse_face_p (s->w)));
++  if (state)
++    {
++      eassert (!state->mouse_face_checked_p
++	       || state->mouse_face_p == in_mouse_face);
++      state->mouse_face_checked_p = true;
++      state->mouse_face_p = in_mouse_face;
++    }
++  return in_mouse_face;
++}
++
+
+ /* Append the list of glyph strings with head H and tail T to the list
+    with head *HEAD and tail *TAIL.  Set *HEAD and *TAIL to the result.  */
+@@ -30893,9 +30944,7 @@ fill_composite_glyph_string (struct glyph_string *s, struct face *base_face,
+
+   if (s->hl == DRAW_MOUSE_FACE
+       || (s->hl == DRAW_CURSOR
+-	  && MATRIX_ROW (s->w->current_matrix,
+-			 s->w->phys_cursor.vpos)->mouse_face_p
+-	  && cursor_in_mouse_face_p (s->w)))
++	  && glyph_string_cursor_in_mouse_face_p (s)))
+     {
+       int c = COMPOSITION_GLYPH (s->cmp, 0);
+       Mouse_HLInfo *hlinfo = MOUSE_HL_INFO (s->f);
+@@ -30947,9 +30996,7 @@ fill_gstring_glyph_string (struct glyph_string *s, int face_id,
+   s->cmp_to = glyph->slice.cmp.to + 1;
+   if (s->hl == DRAW_MOUSE_FACE
+       || (s->hl == DRAW_CURSOR
+-	  && MATRIX_ROW (s->w->current_matrix,
+-			 s->w->phys_cursor.vpos)->mouse_face_p
+-	  && cursor_in_mouse_face_p (s->w)))
++	  && glyph_string_cursor_in_mouse_face_p (s)))
+     {
+       Mouse_HLInfo *hlinfo = MOUSE_HL_INFO (s->f);
+       s->face = FACE_FROM_ID_OR_NULL (s->f, hlinfo->mouse_face_face_id);
+@@ -31019,9 +31066,7 @@ fill_glyphless_glyph_string (struct glyph_string *s, int face_id,
+   s->font = s->face->font ? s->face->font : FRAME_FONT (s->f);
+   if (s->hl == DRAW_MOUSE_FACE
+       || (s->hl == DRAW_CURSOR
+-	  && MATRIX_ROW (s->w->current_matrix,
+-			 s->w->phys_cursor.vpos)->mouse_face_p
+-	  && cursor_in_mouse_face_p (s->w)))
++	  && glyph_string_cursor_in_mouse_face_p (s)))
+     {
+       Mouse_HLInfo *hlinfo = MOUSE_HL_INFO (s->f);
+       s->face = FACE_FROM_ID_OR_NULL (s->f, hlinfo->mouse_face_face_id);
+@@ -31094,9 +31139,7 @@ fill_glyph_string (struct glyph_string *s, int face_id,
+
+   if (s->hl == DRAW_MOUSE_FACE
+       || (s->hl == DRAW_CURSOR
+-	  && MATRIX_ROW (s->w->current_matrix,
+-			 s->w->phys_cursor.vpos)->mouse_face_p
+-	  && cursor_in_mouse_face_p (s->w)))
++	  && glyph_string_cursor_in_mouse_face_p (s)))
+     {
+       Mouse_HLInfo *hlinfo = MOUSE_HL_INFO (s->f);
+       s->face = FACE_FROM_ID_OR_NULL (s->f, hlinfo->mouse_face_face_id);
+@@ -31139,9 +31182,7 @@ fill_image_glyph_string (struct glyph_string *s)
+   s->font = s->face->font;
+   if (s->hl == DRAW_MOUSE_FACE
+       || (s->hl == DRAW_CURSOR
+-	  && MATRIX_ROW (s->w->current_matrix,
+-			 s->w->phys_cursor.vpos)->mouse_face_p
+-	  && cursor_in_mouse_face_p (s->w)))
++	  && glyph_string_cursor_in_mouse_face_p (s)))
+     {
+       Mouse_HLInfo *hlinfo = MOUSE_HL_INFO (s->f);
+       s->face = FACE_FROM_ID_OR_NULL (s->f, hlinfo->mouse_face_face_id);
+@@ -31165,9 +31206,7 @@ fill_xwidget_glyph_string (struct glyph_string *s)
+   s->font = s->face->font;
+   if (s->hl == DRAW_MOUSE_FACE
+       || (s->hl == DRAW_CURSOR
+-	  && MATRIX_ROW (s->w->current_matrix,
+-			 s->w->phys_cursor.vpos)->mouse_face_p
+-	  && cursor_in_mouse_face_p (s->w)))
++	  && glyph_string_cursor_in_mouse_face_p (s)))
+     {
+       Mouse_HLInfo *hlinfo = MOUSE_HL_INFO (s->f);
+       s->face = FACE_FROM_ID_OR_NULL (s->f, hlinfo->mouse_face_face_id);
+@@ -31202,9 +31241,7 @@ fill_stretch_glyph_string (struct glyph_string *s, int start, int end)
+   s->font = s->face->font;
+   if (s->hl == DRAW_MOUSE_FACE
+       || (s->hl == DRAW_CURSOR
+-	  && MATRIX_ROW (s->w->current_matrix,
+-			 s->w->phys_cursor.vpos)->mouse_face_p
+-	  && cursor_in_mouse_face_p (s->w)))
++	  && glyph_string_cursor_in_mouse_face_p (s)))
+     {
+       Mouse_HLInfo *hlinfo = MOUSE_HL_INFO (s->f);
+       s->face = FACE_FROM_ID_OR_NULL (s->f, hlinfo->mouse_face_face_id);
+@@ -31521,9 +31558,7 @@ set_glyph_string_background_width (struct glyph_string *s, int start, int last_x
+ #ifdef HAVE_WINDOW_SYSTEM
+       if (FRAME_WINDOW_P (s->f)
+ 	  && s->hl == DRAW_CURSOR
+-	  && MATRIX_ROW (s->w->current_matrix,
+-			 s->w->phys_cursor.vpos)->mouse_face_p
+-	  && cursor_in_mouse_face_p (s->w))
++	  && glyph_string_cursor_in_mouse_face_p (s))
+ 	{
+ 	  /* Adjust the background width of the glyph string, because
+ 	     if the glyph's face has the :box attribute, its
+@@ -31604,10 +31639,10 @@ compute_overhangs_and_x (struct glyph_string *s, int x, bool backward_p)
+ /* On W32, silently add local `hdc' variable to argument list of
+    init_glyph_string.  */
+ #define INIT_GLYPH_STRING(s, char2b, w, row, area, start, hl) \
+-  init_glyph_string (s, hdc, char2b, w, row, area, start, hl)
++  init_glyph_string (s, hdc, char2b, w, row, area, start, hl, cursor_state)
+ #else
+ #define INIT_GLYPH_STRING(s, char2b, w, row, area, start, hl) \
+-  init_glyph_string (s, char2b, w, row, area, start, hl)
++  init_glyph_string (s, char2b, w, row, area, start, hl, cursor_state)
+ #endif
+
+ /* Add a glyph string for a stretch glyph to the list of strings
+@@ -31876,9 +31911,11 @@ #define BUILD_GLYPH_STRINGS(START, END, HEAD, TAIL, HL, X, LAST_X)	\
+    Value is the x-position reached, relative to AREA of W.  */
+
+ static int
+-draw_glyphs (struct window *w, int x, struct glyph_row *row,
+-	     enum glyph_row_area area, ptrdiff_t start, ptrdiff_t end,
+-	     enum draw_glyphs_face hl, int overlaps)
++draw_glyphs_with_cursor_state
++  (struct window *w, int x, struct glyph_row *row,
++   enum glyph_row_area area, ptrdiff_t start, ptrdiff_t end,
++   enum draw_glyphs_face hl, int overlaps,
++   struct window_cursor_state *cursor_state)
+ {
+   struct glyph_string *head, *tail;
+   struct glyph_string *s;
+@@ -32126,7 +32163,8 @@ draw_glyphs (struct window *w, int x, struct glyph_row *row,
+       x1 -= area_left;
+
+       notice_overwritten_cursor (w, TEXT_AREA, x0, x1,
+-				 row->y, MATRIX_ROW_BOTTOM_Y (row));
++				 row->y, MATRIX_ROW_BOTTOM_Y (row),
++				 cursor_state);
+     }
+
+   /* Value is the x-position up to which drawn, relative to AREA of W.
+@@ -32142,6 +32180,15 @@ draw_glyphs (struct window *w, int x, struct glyph_row *row,
+   return x_reached;
+ }
+
++static int
++draw_glyphs (struct window *w, int x, struct glyph_row *row,
++	     enum glyph_row_area area, ptrdiff_t start, ptrdiff_t end,
++	     enum draw_glyphs_face hl, int overlaps)
++{
++  return draw_glyphs_with_cursor_state (w, x, row, area, start, end,
++					hl, overlaps, NULL);
++}
++
+ /* Find the first glyph in the run of underlined glyphs preceding the
+    beginning of glyph string S, and return its font (which could be
+    NULL).  This is needed because that font determines the underline
+@@ -34493,7 +34540,7 @@ gui_clear_end_of_line (struct window *w, struct glyph_row *updated_row,
+     notice_overwritten_cursor (w, updated_area,
+ 			       w->output_cursor.x, -1,
+ 			       updated_row->y,
+-			       MATRIX_ROW_BOTTOM_Y (updated_row));
++			       MATRIX_ROW_BOTTOM_Y (updated_row), NULL);
+
+   from_x = w->output_cursor.x;
+
+@@ -34794,12 +34841,27 @@ get_window_cursor_type (struct window *w, struct glyph *glyph, int *width,
+
+ static void
+ notice_overwritten_cursor (struct window *w, enum glyph_row_area area,
+-			   int x0, int x1, int y0, int y1)
++			   int x0, int x1, int y0, int y1,
++			   const struct window_cursor_state *cursor_state)
+ {
+   int cx0, cx1, cy0, cy1;
+   struct glyph_row *row;
+
+-  if (!w->phys_cursor_on_p)
++  /* Packed fields are x, y, hpos, vpos, width, ascent, height, on.  */
++  if (area == TEXT_AREA && VECTORP (w->extra_phys_cursors))
++    for (ptrdiff_t i = 0; i + 7 < ASIZE (w->extra_phys_cursors); i += 8)
++      if (XFIXNUM (AREF (w->extra_phys_cursors, i + 7)))
++        {
++          int ex0 = XFIXNUM (AREF (w->extra_phys_cursors, i));
++          int ey0 = XFIXNUM (AREF (w->extra_phys_cursors, i + 1));
++          int ex1 = ex0 + XFIXNUM (AREF (w->extra_phys_cursors, i + 4));
++          int ey1 = ey0 + XFIXNUM (AREF (w->extra_phys_cursors, i + 6));
++          if (x0 <= ex0 && (x1 < 0 || x1 >= ex1)
++              && !((y0 < ey0 || y0 >= ey1) && (y1 <= ey0 || y1 >= ey1)))
++            ASET (w->extra_phys_cursors, i + 7, make_fixnum (0));
++        }
++
++  if (cursor_state || !w->phys_cursor_on_p)
+     return;
+   if (area != TEXT_AREA)
+     return;
+@@ -34860,9 +34922,10 @@ notice_overwritten_cursor (struct window *w, enum glyph_row_area area,
+    Fix the display of area AREA of overlapping row ROW in window W
+    with respect to the overlapping part OVERLAPS.  */
+
+-void
+-gui_fix_overlapping_area (struct window *w, struct glyph_row *row,
+-			  enum glyph_row_area area, int overlaps)
++static void
++gui_fix_overlapping_area_1 (struct window *w, struct glyph_row *row,
++			    enum glyph_row_area area, int overlaps,
++			    struct window_cursor_state *cursor_state)
+ {
+   int i, x;
+
+@@ -34888,9 +34951,9 @@ gui_fix_overlapping_area (struct window *w, struct glyph_row *row,
+ 	  while (i < row->used[area]
+ 		 && row->glyphs[area][i].overlaps_vertically_p);
+
+-	  draw_glyphs (w, start_x, row, area,
+-		       start, i,
+-		       DRAW_NORMAL_TEXT, overlaps);
++	  draw_glyphs_with_cursor_state (w, start_x, row, area, start, i,
++				   DRAW_NORMAL_TEXT, overlaps,
++				   cursor_state);
+ 	}
+       else
+ 	{
+@@ -34902,6 +34965,13 @@ gui_fix_overlapping_area (struct window *w, struct glyph_row *row,
+   unblock_input ();
+ }
+
++void
++gui_fix_overlapping_area (struct window *w, struct glyph_row *row,
++			  enum glyph_row_area area, int overlaps)
++{
++  gui_fix_overlapping_area_1 (w, row, area, overlaps, NULL);
++}
++
+
+ /* EXPORT:
+    Draw the cursor glyph of window W in glyph row ROW.  See the
+@@ -34956,6 +35026,64 @@ draw_phys_cursor_glyph (struct window *w, struct glyph_row *row,
+     }
+ }
+
++/* Normalize *HPOS to the glyph actually used for a cursor at the horizontal
++   display boundary.  Return false if no glyph represents that position.  */
++static bool
++normalize_window_cursor_hpos (struct glyph_row *row, int *hpos)
++{
++  int used = row->used[TEXT_AREA];
++  if (used <= 0)
++    return false;
++  if (row->reversed_p)
++    {
++      if (*hpos < 0)
++	return false;
++      if (*hpos >= used)
++	*hpos = used - 1;
++    }
++  else
++    {
++      if (*hpos >= used)
++	return false;
++      if (*hpos < 0)
++	*hpos = 0;
++    }
++  return true;
++}
++
++/* Draw the glyph beneath STATE without borrowing W's primary cursor state.  */
++void
++draw_window_cursor_state_glyph (struct window *w, struct glyph_row *row,
++				struct window_cursor_state *state,
++				enum draw_glyphs_face hl)
++{
++  int hpos = state->hpos;
++
++  if (!normalize_window_cursor_hpos (row, &hpos))
++    return;
++
++  struct cursor_pos primary_before = w->phys_cursor;
++  bool primary_on_before = w->phys_cursor_on_p;
++  enum text_cursor_kinds primary_type_before = w->phys_cursor_type;
++  int primary_width_before = w->phys_cursor_width;
++  int primary_ascent_before = w->phys_cursor_ascent;
++  int primary_height_before = w->phys_cursor_height;
++  int x1 = draw_glyphs_with_cursor_state
++    (w, state->x, row, TEXT_AREA, hpos, hpos + 1, hl, 0, state);
++  state->width = x1 - state->x;
++  eassert (hl != DRAW_CURSOR
++	   || (state->mouse_face_checked_p
++	       && state->mouse_face_p
++		  == cursor_state_in_mouse_face_p (w, state)));
++  eassert (memcmp (&primary_before, &w->phys_cursor,
++                   sizeof primary_before) == 0
++           && primary_on_before == w->phys_cursor_on_p
++           && primary_type_before == w->phys_cursor_type
++           && primary_width_before == w->phys_cursor_width
++           && primary_ascent_before == w->phys_cursor_ascent
++           && primary_height_before == w->phys_cursor_height);
++}
++
+
+ /* Erase the image of a cursor of window W from the screen.  */
+
+@@ -35089,6 +35217,262 @@ erase_phys_cursor (struct window *w)
+   w->phys_cursor_type = NO_CURSOR;
+ }
+
++enum extra_cursor_field
++  {
++    EXTRA_X, EXTRA_Y, EXTRA_HPOS, EXTRA_VPOS,
++    EXTRA_WIDTH, EXTRA_ASCENT, EXTRA_HEIGHT, EXTRA_ON,
++    EXTRA_FIELD_COUNT
++  };
++
++struct extra_cursor_request
++{
++  ptrdiff_t pos;
++  ptrdiff_t state_index;
++};
++
++static int
++compare_extra_cursor_requests (void const *a, void const *b)
++{
++  struct extra_cursor_request const *aa = a;
++  struct extra_cursor_request const *bb = b;
++  return aa->pos < bb->pos ? -1 : aa->pos > bb->pos;
++}
++
++static int
++extra_cursor_value (Lisp_Object states, ptrdiff_t n, enum extra_cursor_field f)
++{
++  return XFIXNUM (AREF (states, n * EXTRA_FIELD_COUNT + f));
++}
++
++static void
++set_extra_cursor_value (Lisp_Object states, ptrdiff_t n,
++			enum extra_cursor_field f, int value)
++{
++  ASET (states, n * EXTRA_FIELD_COUNT + f, make_fixnum (value));
++}
++
++static int
++draw_extra_cursor (struct window *w, struct glyph_row *row,
++		   struct cursor_pos cursor)
++{
++  struct window_cursor_state state = {
++    .type = FILLED_BOX_CURSOR,
++    .x = cursor.x,
++    .y = cursor.y,
++    .hpos = cursor.hpos,
++    .vpos = cursor.vpos,
++    .ascent = row->ascent,
++    .height = row->height,
++  };
++  state.on_p = true;
++  draw_window_cursor_state_glyph (w, row, &state, DRAW_CURSOR);
++  return state.width;
++}
++
++static void
++erase_extra_cursor (struct window *w, struct glyph_row *row,
++		    struct window_cursor_state *state,
++		    enum draw_glyphs_face face)
++{
++  draw_window_cursor_state_glyph (w, row, state, face);
++}
++
++static void
++erase_extra_phys_cursors (struct window *w)
++{
++  Lisp_Object states = w->extra_phys_cursors;
++  if (!VECTORP (states) || !w->current_matrix)
++    return;
++  struct cursor_pos primary_before = w->phys_cursor;
++  bool primary_on_before = w->phys_cursor_on_p;
++  enum text_cursor_kinds primary_type_before = w->phys_cursor_type;
++  int primary_width_before = w->phys_cursor_width;
++  int primary_ascent_before = w->phys_cursor_ascent;
++  int primary_height_before = w->phys_cursor_height;
++  ptrdiff_t count = ASIZE (states) / EXTRA_FIELD_COUNT;
++  for (ptrdiff_t i = 0; i < count; i++)
++    if (extra_cursor_value (states, i, EXTRA_ON))
++      {
++        int vpos = extra_cursor_value (states, i, EXTRA_VPOS);
++        if (0 <= vpos && vpos < w->current_matrix->nrows)
++          {
++            struct glyph_row *row = MATRIX_ROW (w->current_matrix, vpos);
++            if (row->enabled_p)
++              {
++                struct window_cursor_state state = {
++                  .type = FILLED_BOX_CURSOR,
++                  .x = extra_cursor_value (states, i, EXTRA_X),
++                  .y = extra_cursor_value (states, i, EXTRA_Y),
++                  .hpos = extra_cursor_value (states, i, EXTRA_HPOS),
++                  .vpos = vpos,
++                  .width = extra_cursor_value (states, i, EXTRA_WIDTH),
++                  .ascent = extra_cursor_value (states, i, EXTRA_ASCENT),
++                  .height = extra_cursor_value (states, i, EXTRA_HEIGHT),
++                  .on_p = true,
++                };
++                bool mouse_face_here_p
++                  = (row->mouse_face_p
++                     && cursor_state_in_mouse_face_p (w, &state));
++                enum draw_glyphs_face face
++                  = mouse_face_here_p
++                    ? DRAW_MOUSE_FACE : DRAW_NORMAL_TEXT;
++                eassert ((face == DRAW_MOUSE_FACE) == mouse_face_here_p);
++                erase_extra_cursor (w, row, &state, face);
++                if (row->overlapped_p)
++                  {
++                    bool repaired_overlap = false;
++                    if (row > w->current_matrix->rows
++                        && MATRIX_ROW_OVERLAPS_SUCC_P (row - 1))
++                      {
++                        gui_fix_overlapping_area_1
++                          (w, row - 1, TEXT_AREA, OVERLAPS_ERASED_CURSOR,
++                           &state);
++                        repaired_overlap = true;
++                      }
++                    if (MATRIX_ROW_BOTTOM_Y (row) < window_text_bottom_y (w)
++                        && MATRIX_ROW_OVERLAPS_PRED_P (row + 1))
++                      {
++                        gui_fix_overlapping_area_1
++                          (w, row + 1, TEXT_AREA, OVERLAPS_ERASED_CURSOR,
++                           &state);
++                        repaired_overlap = true;
++                      }
++                    eassert (!repaired_overlap
++                             || state.overlap_clip_checked_p);
++                  }
++              }
++          }
++        set_extra_cursor_value (states, i, EXTRA_ON, 0);
++      }
++  eassert (memcmp (&primary_before, &w->phys_cursor,
++                   sizeof primary_before) == 0
++           && primary_on_before == w->phys_cursor_on_p
++           && primary_type_before == w->phys_cursor_type
++           && primary_width_before == w->phys_cursor_width
++           && primary_ascent_before == w->phys_cursor_ascent
++           && primary_height_before == w->phys_cursor_height);
++}
++
++static bool
++extra_phys_cursors_on_p (struct window *w)
++{
++  Lisp_Object states = w->extra_phys_cursors;
++  if (VECTORP (states))
++    for (ptrdiff_t i = EXTRA_ON; i < ASIZE (states); i += EXTRA_FIELD_COUNT)
++      if (extra_cursor_value (states, i / EXTRA_FIELD_COUNT, EXTRA_ON))
++        return true;
++  return false;
++}
++
++static void
++draw_extra_phys_cursors (struct window *w)
++{
++  Lisp_Object tail = w->extra_cursors;
++  Lisp_Object states = w->extra_phys_cursors;
++  if (NILP (tail) || !VECTORP (states) || !w->current_matrix
++      || !FRAME_WINDOW_P (XFRAME (w->frame)))
++    return;
++  struct cursor_pos primary_before = w->phys_cursor;
++  bool primary_on_before = w->phys_cursor_on_p;
++  enum text_cursor_kinds primary_type_before = w->phys_cursor_type;
++  int primary_width_before = w->phys_cursor_width;
++  int primary_ascent_before = w->phys_cursor_ascent;
++  int primary_height_before = w->phys_cursor_height;
++  ptrdiff_t count = ASIZE (states) / EXTRA_FIELD_COUNT;
++  struct extra_cursor_request stack_requests[32];
++  struct extra_cursor_request *requests = stack_requests;
++  ptrdiff_t request_count = 0;
++  USE_SAFE_ALLOCA;
++  if (count > ARRAYELTS (stack_requests))
++    SAFE_NALLOCA (requests, 1, count);
++
++  ptrdiff_t state_index = 0;
++  for (; CONSP (tail) && state_index < count;
++       tail = XCDR (tail), state_index++)
++    {
++      Lisp_Object spec = XCAR (tail);
++      ptrdiff_t pos;
++      if (MARKERP (spec))
++        {
++          if (!XMARKER (spec)->buffer
++              || XMARKER (spec)->buffer != XBUFFER (w->contents))
++            continue;
++          pos = marker_position (spec);
++        }
++      else if (FIXNUMP (spec))
++        pos = XFIXNUM (spec);
++      else
++        continue;
++      struct buffer *b = XBUFFER (w->contents);
++      if (pos < BUF_BEGV (b) || pos > BUF_ZV (b))
++        continue;
++
++      requests[request_count++]
++        = (struct extra_cursor_request) { pos, state_index };
++    }
++
++  /* Sorting logical positions removes duplicate work in O(C log C), without
++     imposing any allocation or sorting cost on windows with no extras.  */
++  qsort (requests, request_count, sizeof *requests,
++         compare_extra_cursor_requests);
++  ptrdiff_t previous_pos = -1;
++  for (ptrdiff_t request = 0; request < request_count; request++)
++    {
++      ptrdiff_t pos = requests[request].pos;
++      ptrdiff_t i = requests[request].state_index;
++      if (request && pos == previous_pos)
++        continue;
++      previous_pos = pos;
++
++      struct cursor_pos cursor = { .vpos = -1 };
++      struct glyph_row *first = MATRIX_FIRST_TEXT_ROW (w->current_matrix);
++      struct glyph_row *last = MATRIX_BOTTOM_TEXT_ROW (w->current_matrix, w);
++      for (struct glyph_row *row = first; row <= last && row->enabled_p; row++)
++        if (MATRIX_ROW_START_CHARPOS (row) <= pos
++            && pos <= MATRIX_ROW_END_CHARPOS (row)
++            && set_cursor_from_row_1 (w, row, w->current_matrix, 0, 0, 0, 0,
++                                      pos, &cursor, false))
++          /* Keep scanning: continued and bidi rows can offer a better
++             candidate, and set_cursor_from_row_1 compares it with RESULT.  */
++          continue;
++      if (cursor.vpos < 0 || cursor.vpos >= w->current_matrix->nrows)
++        continue;
++      struct glyph_row *row = MATRIX_ROW (w->current_matrix, cursor.vpos);
++      int hpos = cursor.hpos;
++      if ((cursor.vpos == w->phys_cursor.vpos
++              && hpos == w->phys_cursor.hpos))
++        continue;
++
++      /* Backends store fringe cursor state in the glyph row itself, so two
++         independent fringe cursors cannot yet be represented safely.  Keep
++         boundary EOL/hscroll support, but leave exact-width fringe cursors
++         for a follow-up representation change.  */
++      if (row->exact_window_width_line_p
++          && (row->reversed_p ? hpos < 0 : hpos >= row->used[TEXT_AREA]))
++        continue;
++
++      int width = draw_extra_cursor (w, row, cursor);
++      if (width <= 0)
++	continue;
++      set_extra_cursor_value (states, i, EXTRA_X, cursor.x);
++      set_extra_cursor_value (states, i, EXTRA_Y, cursor.y);
++      set_extra_cursor_value (states, i, EXTRA_HPOS, hpos);
++      set_extra_cursor_value (states, i, EXTRA_VPOS, cursor.vpos);
++      set_extra_cursor_value (states, i, EXTRA_WIDTH, width);
++      set_extra_cursor_value (states, i, EXTRA_ASCENT, row->ascent);
++      set_extra_cursor_value (states, i, EXTRA_HEIGHT, row->height);
++      set_extra_cursor_value (states, i, EXTRA_ON, 1);
++    }
++  SAFE_FREE ();
++  eassert (memcmp (&primary_before, &w->phys_cursor,
++                   sizeof primary_before) == 0
++           && primary_on_before == w->phys_cursor_on_p
++           && primary_type_before == w->phys_cursor_type
++           && primary_width_before == w->phys_cursor_width
++           && primary_ascent_before == w->phys_cursor_ascent
++           && primary_height_before == w->phys_cursor_height);
++}
++
+
+ /* Display or clear cursor of window W.  If !ON, clear the cursor.
+    If ON, display the cursor; where to put the cursor is specified by
+@@ -35114,6 +35498,10 @@ display_and_set_cursor (struct window *w, bool on,
+       || hpos >= w->current_matrix->matrix_w)
+     return;
+
++  /* All GUI cursor lifecycle paths converge here.  Keep extra images in
++     their explicit state; never borrow w->phys_cursor.  */
++  erase_extra_phys_cursors (w);
++
+   /* If cursor is off and we want it off, return quickly.  */
+   if (!on && !w->phys_cursor_on_p)
+     return;
+@@ -35201,6 +35589,8 @@ display_and_set_cursor (struct window *w, bool on,
+     FRAME_RIF (f)->draw_window_cursor (w, glyph_row, x, y,
+ 				       new_cursor_type, new_cursor_width,
+ 				       on, active_cursor);
++  if (on)
++    draw_extra_phys_cursors (w);
+ }
+
+
+@@ -35277,7 +35667,8 @@ gui_update_cursor (struct frame *f, bool on_p)
+ void
+ gui_clear_cursor (struct window *w)
+ {
+-  if (frame_redisplay_p (XFRAME (w->frame)) && w->phys_cursor_on_p)
++  if (frame_redisplay_p (XFRAME (w->frame))
++      && (w->phys_cursor_on_p || extra_phys_cursors_on_p (w)))
+     update_window_cursor (w, false);
+ }
+
+@@ -35332,6 +35723,7 @@ show_mouse_face (Mouse_HLInfo *hlinfo, enum draw_glyphs_face draw,
+     {
+       bool phys_cursor_on_p = w->phys_cursor_on_p;
+ #ifdef HAVE_WINDOW_SYSTEM
++      bool extra_cursors_on_p = extra_phys_cursors_on_p (w);
+       int mouse_off = 0;
+ #endif
+       struct glyph_row *row, *first, *last;
+@@ -35445,6 +35837,17 @@ show_mouse_face (Mouse_HLInfo *hlinfo, enum draw_glyphs_face draw,
+ 	  unblock_input ();
+ #endif	/* HAVE_WINDOW_SYSTEM */
+ 	}
++
++      /* Mouse-face drawing can overwrite an extra without touching the
++         primary cursor.  Restore the complete extra set from explicit
++         state after the highlighted rows have settled.  */
++      if (FRAME_WINDOW_P (f) && extra_cursors_on_p)
++	{
++	  block_input ();
++	  erase_extra_phys_cursors (w);
++	  draw_extra_phys_cursors (w);
++	  unblock_input ();
++	}
+     }
+
+ #ifdef HAVE_WINDOW_SYSTEM
+@@ -35531,6 +35934,21 @@ coords_in_mouse_face_p (struct window *w, int hpos, int vpos)
+   return false;
+ }
+
++static bool
++cursor_state_in_mouse_face_p (struct window *w,
++			      const struct window_cursor_state *state)
++{
++  int vpos = state->vpos;
++  if (!(0 <= vpos && vpos < w->current_matrix->nrows))
++    return false;
++
++  int hpos = state->hpos;
++  struct glyph_row *row = MATRIX_ROW (w->current_matrix, vpos);
++  if (!normalize_window_cursor_hpos (row, &hpos))
++    return false;
++  return coords_in_mouse_face_p (w, hpos, vpos);
++}
++
+
+ /* EXPORT:
+    True if physical cursor of window W is within mouse face.  */
+diff --git a/src/xterm.c b/src/xterm.c
+index a1513d99f2d378aea6b3e3f1ca74e389a35b438a..877267672958dc8be21043eb261a4f26138a09bf 100644
+--- a/src/xterm.c
++++ b/src/xterm.c
+@@ -26088,7 +26088,8 @@ x_draw_window_cursor (struct window *w, struct glyph_row *glyph_row, int x,
+ 	}
+
+ #ifdef HAVE_X_I18N
+-      if (w == XWINDOW (f->selected_window))
++      /* Display-only cursors must not move the input-method spot.  */
++      if (active_p && w == XWINDOW (f->selected_window))
+ 	xic_set_preeditarea (w, x, y);
+ #endif
+     }
+diff --git a/test/src/window-extra-cursors-bench-runner.el b/test/src/window-extra-cursors-bench-runner.el
+new file mode 100644
+index 0000000000000000000000000000000000000000..0605ff4df511bdd03e7b92a3ea7d94ede7e86bbe
+--- /dev/null
++++ b/test/src/window-extra-cursors-bench-runner.el
+@@ -0,0 +1,20 @@
++;;; window-extra-cursors-bench-runner.el --- GUI benchmark runner -*- lexical-binding: t; -*-
++
++;; Copyright (C) 2026 Free Software Foundation, Inc.
++;; This file is part of GNU Emacs.
++
++(load-file (expand-file-name "window-extra-cursors-bench.el"
++                             (file-name-directory load-file-name)))
++(defun window-extra-cursors-bench-log (text)
++  (write-region text nil "/tmp/window-extra-cursors-bench.log" t 'silent))
++(condition-case err
++    (progn
++      (window-extra-cursors-bench-log "benchmark-start\n")
++      (let ((window-extra-cursors-benchmark-output-file
++             "/tmp/window-extra-cursors-bench.log"))
++        (window-extra-cursors-benchmark '(10 100 1000)))
++      (window-extra-cursors-bench-log "benchmark-finished\n")
++      (kill-emacs 0))
++  (error
++   (window-extra-cursors-bench-log (format "benchmark-error: %S\n" err))
++   (kill-emacs 1)))
+diff --git a/test/src/window-extra-cursors-bench.el b/test/src/window-extra-cursors-bench.el
+new file mode 100644
+index 0000000000000000000000000000000000000000..9be4d184c07b36192ffb069b3635826c6f62948e
+--- /dev/null
++++ b/test/src/window-extra-cursors-bench.el
+@@ -0,0 +1,38 @@
++;;; window-extra-cursors-bench.el --- Extra cursor redisplay benchmark -*- lexical-binding: t; -*-
++
++;; Copyright (C) 2026 Free Software Foundation, Inc.
++;; This file is part of GNU Emacs.
++
++;; Run in a graphical build, for example:
++;;   emacs -Q -l test/src/window-extra-cursors-bench.el
++
++(require 'benchmark)
++(require 'cl-lib)
++
++(defvar window-extra-cursors-benchmark-output-file nil)
++
++(defun window-extra-cursors-benchmark (&optional counts)
++  "Measure a forced redisplay for 10, 100, and 1000 extra cursors."
++  (interactive)
++  (with-temp-buffer
++    (dotimes (_ 2000) (insert "abcdefghij\n"))
++    (let ((window (selected-window)))
++      (set-window-buffer window (current-buffer))
++      (goto-char (point-min))
++      (redisplay t)
++      (dolist (count (or counts '(10 100 1000)))
++        (set-window-extra-cursors
++         window (cl-loop for i below count collect (1+ (* i 11))))
++        (let ((elapsed (car (benchmark-run 20 (redisplay t)))))
++          (let ((line (format "extra-cursors %4d: %.6fs\n" count elapsed)))
++            (message "%s" (string-trim-right line))
++            (when window-extra-cursors-benchmark-output-file
++              (write-region line nil
++                            window-extra-cursors-benchmark-output-file
++                            t 'silent))))))))
++
++(when noninteractive
++  (window-extra-cursors-benchmark))
++
++(provide 'window-extra-cursors-bench)
++;;; window-extra-cursors-bench.el ends here
+diff --git a/test/src/window-extra-cursors-gui-smoke.el b/test/src/window-extra-cursors-gui-smoke.el
+new file mode 100644
+index 0000000000000000000000000000000000000000..6b4737009c1bfa5dc84f6185966f34403d99f40d
+--- /dev/null
++++ b/test/src/window-extra-cursors-gui-smoke.el
+@@ -0,0 +1,82 @@
++;;; window-extra-cursors-gui-smoke.el --- GUI smoke for extra cursors -*- lexical-binding: t; -*-
++
++;; Copyright (C) 2026 Free Software Foundation, Inc.
++;; This file is part of GNU Emacs.
++
++(require 'ert)
++
++(ert-deftest window-extra-cursors-gui-smoke ()
++  (skip-unless (display-graphic-p))
++  (with-temp-buffer
++    (insert "ordinary\nend\n01234567890123456789\nimage:X\n")
++    (let ((window (selected-window)))
++      (set-window-buffer window (current-buffer))
++      ;; Ordinary text and EOL.
++      (set-window-extra-cursors window '(2 9 13))
++      (redisplay t)
++      ;; A position hidden to the left by horizontal scrolling exercises the
++      ;; backend's margin-clamping path.
++      (set-window-hscroll window 5)
++      (set-window-extra-cursors window '(14 20))
++      (redisplay t)
++      (set-window-hscroll window 0)
++      ;; Exercise an image glyph when this build has XPM support.
++      (when (image-type-available-p 'xpm)
++        (goto-char (point-min))
++        (search-forward "X")
++        (put-text-property
++         (1- (point)) (point) 'display
++         '(image :type xpm :data
++                 "/* XPM */\nstatic char *x[]={\"2 2 2 1\",\". c red\",\"  c blue\",\". \",\" .\"};"))
++        (set-window-extra-cursors window (list (1- (point))))
++        (redisplay t))
++      (should (equal (window-extra-cursors window)
++                     (if (image-type-available-p 'xpm)
++                         (list (1- (point)))
++                       '(14 20)))))))
++
++(ert-deftest window-extra-cursors-gui-explicit-render-context ()
++  (skip-unless (display-graphic-p))
++  (with-temp-buffer
++    (insert "outside hover-zone\nraised glyph\nafter\n")
++    (let ((window (selected-window)))
++      (set-window-buffer window (current-buffer))
++      (goto-char (point-min))
++      (search-forward "hover-zone")
++      (let ((hover-start (match-beginning 0))
++            (hover-end (match-end 0))
++            (raised-start (save-excursion
++                            (goto-char (point-min))
++                            (forward-line 1)
++                            (point))))
++        (put-text-property hover-start hover-end 'mouse-face 'highlight)
++        ;; A raised glyph produces vertical overhang on ordinary GUI fonts,
++        ;; exercising erased-extra overlap repair when the cursor moves.
++        (put-text-property raised-start (1+ raised-start) 'raise 1.0)
++        (goto-char (point-max))
++        (redisplay t)
++        (when-let* ((posn (posn-at-point hover-start window))
++                    (xy (posn-x-y posn)))
++          (set-mouse-pixel-position
++           (window-frame window)
++           (+ (window-pixel-left window) (car xy))
++           (+ (window-pixel-top window) (cdr xy))))
++        (redisplay t)
++        ;; Primary point is outside the mouse face.  Simultaneously render one
++        ;; extra inside it, one outside it, and one on raised text; moving the
++        ;; set forces erase and overlap repair using each extra's rectangle.
++        (set-window-extra-cursors
++         window (list hover-start (1- hover-start) raised-start))
++        (redisplay t)
++        (set-window-extra-cursors
++         window (list (1+ hover-start) (1+ hover-end) (1+ raised-start)))
++        (redisplay t)
++        ;; Swap the two same-row locations so both an inside and an outside
++        ;; extra are erased while the row participates in mouse-face.
++        (set-window-extra-cursors
++         window (list (1- hover-start) hover-start raised-start))
++        (redisplay t)
++        (should (= 3 (length (window-extra-cursors window))))))))
++
++(let ((stats (ert-run-tests-batch t)))
++  (kill-emacs (if (zerop (ert-stats-completed-unexpected stats)) 0 1)))
+diff --git a/test/src/window-extra-cursors-visual-demo.el b/test/src/window-extra-cursors-visual-demo.el
+new file mode 100644
+index 0000000000000000000000000000000000000000..8529c5a490797b3320561c4422a92c8f4c3aa1d6
+--- /dev/null
++++ b/test/src/window-extra-cursors-visual-demo.el
+@@ -0,0 +1,29 @@
++;;; window-extra-cursors-visual-demo.el --- visual verification -*- lexical-binding: t; -*-
++
++;; Copyright (C) 2026 Free Software Foundation, Inc.
++;; This file is part of GNU Emacs.
++
++(setq inhibit-startup-screen t
++      initial-scratch-message nil)
++(set-frame-size (selected-frame) 72 18)
++(set-face-attribute 'default nil :height 180)
++(set-cursor-color "#ff1744")
++(blink-cursor-mode -1)
++(switch-to-buffer (get-buffer-create "*extra-cursor-visual-demo*"))
++(erase-buffer)
++(insert "Native physical cursor vector\n\n")
++(insert "alpha  beta  gamma\n")
++(insert "日本語  block  cursor\n")
++(insert "EOL cursor is here ->\n")
++(insert "All red blocks use the backend cursor renderer.\n")
++(goto-char (point-min))
++(let ((positions nil))
++  (search-forward "alpha") (push (match-beginning 0) positions)
++  (search-forward "beta") (push (match-beginning 0) positions)
++  (search-forward "gamma") (push (match-beginning 0) positions)
++  (search-forward "日本") (push (match-beginning 0) positions)
++  (search-forward "block") (push (match-beginning 0) positions)
++  (search-forward "->") (push (line-end-position) positions)
++  (goto-char (point-min))
++  (set-window-extra-cursors (selected-window) (nreverse positions)))
++(redisplay t)
+diff --git a/test/src/window-tests.el b/test/src/window-tests.el
+new file mode 100644
+index 0000000000000000000000000000000000000000..214c5217ba70fd4603e2f726c8877705a1e33903
+--- /dev/null
++++ b/test/src/window-tests.el
+@@ -0,0 +1,81 @@
++;;; window-tests.el --- Tests for window.c  -*- lexical-binding: t; -*-
++
++;; Copyright (C) 2026 Free Software Foundation, Inc.
++
++;; This file is part of GNU Emacs.
++
++;;; Code:
++
++(require 'ert)
++
++(ert-deftest window-extra-cursors-storage-and-validation ()
++  (with-temp-buffer
++    (insert "abcdef")
++    (let ((window (selected-window)))
++      (set-window-buffer window (current-buffer))
++      (let ((marker (copy-marker 3)))
++        (should (equal (set-window-extra-cursors window (list 2 marker))
++                       (list 2 marker)))
++        (should (equal (window-extra-cursors window) (list 2 marker)))
++        (should-error (set-window-extra-cursors window '(0)))
++        (should-error (set-window-extra-cursors window '(8)))
++        (should-error (set-window-extra-cursors window '(2 . 3)))
++        (with-temp-buffer
++          (should-error
++           (set-window-extra-cursors window (list (copy-marker 1)))))
++        (set-marker marker nil)
++        ;; Dead markers remain queryable and are skipped safely by redisplay.
++        (redisplay t)
++        (should (eq (car (cdr (window-extra-cursors window))) marker))))))
++
++(ert-deftest window-extra-cursors-cleared-by-buffer-replacement ()
++  (let ((window (selected-window))
++        (original (window-buffer)))
++    (unwind-protect
++        (with-temp-buffer
++          (insert "abc")
++          (set-window-buffer window (current-buffer))
++          (set-window-extra-cursors window '(2))
++          (with-temp-buffer
++            (set-window-buffer window (current-buffer))
++            (should-not (window-extra-cursors window))))
++      (set-window-buffer window original))))
++
++(ert-deftest window-extra-cursors-survive-rejected-buffer-replacement ()
++  (let ((window (selected-window))
++        (original (window-buffer)))
++    (unwind-protect
++        (with-temp-buffer
++          (insert "abc")
++          (set-window-buffer window (current-buffer))
++          (set-window-extra-cursors window '(2))
++          (set-window-dedicated-p window t)
++          (with-temp-buffer
++            (should-error (set-window-buffer window (current-buffer)))
++            (should (equal (window-extra-cursors window) '(2)))))
++      (set-window-dedicated-p window nil)
++      (set-window-buffer window original))))
++
++(ert-deftest window-extra-cursors-use-explicit-render-state ()
++  (let ((xdisp (with-temp-buffer
++                 (insert-file-contents
++                  (expand-file-name "src/xdisp.c" source-directory))
++                 (buffer-string)))
++        (dispextern (with-temp-buffer
++                     (insert-file-contents
++                      (expand-file-name "src/dispextern.h" source-directory))
++                     (buffer-string))))
++    (should (string-match-p "struct window_cursor_state" dispextern))
++    (should (string-match-p "draw_window_cursor_state" xdisp))
++    (should (string-match-p "draw_glyphs_with_cursor_state" xdisp))
++    (should-not (string-match-p "static bool drawing_window_cursor_state"
++                                xdisp))
++    ;; A whole-window initializer is the scratch-copy technique this
++    ;; regression test exists to exclude, regardless of local variable name.
++    (should-not
++     (string-match-p
++      "struct[[:space:]]+window[[:space:]]+[^;=]+=[[:space:]]*\\*w"
++      xdisp))))
++
++(provide 'window-tests)
++;;; window-tests.el ends here

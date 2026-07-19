@@ -100,6 +100,30 @@
         "type": "github"
       }
     },
+    "emacs-overlay-31": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs-emacs"
+        ],
+        "nixpkgs-stable": [
+          "nixpkgs-stable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783824009,
+        "narHash": "sha256-tNTQdWEWJKOBz1sBky8SvRn6saFx0hPausuKic5bvz8=",
+        "owner": "nix-community",
+        "repo": "emacs-overlay",
+        "rev": "723bc7fa2449e2cba507fb3bcd5caaa67728e023",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "emacs-overlay",
+        "rev": "723bc7fa2449e2cba507fb3bcd5caaa67728e023",
+        "type": "github"
+      }
+    },
     "firefox-addons": {
       "inputs": {
         "nixpkgs": [
@@ -448,6 +472,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-emacs": {
+      "locked": {
+        "lastModified": 1783776592,
+        "narHash": "sha256-UgCQzxeWI75XM8G+hPrPh+MKzEPjG3SpAj7dtqSbksA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3",
+        "type": "github"
+      }
+    },
     "nixpkgs-stable": {
       "locked": {
         "lastModified": 1735563628,
@@ -664,6 +704,7 @@
         "brew-nix": "brew-nix",
         "disko": "disko",
         "emacs-overlay": "emacs-overlay",
+        "emacs-overlay-31": "emacs-overlay-31",
         "firefox-addons": "firefox-addons",
         "flake-parts": "flake-parts",
         "git-hooks": "git-hooks",
@@ -675,6 +716,7 @@
         "niri": "niri",
         "nix-darwin": "nix-darwin",
         "nixpkgs": "nixpkgs_2",
+        "nixpkgs-emacs": "nixpkgs-emacs",
         "nixpkgs-stable": "nixpkgs-stable",
         "nur-packages": "nur-packages",
         "org-babel": "org-babel",

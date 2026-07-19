@@ -5,10 +5,17 @@
 }:
 let
   inherit (inputs) org-babel;
-  tangle = org-babel.lib.tangleOrgBabel { languages = [ "emacs-lisp" ]; };
-  sources = pkgs.callPackage ../../sources/generated.nix { };
+  tangleOrg = org-babel.lib.tangleOrgBabel { languages = [ "emacs-lisp" ]; };
+  lexicalBindingCookie = ";;; -*- lexical-binding: t; -*-\n";
+  tangleElisp = content: lexicalBindingCookie + tangleOrg content;
+  emacsPkgs = import ./emacs-toolchain.nix {
+    inherit inputs;
+    system = pkgs.stdenv.hostPlatform.system;
+  };
+  sources = emacsPkgs.callPackage ../../sources/generated.nix { };
   emacsPkg = import ./emacspkg {
-    inherit pkgs sources;
+    pkgs = emacsPkgs;
+    inherit sources;
   };
 
   # modules/ ディレクトリから .org ファイルを自動列挙
@@ -29,7 +36,7 @@ let
       {
         name = "emacs/modules/${elFile}";
         value = {
-          text = tangle (builtins.readFile (modulesDir + "/${orgFile}"));
+          text = tangleElisp (builtins.readFile (modulesDir + "/${orgFile}"));
         };
       }
     ) moduleFiles
@@ -56,8 +63,8 @@ in
   };
 
   xdg.configFile = {
-    "emacs/init.el".text = tangle (builtins.readFile ./elisp/init.org);
-    "emacs/early-init.el".text = tangle (builtins.readFile ./elisp/early-init.org);
+    "emacs/init.el".text = tangleElisp (builtins.readFile ./elisp/init.org);
+    "emacs/early-init.el".text = tangleElisp (builtins.readFile ./elisp/early-init.org);
     "emacs/.authinfo.gpg".source = ./.authinfo.gpg;
   }
   // moduleConfigs
