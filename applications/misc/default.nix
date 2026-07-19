@@ -42,6 +42,24 @@
     jq
     yq
 
+    # --- Python / LLM helper runtime ---
+    uv
+    ruff
+    (python312.withPackages (
+      ps: with ps; [
+        beautifulsoup4
+        lxml
+        matplotlib
+        numpy
+        openpyxl
+        pandas
+        pillow
+        pip
+        pyyaml
+        requests
+      ]
+    ))
+
     # --- GUI Applications ---
     anki-bin # Spaced repetition flashcard program (binary version)
     # mpv # temporarily disabled: jeepney test fails on Darwin (D-Bus unavailable in sandbox)
