@@ -26,25 +26,6 @@ SHARED_GROUPS = (
     "profile-ops",
     "usage-ops",
 )
-PROFILE_GROUPS: dict[str, tuple[str, ...]] = {
-    "default": (
-        "common",
-        "study",
-        "engineering",
-        "orchestration",
-        "profile-ops",
-        "usage-ops",
-    ),
-    "career": ("common", "study", "engineering", "orchestration", "usage-ops"),
-    "economics": ("common", "study", "orchestration"),
-    "english": ("common", "study", "orchestration", "usage-ops"),
-    "finance": ("common", "orchestration"),
-    "food": ("common", "orchestration"),
-    "health": ("common", "orchestration"),
-    "indiedev": ("common", "engineering", "orchestration", "usage-ops"),
-    "math": ("common", "study", "orchestration"),
-    "researcheval": ("common", "engineering", "orchestration", "usage-ops"),
-}
 NAME_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 MARKDOWN_LINK_PATTERN = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 SKILL_COMMAND_INVALID_CHARS = re.compile(r"[^a-z0-9-]")
@@ -76,6 +57,22 @@ SECRET_CAPABILITY_ALLOWLIST: dict[tuple[str, str], dict[str, frozenset[str]]] = 
 README_GROUP_ROW = re.compile(r"^\|\s*`([^`]+)/`\s*\|\s*([^|]+?)\s*\|")
 MANIFEST_SCHEMA_VERSION = 2
 MANIFEST_OWNER = "dotfiles-hermes-shared-skills"
+EXCLUDED_LOCAL_SKILL_DIRS = {
+    ".git",
+    ".github",
+    ".hub",
+    ".archive",
+    ".venv",
+    "venv",
+    "node_modules",
+    "site-packages",
+    "__pycache__",
+    ".tox",
+    ".nox",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+}
 
 
 @dataclass(frozen=True)
@@ -87,6 +84,37 @@ class SkillRecord:
     package_sha256: str
     platforms: tuple[str, ...]
     environments: tuple[str, ...]
+
+
+def load_profile_groups(registry_path: Path) -> dict[str, tuple[str, ...]]:
+    """Load the profile/group matrix from the declarative registry."""
+    try:
+        registry = json.loads(registry_path.read_text())
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"invalid profile registry: {registry_path}") from error
+    profiles = registry.get("profiles") if isinstance(registry, dict) else None
+    schema_version = registry.get("schema_version") if isinstance(registry, dict) else None
+    if schema_version != 1:
+        raise ValueError(
+            f"unsupported profile registry schema: expected=1 actual={schema_version!r}"
+        )
+    if not isinstance(profiles, dict) or not profiles:
+        raise ValueError(f"profile registry has no profiles mapping: {registry_path}")
+
+    result: dict[str, tuple[str, ...]] = {}
+    for profile, record in profiles.items():
+        if not isinstance(profile, str) or not NAME_PATTERN.fullmatch(profile):
+            raise ValueError(f"invalid profile name in registry: {profile!r}")
+        groups = record.get("shared_skill_groups") if isinstance(record, dict) else None
+        if not isinstance(groups, list) or any(not isinstance(item, str) for item in groups):
+            raise ValueError(f"invalid shared_skill_groups for {profile}")
+        if len(set(groups)) != len(groups):
+            raise ValueError(f"duplicate shared skill group for {profile}: {groups}")
+        unknown = sorted(set(groups) - set(SHARED_GROUPS))
+        if unknown:
+            raise ValueError(f"unknown shared skill groups for {profile}: {unknown}")
+        result[profile] = tuple(groups)
+    return result
 
 
 def profile_config_path(home: Path, profile: str) -> Path:
@@ -282,7 +310,7 @@ def _validate_readme_matrix(
 
 def validate_source(
     shared_root: Path,
-    profile_groups: dict[str, tuple[str, ...]] = PROFILE_GROUPS,
+    profile_groups: dict[str, tuple[str, ...]],
     *,
     allow_build_manifest: bool = False,
 ) -> list[SkillRecord]:
@@ -634,7 +662,7 @@ def _normalized_command_collisions(
 def apply(
     home: Path,
     shared_root: Path,
-    profile_groups: dict[str, tuple[str, ...]] = PROFILE_GROUPS,
+    profile_groups: dict[str, tuple[str, ...]],
 ) -> None:
     home = _logical_absolute(home)
     shared_root = _logical_absolute(shared_root)
@@ -767,36 +795,109 @@ def _listed_skill_names(output: str) -> set[str]:
     return names
 
 
-def _active_local_skill_names(
+def _active_local_skill_sources(
     home: Path, profile: str, platform_names: set[str] | None = None
-) -> set[str]:
+) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
+    """Index resolver aliases and command names without conflating them."""
     profile_home = (
         home / ".hermes"
         if profile == "default"
         else home / ".hermes/profiles" / profile
     )
     skills_root = profile_home / "skills"
-    names: set[str] = set()
+    resolver_sources: dict[str, set[str]] = {}
+    command_sources: dict[str, set[str]] = {}
     if not skills_root.is_dir():
-        return names
-    # Nested reference documents with YAML skill frontmatter are also addressable
-    # by Hermes and can make a shared skill name ambiguous.
-    for skill_file in skills_root.rglob("*.md"):
-        relative = skill_file.relative_to(skills_root)
-        if any(part.startswith(".") for part in relative.parts):
+        return resolver_sources, command_sources
+
+    for markdown_file in skills_root.rglob("SKILL.md"):
+        relative = markdown_file.relative_to(skills_root)
+        if any(part in EXCLUDED_LOCAL_SKILL_DIRS for part in relative.parts):
             continue
         try:
-            frontmatter = _frontmatter(skill_file)
+            source = str(markdown_file.resolve())
+        except OSError:
+            source = str(markdown_file)
+
+        try:
+            frontmatter = _frontmatter(markdown_file)
         except (OSError, ValueError):
             frontmatter = {}
-        if frontmatter and not _frontmatter_matches_platform(
+        # Hermes strategy 2 accepts both parent-directory and declared names.
+        aliases = {markdown_file.parent.name}
+        declared_name = frontmatter.get("name")
+        if isinstance(declared_name, str):
+            aliases.add(declared_name)
+        for alias in aliases:
+            resolver_sources.setdefault(alias, set()).add(source)
+
+        # Gateway commands use only the declared name and honor platform scope.
+        if isinstance(declared_name, str) and _frontmatter_matches_platform(
             frontmatter, platform_names
         ):
+            command_sources.setdefault(declared_name, set()).add(source)
+
+    # Strategy 3 can shadow an advertised SKILL.md alias with any same-stem
+    # legacy Markdown file. Ignore stems that are not advertised skills: Hermes
+    # can resolve them only through an explicit ad-hoc lookup, while skills_list
+    # and gateway command registration never expose them as skills.
+    advertised_aliases = set(resolver_sources)
+    for markdown_file in skills_root.rglob("*.md"):
+        if markdown_file.name == "SKILL.md" or markdown_file.stem not in advertised_aliases:
             continue
-        name = frontmatter.get("name") or skill_file.stem
-        if isinstance(name, str):
-            names.add(name)
-    return names
+        relative = markdown_file.relative_to(skills_root)
+        if any(part in EXCLUDED_LOCAL_SKILL_DIRS for part in relative.parts):
+            continue
+        try:
+            source = str(markdown_file.resolve())
+        except OSError:
+            source = str(markdown_file)
+        resolver_sources.setdefault(markdown_file.stem, set()).add(source)
+    return resolver_sources, command_sources
+
+
+def _active_local_skill_names(
+    home: Path, profile: str, platform_names: set[str] | None = None
+) -> set[str]:
+    resolver_sources, _ = _active_local_skill_sources(home, profile, platform_names)
+    return set(resolver_sources)
+
+
+def _local_skill_source_collisions(
+    resolver_sources: dict[str, set[str]],
+    command_sources: dict[str, set[str]],
+) -> dict[str, object]:
+    """Report exact resolver and normalized declared-command collisions."""
+    result: dict[str, object] = {}
+    exact = {
+        name: sorted(paths)
+        for name, paths in resolver_sources.items()
+        if len(paths) > 1
+    }
+    if exact:
+        result["exact"] = exact
+
+    for kind, normalize in (
+        ("slash", _skill_command_slug),
+        ("discord", lambda name: _skill_command_slug(name)[:DISCORD_COMMAND_NAME_LIMIT]),
+    ):
+        aliases: dict[str, dict[str, set[str]]] = {}
+        for name, paths in command_sources.items():
+            normalized = normalize(name)
+            bucket = aliases.setdefault(normalized, {})
+            for path in paths:
+                bucket.setdefault(path, set()).add(name)
+        collisions = {
+            normalized: {
+                "names": sorted(set().union(*by_path.values())),
+                "sources": sorted(by_path),
+            }
+            for normalized, by_path in aliases.items()
+            if len(by_path) > 1
+        }
+        if collisions:
+            result[kind] = collisions
+    return result
 
 
 def _current_platform_names() -> set[str]:
@@ -816,7 +917,7 @@ def _visible_on_platform(record: SkillRecord, platform_names: set[str]) -> bool:
 def check_live(
     home: Path,
     shared_root: Path,
-    profile_groups: dict[str, tuple[str, ...]] = PROFILE_GROUPS,
+    profile_groups: dict[str, tuple[str, ...]],
     cli_runner: Callable[[str], str] = _default_cli_runner,
     platform_names: set[str] | None = None,
 ) -> dict:
@@ -901,7 +1002,17 @@ def check_live(
         ambient_expected_names = set().union(
             *(ambient_names_by_group[group] for group in groups)
         )
-        local_names = _active_local_skill_names(home, profile, platform_names)
+        local_sources, local_command_sources = _active_local_skill_sources(
+            home, profile, platform_names
+        )
+        local_source_collisions = _local_skill_source_collisions(
+            local_sources, local_command_sources
+        )
+        if local_source_collisions:
+            raise ValueError(
+                f"local/local skill collision for {profile}: {local_source_collisions}"
+            )
+        local_names = set(local_sources)
         local_collisions = sorted(expected_names & local_names)
         if local_collisions:
             raise ValueError(
@@ -980,6 +1091,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("command", choices=("configure", "check-source", "check-live"))
     parser.add_argument("--home", type=Path, default=Path.home())
     parser.add_argument(
+        "--registry",
+        type=Path,
+        help="profile registry (default: <home>/.local/share/hermes/profile-registry.json)",
+    )
+    parser.add_argument(
         "--shared-root",
         type=Path,
         default=Path.home() / ".local/share/hermes/shared-skills",
@@ -990,19 +1106,24 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: list[str]) -> int:
     arguments = _parser().parse_args(argv[1:])
     try:
+        registry_path = arguments.registry or (
+            arguments.home / ".local/share/hermes/profile-registry.json"
+        )
+        profile_groups = load_profile_groups(registry_path)
         if arguments.command == "configure":
-            apply(arguments.home, arguments.shared_root)
-            result = {"configured_profiles": sorted(PROFILE_GROUPS)}
+            apply(arguments.home, arguments.shared_root, profile_groups)
+            result = {"configured_profiles": sorted(profile_groups)}
         elif arguments.command == "check-source":
             result = {
                 "schema_version": MANIFEST_SCHEMA_VERSION,
                 "managed_by": MANIFEST_OWNER,
                 "skills": [
-                    asdict(record) for record in validate_source(arguments.shared_root)
+                    asdict(record)
+                    for record in validate_source(arguments.shared_root, profile_groups)
                 ],
             }
         else:
-            result = check_live(arguments.home, arguments.shared_root)
+            result = check_live(arguments.home, arguments.shared_root, profile_groups)
     except (OSError, ValueError) as error:
         print(f"shared skill validation failed: {error}", file=sys.stderr)
         return 1

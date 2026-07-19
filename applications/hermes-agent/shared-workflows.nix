@@ -6,6 +6,9 @@
 let
   configPython = pkgs.python3.withPackages (ps: [ ps.pyyaml ]);
   sharedSkillsScript = ./scripts/shared_skills_config.py;
+  sharedSkillsRunner = pkgs.writeShellScript "shared-skills-config" ''
+    exec ${configPython}/bin/python ${sharedSkillsScript} "$@"
+  '';
   profileRegistryCheckRunner = pkgs.writeShellScript "profile-registry-check" ''
     exec ${configPython}/bin/python ${./scripts/profile_registry_check.py} "$@"
   '';
@@ -18,6 +21,7 @@ let
     cd source
     PYTHONDONTWRITEBYTECODE=1 ${configPython}/bin/python -m unittest \
       tests/test_shared_skills_config.py \
+      tests/test_engineering_quality_core.py \
       tests/test_profile_summary_source_check.py \
       tests/test_profile_registry_check.py \
       tests/test_kanban_dispatch_config.py \
@@ -33,13 +37,14 @@ let
     mkdir -p "$out"
     ${configPython}/bin/python ${sharedSkillsScript} \
       check-source \
+      --registry ${./profile-registry.json} \
       --shared-root ${./shared-skills} >"$out/.manifest.json"
     cp -R ${./shared-skills}/. "$out/"
   '';
 in
 {
   home.file = {
-    ".hermes/scripts/shared_skills_config.py".source = sharedSkillsScript;
+    ".hermes/scripts/shared_skills_config.py".source = sharedSkillsRunner;
     ".local/share/hermes/shared-skills".source = validatedSharedSkills;
     ".local/share/hermes/profile-registry.json".source = ./profile-registry.json;
   };
@@ -73,6 +78,7 @@ in
     $DRY_RUN_CMD ${configPython}/bin/python ${sharedSkillsScript} \
       configure \
       --home "$HOME" \
+      --registry "$HOME/.local/share/hermes/profile-registry.json" \
       --shared-root "$HOME/.local/share/hermes/shared-skills"
   '';
 

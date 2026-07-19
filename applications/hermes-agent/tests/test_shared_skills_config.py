@@ -25,18 +25,20 @@ class SharedSkillsConfigTests(unittest.TestCase):
     }
 
     def test_production_matrix_shares_orchestration_with_every_profile(self):
+        registry = Path(__file__).resolve().parents[1] / "profile-registry.json"
+        production_groups = shared_skills_config.load_profile_groups(registry)
         self.assertEqual(
             {
                 profile
-                for profile, groups in shared_skills_config.PROFILE_GROUPS.items()
+                for profile, groups in production_groups.items()
                 if "orchestration" in groups
             },
-            set(shared_skills_config.PROFILE_GROUPS),
+            set(production_groups),
         )
         self.assertEqual(
             {
                 profile
-                for profile, groups in shared_skills_config.PROFILE_GROUPS.items()
+                for profile, groups in production_groups.items()
                 if "engineering" in groups
             },
             {"default", "career", "indiedev", "researcheval"},
@@ -44,11 +46,81 @@ class SharedSkillsConfigTests(unittest.TestCase):
         self.assertEqual(
             {
                 profile
-                for profile, groups in shared_skills_config.PROFILE_GROUPS.items()
+                for profile, groups in production_groups.items()
                 if "usage-ops" in groups
             },
             {"default", "career", "english", "indiedev", "researcheval"},
         )
+
+    def test_rejects_local_local_exact_and_command_collisions(self):
+        exact = {
+            "same-name": {
+                "/skills/one/SKILL.md",
+                "/skills/two/SKILL.md",
+            }
+        }
+        collisions = shared_skills_config._local_skill_source_collisions(exact, {})
+        self.assertIn("exact", collisions)
+
+        commands = {
+            "foo-bar": {"/skills/one/SKILL.md"},
+            "foo_bar": {"/skills/two/SKILL.md"},
+            "a" * 32 + "-one": {"/skills/three/SKILL.md"},
+            "a" * 32 + "-two": {"/skills/four/SKILL.md"},
+        }
+        collisions = shared_skills_config._local_skill_source_collisions({}, commands)
+        self.assertIn("slash", collisions)
+        self.assertIn("discord", collisions)
+
+        directory_aliases = {
+            "foo_bar": {"/skills/foo_bar/SKILL.md"},
+            "foo-bar": {"/skills/foo-bar/SKILL.md"},
+        }
+        declared_commands = {
+            "one": {"/skills/foo_bar/SKILL.md"},
+            "two": {"/skills/foo-bar/SKILL.md"},
+        }
+        self.assertEqual(
+            shared_skills_config._local_skill_source_collisions(
+                directory_aliases, declared_commands
+            ),
+            {},
+        )
+
+    def test_discovers_legacy_flat_shadowing_an_advertised_skill(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            home = Path(tmp) / "home"
+            root = home / ".hermes/skills"
+            skill = root / "one/duplicate/SKILL.md"
+            skill.parent.mkdir(parents=True)
+            skill.write_text(
+                "---\nname: duplicate\ndescription: Advertised skill.\n---\n"
+            )
+            legacy = root / "two/duplicate.md"
+            legacy.parent.mkdir(parents=True)
+            legacy.write_text("# Legacy skill\n")
+            resolver_sources, command_sources = (
+                shared_skills_config._active_local_skill_sources(home, "default")
+            )
+            collisions = shared_skills_config._local_skill_source_collisions(
+                resolver_sources, command_sources
+            )
+            self.assertEqual(len(collisions["exact"]["duplicate"]), 2)
+
+    def test_rejects_unsupported_registry_schema_before_use(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            registry = Path(tmp) / "registry.json"
+            for schema in (None, 2):
+                value: dict[str, object] = {
+                    "profiles": {
+                        "default": {"shared_skill_groups": ["common"]}
+                    }
+                }
+                if schema is not None:
+                    value["schema_version"] = schema
+                registry.write_text(json.dumps(value))
+                with self.assertRaisesRegex(ValueError, "unsupported.*schema"):
+                    shared_skills_config.load_profile_groups(registry)
 
     @staticmethod
     def skill_table(*names: str) -> str:
@@ -317,32 +389,27 @@ class SharedSkillsConfigTests(unittest.TestCase):
         self.assertIn("slash", collisions)
         self.assertIn("discord", collisions)
 
-    def test_detects_nested_frontmatter_skill_name_as_local_collision(self):
+    def test_ignores_unadvertised_reference_stems(self):
         with tempfile.TemporaryDirectory() as tmp:
             home = Path(tmp) / "home"
             nested = (
                 home
-                / ".hermes/skills/productivity/umbrella/references/absorbed.md"
+                / ".hermes/skills/productivity/umbrella/references/shared-name.md"
             )
             nested.parent.mkdir(parents=True)
             nested.write_text(
                 "---\n"
-                "name: shared-name\n"
-                "description: Nested absorbed skill.\n"
+                "name: ignored-frontmatter-name\n"
+                "description: Nested reference.\n"
                 "---\n\n"
                 "# Reference\n"
             )
-            self.assertIn(
-                "shared-name",
-                shared_skills_config._active_local_skill_names(home, "default"),
-            )
-
             plain = nested.parent / "plain-reference.md"
             plain.write_text("# Plain reference\n")
-            self.assertIn(
-                "plain-reference",
-                shared_skills_config._active_local_skill_names(home, "default"),
-            )
+            names = shared_skills_config._active_local_skill_names(home, "default")
+            self.assertNotIn("shared-name", names)
+            self.assertNotIn("ignored-frontmatter-name", names)
+            self.assertNotIn("plain-reference", names)
 
     def test_rejects_symlinks_frontmatter_injection_and_missing_links(self):
         with tempfile.TemporaryDirectory() as tmp:

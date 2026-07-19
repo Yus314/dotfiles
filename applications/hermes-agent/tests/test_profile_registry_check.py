@@ -40,6 +40,10 @@ class ProfileRegistryCheckTests(unittest.TestCase):
                                 self.home
                                 / ".local/share/hermes/shared-skills/orchestration"
                             ),
+                            str(
+                                self.home
+                                / ".local/share/hermes/shared-skills/usage-ops"
+                            ),
                         ]
                     },
                 }
@@ -61,7 +65,7 @@ class ProfileRegistryCheckTests(unittest.TestCase):
                     "canonical_paths": ["~/org"],
                     "summary_path": None,
                     "memory_provider": "honcho",
-                    "shared_skill_groups": ["common", "orchestration"],
+                    "shared_skill_groups": ["common", "orchestration", "usage-ops"],
                     "gateway_expected": "running",
                     "kanban_role": "leader",
                 }
@@ -89,11 +93,30 @@ class ProfileRegistryCheckTests(unittest.TestCase):
         self.assertEqual(self.validate(), [])
 
     def test_detects_shared_group_drift(self) -> None:
-        self.registry["profiles"]["default"]["shared_skill_groups"] = ["common"]
+        self.registry["profiles"]["default"]["shared_skill_groups"] = [
+            "common",
+            "orchestration",
+        ]
         self.write_registry()
         self.assertTrue(
             any("shared skill groups drift" in error for error in self.validate())
         )
+
+    def test_rejects_unknown_group_even_when_live_config_matches(self) -> None:
+        unknown_path = str(
+            self.home / ".local/share/hermes/shared-skills/typo-group"
+        )
+        config_path = self.profile_root / "config.yaml"
+        config = yaml.safe_load(config_path.read_text())
+        config["skills"]["external_dirs"].append(unknown_path)
+        config_path.write_text(yaml.safe_dump(config))
+        self.registry["profiles"]["default"]["shared_skill_groups"].append(
+            "typo-group"
+        )
+        self.write_registry()
+        errors = self.validate()
+        self.assertTrue(any("unknown shared skill groups" in error for error in errors))
+        self.assertFalse(any("shared skill groups drift" in error for error in errors))
 
     def test_detects_missing_description_and_unknown_route(self) -> None:
         (self.profile_root / "profile.yaml").write_text("{}\n")

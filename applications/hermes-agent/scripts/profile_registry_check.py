@@ -13,6 +13,16 @@ from typing import Callable
 import yaml
 
 
+ALLOWED_SHARED_SKILL_GROUPS = {
+    "common",
+    "study",
+    "engineering",
+    "orchestration",
+    "profile-ops",
+    "usage-ops",
+}
+
+
 def profile_root(home: Path, name: str) -> Path:
     return home / ".hermes" if name == "default" else home / ".hermes/profiles" / name
 
@@ -84,6 +94,16 @@ def validate(
             errors.append(f"{name}: missing SOUL.md")
 
         expected_groups = spec.get("shared_skill_groups", [])
+        if not isinstance(expected_groups, list) or any(
+            not isinstance(group, str) for group in expected_groups
+        ):
+            errors.append(f"{name}: shared_skill_groups must be a string list")
+            expected_groups = []
+        elif len(expected_groups) != len(set(expected_groups)):
+            errors.append(f"{name}: duplicate shared skill groups: {expected_groups}")
+        unknown_groups = sorted(set(expected_groups) - ALLOWED_SHARED_SKILL_GROUPS)
+        if unknown_groups:
+            errors.append(f"{name}: unknown shared skill groups: {unknown_groups}")
         external_dirs = ((config.get("skills") or {}).get("external_dirs") or [])
         shared_root = home / ".local/share/hermes/shared-skills"
         managed_groups = []
@@ -93,16 +113,8 @@ def validate(
             expanded = Path(os.path.expandvars(os.path.expanduser(item)))
             if not expanded.is_absolute():
                 expanded = root / expanded
-            for group in (
-                "common",
-                "study",
-                "engineering",
-                "orchestration",
-                "profile-ops",
-            ):
-                if expanded == shared_root / group:
-                    managed_groups.append(group)
-                    break
+            if expanded.parent == shared_root:
+                managed_groups.append(expanded.name)
         if managed_groups != expected_groups:
             errors.append(
                 f"{name}: shared skill groups drift: expected={expected_groups} actual={managed_groups}"
