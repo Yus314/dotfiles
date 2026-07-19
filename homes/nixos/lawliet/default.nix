@@ -26,6 +26,7 @@ in
       imports = [
         ../desktop.nix
         ../../../applications/ledger/service.nix
+        ../../../applications/ledger/gmail-fetch.nix
         ../../../applications/hermes-agent
       ];
       home.packages = with pkgs; [ bluetui ];
