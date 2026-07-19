@@ -4,7 +4,9 @@
 ;; Explicit, opt-in benchmark for the real selection-batch package.  Package
 ;; loading and process startup happen before `selection-batch-benchmark-run', so
 ;; neither is included in a sample.  Each operation gets a fresh fundamental-mode
-;; buffer and deterministic disjoint ASCII selections.
+;; buffer and deterministic disjoint ASCII selections.  Each timed operation
+;; starts immediately after an explicit collection so fixture allocation does
+;; not make sample-to-sample GC timing depend on the preceding matrix case.
 
 ;;; Code:
 
@@ -12,11 +14,13 @@
 (require 'cl-lib)
 (require 'json)
 (require 'selection-batch)
+(require 'selection-first)
 
 (defconst selection-batch-benchmark-counts '(10 100 1000))
 (defconst selection-batch-benchmark-warmups 2)
 (defconst selection-batch-benchmark-iterations 5)
 (defconst selection-batch-benchmark-insertion "<>")
+(defconst selection-batch-benchmark-large-padding 200000)
 
 (defun selection-batch-benchmark--assert (condition format-string &rest args)
   "Signal an error unless CONDITION holds, formatting ARGS with FORMAT-STRING."
@@ -65,6 +69,29 @@
                           (selection-batch--live-selection-cursor-marker selection))))
    (copy-sequence (selection-batch--session-overlays session))))
 
+(defun selection-batch-benchmark--assert-view-cardinality (session count context)
+  "Assert SESSION's role cardinality for COUNT selections in CONTEXT."
+  (let* ((overlays (selection-batch--session-overlays session))
+         (ranges (cl-count 'range overlays
+                           :key (lambda (overlay)
+                                  (overlay-get overlay 'selection-batch-role))))
+         (cursors (cl-count 'cursor overlays
+                            :key (lambda (overlay)
+                                   (overlay-get overlay 'selection-batch-role))))
+         (native-owner
+          (cl-find session selection-batch--installed-window-cursors
+                   :key (lambda (entry) (nth 2 entry)) :test #'eq)))
+    (selection-batch-benchmark--assert
+     (= (1- count) ranges) "%s range overlay count is not %d"
+     context (1- count))
+    (selection-batch-benchmark--assert
+     (= (if native-owner 0 (1- count)) cursors)
+     "%s cursor overlay count is not %d"
+     context (if native-owner 0 (1- count)))
+    (selection-batch-benchmark--assert
+     (= (length overlays) (+ ranges cursors))
+     "%s has an unexpected overlay role" context)))
+
 (defun selection-batch-benchmark--cleanup-and-assert (buffer artifacts)
   "Clean BUFFER's session and assert that captured ARTIFACTS do not leak."
   (when selection-batch--session
@@ -104,7 +131,21 @@ Return the `(elapsed-seconds gc-count gc-seconds)' from `benchmark-call'."
     (unwind-protect
         (with-current-buffer buffer
           (pcase operation
+            ('pure-char-transform
+             (garbage-collect)
+             (setq sample
+                   (benchmark-call
+                    (lambda ()
+                      (selection-first--char-motion snapshot 1 nil)) 1))
+             (let ((candidate (selection-first--char-motion snapshot 1 nil)))
+               (selection-batch-benchmark--assert
+                (= count (length (selection-batch-snapshot-selections candidate)))
+                "pure transform count is not %d" count)
+               (selection-batch-benchmark--assert
+                (null selection-batch--session)
+                "pure transform unexpectedly materialized a session")))
             ('session-install
+             (garbage-collect)
              (setq sample
                    (benchmark-call
                     (lambda () (selection-batch-install-snapshot snapshot)) 1))
@@ -113,14 +154,13 @@ Return the `(elapsed-seconds gc-count gc-seconds)' from `benchmark-call'."
              (selection-batch-benchmark--assert
               (equal (buffer-string) (selection-batch-benchmark--text count))
               "install changed fixture text")
-             (selection-batch-benchmark--assert
-              (= (1- count)
-                 (length (selection-batch--session-overlays selection-batch--session)))
-              "install overlay count is not %d" (1- count)))
+             (selection-batch-benchmark--assert-view-cardinality
+              selection-batch--session count "install"))
             ('overlay-refresh
              (selection-batch-install-snapshot snapshot)
              (let ((old (copy-sequence
                          (selection-batch--session-overlays selection-batch--session))))
+               (garbage-collect)
                (setq sample
                      (benchmark-call
                       (lambda ()
@@ -128,10 +168,8 @@ Return the `(elapsed-seconds gc-count gc-seconds)' from `benchmark-call'."
                (dolist (overlay old)
                  (selection-batch-benchmark--assert
                   (null (overlay-buffer overlay)) "refresh retained an old overlay")))
-             (selection-batch-benchmark--assert
-              (= (1- count)
-                 (length (selection-batch--session-overlays selection-batch--session)))
-              "refresh overlay count is not %d" (1- count))
+             (selection-batch-benchmark--assert-view-cardinality
+              selection-batch--session count "refresh")
              (selection-batch-benchmark--assert
               (= count (selection-batch-count)) "refresh count is not %d" count)
              (selection-batch-benchmark--assert
@@ -139,6 +177,7 @@ Return the `(elapsed-seconds gc-count gc-seconds)' from `benchmark-call'."
               "refresh changed fixture text"))
             ('insertion-plan-apply
              (selection-batch-install-snapshot snapshot)
+             (garbage-collect)
              (setq sample
                    (benchmark-call
                     (lambda ()
@@ -161,9 +200,44 @@ Return the `(elapsed-seconds gc-count gc-seconds)' from `benchmark-call'."
              (selection-batch-benchmark--assert
               (= 1 (selection-batch-snapshot-generation
                     (selection-batch-current-snapshot)))
-              "insertion generation is not one")))
-          (setq artifacts
-                (selection-batch-benchmark--artifacts selection-batch--session)))
+              "insertion generation is not one"))
+            ((or 'batch-insert-intent 'batch-insert-large-buffer)
+             (when (eq operation 'batch-insert-large-buffer)
+               (goto-char (point-max))
+               (insert (make-string selection-batch-benchmark-large-padding ?.))
+               (setq snapshot (selection-batch-benchmark--snapshot buffer count)))
+             (selection-batch-install-snapshot
+              (selection-first--batch-endpoint-transform snapshot nil))
+             (selection-first--set-state 'batch-insert)
+             (setq selection-first--batch-insert-fingerprint
+                   (selection-first--batch-fingerprint))
+             (garbage-collect)
+             (setq sample
+                   (benchmark-call
+                    (lambda ()
+                      (selection-first-batch-insert-string
+                       selection-batch-benchmark-insertion)) 1))
+             (let ((expected
+                    (concat (selection-batch-benchmark--text
+                             count selection-batch-benchmark-insertion)
+                            (if (eq operation 'batch-insert-large-buffer)
+                                (make-string selection-batch-benchmark-large-padding ?.)
+                              ""))))
+               (selection-batch-benchmark--assert
+                (equal (buffer-string) expected) "batch intent text mismatch")
+               (selection-batch-benchmark--assert
+                (equal (secure-hash 'sha256 (buffer-string))
+                       (secure-hash 'sha256 expected))
+                "batch intent checksum mismatch"))
+             (selection-batch-benchmark--assert
+              (= count (selection-batch-count)) "batch intent count is not %d" count)
+             (selection-batch-benchmark--assert
+              (= 1 (selection-batch-snapshot-generation
+                    (selection-batch-current-snapshot)))
+              "batch intent generation is not one")))
+          (when selection-batch--session
+            (setq artifacts
+                  (selection-batch-benchmark--artifacts selection-batch--session))))
       (selection-batch-benchmark--cleanup-and-assert buffer artifacts))
     sample))
 
@@ -200,9 +274,11 @@ Return the `(elapsed-seconds gc-count gc-seconds)' from `benchmark-call'."
   (when selection-batch--session
     (selection-batch--cleanup selection-batch--session nil t))
   (garbage-collect)
-  (let (results)
+  (let ((standard-output 'external-debugging-output)
+        results)
     (dolist (count selection-batch-benchmark-counts)
-      (dolist (operation '(session-install overlay-refresh insertion-plan-apply))
+      (dolist (operation '(pure-char-transform session-install overlay-refresh
+                           insertion-plan-apply batch-insert-intent))
         (let ((result (selection-batch-benchmark--measure operation count)))
           (push result results)
           (princ
@@ -211,6 +287,17 @@ Return the `(elapsed-seconds gc-count gc-seconds)' from `benchmark-call'."
                    (selection-batch-benchmark--field 'median_ms result)
                    (append (selection-batch-benchmark--field 'samples_ms result) nil)
                    (append (selection-batch-benchmark--field 'gc_counts result) nil))))))
+    ;; Keep caret work fixed while making unrelated buffer text large.  This
+    ;; specifically exposes accidental whole-buffer verification in an intent.
+    (let ((result (selection-batch-benchmark--measure
+                   'batch-insert-large-buffer 10)))
+      (push result results)
+      (princ
+       (format "BENCH selection-batch count=10 operation=%s median_ms=%.3f samples_ms=%S gc_counts=%S\n"
+               (selection-batch-benchmark--field 'operation result)
+               (selection-batch-benchmark--field 'median_ms result)
+               (append (selection-batch-benchmark--field 'samples_ms result) nil)
+               (append (selection-batch-benchmark--field 'gc_counts result) nil))))
     (setq results (nreverse results))
     (let ((document
            `((schema . "selection-batch-benchmark-v1")
@@ -226,7 +313,30 @@ Return the `(elapsed-seconds gc-count gc-seconds)' from `benchmark-call'."
                             :test #'equal))
            (refresh (cl-find "overlay-refresh" at-100
                              :key (lambda (result) (alist-get 'operation result))
-                             :test #'equal)))
+                             :test #'equal))
+           (pure-1000 (cl-find-if
+                       (lambda (result)
+                         (and (= 1000 (alist-get 'count result))
+                              (equal "pure-char-transform"
+                                     (alist-get 'operation result))))
+                       results))
+           (batch-1000 (cl-find-if
+                        (lambda (result)
+                          (and (= 1000 (alist-get 'count result))
+                               (equal "batch-insert-intent"
+                                      (alist-get 'operation result))))
+                        results))
+           (batch-10 (cl-find-if
+                      (lambda (result)
+                        (and (= 10 (alist-get 'count result))
+                             (equal "batch-insert-intent"
+                                    (alist-get 'operation result))))
+                      results))
+           (large-10 (cl-find-if
+                      (lambda (result)
+                        (equal "batch-insert-large-buffer"
+                               (alist-get 'operation result)))
+                      results)))
       (selection-batch-benchmark--assert
        (< (alist-get 'median_ms insert) 200.0)
        "100-selection insertion median %.3fms is not below 200ms"
@@ -234,10 +344,24 @@ Return the `(elapsed-seconds gc-count gc-seconds)' from `benchmark-call'."
       (selection-batch-benchmark--assert
        (< (alist-get 'median_ms refresh) 100.0)
        "100-selection overlay median %.3fms is not below 100ms"
-       (alist-get 'median_ms refresh)))
+       (alist-get 'median_ms refresh))
+      (selection-batch-benchmark--assert
+       (< (alist-get 'median_ms pure-1000) 20.0)
+       "1000-selection pure transform median %.3fms is not below 20ms"
+       (alist-get 'median_ms pure-1000))
+      (selection-batch-benchmark--assert
+       (< (alist-get 'median_ms batch-1000) 500.0)
+       "1000-caret batch intent median %.3fms is not below 500ms"
+       (alist-get 'median_ms batch-1000))
+      (selection-batch-benchmark--assert
+       (and (< (alist-get 'median_ms large-10) 50.0)
+            (< (alist-get 'median_ms large-10)
+               (* 5.0 (alist-get 'median_ms batch-10))))
+       "large-buffer batch median %.3fms regressed against small-buffer %.3fms"
+       (alist-get 'median_ms large-10) (alist-get 'median_ms batch-10)))
     (selection-batch-benchmark--assert
      (null selection-batch--session) "benchmark ended with a live session")
-    (princ "BENCH selection-batch status=PASS gates=insertion-100<200ms,overlay-100<100ms leaks=none\n")
+    (princ "BENCH selection-batch status=PASS gates=pure-1000<20ms,insertion-100<200ms,overlay-100<100ms,batch-1000<500ms,large-10<50ms-and-5x-small leaks=none\n")
     results))
 
 (provide 'selection-batch-benchmark)

@@ -8,7 +8,7 @@
 (defvar meow-normal-state-keymap)
 
 (defconst selection-batch-test--repository-root
-  (expand-file-name "../../.." (file-name-directory load-file-name)))
+  (expand-file-name ".." (file-name-directory load-file-name)))
 
 (defun selection-batch-test--region (anchor cursor)
   (goto-char cursor)
@@ -28,32 +28,17 @@
   (should-not (selection-batch-collapse))
   (should-not (selection-batch-cancel)))
 
-(ert-deftest selection-batch-module-is-after-editing-and-loads-without-startup-state ()
-  (let* ((init (expand-file-name "applications/emacs/elisp/init.org"
-                                 selection-batch-test--repository-root))
-         (module (expand-file-name
-                  "applications/emacs/elisp/modules/init-selection-batch.org"
-                  selection-batch-test--repository-root))
-         (temporary (make-temp-file "selection-batch-module-" t))
-         (copy (expand-file-name "init-selection-batch.org" temporary)))
+(ert-deftest selection-batch-minimal-example-loads-without-startup-state ()
+  (let ((example (expand-file-name "examples/minimal-init.el"
+                                   selection-batch-test--repository-root)))
     (unwind-protect
         (progn
-          (with-temp-buffer
-            (insert-file-contents init)
-            (should
-             (re-search-forward
-              "init-editing[[:space:]\n]+init-selection-batch[[:space:]\n]+init-completion"
-              nil t)))
-          (copy-file module copy)
-          (require 'ob-tangle)
-          (let ((org-confirm-babel-evaluate nil))
-            (org-babel-tangle-file copy))
-          (let ((selection-batch-enable-meow-bindings nil))
-            (load (expand-file-name "init-selection-batch.el" temporary)
-                  nil nil t))
-          (should (featurep 'init-selection-batch))
+          (selection-first-global-mode -1)
+          (load example nil nil t)
+          (should (featurep 'selection-first))
+          (should selection-first-global-mode)
           (should-not (selection-batch-active-p)))
-      (delete-directory temporary t))))
+      (selection-first-global-mode -1))))
 
 (ert-deftest selection-batch-meow-grammar-is-semantic-and-complete ()
   (dolist (entry '(("n" . selection-batch-gather-same-next)

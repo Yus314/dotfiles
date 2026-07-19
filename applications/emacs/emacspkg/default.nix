@@ -38,8 +38,17 @@ in
       };
     extraEmacsPackages =
       epkgs:
+      let
+        selectionBatch = epkgs.trivialBuild {
+          pname = "selection-batch";
+          version = "0.1.0";
+          src = ../elisp/packages;
+          packageRequires = [ epkgs.meow ];
+        };
+      in
       with epkgs;
       [
+        selectionBatch
         esup
         exec-path-from-shell
         smooth-scroll
