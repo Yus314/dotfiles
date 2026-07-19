@@ -9,6 +9,38 @@ let
         2>/dev/null || true
     done
   '';
+
+  hermesSkinScript = skin: ''
+    HERMES_CONFIG="$HOME/.hermes/config.yaml"
+
+    if [ -L "$HERMES_CONFIG" ]; then
+      HERMES_CONFIG=$(${pkgs.coreutils}/bin/readlink -f "$HERMES_CONFIG")
+    fi
+
+    if [ -f "$HERMES_CONFIG" ]; then
+      tmp="$HERMES_CONFIG.tmp.$$"
+      HERMES_SKIN="${skin}" ${pkgs.perl}/bin/perl -0pe '
+        my $skin = $ENV{HERMES_SKIN};
+        s{
+          (^display:\n)
+          (.*?)
+          (?=^[^ \n]|\z)
+        }{
+          my ($head, $body) = ($1, $2);
+          if ($body =~ s/^  skin:.*$/  skin: $skin/m) {
+            $head . $body
+          } else {
+            $head . $body . "  skin: $skin\n"
+          }
+        }egmsx
+      ' "$HERMES_CONFIG" > "$tmp" && ${pkgs.coreutils}/bin/mv "$tmp" "$HERMES_CONFIG"
+
+      if ${pkgs.procps}/bin/pgrep -x hermes > /dev/null; then
+        ${pkgs.libnotify}/bin/notify-send -a "darkman" "Hermes" \
+          "CLI skin を ${skin} に変更しました。新しい Hermes 起動時に反映されます。" || true
+      fi
+    fi
+  '';
 in
 {
   services.darkman = {
@@ -47,6 +79,7 @@ in
           "${config.xdg.configHome}/bat/config.dark" \
           "${config.xdg.configHome}/bat/config"
       '';
+      hermes-skin = hermesSkinScript "modus-vivendi";
     };
     lightModeScripts = {
       gtk-theme = ''
@@ -78,6 +111,7 @@ in
           "${config.xdg.configHome}/bat/config.light" \
           "${config.xdg.configHome}/bat/config"
       '';
+      hermes-skin = hermesSkinScript "modus-operandi";
     };
   };
   gtk.enable = true;
