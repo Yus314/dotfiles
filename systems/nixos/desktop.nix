@@ -20,4 +20,11 @@
   programs.thunar.enable = true;
   services.gvfs.enable = true;
   services.openssh.allowSFTP = true;
+
+  # Let applications such as Kitty follow darkman's color-scheme over the
+  # standard Settings portal when running under Niri.
+  xdg.portal = {
+    extraPortals = [ pkgs.darkman ];
+    config.niri."org.freedesktop.impl.portal.Settings" = "darkman";
+  };
 }
