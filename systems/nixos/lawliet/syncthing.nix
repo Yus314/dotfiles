@@ -80,6 +80,9 @@ let
     ._*
     // Org internal
     .org-id-locations
+    // Hermes local backups (not live Orgzly data)
+    .hermes-backups
+    .hermes-backups/**
   '';
 
   orgKnowledgeStignore = ''
