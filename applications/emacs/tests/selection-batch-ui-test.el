@@ -32,47 +32,418 @@
        (when selection-batch--session
          (selection-batch--cleanup selection-batch--session nil t)))))
 
-(ert-deftest selection-batch-view-renders-only-secondary-selections ()
+(ert-deftest selection-batch-view-renders-secondary-ranges-and-directed-cursors ()
   (selection-batch-ui-test--with-session
-      "abcdef" '((primary 1 3) (range 3 5) (caret 6 6)) 'primary
+      "abcdef" '((primary 1 3) (forward 3 5) (backward 5 3) (caret 6 6)) 'primary
     (let* ((overlays (selection-batch--session-overlays selection-batch--session))
-           (range (nth 0 overlays))
-           (caret (nth 1 overlays)))
-      (should (= 2 (length overlays)))
-      (should (equal '(3 . 5) (cons (overlay-start range) (overlay-end range))))
-      (should (eq 'selection-batch-secondary (overlay-get range 'face)))
-      (should (equal selection-batch--overlay-priority
-                     (overlay-get range 'priority)))
-      (should (equal '(nil . 10) (overlay-get range 'priority)))
-      (should (= 6 (overlay-start caret)))
-      (should (= 6 (overlay-end caret)))
-      (let ((cursor (overlay-get caret 'after-string)))
-        (should (stringp cursor))
-        (should (eq 'selection-batch-secondary-cursor
-                    (get-text-property 0 'face cursor)))))))
+           (ranges (cl-remove-if-not
+                    (lambda (overlay)
+                      (eq 'range (overlay-get overlay 'selection-batch-role)))
+                    overlays))
+           (cursors (cl-remove-if-not
+                     (lambda (overlay)
+                       (eq 'cursor (overlay-get overlay 'selection-batch-role)))
+                     overlays)))
+      (should (= 2 (length ranges)))
+      (should (= 3 (length cursors)))
+      (should (equal '((5 . 6) (3 . 4) (6 . 7))
+                     (mapcar (lambda (overlay)
+                               (cons (overlay-start overlay) (overlay-end overlay)))
+                             cursors)))
+      (dolist (range ranges)
+        (should (equal '(3 . 5) (cons (overlay-start range) (overlay-end range))))
+        (should (eq 'selection-batch-secondary (overlay-get range 'face))))
+      (dolist (overlay overlays)
+        (should (equal selection-batch--overlay-priority
+                       (overlay-get overlay 'priority)))))))
+
+(ert-deftest selection-batch-fallback-uses-after-string-only-at-eol-and-eof ()
+  (selection-batch-ui-test--with-session
+      "ab\ncd" '((primary 1 2) (inline 2 2) (eol 3 3) (eof 6 6)) 'primary
+    (let ((cursors (selection-batch--session-overlays selection-batch--session)))
+      (should (= 3 (length cursors)))
+      (let ((inline (nth 0 cursors)) (eol (nth 1 cursors)) (eof (nth 2 cursors)))
+        (should (equal '(2 . 3) (cons (overlay-start inline) (overlay-end inline))))
+        (should (eq 'selection-batch-secondary-cursor (overlay-get inline 'face)))
+        (should-not (overlay-get inline 'after-string))
+        (dolist (overlay (list eol eof))
+          (should (= (overlay-start overlay) (overlay-end overlay)))
+          (should (stringp (overlay-get overlay 'after-string))))))))
+
+(ert-deftest selection-batch-native-api-receives-all-directed-secondary-endpoints ()
+  (let ((buffer (generate-new-buffer " *selection-native*"))
+        (window (selected-window)) calls)
+    (unwind-protect
+        (progn
+          (set-window-buffer window buffer)
+          (with-current-buffer buffer
+            (insert "abcdef")
+            (cl-letf (((symbol-function 'set-window-extra-cursors)
+                       (lambda (candidate cursors)
+                         (push (list candidate
+                                     (mapcar #'marker-position cursors)) calls))))
+              (selection-batch-install-snapshot
+               (selection-batch-ui-test--snapshot
+                buffer '((primary 1 2) (forward 3 5) (backward 5 3) (empty 6 6))
+                'primary) t)
+              (should (equal (list window '(5 3 6)) (car calls)))
+              ;; Only range highlighting remains in the native backend.
+              (should (= 2 (length (selection-batch--session-overlays
+                                    selection-batch--session))))
+              (should (cl-every
+                       (lambda (overlay)
+                         (eq 'range (overlay-get overlay 'selection-batch-role)))
+                       (selection-batch--session-overlays selection-batch--session)))
+              (selection-batch-collapse)
+              (should (equal (list window nil) (car calls)))
+              (should-not selection-batch--installed-window-cursors))))
+      (when selection-batch--session
+        (selection-batch--cleanup selection-batch--session nil t))
+      (set-window-buffer window (get-buffer-create "*scratch*"))
+      (kill-buffer buffer))))
+
+(ert-deftest selection-batch-native-deleted-window-drops-ledger ()
+  (let ((buffer (generate-new-buffer " *selection-native-delete*"))
+        (first (selected-window)) extra calls)
+    (unwind-protect
+        (progn
+          (setq extra (split-window first nil 'right))
+          (set-window-buffer extra buffer)
+          (select-window extra)
+          (with-current-buffer buffer
+            (insert "abc")
+            (cl-letf (((symbol-function 'set-window-extra-cursors)
+                       (lambda (window cursors)
+                         (push (list window (mapcar #'marker-position cursors)) calls))))
+              (selection-batch-install-snapshot
+               (selection-batch-ui-test--snapshot
+                buffer '((primary 1 2) (secondary 2 3)) 'primary) t)
+              (select-window first)
+              (delete-window extra)
+              (setq extra nil)
+              (selection-batch--reconcile-window-cursors)
+              (should-not selection-batch--installed-window-cursors)
+              (should selection-batch--session)
+              (selection-batch-collapse-owner))))
+      (when selection-batch--session
+        (selection-batch--cleanup selection-batch--session nil t))
+      (when (window-live-p extra) (delete-window extra))
+      (when (window-live-p first)
+        (select-window first)
+        (set-window-buffer first (get-buffer-create "*scratch*")))
+      (kill-buffer buffer))))
+
+(ert-deftest selection-batch-native-window-switch-and-buffer-replacement-clean-up ()
+  (let ((buffer (generate-new-buffer " *selection-native-owner*"))
+        (foreign (generate-new-buffer " *selection-native-foreign*"))
+        (first (selected-window)) second calls)
+    (unwind-protect
+        (progn
+          (setq second (split-window first nil 'right))
+          (set-window-buffer first buffer)
+          (set-window-buffer second buffer)
+          (select-window first)
+          (with-current-buffer buffer
+            (insert "abcdef")
+            (cl-letf (((symbol-function 'set-window-extra-cursors)
+                       (lambda (window cursors)
+                         (push (list window (mapcar #'marker-position cursors)) calls))))
+              (selection-batch-install-snapshot
+               (selection-batch-ui-test--snapshot
+                buffer '((primary 1 2) (secondary 3 5)) 'primary) t)
+              (select-window second)
+              (selection-batch--reconcile-window-cursors)
+              (should (equal (list second '(5)) (car calls)))
+              (should (member (list first nil) calls))
+              (set-window-buffer second foreign)
+              (selection-batch--reconcile-window-cursors)
+              (should (equal (list second nil) (car calls)))
+              (should-not selection-batch--installed-window-cursors)
+              (let ((derived (copy-sequence
+                              (selection-batch--session-overlays
+                               selection-batch--session))))
+                (selection-batch-collapse-owner)
+                (dolist (overlay derived) (should-not (overlay-buffer overlay)))
+                (should-not (cl-find-if
+                             (lambda (overlay)
+                               (overlay-get overlay 'selection-batch-view))
+                             (overlays-in (point-min) (point-max))))))))
+      (when selection-batch--session
+        (selection-batch--cleanup selection-batch--session nil t))
+      (when (window-live-p second) (delete-window second))
+      (when (window-live-p first)
+        (select-window first)
+        (set-window-buffer first (get-buffer-create "*scratch*")))
+      (kill-buffer buffer)
+      (kill-buffer foreign))))
+
+(ert-deftest selection-batch-native-reconcile-keeps-lifetime-and-stable-fast-path ()
+  (let ((buffer (generate-new-buffer " *selection-native-reconcile*"))
+        (foreign (generate-new-buffer " *selection-native-away*"))
+        (window (selected-window)) calls installed)
+    (unwind-protect
+        (progn
+          (set-window-buffer window buffer)
+          (with-current-buffer buffer
+            (insert "abcdef")
+            (cl-letf (((symbol-function 'set-window-extra-cursors)
+                       (lambda (candidate cursors)
+                         (setq installed cursors)
+                         (push (list candidate
+                                     (mapcar #'marker-position cursors)) calls))))
+              (selection-batch-install-snapshot
+               (selection-batch-ui-test--snapshot
+                buffer '((primary 1 2) (secondary 3 5)) 'primary) t)
+              (let ((initial-call-count (length calls)))
+                ;; Stable post-command reconciliation must not call the setter.
+                (selection-batch--reconcile-window-cursors)
+                (should (= initial-call-count (length calls)))
+                ;; Native marker endpoints track edits without reinstalling.
+                (goto-char 1)
+                (insert "X")
+                (should (equal '(6) (mapcar #'marker-position installed)))
+                (selection-batch--reconcile-window-cursors)
+                (should (= initial-call-count (length calls))))
+              ;; Leaving clears ownership, but the live native-capable session
+              ;; keeps reconciliation hooks so returning can reinstall it.
+              (set-window-buffer window foreign)
+              (selection-batch--reconcile-window-cursors)
+              (should-not selection-batch--installed-window-cursors)
+              (should selection-batch--window-cursor-hooks-installed-p)
+              (should (memq #'selection-batch--reconcile-window-cursors
+                            post-command-hook))
+              (let ((away-call-count (length calls)))
+                (selection-batch--reconcile-window-cursors)
+                (should (= away-call-count (length calls))))
+              (set-window-buffer window buffer)
+              (selection-batch--reconcile-window-cursors)
+              (should (equal (list window '(6)) (car calls)))
+              (should selection-batch--installed-window-cursors)
+              (selection-batch-collapse-owner)
+              (should-not selection-batch--window-cursor-hooks-installed-p))))
+      (when selection-batch--session
+        (selection-batch--cleanup selection-batch--session nil t))
+      (set-window-buffer window (get-buffer-create "*scratch*"))
+      (kill-buffer buffer)
+      (kill-buffer foreign))))
+
+(ert-deftest selection-batch-native-refresh-setter-error-is-transactional ()
+  (let ((buffer (generate-new-buffer " *selection-native-error*"))
+        (window (selected-window))
+        fail native-state)
+    (unwind-protect
+        (progn
+          (set-window-buffer window buffer)
+          (with-current-buffer buffer
+            (insert "abcdef")
+            (cl-letf (((symbol-function 'set-window-extra-cursors)
+                       (lambda (_window cursors)
+                         ;; Mutate first, then fail once: the adapter must use
+                         ;; its old ledger to compensate the hostile setter.
+                         (setq native-state cursors)
+                         (when fail
+                           (setq fail nil)
+                           (error "hostile native setter")))))
+              (selection-batch-install-snapshot
+               (selection-batch-ui-test--snapshot
+                buffer '((primary 1 2) (secondary 3 5)) 'primary) t)
+              (let ((old-overlays
+                     (selection-batch--session-overlays selection-batch--session))
+                    (old-ledger selection-batch--installed-window-cursors)
+                    (old-native native-state))
+                (setq fail t)
+                (should-error
+                 (selection-batch--view-refresh selection-batch--session)
+                 :type 'error)
+                ;; No ledger was committed and no old view was deleted.
+                (should (eq old-ledger selection-batch--installed-window-cursors))
+                (should (eq old-overlays
+                            (selection-batch--session-overlays
+                             selection-batch--session)))
+                (should (eq old-native native-state))
+                (dolist (overlay old-overlays)
+                  (should (overlay-buffer overlay)))
+                ;; The failed refresh's provisional overlays were all swept.
+                (should (equal old-overlays
+                               (cl-remove-if-not
+                                (lambda (overlay)
+                                  (overlay-get overlay 'selection-batch-view))
+                                (overlays-in (point-min) (point-max))))))
+                (selection-batch-collapse-owner))))
+      (setq fail nil)
+      (when selection-batch--session
+        (selection-batch--cleanup selection-batch--session nil t))
+      (set-window-buffer window (get-buffer-create "*scratch*"))
+      (kill-buffer buffer))))
+
+(ert-deftest selection-batch-native-primary-cursor-installs-and-restores ()
+  (let ((buffer (generate-new-buffer " *selection-native-primary*"))
+        (window (selected-window))
+        (cursor-state 'bar)
+        cursor-calls)
+    (unwind-protect
+        (progn
+          (set-window-buffer window buffer)
+          (with-current-buffer buffer
+            (insert "abcdef")
+            (cl-letf (((symbol-function 'set-window-extra-cursors)
+                       (lambda (_window _cursors)))
+                      ((symbol-function 'window-cursor-type)
+                       (lambda (&optional _window) cursor-state))
+                      ((symbol-function 'set-window-cursor-type)
+                       (lambda (_window type)
+                         (setq cursor-state type)
+                         (push type cursor-calls))))
+              (selection-batch-install-snapshot
+               (selection-batch-ui-test--snapshot
+                buffer '((primary 1 2) (secondary 3 5)) 'primary) t)
+              (should (eq 'box cursor-state))
+              (should (equal '(box) cursor-calls))
+              ;; Stable reconciliation and refresh do not repeat the primary
+              ;; setter for an already-owned window.
+              (selection-batch--reconcile-window-cursors)
+              (selection-batch--view-refresh selection-batch--session)
+              (should (equal '(box) cursor-calls))
+              (selection-batch-collapse-owner)
+              (should (eq 'bar cursor-state))
+              (should (equal '(bar box) cursor-calls)))))
+      (when selection-batch--session
+        (selection-batch--cleanup selection-batch--session nil t))
+      (set-window-buffer window (get-buffer-create "*scratch*"))
+      (kill-buffer buffer))))
+
+(ert-deftest selection-batch-native-primary-cursor-preserves-intervening-change ()
+  (let ((buffer (generate-new-buffer " *selection-native-primary-change*"))
+        (window (selected-window))
+        (cursor-state 'hbar)
+        cursor-calls)
+    (unwind-protect
+        (progn
+          (set-window-buffer window buffer)
+          (with-current-buffer buffer
+            (insert "abc")
+            (cl-letf (((symbol-function 'set-window-extra-cursors)
+                       (lambda (_window _cursors)))
+                      ((symbol-function 'window-cursor-type)
+                       (lambda (&optional _window) cursor-state))
+                      ((symbol-function 'set-window-cursor-type)
+                       (lambda (_window type)
+                         (setq cursor-state type)
+                         (push type cursor-calls))))
+              (selection-batch-install-snapshot
+               (selection-batch-ui-test--snapshot
+                buffer '((primary 1 2) (secondary 2 3)) 'primary) t)
+              (setq cursor-state 'hollow)
+              (selection-batch--view-refresh selection-batch--session)
+              (selection-batch-collapse-owner)
+              (should (eq 'hollow cursor-state))
+              (should (equal '(box) cursor-calls)))))
+      (when selection-batch--session
+        (selection-batch--cleanup selection-batch--session nil t))
+      (set-window-buffer window (get-buffer-create "*scratch*"))
+      (kill-buffer buffer))))
+
+(ert-deftest selection-batch-native-primary-cursor-follows-owner-window ()
+  (let ((buffer (generate-new-buffer " *selection-native-primary-owner*"))
+        (foreign (generate-new-buffer " *selection-native-primary-away*"))
+        (first (selected-window)) second
+        (states (make-hash-table :test #'eq)))
+    (unwind-protect
+        (progn
+          (setq second (split-window first nil 'right))
+          (puthash first 'bar states)
+          (puthash second 'hbar states)
+          (set-window-buffer first buffer)
+          (set-window-buffer second buffer)
+          (select-window first)
+          (with-current-buffer buffer
+            (insert "abcdef")
+            (cl-letf (((symbol-function 'set-window-extra-cursors)
+                       (lambda (_window _cursors)))
+                      ((symbol-function 'window-cursor-type)
+                       (lambda (&optional window)
+                         (gethash (or window (selected-window)) states)))
+                      ((symbol-function 'set-window-cursor-type)
+                       (lambda (window type) (puthash window type states))))
+              (selection-batch-install-snapshot
+               (selection-batch-ui-test--snapshot
+                buffer '((primary 1 2) (secondary 3 5)) 'primary) t)
+              (should (eq 'box (gethash first states)))
+              (select-window second)
+              (selection-batch--reconcile-window-cursors)
+              (should (eq 'bar (gethash first states)))
+              (should (eq 'box (gethash second states)))
+              (set-window-buffer second foreign)
+              (selection-batch--reconcile-window-cursors)
+              (should (eq 'hbar (gethash second states)))
+              (set-window-buffer second buffer)
+              (selection-batch--reconcile-window-cursors)
+              (should (eq 'box (gethash second states)))
+              (selection-batch-collapse-owner)
+              (should (eq 'hbar (gethash second states))))))
+      (when selection-batch--session
+        (selection-batch--cleanup selection-batch--session nil t))
+      (when (window-live-p second) (delete-window second))
+      (when (window-live-p first)
+        (select-window first)
+        (set-window-buffer first (get-buffer-create "*scratch*")))
+      (kill-buffer buffer)
+      (kill-buffer foreign))))
+
+(ert-deftest selection-batch-native-primary-setter-failure-is-compensated ()
+  (let ((buffer (generate-new-buffer " *selection-native-primary-error*"))
+        (window (selected-window))
+        (cursor-state 'bar)
+        extra-state)
+    (unwind-protect
+        (progn
+          (set-window-buffer window buffer)
+          (with-current-buffer buffer
+            (insert "abcdef")
+            (cl-letf (((symbol-function 'set-window-extra-cursors)
+                       (lambda (_window cursors) (setq extra-state cursors)))
+                      ((symbol-function 'window-cursor-type)
+                       (lambda (&optional _window) cursor-state))
+                      ((symbol-function 'set-window-cursor-type)
+                       (lambda (_window type)
+                         (setq cursor-state type)
+                         (when (eq type 'box)
+                           (error "hostile primary setter")))))
+              (should-error
+               (selection-batch-install-snapshot
+                (selection-batch-ui-test--snapshot
+                 buffer '((primary 1 2) (secondary 3 5)) 'primary) t)
+               :type 'error)
+              (should (eq 'bar cursor-state))
+              (should-not extra-state)
+              (should-not selection-batch--installed-window-cursors))))
+      (when selection-batch--session
+        (selection-batch--cleanup selection-batch--session nil t))
+      (set-window-buffer window (get-buffer-create "*scratch*"))
+      (kill-buffer buffer))))
 
 (ert-deftest selection-batch-view-refresh-replaces-with-a-stable-count ()
   (selection-batch-ui-test--with-session
       "abcdef" '((primary 1 2) (secondary 3 5)) 'primary
-    (let ((old (car (selection-batch--session-overlays selection-batch--session))))
+    (let ((old (copy-sequence
+                (selection-batch--session-overlays selection-batch--session))))
       (selection-batch--view-refresh selection-batch--session)
-      (should (= 1 (length (selection-batch--session-overlays
+      (should (= 2 (length (selection-batch--session-overlays
                             selection-batch--session))))
-      (should-not (overlay-buffer old))
-      (should-not (eq old (car (selection-batch--session-overlays
-                                selection-batch--session)))))))
+      (dolist (overlay old) (should-not (overlay-buffer overlay))))))
 
 (ert-deftest selection-batch-empty-secondary-becomes-range-after-insertion ()
   (selection-batch-ui-test--with-session
       "abcdef" '((primary 1 2) (secondary 4 4)) 'primary
-    (let ((overlay (car (selection-batch--session-overlays
-                         selection-batch--session))))
-      (goto-char 4)
-      (insert "XY")
-      (should (equal '(4 . 6) (cons (overlay-start overlay)
-                                    (overlay-end overlay))))
-      (should-not (overlay-get overlay 'after-string))
-      (should (eq 'selection-batch-secondary (overlay-get overlay 'face)))
+    (goto-char 4)
+    (insert "XY")
+    (let* ((overlays (selection-batch--session-overlays selection-batch--session))
+           (range (cl-find 'range overlays
+                           :key (lambda (overlay)
+                                  (overlay-get overlay 'selection-batch-role)))))
+      (should range)
+      (should (equal '(4 . 6) (cons (overlay-start range) (overlay-end range))))
+      (should (eq 'selection-batch-secondary (overlay-get range 'face)))
       (should (equal '((primary 1 6) (secondary 4 6))
                      (mapcar
                       (lambda (selection)
