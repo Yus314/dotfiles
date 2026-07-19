@@ -17,9 +17,8 @@ let
   # be a source path rather than a derivation. The assertion prevents the
   # generated package-discovery input from drifting from the modular config.
   combinedConfig =
-    assert pkgs.lib.assertMsg (
-      builtins.readFile ./emacs-config.org == allOrgContent
-    ) "emacs-config.org is stale; run applications/emacs/generate-package-config.py";
+    assert pkgs.lib.assertMsg (builtins.readFile ./emacs-config.org == allOrgContent)
+      "emacs-minimal/emacspkg/emacs-config.org is stale; run applications/emacs/generate-package-config.py --profile minimal";
     ./emacs-config.org;
 in
 {

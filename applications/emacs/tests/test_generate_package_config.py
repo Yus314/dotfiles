@@ -14,6 +14,16 @@ SPEC.loader.exec_module(generate_package_config)
 
 
 class GeneratePackageConfigTest(unittest.TestCase):
+    def test_profiles_name_full_minimal_and_all_explicitly(self):
+        self.assertEqual(("emacs",), generate_package_config.PROFILES["full"])
+        self.assertEqual(
+            ("emacs-minimal",), generate_package_config.PROFILES["minimal"]
+        )
+        self.assertEqual(
+            generate_package_config.APPLICATIONS,
+            generate_package_config.PROFILES["all"],
+        )
+
     def arrange_application(self, root: Path, name: str, source: str) -> Path:
         app_dir = root / name
         (app_dir / "elisp" / "modules").mkdir(parents=True)

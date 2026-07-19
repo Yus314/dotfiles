@@ -7,6 +7,11 @@ import argparse
 from pathlib import Path
 
 APPLICATIONS = ("emacs", "emacs-minimal")
+PROFILES = {
+    "full": ("emacs",),
+    "minimal": ("emacs-minimal",),
+    "all": APPLICATIONS,
+}
 
 
 def combined_org(app_dir: Path) -> str:
@@ -51,25 +56,21 @@ def main() -> int:
         help="fail instead of writing when generated files are stale",
     )
     parser.add_argument(
-        "--application",
-        action="append",
-        choices=APPLICATIONS,
-        dest="applications",
-        help="limit generation/checking to one application; repeatable",
+        "--profile",
+        choices=PROFILES,
+        default="all",
+        help="generate full, minimal, or all profiles (default: all)",
     )
     args = parser.parse_args()
     applications_dir = Path(__file__).resolve().parent.parent
-    selected = tuple(args.applications) if args.applications else None
+    selected = PROFILES[args.profile]
     stale = generate_configs(applications_dir, selected, args.check)
 
     if args.check and stale:
         for path in stale:
             print(f"stale generated Emacs package config: {path}")
         command = "applications/emacs/generate-package-config.py"
-        if selected:
-            command += " " + " ".join(
-                f"--application {name}" for name in selected
-            )
+        command += f" --profile {args.profile}"
         print(f"run {command}")
         return 1
     if not args.check:
