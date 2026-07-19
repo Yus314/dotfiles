@@ -141,8 +141,22 @@
                 {
                   inherit inputs pkgs;
                 };
+            selection-batch-minimal-configured-smoke =
+              import ./applications/emacs/tests/selection-batch-minimal-configured-smoke.nix
+                {
+                  inherit inputs pkgs;
+                };
+            selection-batch-minimal-package-smoke =
+              import ./applications/emacs/tests/selection-batch-minimal-package-smoke.nix
+                {
+                  inherit inputs pkgs;
+                };
           };
-          checks.selection-batch-configured-smoke = config.packages.selection-batch-configured-smoke;
+          checks = {
+            selection-batch-configured-smoke = config.packages.selection-batch-configured-smoke;
+            selection-batch-minimal-configured-smoke = config.packages.selection-batch-minimal-configured-smoke;
+            selection-batch-minimal-package-smoke = config.packages.selection-batch-minimal-package-smoke;
+          };
           pre-commit = {
             check.enable = true;
             settings = {

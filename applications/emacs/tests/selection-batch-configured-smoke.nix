@@ -62,6 +62,21 @@ pkgs.runCommandLocal "selection-batch-configured-smoke" { nativeBuildInputs = [ 
   test -f "$XDG_CONFIG_HOME/emacs/modules/init-selection-batch.el"
   test -f "$XDG_CONFIG_HOME/emacs/packages/selection-batch.el"
 
+  check_lexical_cookie() {
+    local file="$1" first
+    IFS= read -r first < "$file"
+    if [[ "$first" != ';;; -*- lexical-binding: t; -*-' ]]; then
+      printf 'invalid first-line lexical-binding cookie: %s: %s\n' "$file" "$first" >&2
+      return 1
+    fi
+  }
+  for file in \
+    "$XDG_CONFIG_HOME/emacs/init.el" \
+    "$XDG_CONFIG_HOME/emacs/early-init.el" \
+    "$XDG_CONFIG_HOME/emacs/modules/"*.el; do
+    check_lexical_cookie "$file"
+  done
+
   # Load the real editing module and then selection-batch through generated
   # init.el, while skipping only unrelated full-desktop modules.
   emacs --batch --quick \

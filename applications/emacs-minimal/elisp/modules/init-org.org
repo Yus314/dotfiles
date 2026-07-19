@@ -34,11 +34,40 @@
 	  ))
     (setq org-log-done 'time)
     (setq org-return-follows-link  t)
+    ;; SVG は拡大しても鮮明なので、Org 内の LaTeX 数式プレビューに使用する。
+    (setq org-preview-latex-default-process 'dvisvgm)
+    ;; デフォルトのインライン数式は本文と同程度で小さいため、50%拡大する。
+    (setq org-format-latex-options
+          (plist-put org-format-latex-options :scale 1.5))
+    ;; PDF 出力と同じ LuaLaTeX 用パッケージ構成でプレビューも処理する。
+    (let ((process (alist-get 'dvisvgm org-preview-latex-process-alist)))
+      (setf (alist-get 'dvisvgm org-preview-latex-process-alist)
+            (plist-put
+             process :latex-compiler
+             '("lualatex --output-format=dvi -interaction nonstopmode -output-directory %o %f"))))
+    ;; 日本語を含む Org 文書を LuaLaTeX で PDF 化する。
+    (setq org-latex-compiler "lualatex")
+    (setq org-latex-pdf-process
+          '("latexmk -f -pdf -pdflatex='lualatex -interaction nonstopmode' -output-directory=%o %f"))
 
     ;; habit
     (setq org-habit-show-habits-only-for-today  t)
     (add-to-list 'org-modules 'org-habit t)
     )
+#+end_src
+* Org LaTeX export
+#+begin_src emacs-lisp :tangle yes
+  (with-eval-after-load 'ox-latex
+    (add-to-list
+     'org-latex-classes
+     '("bxjsarticle"
+       "\\documentclass[lualatex,ja=standard]{bxjsarticle}"
+       ("\\section{%s}" . "\\section*{%s}")
+       ("\\subsection{%s}" . "\\subsection*{%s}")
+       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+       ("\\paragraph{%s}" . "\\paragraph*{%s}")
+       ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+    (setq org-latex-default-class "bxjsarticle"))
 #+end_src
 * org-clock
 #+begin_src emacs-lisp :tangle yes

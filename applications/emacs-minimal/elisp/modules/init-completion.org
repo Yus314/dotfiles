@@ -1,0 +1,18 @@
+#+TITLE: Completion Settings
+* Corfu
+#+begin_src emacs-lisp :tangle yes
+  (use-package corfu
+    :ensure nil
+    :demand t
+    :custom
+    (corfu-auto t)
+    (corfu-auto-delay 0.1)
+    (corfu-auto-prefix 1)
+    (corfu-cycle t)
+    :config
+    (global-corfu-mode 1))
+#+end_src
+* Provide
+#+begin_src emacs-lisp :tangle yes
+  (provide 'init-completion)
+#+end_src

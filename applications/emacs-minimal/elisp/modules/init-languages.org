@@ -1,0 +1,62 @@
+#+TITLE: Language Settings
+* Lean 4
+#+begin_src emacs-lisp :tangle yes
+  ;; The Nix package is on load-path, but its generated autoload file is not
+  ;; loaded automatically because this configuration disables the default init.
+  (load "lsp-mode-autoloads" nil t)
+
+  (use-package eldoc
+    :ensure nil
+    :custom
+    ;; Keep long Lean diagnostics readable without letting the echo area occupy
+    ;; an unbounded part of the frame.  The full text remains available in the
+    ;; ElDoc buffer via `C-c ! d'.
+    (eldoc-echo-area-use-multiline-p 3)
+    (eldoc-echo-area-prefer-doc-buffer 'maybe)
+    :bind ("C-c ! d" . eldoc-doc-buffer))
+
+  (use-package flymake
+    :ensure nil
+    :custom
+    ;; Show one concise diagnostic next to the affected source line.  Modus
+    ;; supplies theme-aware wave underlines and severity colours already.
+    (flymake-show-diagnostics-at-end-of-line 'short)
+    (flymake-suppress-zero-counters t)
+    :bind
+    (("C-c ! l" . flymake-show-buffer-diagnostics)
+     ("C-c ! L" . flymake-show-project-diagnostics)
+     ("C-c ! n" . flymake-goto-next-error)
+     ("C-c ! p" . flymake-goto-prev-error)))
+
+  (use-package lsp-mode
+    :ensure nil
+    :defer t
+    :custom
+    (lsp-enable-snippet nil)
+    ;; Do not let a future transitive Flycheck dependency silently change the
+    ;; diagnostics UI selected by lsp-mode.
+    (lsp-diagnostics-provider :flymake))
+
+  ;; Lean's language server sends this request even though lsp-mode advertises
+  ;; that inlay-hint refresh is unsupported.  Suppress only that known warning;
+  ;; preserve every other warning from lsp-mode and Emacs.
+  ;; https://github.com/leanprover/lean4/issues/7488
+  (defun kaki-suppress-unsupported-lsp-inlay-hint-refresh
+      (original-function type message &rest args)
+    "Suppress Lean's unsupported inlay-hint refresh warning only."
+    (unless (and (eq type 'lsp-mode)
+                 (string-match-p "workspace/inlayHint/refresh" message))
+      (apply original-function type message args)))
+
+  (advice-add 'display-warning :around
+              #'kaki-suppress-unsupported-lsp-inlay-hint-refresh)
+
+  (use-package lean4-mode
+    :ensure nil
+    :mode "\\.lean\\'"
+    :hook (lean4-mode . lsp-deferred))
+#+end_src
+* Provide
+#+begin_src emacs-lisp :tangle yes
+  (provide 'init-languages)
+#+end_src

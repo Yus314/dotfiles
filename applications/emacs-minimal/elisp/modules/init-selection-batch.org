@@ -1,0 +1,29 @@
+#+TITLE: Selection Batch Integration
+* Header
+#+begin_src emacs-lisp :tangle yes
+  ;;; init-selection-batch.el --- Selection batch frontend -*- lexical-binding: t; -*-
+#+end_src
+* Package and selection-first frontend
+The minimal profile is the staged rollout target.  Keep Meow installed and
+configured as a reversible fallback, but give modal ownership to the
+Meow-independent frontend when the feature flag is enabled.
+#+begin_src emacs-lisp :tangle yes
+  (defcustom selection-first-enable-frontend nil
+    "Enable the Meow-independent selection-first frontend in this profile."
+    :type 'boolean
+    :group 'selection-first)
+
+  (require 'selection-batch)
+  (require 'selection-batch-meow)
+  (require 'selection-first)
+
+  (setq selection-batch-enable-meow-bindings nil)
+  (when selection-first-enable-frontend
+    (when (bound-and-true-p meow-global-mode)
+      (meow-global-mode -1))
+    (selection-first-global-mode 1))
+#+end_src
+* Provide
+#+begin_src emacs-lisp :tangle yes
+  (provide 'init-selection-batch)
+#+end_src
