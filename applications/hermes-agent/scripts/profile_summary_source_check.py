@@ -59,13 +59,13 @@ SOURCES = [
         "kind": "summary",
         "domain": "Math",
         "profile": "math",
-        "path": HOME / "study_log/reviews/weekly" / f"{WEEK}.md",
+        "path": HOME / ".local/state/hermes/study-handoffs/math" / f"{WEEK}.md",
     },
     {
         "kind": "summary",
         "domain": "Economics",
         "profile": "economics",
-        "path": HOME / "study_log/economics/reviews/weekly" / f"{WEEK}.md",
+        "path": HOME / ".local/state/hermes/study-handoffs/economics" / f"{WEEK}.md",
     },
     {
         "kind": "summary",
@@ -77,7 +77,7 @@ SOURCES = [
         "kind": "summary",
         "domain": "English learning",
         "profile": "english",
-        "path": HOME / "study_log/english/reviews/weekly" / f"{WEEK}.md",
+        "path": HOME / ".local/state/hermes/study-handoffs/english" / f"{WEEK}.md",
     },
     {
         "kind": "summary",

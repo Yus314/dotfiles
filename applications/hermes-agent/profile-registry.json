@@ -77,7 +77,7 @@
 				"global task scheduling"
 			],
 			"canonical_paths": ["~/study_log/economics"],
-			"summary_path": "~/study_log/economics/reviews/weekly/{week}.md",
+			"summary_path": "~/.local/state/hermes/study-handoffs/economics/{week}.md",
 			"memory_provider": "builtin",
 			"memory_policy_reason": "intentional compact study-local continuity; do not silently migrate to shared Honcho",
 			"shared_skill_groups": ["common", "study", "orchestration"],
@@ -98,7 +98,7 @@
 				"copy line-by-line corrections to default"
 			],
 			"canonical_paths": ["~/study_log/english"],
-			"summary_path": "~/study_log/english/reviews/weekly/{week}.md",
+			"summary_path": "~/.local/state/hermes/study-handoffs/english/{week}.md",
 			"memory_provider": "honcho",
 			"shared_skill_groups": ["common", "study", "orchestration", "usage-ops"],
 			"gateway_expected": "running",
@@ -202,8 +202,8 @@
 				"global scheduling",
 				"replace the user's proof attempt"
 			],
-			"canonical_paths": ["~/study_log"],
-			"summary_path": "~/study_log/reviews/weekly/{week}.md",
+			"canonical_paths": ["~/study_log/math"],
+			"summary_path": "~/.local/state/hermes/study-handoffs/math/{week}.md",
 			"memory_provider": "honcho",
 			"shared_skill_groups": ["common", "study", "orchestration"],
 			"gateway_expected": "running",
