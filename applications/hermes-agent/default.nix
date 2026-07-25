@@ -74,6 +74,85 @@ let
     '';
   };
 
+  computerUseLinuxRaw = pkgs.callPackage ../../pkgs/computer-use-linux { };
+  computerUseLinux = pkgs.writeShellApplication {
+    name = "computer-use-linux";
+    runtimeInputs = [
+      computerUseLinuxRaw
+      pkgs.coreutils
+      pkgs.glib
+      pkgs.procps
+      pkgs.systemd
+    ];
+    text = ''
+      # A gateway may predate the Niri login. Import only the graphical keys
+      # required by the desktop client instead of inheriting the manager's full
+      # environment (which can contain credentials).
+      while IFS='=' read -r key value; do
+        case "$key" in
+          WAYLAND_DISPLAY|NIRI_SOCKET|DISPLAY|XDG_SESSION_TYPE|XDG_CURRENT_DESKTOP|DBUS_SESSION_BUS_ADDRESS|XDG_RUNTIME_DIR)
+            declare -gx "$key=$value"
+            ;;
+        esac
+      done < <(systemctl --user show-environment)
+
+      export XDG_DATA_DIRS=${pkgs.at-spi2-core}/share:"''${XDG_DATA_DIRS:-/run/current-system/sw/share}"
+      exec ${computerUseLinuxRaw}/bin/computer-use-linux "$@"
+    '';
+  };
+
+  computerUseSyntheticTargetRaw = pkgs.stdenv.mkDerivation {
+    pname = "hermes-computer-use-synthetic-target";
+    version = "1";
+    src = ./computer-use-pilot/synthetic-target.c;
+    dontUnpack = true;
+    nativeBuildInputs = [ pkgs.pkg-config ];
+    buildInputs = [
+      pkgs.at-spi2-core
+      pkgs.gtk3
+    ];
+    buildPhase = ''
+      runHook preBuild
+      $CC $NIX_CFLAGS_COMPILE -Wall -Wextra -Werror \
+        $(pkg-config --cflags gtk+-3.0 atk-bridge-2.0) \
+        "$src" -o hermes-computer-use-synthetic-target \
+        $(pkg-config --libs gtk+-3.0 atk-bridge-2.0)
+      runHook postBuild
+    '';
+    installPhase = ''
+      runHook preInstall
+      install -Dm755 hermes-computer-use-synthetic-target \
+        $out/bin/hermes-computer-use-synthetic-target
+      runHook postInstall
+    '';
+  };
+  computerUseSyntheticTarget = pkgs.writeShellApplication {
+    name = "hermes-computer-use-synthetic-target";
+    runtimeInputs = [ pkgs.systemd ];
+    text = ''
+      while IFS='=' read -r key value; do
+        case "$key" in
+          WAYLAND_DISPLAY|DISPLAY|DBUS_SESSION_BUS_ADDRESS|XDG_RUNTIME_DIR)
+            declare -gx "$key=$value"
+            ;;
+        esac
+      done < <(systemctl --user show-environment)
+      unset NO_AT_BRIDGE
+      export GTK_A11Y=atspi
+      exec ${computerUseSyntheticTargetRaw}/bin/hermes-computer-use-synthetic-target "$@"
+    '';
+  };
+  computerUseReadonlyBroker = pkgs.writeShellApplication {
+    name = "hermes-computer-use-readonly";
+    runtimeInputs = [ hermesConfigPython ];
+    text = ''
+      exec ${hermesConfigPython}/bin/python \
+        ${./computer-use-pilot/readonly_broker.py} \
+        --computer-use ${computerUseLinux}/bin/computer-use-linux \
+        --target-executable ${computerUseSyntheticTargetRaw}/bin/hermes-computer-use-synthetic-target
+    '';
+  };
+
   # Your Discord user id — only this account may talk to the bot.
   discordUserId = "885083579367972874";
 
@@ -83,6 +162,7 @@ let
   gatewayPreflight = ./scripts/gateway_preflight.py;
   gatewayChannelsConfig = ./scripts/gateway_channels_config.py;
   researchConfig = ./scripts/research_config.py;
+  computerUseConfig = ./scripts/computer_use_config.py;
 
   gatewayChannels = {
     default = "1515982177454653582";
@@ -289,6 +369,8 @@ in
   home.packages = [
     hermes
     agentBrowser
+    computerUseReadonlyBroker
+    computerUseSyntheticTarget
     pkgs.nodejs_24
     pkgs.uv
   ];
@@ -303,15 +385,36 @@ in
     $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${researchConfig} "$HOME/.hermes/config.yaml"
   '';
 
+  home.activation.hermesComputerUseConfig =
+    lib.hm.dag.entryAfter [ "hermesResearchProvidersConfig" ]
+      ''
+        $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${computerUseConfig} \
+          "$HOME/.hermes/config.yaml" ${computerUseReadonlyBroker}/bin/hermes-computer-use-readonly
+      '';
+
   home.activation.hermesGatewayChannels =
     lib.hm.dag.entryAfter
       [
         "writeBoundary"
-        "hermesResearchProvidersConfig"
+        "hermesComputerUseConfig"
       ]
       ''
         $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${gatewayChannelsConfig} ${lib.escapeShellArg (builtins.toJSON gatewayChannels)}
       '';
+
+  systemd.user.services.hermes-computer-use-atspi = {
+    Unit = {
+      Description = "AT-SPI bus for the Hermes computer-use read-only pilot";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.at-spi2-core}/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 --screen-reader=0";
+      Restart = "on-failure";
+      RestartSec = "2s";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
 
   systemd.user.services.hermes-gateway = {
     Unit = {
