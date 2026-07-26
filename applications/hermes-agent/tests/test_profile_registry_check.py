@@ -55,7 +55,7 @@ class ProfileRegistryCheckTests(unittest.TestCase):
         (self.profile_root / "SOUL.md").write_text("# Soul\n")
         self.registry_path = Path(self.temp.name) / "profile-registry.json"
         self.registry = {
-            "schema_version": 1,
+            "schema_version": 2,
             "control_plane": "default",
             "profiles": {
                 "default": {
@@ -64,6 +64,7 @@ class ProfileRegistryCheckTests(unittest.TestCase):
                     "non_goals": ["domain raw data"],
                     "canonical_paths": ["~/org"],
                     "summary_path": None,
+                    "summary_policy": "none",
                     "memory_provider": "honcho",
                     "shared_skill_groups": ["common", "orchestration", "usage-ops"],
                     "gateway_expected": "running",
@@ -162,6 +163,34 @@ class ProfileRegistryCheckTests(unittest.TestCase):
         self.assertTrue(
             any("gateway_expected must be" in error for error in self.validate())
         )
+
+    def test_rejects_invalid_summary_policy(self) -> None:
+        self.registry["profiles"]["default"]["summary_policy"] = "always-missing"
+        self.write_registry()
+        self.assertTrue(
+            any("summary_policy must be" in error for error in self.validate())
+        )
+
+    def test_requires_reason_for_blocked_summary_policy(self) -> None:
+        self.registry["profiles"]["default"]["summary_policy"] = "blocked"
+        self.write_registry()
+        self.assertTrue(
+            any("blocked summary_policy requires" in error for error in self.validate())
+        )
+
+    def test_rejects_non_string_blocked_summary_reason(self) -> None:
+        self.registry["profiles"]["default"].update(
+            summary_policy="blocked", summary_policy_reason=["not", "text"]
+        )
+        self.write_registry()
+        self.assertTrue(
+            any("blocked summary_policy requires" in error for error in self.validate())
+        )
+
+    def test_rejects_old_registry_schema(self) -> None:
+        self.registry["schema_version"] = 1
+        self.write_registry()
+        self.assertTrue(any("schema_version must be 2" in error for error in self.validate()))
 
 
 if __name__ == "__main__":

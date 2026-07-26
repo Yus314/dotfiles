@@ -1,5 +1,5 @@
 {
-	"schema_version": 1,
+	"schema_version": 2,
 	"control_plane": "default",
 	"principles": [
 		"default routes, schedules, integrates, and orchestrates without absorbing domain raw data",
@@ -25,6 +25,7 @@
 			],
 			"canonical_paths": ["~/org", "~/org/profile-summaries"],
 			"summary_path": null,
+			"summary_policy": "none",
 			"memory_provider": "honcho",
 			"shared_skill_groups": [
 				"common",
@@ -52,6 +53,7 @@
 			],
 			"canonical_paths": ["~/career"],
 			"summary_path": "~/career/reviews/weekly/{week}.md",
+			"summary_policy": "on-demand",
 			"memory_provider": "honcho",
 			"shared_skill_groups": [
 				"common",
@@ -78,6 +80,7 @@
 			],
 			"canonical_paths": ["~/study_log/economics"],
 			"summary_path": "~/.local/state/hermes/study-handoffs/economics/{week}.md",
+			"summary_policy": "on-demand",
 			"memory_provider": "builtin",
 			"memory_policy_reason": "intentional compact study-local continuity; do not silently migrate to shared Honcho",
 			"shared_skill_groups": ["common", "study", "orchestration"],
@@ -99,6 +102,7 @@
 			],
 			"canonical_paths": ["~/study_log/english"],
 			"summary_path": "~/.local/state/hermes/study-handoffs/english/{week}.md",
+			"summary_policy": "active-weekly",
 			"memory_provider": "honcho",
 			"shared_skill_groups": ["common", "study", "orchestration", "usage-ops"],
 			"gateway_expected": "running",
@@ -119,6 +123,7 @@
 			],
 			"canonical_paths": ["~/ledger/personal"],
 			"summary_path": "~/ledger/personal/reports/weekly/{week}.md",
+			"summary_policy": "source-health-only",
 			"memory_provider": "honcho",
 			"shared_skill_groups": ["common", "orchestration"],
 			"gateway_expected": "running",
@@ -139,6 +144,7 @@
 			],
 			"canonical_paths": ["~/org/food"],
 			"summary_path": "~/org/food/weekly/{week}.md",
+			"summary_policy": "on-demand",
 			"memory_provider": "honcho",
 			"shared_skill_groups": ["common", "orchestration"],
 			"gateway_expected": "running",
@@ -160,6 +166,8 @@
 			],
 			"canonical_paths": ["~/org/health/google-health"],
 			"summary_path": "~/org/health/google-health/weekly/{week}.md",
+			"summary_policy": "blocked",
+			"summary_policy_reason": "Google Health OAuth reauthorization required",
 			"memory_provider": "honcho",
 			"shared_skill_groups": ["common", "orchestration"],
 			"gateway_expected": "running",
@@ -178,6 +186,7 @@
 			],
 			"canonical_paths": ["~/indiedev"],
 			"summary_path": "~/indiedev/reviews/weekly/{week}.md",
+			"summary_policy": "on-demand",
 			"memory_provider": "honcho",
 			"shared_skill_groups": [
 				"common",
@@ -204,6 +213,7 @@
 			],
 			"canonical_paths": ["~/study_log/math"],
 			"summary_path": "~/.local/state/hermes/study-handoffs/math/{week}.md",
+			"summary_policy": "on-demand",
 			"memory_provider": "honcho",
 			"shared_skill_groups": ["common", "study", "orchestration"],
 			"gateway_expected": "running",
@@ -219,6 +229,7 @@
 			],
 			"canonical_paths": [],
 			"summary_path": null,
+			"summary_policy": "none",
 			"memory_provider": "disabled",
 			"memory_policy_reason": "clean-room evaluation",
 			"shared_skill_groups": [

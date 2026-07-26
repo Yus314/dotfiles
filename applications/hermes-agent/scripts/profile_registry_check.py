@@ -21,6 +21,13 @@ ALLOWED_SHARED_SKILL_GROUPS = {
     "profile-ops",
     "usage-ops",
 }
+ALLOWED_SUMMARY_POLICIES = {
+    "none",
+    "active-weekly",
+    "on-demand",
+    "source-health-only",
+    "blocked",
+}
 
 
 def profile_root(home: Path, name: str) -> Path:
@@ -62,8 +69,8 @@ def validate(
 ) -> list[str]:
     errors: list[str] = []
     registry = json.loads(registry_path.read_text())
-    if registry.get("schema_version") != 1:
-        errors.append("registry schema_version must be 1")
+    if registry.get("schema_version") != 2:
+        errors.append("registry schema_version must be 2")
     profiles = registry.get("profiles")
     if not isinstance(profiles, dict):
         return [*errors, "registry profiles must be an object"]
@@ -143,11 +150,35 @@ def validate(
             "primary_domains",
             "non_goals",
             "canonical_paths",
+            "summary_policy",
             "kanban_role",
             "gateway_expected",
         ):
             if field not in spec:
                 errors.append(f"{name}: registry missing {field}")
+        summary_policy = spec.get("summary_policy")
+        if summary_policy not in ALLOWED_SUMMARY_POLICIES:
+            errors.append(
+                f"{name}: summary_policy must be one of "
+                f"{sorted(ALLOWED_SUMMARY_POLICIES)}"
+            )
+        elif summary_policy == "blocked" and (
+            not isinstance(spec.get("summary_policy_reason"), str)
+            or not spec["summary_policy_reason"].strip()
+        ):
+            errors.append(
+                f"{name}: blocked summary_policy requires summary_policy_reason"
+            )
+        summary_path = spec.get("summary_path")
+        if summary_policy == "none" and summary_path is not None:
+            errors.append(f"{name}: summary_policy none requires null summary_path")
+        elif summary_policy in ALLOWED_SUMMARY_POLICIES - {"none"} and (
+            not isinstance(summary_path, str) or summary_path.count("{week}") != 1
+        ):
+            errors.append(
+                f"{name}: summary_policy {summary_policy} requires a string "
+                "summary_path containing exactly one {week}"
+            )
         expected_gateway = spec.get("gateway_expected")
         if expected_gateway not in {"running", "stopped"}:
             errors.append(

@@ -110,7 +110,7 @@ class SharedSkillsConfigTests(unittest.TestCase):
     def test_rejects_unsupported_registry_schema_before_use(self):
         with tempfile.TemporaryDirectory() as tmp:
             registry = Path(tmp) / "registry.json"
-            for schema in (None, 2):
+            for schema in (None, 1):
                 value: dict[str, object] = {
                     "profiles": {
                         "default": {"shared_skill_groups": ["common"]}
