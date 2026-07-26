@@ -189,9 +189,18 @@
                 };
                 check-toml.enable = true;
                 treefmt.enable = true;
-                detect-private-keys.enable = true;
+                detect-private-keys = {
+                  enable = true;
+                  # This source intentionally contains private-key marker regexes
+                  # used to reject secrets from shared skill bundles.
+                  excludes = [ "applications/hermes-agent/scripts/shared_skills_config.py" ];
+                };
                 end-of-file-fixer.enable = true;
-                trim-trailing-whitespace.enable = true;
+                trim-trailing-whitespace = {
+                  enable = true;
+                  # Unified diffs require a leading space on blank context lines.
+                  excludes = [ "\\.patch$" ];
+                };
                 fix-byte-order-marker.enable = true;
                 actionlint.enable = true;
               };
