@@ -49,6 +49,7 @@ let
   '';
 in
 {
+
   imports = [
     inputs.niri.homeModules.niri
   ];
@@ -94,6 +95,9 @@ in
         ];
         "Mod+B".action.spawn = [
           "zen-beta"
+        ];
+        "Mod+Shift+B".action.spawn = [
+          "openrun-toggle"
         ];
         "Mod+Shift+Ctrl+Return".action.spawn = [
           "tofi-drun"

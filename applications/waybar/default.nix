@@ -216,6 +216,7 @@
             ];
           };
           "on-click" = "pavucontrol";
+          "on-click-right" = "openrun-toggle";
         };
         "niri/workspaces" = {
           "format" = "{index}";

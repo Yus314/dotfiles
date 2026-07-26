@@ -2,6 +2,7 @@
 {
   imports = [
     ../desktop.nix
+    ../../applications/bluetooth
     ../../applications/niri
     ../../applications/obsidian
     ../../applications/swww
