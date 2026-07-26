@@ -13,7 +13,10 @@ in
     ./syncthing.nix
   ];
   home-manager.users.${username} = {
-    imports = [ ../../../applications/ssh ];
+    imports = [
+      ../../../applications/hermes-agent
+      ../../../applications/ssh
+    ];
     programs.man.enable = false;
   };
 }
