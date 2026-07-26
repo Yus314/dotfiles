@@ -44,10 +44,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Headless fork (web/TUI stubbed) of NousResearch/hermes-agent — upstream's
-    # Nix web/tui build is broken (#27430). No nixpkgs follows: the package is
-    # built with its own pinned nixpkgs (uv2nix) and must stay that way.
-    hermes-agent.url = "github:Yus314/hermes-agent/headless";
+    # Pin a qualified upstream release. No nixpkgs follows: the package is built
+    # with its own pinned nixpkgs (uv2nix) and must stay that way.
+    hermes-agent.url = "github:NousResearch/hermes-agent/v2026.7.20";
 
     disko.inputs.nixpkgs.follows = "nixpkgs";
     emacs-overlay.inputs.nixpkgs-stable.follows = "nixpkgs-stable";

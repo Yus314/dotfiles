@@ -1,10 +1,8 @@
 # Hermes Agent — always-on messaging gateway (Discord), run as a home-manager
 # user service so the Codex (ChatGPT) OAuth login lives in your own ~/.hermes.
 #
-# Built from the headless fork (web/TUI dashboards stubbed out) because the
-# upstream Nix package's web/tui build is currently broken — see upstream
-# NousResearch/hermes-agent#27430. Once that lands, repoint the flake input
-# back to upstream and retire the fork.
+# Pinned to the qualified upstream v0.19.0 release. Keep Hermes' own flake
+# inputs rather than forcing the workstation nixpkgs into its uv2nix build.
 #
 # One-time interactive setup (run as your user, on this host):
 #   hermes model      # choose "OpenAI Codex" -> device-code login (ChatGPT
@@ -26,16 +24,45 @@
   ...
 }:
 let
+  honchoAi = pkgs.python312Packages.buildPythonPackage rec {
+    pname = "honcho-ai";
+    version = "2.0.1";
+    pyproject = true;
+
+    src = pkgs.fetchurl {
+      url = "https://files.pythonhosted.org/packages/93/30/d30ba159404050d53b4b1b1c4477f9591f43af18758be1fb7dab6afbfe7d/honcho_ai-${version}.tar.gz";
+      hash = "sha256-b97r+UVOYrxSPVeIjlA1nme6r9sh9oYh+cFOCNwAYjo=";
+    };
+
+    build-system = [ pkgs.python312Packages.setuptools ];
+    dependencies = with pkgs.python312Packages; [
+      httpx
+      pydantic
+    ];
+
+    pythonImportsCheck = [ "honcho" ];
+  };
+
+  # v0.19.0 may emit blank tool-only intermediate turns to Discord, whose API
+  # rejects them with error 50006. Keep the release pin and patch only the
+  # bundled messaging plugin; remove this once upstream ships the same guard.
+  hermesPlugins =
+    pkgs.runCommand "hermes-agent-plugins-0.19.0-patched" { nativeBuildInputs = [ pkgs.patch ]; }
+      ''
+        cp -R ${inputs.hermes-agent}/plugins "$out"
+        chmod -R u+w "$out"
+        patch --fuzz=0 -p1 -d "$out" < ${./discord-skip-empty-messages.patch}
+      '';
+
   hermes = inputs.hermes-agent.packages.${pkgs.system}.messaging.overrideAttrs (old: {
-    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.patch ];
     postInstall = (old.postInstall or "") + ''
-      mkdir -p "$out/lib/hermes-patched"
-      cp -R ${inputs.hermes-agent}/hermes_cli "$out/lib/hermes-patched/hermes_cli"
-      chmod -R u+w "$out/lib/hermes-patched/hermes_cli"
-      patch -d "$out/lib/hermes-patched" -p1 < ${./kanban-external-skills.patch}
+      test -L "$out/share/hermes-agent/plugins"
+      rm "$out/share/hermes-agent/plugins"
+      ln -s ${hermesPlugins} "$out/share/hermes-agent/plugins"
+
       for executable in hermes hermes-agent hermes-acp; do
         wrapProgram "$out/bin/$executable" \
-          --prefix PYTHONPATH : "$out/lib/hermes-patched"
+          --set PYTHONPATH "${honchoAi}/${pkgs.python312.sitePackages}"
       done
     '';
   });
@@ -354,352 +381,360 @@ in
     ./usage-adapters.nix
   ];
 
-  sops.secrets."hermes-gateway-env" = {
-    sopsFile = ./secrets.yaml;
-    key = "env";
-    mode = "0400";
-  };
+  config = lib.mkMerge [
+    {
+      home.packages = [
+        hermes
+        pkgs.nodejs_24
+        pkgs.uv
+      ];
 
-  sops.secrets."hermes-health-google-env" = {
-    sopsFile = ./secrets.yaml;
-    key = "health_google_env";
-    mode = "0400";
-  };
+      home.file = {
+        ".hermes/mcp/research_providers_server.py".source = ./research_providers_server.py;
+        ".hermes/skins/modus-vivendi.yaml".text = modusVivendiSkin;
+        ".hermes/skins/modus-operandi.yaml".text = modusOperandiSkin;
+      };
 
-  home.packages = [
-    hermes
-    agentBrowser
-    computerUseReadonlyBroker
-    computerUseSyntheticTarget
-    pkgs.nodejs_24
-    pkgs.uv
+      home.activation.hermesResearchProvidersConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${researchConfig} "$HOME/.hermes/config.yaml"
+      '';
+    }
+
+    (lib.mkIf pkgs.stdenv.isLinux {
+      sops.secrets."hermes-gateway-env" = {
+        sopsFile = ./secrets.yaml;
+        key = "env";
+        mode = "0400";
+      };
+
+      sops.secrets."hermes-health-google-env" = {
+        sopsFile = ./secrets.yaml;
+        key = "health_google_env";
+        mode = "0400";
+      };
+
+      home.packages = [
+        agentBrowser
+        computerUseReadonlyBroker
+        computerUseSyntheticTarget
+      ];
+
+      home.activation.hermesComputerUseConfig =
+        lib.hm.dag.entryAfter [ "hermesResearchProvidersConfig" ]
+          ''
+            $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${computerUseConfig} \
+              "$HOME/.hermes/config.yaml" ${computerUseReadonlyBroker}/bin/hermes-computer-use-readonly
+          '';
+
+      home.activation.hermesGatewayChannels =
+        lib.hm.dag.entryAfter
+          [
+            "writeBoundary"
+            "hermesComputerUseConfig"
+          ]
+          ''
+            $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${gatewayChannelsConfig} ${lib.escapeShellArg (builtins.toJSON gatewayChannels)}
+          '';
+
+      systemd.user.services.hermes-computer-use-atspi = {
+        Unit = {
+          Description = "AT-SPI bus for the Hermes computer-use read-only pilot";
+          PartOf = [ "graphical-session.target" ];
+          After = [ "graphical-session.target" ];
+        };
+        Service = {
+          ExecStart = "${pkgs.at-spi2-core}/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 --screen-reader=0";
+          Restart = "on-failure";
+          RestartSec = "2s";
+        };
+        Install.WantedBy = [ "graphical-session.target" ];
+      };
+
+      systemd.user.services.hermes-gateway = {
+        Unit = {
+          Description = "Hermes Agent messaging gateway (Discord)";
+          After = [
+            "network-online.target"
+            "sops-nix.service"
+          ];
+          Wants = [ "network-online.target" ];
+        };
+
+        Service = {
+          Environment = [
+            "HERMES_HOME=%h/.hermes"
+            "DISCORD_ALLOWED_USERS=${discordUserId}"
+            "DISCORD_REQUIRE_MENTION=false"
+            "PATH=${gatewayPath}"
+          ];
+          # The wrapper validates the default channel allowlist and removes all
+          # profile-specific Discord tokens before starting Hermes.
+          EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
+          ExecStart = "${defaultGatewayRunner}";
+          # Retries until the one-time `hermes model` (Codex auth) has populated
+          # ~/.hermes (auth.json + config.yaml).
+          Restart = "always";
+          RestartSec = "10";
+          # v0.19 defaults restart_drain_timeout to 0 so shutdown can interrupt,
+          # persist delivery obligations, clean up, and exit without a SIGKILL.
+          TimeoutStopSec = "210s";
+        };
+
+        Install.WantedBy = [ "default.target" ];
+      };
+
+      systemd.user.services.hermes-food-gateway = {
+        Unit = {
+          Description = "Hermes Agent food messaging gateway (Discord)";
+          After = [
+            "network-online.target"
+            "sops-nix.service"
+          ];
+          Wants = [ "network-online.target" ];
+        };
+
+        Service = {
+          Environment = [
+            "HERMES_HOME=%h/.hermes"
+            "DISCORD_ALLOWED_USERS=${discordUserId}"
+            "DISCORD_REQUIRE_MENTION=false"
+            "PATH=${gatewayPath}"
+          ];
+          # DISCORD_FOOD is the food bot token. The wrapper maps it to the
+          # DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
+          EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
+          ExecStart = "${foodGatewayRunner}";
+          Restart = "always";
+          RestartSec = "10";
+          TimeoutStopSec = "210s";
+        };
+
+        Install.WantedBy = [ "default.target" ];
+      };
+
+      systemd.user.services.hermes-finance-gateway = {
+        Unit = {
+          Description = "Hermes Agent finance messaging gateway (Discord)";
+          After = [
+            "network-online.target"
+            "sops-nix.service"
+          ];
+          Wants = [ "network-online.target" ];
+        };
+
+        Service = {
+          Environment = [
+            "HERMES_HOME=%h/.hermes"
+            "DISCORD_ALLOWED_USERS=${discordUserId}"
+            # Finance bot is isolated to its own Discord finance surface, so it may
+            # respond without explicit mentions there.
+            "DISCORD_REQUIRE_MENTION=false"
+            "PATH=${gatewayPath}"
+          ];
+          # DISCORD_FINANCE_BOT_TOKEN is the finance bot token. The wrapper maps it to the
+          # DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
+          EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
+          ExecStart = "${financeGatewayRunner}";
+          Restart = "always";
+          RestartSec = "10";
+          TimeoutStopSec = "210s";
+        };
+
+        Install.WantedBy = [ "default.target" ];
+      };
+
+      systemd.user.services.hermes-math-gateway = {
+        Unit = {
+          Description = "Hermes Agent math messaging gateway (Discord)";
+          After = [
+            "network-online.target"
+            "sops-nix.service"
+          ];
+          Wants = [ "network-online.target" ];
+        };
+
+        Service = {
+          Environment = [
+            "HERMES_HOME=%h/.hermes"
+            "DISCORD_ALLOWED_USERS=${discordUserId}"
+            # Math bot is isolated to its intended Discord channel/thread, so it may
+            # respond without explicit mentions there.
+            "DISCORD_REQUIRE_MENTION=false"
+            "PATH=${gatewayPath}"
+          ];
+          # DISCORD_MATH_BOT_TOKEN is the math bot token. The wrapper maps it to the
+          # DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
+          EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
+          ExecStart = "${mathGatewayRunner}";
+          Restart = "always";
+          RestartSec = "10";
+          TimeoutStopSec = "210s";
+        };
+
+        Install.WantedBy = [ "default.target" ];
+      };
+
+      systemd.user.services.hermes-career-gateway = {
+        Unit = {
+          Description = "Hermes Agent career advisor messaging gateway (Discord)";
+          After = [
+            "network-online.target"
+            "sops-nix.service"
+          ];
+          Wants = [ "network-online.target" ];
+        };
+
+        Service = {
+          Environment = [
+            "HERMES_HOME=%h/.hermes"
+            "DISCORD_ALLOWED_USERS=${discordUserId}"
+            # Career advice can include private employment, compensation, and CV
+            # details. Scope the bot with the career profile's
+            # discord.allowed_channels setting, matching the other profile gateways.
+            "DISCORD_REQUIRE_MENTION=false"
+            "PATH=${gatewayPath}"
+          ];
+          # DISCORD_CAREER_BOT_TOKEN is the career bot token. The wrapper maps it to
+          # the DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
+          EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
+          ExecStart = "${careerGatewayRunner}";
+          Restart = "always";
+          RestartSec = "10";
+          TimeoutStopSec = "210s";
+        };
+
+        Install.WantedBy = [ "default.target" ];
+      };
+
+      systemd.user.services.hermes-english-gateway = {
+        Unit = {
+          Description = "Hermes Agent English learning messaging gateway (Discord)";
+          After = [
+            "network-online.target"
+            "sops-nix.service"
+          ];
+          Wants = [ "network-online.target" ];
+        };
+
+        Service = {
+          Environment = [
+            "HERMES_HOME=%h/.hermes"
+            "DISCORD_ALLOWED_USERS=${discordUserId}"
+            # The English bot is scoped by the english profile's
+            # discord.allowed_channels setting and can respond without mentions in
+            # that dedicated learning channel.
+            "DISCORD_REQUIRE_MENTION=false"
+            "PATH=${gatewayPath}"
+          ];
+          # DISCORD_ENGLISH_BOT_TOKEN is the English bot token. The wrapper maps it
+          # to the DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
+          EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
+          ExecStart = "${englishGatewayRunner}";
+          Restart = "always";
+          RestartSec = "10";
+          TimeoutStopSec = "210s";
+        };
+
+        Install.WantedBy = [ "default.target" ];
+      };
+
+      systemd.user.services.hermes-indiedev-gateway = {
+        Unit = {
+          Description = "Hermes Agent indie development messaging gateway (Discord)";
+          After = [
+            "network-online.target"
+            "sops-nix.service"
+          ];
+          Wants = [ "network-online.target" ];
+        };
+
+        Service = {
+          Environment = [
+            "HERMES_HOME=%h/.hermes"
+            "DISCORD_ALLOWED_USERS=${discordUserId}"
+            # The indiedev bot is scoped by the indiedev profile's
+            # discord.allowed_channels setting and can respond without mentions in
+            # that dedicated product-development channel. Hermes' Discord adapter
+            # still auto-threads free-response channel messages; use
+            # discord.no_thread_channels for direct-reply exceptions.
+            "DISCORD_REQUIRE_MENTION=false"
+            "PATH=${gatewayPath}"
+          ];
+          # DISCORD_INDIEDEV_BOT_TOKEN is the indiedev bot token. The wrapper maps
+          # it to the DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
+          EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
+          ExecStart = "${indiedevGatewayRunner}";
+          Restart = "always";
+          RestartSec = "10";
+          TimeoutStopSec = "210s";
+        };
+
+        Install.WantedBy = [ "default.target" ];
+      };
+
+      systemd.user.services.hermes-economics-gateway = {
+        Unit = {
+          Description = "Hermes Agent economics learning messaging gateway (Discord)";
+          After = [
+            "network-online.target"
+            "sops-nix.service"
+          ];
+          Wants = [ "network-online.target" ];
+        };
+
+        Service = {
+          Environment = [
+            "HERMES_HOME=%h/.hermes"
+            "DISCORD_ALLOWED_USERS=${discordUserId}"
+            # The economics bot is scoped by the economics profile's
+            # discord.allowed_channels setting and can respond without mentions in
+            # that dedicated learning channel.
+            "DISCORD_REQUIRE_MENTION=false"
+            "PATH=${gatewayPath}"
+          ];
+          # DISCORD_ECONOMICS_BOT_TOKEN is the economics bot token. The wrapper maps
+          # it to the DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
+          EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
+          ExecStart = "${economicsGatewayRunner}";
+          Restart = "always";
+          RestartSec = "10";
+          TimeoutStopSec = "210s";
+        };
+
+        Install.WantedBy = [ "default.target" ];
+      };
+
+      systemd.user.services.hermes-health-gateway = {
+        Unit = {
+          Description = "Hermes Agent health messaging gateway (Discord)";
+          After = [
+            "network-online.target"
+            "sops-nix.service"
+          ];
+          Wants = [ "network-online.target" ];
+        };
+
+        Service = {
+          Environment = [
+            "HERMES_HOME=%h/.hermes"
+            "DISCORD_ALLOWED_USERS=${discordUserId}"
+            # Health bot is restricted to the dedicated #health channel, so it may
+            # respond without explicit mentions there.
+            "DISCORD_REQUIRE_MENTION=false"
+            "PATH=${gatewayPath}"
+            "GOOGLE_HEALTH_ENV_FILE=${healthGoogleEnvFile}"
+          ];
+          # DISCORD_HEALTH_BOT_TOKEN is the health bot token. The wrapper maps it to
+          # the DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
+          EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
+          ExecStart = "${healthGatewayRunner}";
+          Restart = "always";
+          RestartSec = "10";
+          TimeoutStopSec = "210s";
+        };
+
+        Install.WantedBy = [ "default.target" ];
+      };
+    })
   ];
-
-  home.file = {
-    ".hermes/mcp/research_providers_server.py".source = ./research_providers_server.py;
-    ".hermes/skins/modus-vivendi.yaml".text = modusVivendiSkin;
-    ".hermes/skins/modus-operandi.yaml".text = modusOperandiSkin;
-  };
-
-  home.activation.hermesResearchProvidersConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${researchConfig} "$HOME/.hermes/config.yaml"
-  '';
-
-  home.activation.hermesComputerUseConfig =
-    lib.hm.dag.entryAfter [ "hermesResearchProvidersConfig" ]
-      ''
-        $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${computerUseConfig} \
-          "$HOME/.hermes/config.yaml" ${computerUseReadonlyBroker}/bin/hermes-computer-use-readonly
-      '';
-
-  home.activation.hermesGatewayChannels =
-    lib.hm.dag.entryAfter
-      [
-        "writeBoundary"
-        "hermesComputerUseConfig"
-      ]
-      ''
-        $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${gatewayChannelsConfig} ${lib.escapeShellArg (builtins.toJSON gatewayChannels)}
-      '';
-
-  systemd.user.services.hermes-computer-use-atspi = {
-    Unit = {
-      Description = "AT-SPI bus for the Hermes computer-use read-only pilot";
-      PartOf = [ "graphical-session.target" ];
-      After = [ "graphical-session.target" ];
-    };
-    Service = {
-      ExecStart = "${pkgs.at-spi2-core}/libexec/at-spi-bus-launcher --launch-immediately --a11y=1 --screen-reader=0";
-      Restart = "on-failure";
-      RestartSec = "2s";
-    };
-    Install.WantedBy = [ "graphical-session.target" ];
-  };
-
-  systemd.user.services.hermes-gateway = {
-    Unit = {
-      Description = "Hermes Agent messaging gateway (Discord)";
-      After = [
-        "network-online.target"
-        "sops-nix.service"
-      ];
-      Wants = [ "network-online.target" ];
-    };
-
-    Service = {
-      Environment = [
-        "HERMES_HOME=%h/.hermes"
-        "DISCORD_ALLOWED_USERS=${discordUserId}"
-        "DISCORD_REQUIRE_MENTION=false"
-        "PATH=${gatewayPath}"
-      ];
-      # The wrapper validates the default channel allowlist and removes all
-      # profile-specific Discord tokens before starting Hermes.
-      EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
-      ExecStart = "${defaultGatewayRunner}";
-      # Retries until the one-time `hermes model` (Codex auth) has populated
-      # ~/.hermes (auth.json + config.yaml).
-      Restart = "always";
-      RestartSec = "10";
-      # Hermes drains in-flight gateway sessions for up to
-      # agent.restart_drain_timeout=180s; keep systemd's stop timeout above
-      # that so restarts do not SIGKILL active agents mid-drain.
-      TimeoutStopSec = "210s";
-    };
-
-    Install.WantedBy = [ "default.target" ];
-  };
-
-  systemd.user.services.hermes-food-gateway = {
-    Unit = {
-      Description = "Hermes Agent food messaging gateway (Discord)";
-      After = [
-        "network-online.target"
-        "sops-nix.service"
-      ];
-      Wants = [ "network-online.target" ];
-    };
-
-    Service = {
-      Environment = [
-        "HERMES_HOME=%h/.hermes"
-        "DISCORD_ALLOWED_USERS=${discordUserId}"
-        "DISCORD_REQUIRE_MENTION=false"
-        "PATH=${gatewayPath}"
-      ];
-      # DISCORD_FOOD is the food bot token. The wrapper maps it to the
-      # DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
-      EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
-      ExecStart = "${foodGatewayRunner}";
-      Restart = "always";
-      RestartSec = "10";
-      TimeoutStopSec = "210s";
-    };
-
-    Install.WantedBy = [ "default.target" ];
-  };
-
-  systemd.user.services.hermes-finance-gateway = {
-    Unit = {
-      Description = "Hermes Agent finance messaging gateway (Discord)";
-      After = [
-        "network-online.target"
-        "sops-nix.service"
-      ];
-      Wants = [ "network-online.target" ];
-    };
-
-    Service = {
-      Environment = [
-        "HERMES_HOME=%h/.hermes"
-        "DISCORD_ALLOWED_USERS=${discordUserId}"
-        # Finance bot is isolated to its own Discord finance surface, so it may
-        # respond without explicit mentions there.
-        "DISCORD_REQUIRE_MENTION=false"
-        "PATH=${gatewayPath}"
-      ];
-      # DISCORD_FINANCE_BOT_TOKEN is the finance bot token. The wrapper maps it to the
-      # DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
-      EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
-      ExecStart = "${financeGatewayRunner}";
-      Restart = "always";
-      RestartSec = "10";
-      TimeoutStopSec = "210s";
-    };
-
-    Install.WantedBy = [ "default.target" ];
-  };
-
-  systemd.user.services.hermes-math-gateway = {
-    Unit = {
-      Description = "Hermes Agent math messaging gateway (Discord)";
-      After = [
-        "network-online.target"
-        "sops-nix.service"
-      ];
-      Wants = [ "network-online.target" ];
-    };
-
-    Service = {
-      Environment = [
-        "HERMES_HOME=%h/.hermes"
-        "DISCORD_ALLOWED_USERS=${discordUserId}"
-        # Math bot is isolated to its intended Discord channel/thread, so it may
-        # respond without explicit mentions there.
-        "DISCORD_REQUIRE_MENTION=false"
-        "PATH=${gatewayPath}"
-      ];
-      # DISCORD_MATH_BOT_TOKEN is the math bot token. The wrapper maps it to the
-      # DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
-      EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
-      ExecStart = "${mathGatewayRunner}";
-      Restart = "always";
-      RestartSec = "10";
-      TimeoutStopSec = "210s";
-    };
-
-    Install.WantedBy = [ "default.target" ];
-  };
-
-  systemd.user.services.hermes-career-gateway = {
-    Unit = {
-      Description = "Hermes Agent career advisor messaging gateway (Discord)";
-      After = [
-        "network-online.target"
-        "sops-nix.service"
-      ];
-      Wants = [ "network-online.target" ];
-    };
-
-    Service = {
-      Environment = [
-        "HERMES_HOME=%h/.hermes"
-        "DISCORD_ALLOWED_USERS=${discordUserId}"
-        # Career advice can include private employment, compensation, and CV
-        # details. Scope the bot with the career profile's
-        # discord.allowed_channels setting, matching the other profile gateways.
-        "DISCORD_REQUIRE_MENTION=false"
-        "PATH=${gatewayPath}"
-      ];
-      # DISCORD_CAREER_BOT_TOKEN is the career bot token. The wrapper maps it to
-      # the DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
-      EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
-      ExecStart = "${careerGatewayRunner}";
-      Restart = "always";
-      RestartSec = "10";
-      TimeoutStopSec = "210s";
-    };
-
-    Install.WantedBy = [ "default.target" ];
-  };
-
-  systemd.user.services.hermes-english-gateway = {
-    Unit = {
-      Description = "Hermes Agent English learning messaging gateway (Discord)";
-      After = [
-        "network-online.target"
-        "sops-nix.service"
-      ];
-      Wants = [ "network-online.target" ];
-    };
-
-    Service = {
-      Environment = [
-        "HERMES_HOME=%h/.hermes"
-        "DISCORD_ALLOWED_USERS=${discordUserId}"
-        # The English bot is scoped by the english profile's
-        # discord.allowed_channels setting and can respond without mentions in
-        # that dedicated learning channel.
-        "DISCORD_REQUIRE_MENTION=false"
-        "PATH=${gatewayPath}"
-      ];
-      # DISCORD_ENGLISH_BOT_TOKEN is the English bot token. The wrapper maps it
-      # to the DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
-      EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
-      ExecStart = "${englishGatewayRunner}";
-      Restart = "always";
-      RestartSec = "10";
-      TimeoutStopSec = "210s";
-    };
-
-    Install.WantedBy = [ "default.target" ];
-  };
-
-  systemd.user.services.hermes-indiedev-gateway = {
-    Unit = {
-      Description = "Hermes Agent indie development messaging gateway (Discord)";
-      After = [
-        "network-online.target"
-        "sops-nix.service"
-      ];
-      Wants = [ "network-online.target" ];
-    };
-
-    Service = {
-      Environment = [
-        "HERMES_HOME=%h/.hermes"
-        "DISCORD_ALLOWED_USERS=${discordUserId}"
-        # The indiedev bot is scoped by the indiedev profile's
-        # discord.allowed_channels setting and can respond without mentions in
-        # that dedicated product-development channel. Hermes' Discord adapter
-        # still auto-threads free-response channel messages; use
-        # discord.no_thread_channels for direct-reply exceptions.
-        "DISCORD_REQUIRE_MENTION=false"
-        "PATH=${gatewayPath}"
-      ];
-      # DISCORD_INDIEDEV_BOT_TOKEN is the indiedev bot token. The wrapper maps
-      # it to the DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
-      EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
-      ExecStart = "${indiedevGatewayRunner}";
-      Restart = "always";
-      RestartSec = "10";
-      TimeoutStopSec = "210s";
-    };
-
-    Install.WantedBy = [ "default.target" ];
-  };
-
-  systemd.user.services.hermes-economics-gateway = {
-    Unit = {
-      Description = "Hermes Agent economics learning messaging gateway (Discord)";
-      After = [
-        "network-online.target"
-        "sops-nix.service"
-      ];
-      Wants = [ "network-online.target" ];
-    };
-
-    Service = {
-      Environment = [
-        "HERMES_HOME=%h/.hermes"
-        "DISCORD_ALLOWED_USERS=${discordUserId}"
-        # The economics bot is scoped by the economics profile's
-        # discord.allowed_channels setting and can respond without mentions in
-        # that dedicated learning channel.
-        "DISCORD_REQUIRE_MENTION=false"
-        "PATH=${gatewayPath}"
-      ];
-      # DISCORD_ECONOMICS_BOT_TOKEN is the economics bot token. The wrapper maps
-      # it to the DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
-      EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
-      ExecStart = "${economicsGatewayRunner}";
-      Restart = "always";
-      RestartSec = "10";
-      TimeoutStopSec = "210s";
-    };
-
-    Install.WantedBy = [ "default.target" ];
-  };
-
-  systemd.user.services.hermes-health-gateway = {
-    Unit = {
-      Description = "Hermes Agent health messaging gateway (Discord)";
-      After = [
-        "network-online.target"
-        "sops-nix.service"
-      ];
-      Wants = [ "network-online.target" ];
-    };
-
-    Service = {
-      Environment = [
-        "HERMES_HOME=%h/.hermes"
-        "DISCORD_ALLOWED_USERS=${discordUserId}"
-        # Health bot is restricted to the dedicated #health channel, so it may
-        # respond without explicit mentions there.
-        "DISCORD_REQUIRE_MENTION=false"
-        "PATH=${gatewayPath}"
-        "GOOGLE_HEALTH_ENV_FILE=${healthGoogleEnvFile}"
-      ];
-      # DISCORD_HEALTH_BOT_TOKEN is the health bot token. The wrapper maps it to
-      # the DISCORD_BOT_TOKEN name consumed by Hermes' Discord adapter.
-      EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
-      ExecStart = "${healthGatewayRunner}";
-      Restart = "always";
-      RestartSec = "10";
-      TimeoutStopSec = "210s";
-    };
-
-    Install.WantedBy = [ "default.target" ];
-  };
 }

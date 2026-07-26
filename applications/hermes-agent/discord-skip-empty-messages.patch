@@ -1,0 +1,14 @@
+diff --git a/platforms/discord/adapter.py b/platforms/discord/adapter.py
+index 6adb73b..a912d91 100644
+--- a/platforms/discord/adapter.py
++++ b/platforms/discord/adapter.py
+@@ -2831,2 +2831,9 @@ class DiscordAdapter(BasePlatformAdapter):
++        # Tool-only intermediate turns can legitimately have no textual
++        # content. Treat them as a successful no-op instead of asking Discord
++        # to send an invalid empty message (API error 50006). The later,
++        # non-empty final turn remains responsible for recovery bookkeeping.
++        if not content or not content.strip():
++            return SendResult(success=True, raw_response={"message_ids": [], "skipped_empty": True})
++
+         if not self._client:
+             return SendResult(success=False, error="Not connected")

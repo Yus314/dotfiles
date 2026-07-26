@@ -35,8 +35,38 @@ class GatewayChannelsConfigTests(unittest.TestCase):
             self.assertIn("allowed_channels: '123'", default.read_text())
             self.assertIn("other: keep", default.read_text())
             self.assertIn("allowed_channels: '456'", food.read_text())
+            default_config = gateway_channels_config.yaml.safe_load(default.read_text())
+            food_config = gateway_channels_config.yaml.safe_load(food.read_text())
+            self.assertFalse(default_config["secrets"]["bitwarden"]["override_existing"])
+            self.assertFalse(food_config["secrets"]["bitwarden"]["override_existing"])
+            self.assertEqual(default_config["session_reset"], {"mode": "none"})
+            self.assertEqual(food_config["session_reset"], {"mode": "none"})
+            self.assertNotIn("display", default_config)
+            self.assertNotIn("display", food_config)
             self.assertEqual(stat.S_IMODE(default.stat().st_mode), 0o600)
             self.assertEqual(stat.S_IMODE(food.stat().st_mode), 0o600)
+
+    def test_hides_reasoning_for_sensitive_profiles_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            home = Path(tmp)
+            finance = self.create_profile(
+                home,
+                "finance",
+                "display:\n  show_reasoning: true\n  show_cost: true\n",
+            )
+            health = self.create_profile(home, "health", "{}\n")
+            self.create_profile(home, "default", "{}\n")
+
+            gateway_channels_config.apply(
+                home,
+                {"default": "123", "finance": "456", "health": "789"},
+            )
+
+            finance_config = gateway_channels_config.yaml.safe_load(finance.read_text())
+            health_config = gateway_channels_config.yaml.safe_load(health.read_text())
+            self.assertFalse(finance_config["display"]["show_reasoning"])
+            self.assertTrue(finance_config["display"]["show_cost"])
+            self.assertFalse(health_config["display"]["show_reasoning"])
 
     def test_validation_failure_prevents_all_writes(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -47,7 +77,15 @@ class GatewayChannelsConfigTests(unittest.TestCase):
                 gateway_channels_config.apply(home, {"default": "123", "missing": "456"})
             self.assertEqual(default.read_text(), before)
 
-            for invalid in ("[]\n", "null\n", "discord: []\n"):
+            for invalid in (
+                "[]\n",
+                "null\n",
+                "discord: []\n",
+                "secrets: []\n",
+                "secrets:\n  bitwarden: invalid\n",
+                "session_reset: invalid\n",
+                "display: invalid\n",
+            ):
                 other = self.create_profile(home, "food", invalid)
                 with self.assertRaises(ValueError, msg=invalid):
                     gateway_channels_config.apply(home, {"default": "123", "food": "456"})
