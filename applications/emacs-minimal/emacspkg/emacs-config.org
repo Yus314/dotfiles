@@ -53,6 +53,7 @@ unwind-protect により、途中でエラーが発生しても確実に復元�
     (corfu-auto-prefix 1)
     (corfu-cycle t)
     :config
+    (keymap-unset corfu-map "RET")
     (global-corfu-mode 1))
 #+end_src
 * Provide
