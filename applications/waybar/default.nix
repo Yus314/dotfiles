@@ -19,6 +19,9 @@
         rev = "98b2a563f398f63f99ec8a6f7fb2b19a172abd5d";
         hash = "sha256-gVYj72W4L5FJwtfkT/m8PxgDKBT/3HIq1BdnxhFtlPQ=";
       };
+      patches = (oldAttrs.patches or [ ]) ++ [
+        ./patches/niri-workspace-taskbar-reuse.patch
+      ];
       postPatch = (oldAttrs.postPatch or "") + ''
         # Upstream workspace-taskbar currently hides the workspace label unconditionally.
         # Keep the label visible so niri's vertical workspace number and horizontal window icons
@@ -627,5 +630,14 @@
           background-color: #0069d4;
       }
     '';
+  };
+
+  # Keep a Waybar leak from exhausting the desktop session. Normal usage is
+  # well below MemoryHigh; MemoryMax lets systemd restart only Waybar if it
+  # regresses instead of forcing the kernel into a global OOM.
+  systemd.user.services.waybar.Service = {
+    MemoryAccounting = true;
+    MemoryHigh = "256M";
+    MemoryMax = "512M";
   };
 }
