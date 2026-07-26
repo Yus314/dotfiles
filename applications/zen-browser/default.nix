@@ -3,12 +3,12 @@
   imports = [ inputs.zen-browser.homeModules.beta ];
   programs.zen-browser = {
     enable = true;
+    globalExtensions = with pkgs.firefox-addons; [ bitwarden ];
     profiles.kaki = {
       extensions = {
         packages = (
           with pkgs.firefox-addons;
           [
-            bitwarden
             ublock-origin
             vimium
           ]
