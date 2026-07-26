@@ -171,8 +171,8 @@ in
     terminal = false;
   };
 
-  xdg.desktopEntries.zathura-picker = {
-    name = "Zathura Document Picker";
+  xdg.desktopEntries."org.pwmt.zathura" = {
+    name = "Zathura";
     genericName = "Document Viewer";
     comment = "Search for a document and open it with Zathura";
     type = "Application";
