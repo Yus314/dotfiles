@@ -43,14 +43,42 @@ in
   i18n.inputMethod = {
     type = "fcitx5";
     enable = true;
-    fcitx5.addons = [
-      pkgs.fcitx5-skk
-      pkgs.fcitx5-mozc
-      pkgs.fcitx5-gtk
-      fcitx5-cskk
-      fcitx5-cskk-qt
-    ];
-    fcitx5.waylandFrontend = true;
+    fcitx5 = {
+      addons = [
+        pkgs.fcitx5-skk
+        pkgs.fcitx5-mozc
+        pkgs.fcitx5-gtk
+        fcitx5-cskk
+        fcitx5-cskk-qt
+      ];
+      waylandFrontend = true;
+      settings = {
+        globalOptions.Behavior = {
+          ActiveByDefault = "True";
+          ShareInputState = "All";
+        };
+        addons."fcitx5-cskk".globalSection = {
+          InitialInputMode = "Hiragana";
+          Rule = "default";
+        };
+        inputMethod = {
+          "Groups/0" = {
+            Name = "Default";
+            "Default Layout" = "us";
+            DefaultIM = "cskk";
+          };
+          "Groups/0/Items/0" = {
+            Name = "keyboard-us";
+            Layout = "";
+          };
+          "Groups/0/Items/1" = {
+            Name = "cskk";
+            Layout = "";
+          };
+          GroupOrder."0" = "Default";
+        };
+      };
+    };
   };
 
   services.dbus.packages = [ config.i18n.inputMethod.package ];
