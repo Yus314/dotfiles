@@ -6,7 +6,61 @@
   pkgs,
   ...
 }:
+let
+  zathuraPicker = pkgs.writeShellApplication {
+    name = "zathura-picker";
+    runtimeInputs = [
+      pkgs.fd
+      pkgs.tofi
+      config.programs.zathura.package
+    ];
+    text = ''
+      cd "$HOME"
 
+      if ! document="$({
+        fd \
+          --hidden \
+          --no-ignore \
+          --type file \
+          --extension pdf \
+          --extension epub \
+          --extension djvu \
+          --extension djv \
+          --extension ps \
+          --extension eps \
+          --extension cbz \
+          --extension cbr \
+          --extension cb7 \
+          --extension cbt \
+          --exclude .cache \
+          --exclude .config \
+          --exclude .direnv \
+          --exclude .git \
+          --exclude .hermes \
+          --exclude .local/share/Trash \
+          --exclude .local/share/Steam \
+          --exclude .npm \
+          --exclude .rustup \
+          --exclude .venv \
+          --exclude __pycache__ \
+          --exclude node_modules \
+          --exclude result \
+          --exclude 'result-*' \
+          --exclude target \
+          --exclude venv \
+          . \
+          | tofi \
+              --prompt-text='open: ' \
+              --placeholder-text='Search documents...'
+      })"; then
+        exit 0
+      fi
+
+      [[ -n "$document" ]] || exit 0
+      exec zathura -- "$document"
+    '';
+  };
+in
 {
   programs.tofi = {
     enable = true;
@@ -84,7 +138,7 @@
     };
   };
 
-  home.activation.tofiDrunCacheRefresh = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.tofiDrunCacheRefresh = lib.hm.dag.entryAfter [ "installPackages" ] ''
     apps_dir="${config.home.profileDirectory}/share/applications"
     state_dir="${config.xdg.stateHome}/tofi"
     hash_file="$state_dir/desktop-hash"
@@ -93,7 +147,7 @@
     if [ -d "$apps_dir" ]; then
       $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$state_dir"
       new_hash="$(
-        ${pkgs.findutils}/bin/find "$apps_dir" -type f -name '*.desktop' -print0 \
+        ${pkgs.findutils}/bin/find -L "$apps_dir" -type f -name '*.desktop' -print0 \
           | ${pkgs.coreutils}/bin/sort -z \
           | ${pkgs.findutils}/bin/xargs -0 -r ${pkgs.coreutils}/bin/stat -c '%n %s %Y' \
           | ${pkgs.coreutils}/bin/sha256sum \
@@ -116,4 +170,20 @@
     exec = "wlogout";
     terminal = false;
   };
+
+  xdg.desktopEntries.zathura-picker = {
+    name = "Zathura Document Picker";
+    genericName = "Document Viewer";
+    comment = "Search for a document and open it with Zathura";
+    type = "Application";
+    exec = "${lib.getExe zathuraPicker}";
+    icon = "org.pwmt.zathura";
+    terminal = false;
+    categories = [
+      "Office"
+      "Viewer"
+    ];
+  };
+
+  home.packages = [ zathuraPicker ];
 }
