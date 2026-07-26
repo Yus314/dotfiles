@@ -24,6 +24,29 @@ let
       fi
     fi
   '';
+
+  # `niri --session` imports the graphical environment itself. Keep direct
+  # `niri` starts usable too, so user services do not silently miss Wayland.
+  niriSessionBootstrap = pkgs.writeShellScript "niri-session-bootstrap" ''
+    export XDG_CURRENT_DESKTOP=niri
+    export XDG_SESSION_TYPE=wayland
+
+    variables=(
+      WAYLAND_DISPLAY
+      NIRI_SOCKET
+      XDG_CURRENT_DESKTOP
+      XDG_SESSION_TYPE
+      XMODIFIERS
+      QT_IM_MODULE
+    )
+    if [[ -n "''${DISPLAY-}" ]]; then
+      variables+=(DISPLAY)
+    fi
+
+    ${pkgs.systemd}/bin/systemctl --user import-environment "''${variables[@]}"
+    ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd "''${variables[@]}"
+    ${pkgs.systemd}/bin/systemctl --user start waybar.service
+  '';
 in
 {
   imports = [
@@ -89,6 +112,8 @@ in
       environment = {
         "NIXOS_OZONE_WL" = "1";
         "DISPLAY" = ":0";
+        "XDG_CURRENT_DESKTOP" = "niri";
+        "XDG_SESSION_TYPE" = "wayland";
       };
 
       animations = {
@@ -118,6 +143,9 @@ in
 
       # 自動起動プログラム
       spawn-at-startup = [
+        {
+          command = [ "${niriSessionBootstrap}" ];
+        }
         {
           command = [
             "fcitx5"
