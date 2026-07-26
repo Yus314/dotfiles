@@ -52,6 +52,8 @@ let
         cp -R ${inputs.hermes-agent}/plugins "$out"
         chmod -R u+w "$out"
         patch --fuzz=0 -p1 -d "$out" < ${./discord-skip-empty-messages.patch}
+        cp -R ${./plugins/context_engine/phase_checkpoint} \
+          "$out/phase_checkpoint"
       '';
 
   hermes = inputs.hermes-agent.packages.${pkgs.system}.messaging.overrideAttrs (old: {
@@ -189,6 +191,7 @@ let
   gatewayPreflight = ./scripts/gateway_preflight.py;
   gatewayChannelsConfig = ./scripts/gateway_channels_config.py;
   researchConfig = ./scripts/research_config.py;
+  phaseContextConfig = ./scripts/phase_context_config.py;
   computerUseConfig = ./scripts/computer_use_config.py;
 
   gatewayChannels = {
@@ -398,6 +401,12 @@ in
       home.activation.hermesResearchProvidersConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${researchConfig} "$HOME/.hermes/config.yaml"
       '';
+
+      home.activation.hermesPhaseContextConfig =
+        lib.hm.dag.entryAfter [ "hermesResearchProvidersConfig" ]
+          ''
+            $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${phaseContextConfig} "$HOME/.hermes/config.yaml"
+          '';
     }
 
     (lib.mkIf pkgs.stdenv.isLinux {
@@ -419,12 +428,10 @@ in
         computerUseSyntheticTarget
       ];
 
-      home.activation.hermesComputerUseConfig =
-        lib.hm.dag.entryAfter [ "hermesResearchProvidersConfig" ]
-          ''
-            $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${computerUseConfig} \
-              "$HOME/.hermes/config.yaml" ${computerUseReadonlyBroker}/bin/hermes-computer-use-readonly
-          '';
+      home.activation.hermesComputerUseConfig = lib.hm.dag.entryAfter [ "hermesPhaseContextConfig" ] ''
+        $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${computerUseConfig} \
+          "$HOME/.hermes/config.yaml" ${computerUseReadonlyBroker}/bin/hermes-computer-use-readonly
+      '';
 
       home.activation.hermesGatewayChannels =
         lib.hm.dag.entryAfter

@@ -1,0 +1,3 @@
+name: phase_checkpoint
+description: Safety-gated phase checkpoints that compact completed work before the next phase.
+version: 1.0.0
