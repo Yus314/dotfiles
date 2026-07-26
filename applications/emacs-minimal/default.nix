@@ -92,7 +92,8 @@ in
   home = {
     packages = with pkgs; [
       texliveForOrg
-      lean4
+      # Use the project-local lean-toolchain instead of pinning one global Lean.
+      elan
       nil
       nixfmt
     ];
