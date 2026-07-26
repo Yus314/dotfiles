@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -128,6 +129,196 @@ class SummaryClassificationTests(unittest.TestCase):
         self.assertFalse(result["ready"])
 
 
+class SummaryPolicyTests(unittest.TestCase):
+    def test_source_health_only_cannot_become_domain_ready(self) -> None:
+        rows = [
+            {
+                "domain": "Finance",
+                "profile": "finance",
+                "path": f"~/ledger/personal/reports/weekly/{MODULE.WEEK}.md",
+                "state": "domain-owned",
+                "ready": True,
+                "status": "Ready: owner-attested domain summary.",
+            }
+        ]
+        policies = {
+            "finance": {
+                "summary_policy": "source-health-only",
+                "summary_policy_reason": "",
+                "summary_path": "~/ledger/personal/reports/weekly/{week}.md",
+            }
+        }
+        [row] = MODULE.apply_summary_policies(rows, policies)
+        self.assertEqual(row["state"], "policy-excluded")
+        self.assertFalse(row["ready"])
+
+    def test_blocked_policy_overrides_file_state(self) -> None:
+        rows = [
+            {
+                "domain": "Health",
+                "profile": "health",
+                "path": f"~/org/health/google-health/weekly/{MODULE.WEEK}.md",
+                "state": "domain-owned",
+                "ready": True,
+                "status": "Ready: owner-attested domain summary.",
+            }
+        ]
+        policies = {
+            "health": {
+                "summary_policy": "blocked",
+                "summary_policy_reason": "OAuth reauthorization required",
+                "summary_path": "~/org/health/google-health/weekly/{week}.md",
+            }
+        }
+        [row] = MODULE.apply_summary_policies(rows, policies)
+        self.assertEqual(row["state"], "blocked")
+        self.assertFalse(row["ready"])
+
+    def test_missing_registry_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            missing = Path(temporary) / "missing.json"
+            with self.assertRaises(MODULE.SummaryPolicyError):
+                MODULE.load_summary_policies(missing)
+
+    def test_none_policy_rejects_a_summary_path(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            registry = Path(temporary) / "registry.json"
+            registry.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 2,
+                        "profiles": {
+                            "default": {
+                                "summary_policy": "none",
+                                "summary_path": "~/summary/{week}.md",
+                            }
+                        },
+                    }
+                )
+            )
+            with self.assertRaises(MODULE.SummaryPolicyError):
+                MODULE.load_summary_policies(registry)
+
+
+class NotificationTests(unittest.TestCase):
+    def test_semantic_snapshot_ignores_file_and_content_churn(self) -> None:
+        before = [
+            {
+                "domain": "Calendar",
+                "profile": "default",
+                "path": "~/org/calendar.org",
+                "exists": True,
+                "size": 100,
+                "state": "source-present",
+                "ready": True,
+                "reason": "source-present",
+                "sha256": "old",
+            },
+            {
+                "domain": "English learning",
+                "profile": "english",
+                "path": "~/english.md",
+                "exists": True,
+                "size": 10,
+                "state": "domain-owned",
+                "ready": True,
+                "reason": "owner-attested",
+                "sha256": "old-summary",
+            },
+        ]
+        after = [
+            {**before[0], "size": 200, "sha256": "new"},
+            {**before[1], "size": 20, "sha256": "new-summary"},
+        ]
+        self.assertEqual(
+            MODULE.semantic_snapshot(before), MODULE.semantic_snapshot(after)
+        )
+        self.assertEqual(MODULE.changed_semantic_rows(before, after), [])
+
+    def test_path_churn_does_not_change_readiness(self) -> None:
+        before = [
+            {
+                "domain": "English learning",
+                "profile": "english",
+                "path": "~/old.md",
+                "state": "missing",
+                "ready": False,
+                "reason": "file missing",
+            }
+        ]
+        after = [{**before[0], "path": "~/new.md"}]
+        self.assertEqual(MODULE.changed_semantic_rows(before, after), [])
+
+    def test_malformed_stored_rows_become_silent_baseline(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state_file = Path(temporary) / "state.json"
+            state_file.write_text('{"rows": ["not-a-row"]}')
+            self.assertIsNone(MODULE.load_previous_rows(state_file))
+
+    def test_new_week_baseline_is_silent(self) -> None:
+        rows = [
+            {
+                "domain": "English learning",
+                "profile": "english",
+                "path": "~/english.md",
+                "state": "missing",
+                "ready": False,
+                "reason": "file missing",
+            }
+        ]
+        self.assertEqual(MODULE.notification_lines(None, rows), [])
+
+    def test_notification_lists_only_semantically_changed_rows(self) -> None:
+        before = [
+            {
+                "domain": "Calendar",
+                "profile": "default",
+                "path": "~/org/calendar.org",
+                "state": "source-present",
+                "ready": True,
+                "reason": "source-present",
+            },
+            {
+                "domain": "English learning",
+                "profile": "english",
+                "path": "~/english.md",
+                "summary_policy": "active-weekly",
+                "state": "missing",
+                "ready": False,
+                "reason": "file missing",
+            },
+        ]
+        after = [
+            before[0],
+            {
+                **before[1],
+                "state": "domain-owned",
+                "ready": True,
+                "reason": "owner-attested",
+            },
+        ]
+        lines = MODULE.notification_lines(before, after)
+        self.assertIn("Semantic readiness changed", lines[0])
+        self.assertTrue(any("English learning (english): missing -> domain-owned" in line for line in lines))
+        self.assertFalse(any("Calendar" in line for line in lines))
+    def test_on_demand_transition_does_not_notify(self) -> None:
+        before = [
+            {
+                "domain": "Career",
+                "profile": "career",
+                "path": "~/career.md",
+                "summary_policy": "on-demand",
+                "state": "missing",
+                "ready": False,
+                "reason": "file missing",
+            }
+        ]
+        after = [
+            {**before[0], "state": "domain-owned", "ready": True}
+        ]
+        self.assertEqual(MODULE.notification_lines(before, after), [])
+
+
 class RenderTests(unittest.TestCase):
     def test_render_distinguishes_file_presence_from_readiness(self) -> None:
         rows = [
@@ -157,10 +348,58 @@ class RenderTests(unittest.TestCase):
             },
         ]
         rendered = MODULE.render(rows)
-        self.assertIn("domain-owned: 1", rendered)
-        self.assertIn("not ready: 1", rendered)
+        self.assertIn("domain-owned across all policies: 1", rendered)
+        self.assertIn("not ready across all policies: 1", rendered)
         self.assertIn("Bootstrap only", rendered)
         self.assertNotIn("Career | career | `~/career.md` | Available", rendered)
+
+    def test_render_counts_only_active_weekly_domains(self) -> None:
+        rows = [
+            {
+                "domain": "English learning",
+                "profile": "english",
+                "path": "~/english.md",
+                "summary_policy": "active-weekly",
+                "exists": False,
+                "size": 0,
+                "state": "missing",
+                "ready": False,
+                "status": "Missing",
+                "reason": "file missing",
+                "sha256": "",
+            },
+            {
+                "domain": "Career",
+                "profile": "career",
+                "path": "~/career.md",
+                "summary_policy": "on-demand",
+                "exists": False,
+                "size": 0,
+                "state": "missing",
+                "ready": False,
+                "status": "Missing",
+                "reason": "file missing",
+                "sha256": "",
+            },
+            {
+                "domain": "Health",
+                "profile": "health",
+                "path": "~/health.md",
+                "summary_policy": "blocked",
+                "summary_policy_reason": "OAuth reauthorization required",
+                "exists": False,
+                "size": 0,
+                "state": "missing",
+                "ready": False,
+                "status": "Missing",
+                "reason": "file missing",
+                "sha256": "",
+            },
+        ]
+        rendered = MODULE.render(rows)
+        self.assertIn("weekly-required: 0/1", rendered)
+        self.assertIn("blocked: 1", rendered)
+        self.assertIn("OAuth reauthorization required", rendered)
 
 
 if __name__ == "__main__":

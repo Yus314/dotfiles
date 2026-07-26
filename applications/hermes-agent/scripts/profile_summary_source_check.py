@@ -23,8 +23,21 @@ GENERATED = TODAY.isoformat()
 STATE_DIR = HOME / ".local/state/hermes/profile-summary-source-check"
 STATE_FILE = STATE_DIR / f"{WEEK}.json"
 INDEX_PATH = HOME / "org/profile-summaries" / f"{WEEK}.md"
+REGISTRY_PATH = HOME / ".local/share/hermes/profile-registry.json"
 BOOTSTRAP_MARKER = "<!-- hermes-bootstrap-weekly-summary -->"
 WEEK_PATTERN = re.compile(r"\b20\d{2}-W\d{2}\b")
+SUMMARY_POLICIES = {
+    "none",
+    "active-weekly",
+    "on-demand",
+    "source-health-only",
+    "blocked",
+}
+
+
+class SummaryPolicyError(RuntimeError):
+    """Raised when the fail-closed integration policy cannot be loaded."""
+
 
 SOURCES = [
     {
@@ -314,6 +327,87 @@ def classify_summary(
     }
 
 
+def load_summary_policies(path: Path) -> dict[str, dict[str, str]]:
+    """Load validated policy or fail closed rather than disabling monitoring."""
+    try:
+        registry = json.loads(path.read_text())
+    except (OSError, AttributeError, UnicodeError, json.JSONDecodeError) as error:
+        raise SummaryPolicyError("summary policy registry is unavailable or invalid") from error
+    if not isinstance(registry, dict) or registry.get("schema_version") != 2:
+        raise SummaryPolicyError("summary policy registry schema is not version 2")
+    profiles = registry.get("profiles")
+    if not isinstance(profiles, dict):
+        raise SummaryPolicyError("summary policy registry has no profiles object")
+    result: dict[str, dict[str, str]] = {}
+    for profile, spec in profiles.items():
+        if not isinstance(profile, str) or not isinstance(spec, dict):
+            raise SummaryPolicyError("summary policy registry has an invalid profile entry")
+        policy = spec.get("summary_policy")
+        reason = spec.get("summary_policy_reason", "")
+        summary_path = spec.get("summary_path")
+        if policy not in SUMMARY_POLICIES or not isinstance(reason, str):
+            raise SummaryPolicyError(f"invalid summary policy for profile {profile}")
+        if policy == "blocked" and not reason.strip():
+            raise SummaryPolicyError(f"blocked profile {profile} has no reason")
+        if policy == "none" and summary_path is not None:
+            raise SummaryPolicyError(
+                f"profile {profile} with no summary policy has a summary path"
+            )
+        if policy != "none" and (
+            not isinstance(summary_path, str) or summary_path.count("{week}") != 1
+        ):
+            raise SummaryPolicyError(f"invalid summary path for profile {profile}")
+        result[profile] = {
+            "summary_policy": policy,
+            "summary_policy_reason": reason,
+            "summary_path": summary_path or "",
+        }
+    return result
+
+
+def apply_summary_policies(
+    rows: list[dict], policies: dict[str, dict[str, str]]
+) -> list[dict]:
+    annotated = []
+    for row in rows:
+        if row["profile"] == "default":
+            policy = {"summary_policy": "source", "summary_policy_reason": ""}
+        else:
+            try:
+                policy = policies[row["profile"]]
+            except KeyError as error:
+                raise SummaryPolicyError(
+                    f"summary policy missing for profile {row['profile']}"
+                ) from error
+            expected_path = policy["summary_path"].replace("{week}", WEEK)
+            if expected_path != row["path"]:
+                raise SummaryPolicyError(
+                    f"summary path drift for profile {row['profile']}: "
+                    f"registry={expected_path} checker={row['path']}"
+                )
+        annotated_row = {**row, **policy}
+        if policy["summary_policy"] == "blocked":
+            annotated_row.update(
+                observed_state=row["state"],
+                observed_ready=row["ready"],
+                state="blocked",
+                ready=False,
+                status=f"Blocked by integration policy: {policy['summary_policy_reason']}.",
+                reason=policy["summary_policy_reason"],
+            )
+        elif policy["summary_policy"] == "source-health-only" and row["ready"]:
+            annotated_row.update(
+                observed_state=row["state"],
+                observed_ready=row["ready"],
+                state="policy-excluded",
+                ready=False,
+                status="Policy-excluded: owner content is not exposed as an integrable domain summary.",
+                reason="source-health-only policy",
+            )
+        annotated.append(annotated_row)
+    return annotated
+
+
 def status_for(src: dict) -> dict:
     path = src["path"]
     if src.get("kind") == "summary":
@@ -348,6 +442,13 @@ def render(rows: list[dict]) -> str:
     summary_rows = [row for row in rows if row["profile"] != "default"]
     ready_count = sum(row["state"] == "domain-owned" for row in summary_rows)
     not_ready_count = len(summary_rows) - ready_count
+    weekly_rows = [
+        row for row in summary_rows if row.get("summary_policy") == "active-weekly"
+    ]
+    weekly_ready = sum(row["state"] == "domain-owned" for row in weekly_rows)
+    blocked_rows = [
+        row for row in summary_rows if row.get("summary_policy") == "blocked"
+    ]
     lines = [
         f"# Profile summary index — {WEEK}",
         "",
@@ -359,25 +460,35 @@ def render(rows: list[dict]) -> str:
         "",
         "## Readiness summary",
         "",
-        f"- domain-owned: {ready_count}",
-        f"- not ready: {not_ready_count}",
+        f"- weekly-required: {weekly_ready}/{len(weekly_rows)}",
+        f"- blocked: {len(blocked_rows)}",
+        f"- domain-owned across all policies: {ready_count}",
+        f"- not ready across all policies: {not_ready_count}",
         "",
         "## Source status",
         "",
-        "| Domain | Owner profile | Expected source | State | Status |",
-        "|---|---|---|---|---|",
+        "| Domain | Owner profile | Policy | Expected source | State | Status |",
+        "|---|---|---|---|---|---|",
     ]
     for row in rows:
+        policy = row.get(
+            "summary_policy", "source" if row["profile"] == "default" else "on-demand"
+        )
+        policy_reason = row.get("summary_policy_reason", "")
+        status = row["status"]
+        if policy_reason and policy_reason not in status:
+            status = f"{status} Policy note: {policy_reason}."
         lines.append(
-            f"| {row['domain']} | {row['profile']} | `{row['path']}` | "
-            f"`{row['state']}` | {row['status']} |"
+            f"| {row['domain']} | {row['profile']} | `{policy}` | `{row['path']}` | "
+            f"`{row['state']}` | {status} |"
         )
     lines += [
         "",
         "## Default integration rule",
         "",
-        "- Treat only `domain-owned` summaries as reviewed domain signals.",
-        "- Bootstrap/missing/stale/degraded means ‘not summarized or not ready,’ never ‘nothing happened.’",
+        "- Automatically integrate only `active-weekly` rows whose state is `domain-owned`.",
+        "- Use `on-demand` domain-owned summaries only for an explicit current request.",
+        "- Never consume `source-health-only`, `blocked`, `bootstrap`, `missing`, `stale`, `degraded`, or `policy-excluded` rows as domain content.",
         "- Do not inspect domain raw data to compensate for a missing handoff.",
         "- Do not rewrite `~/weekly-report` unless explicitly asked.",
         "- Do not merge domain raw data into default profile memory.",
@@ -387,37 +498,128 @@ def render(rows: list[dict]) -> str:
     return "\n".join(lines)
 
 
+SEMANTIC_KEYS = ("domain", "profile", "state", "ready")
+
+
+def semantic_snapshot(rows: list[dict]) -> list[dict]:
+    """Return only state that should be allowed to trigger a user notification.
+
+    File size, mtime-equivalent churn, and content hashes remain useful diagnostic
+    state, but they do not mean readiness changed. In particular, a calendar sync
+    or an edit to an already-ready handoff must not re-alert the user.
+    """
+    return [
+        {key: row.get(key) for key in SEMANTIC_KEYS}
+        for row in sorted(
+            rows,
+            key=lambda row: (
+                str(row.get("profile", "")),
+                str(row.get("domain", "")),
+            ),
+        )
+    ]
+
+
+def _row_key(row: dict) -> tuple[str, str]:
+    return (
+        str(row.get("profile", "")),
+        str(row.get("domain", "")),
+    )
+
+
+def changed_semantic_rows(
+    previous_rows: list[dict], rows: list[dict]
+) -> list[tuple[dict | None, dict | None]]:
+    previous = {_row_key(row): row for row in semantic_snapshot(previous_rows)}
+    current = {_row_key(row): row for row in semantic_snapshot(rows)}
+    changed: list[tuple[dict | None, dict | None]] = []
+    for key in sorted(previous.keys() | current.keys()):
+        before = previous.get(key)
+        after = current.get(key)
+        if before != after:
+            changed.append((before, after))
+    return changed
+
+
+def notification_lines(
+    previous_rows: list[dict] | None, rows: list[dict]
+) -> list[str]:
+    """Render a compact semantic delta; the first observation is a silent baseline."""
+    if previous_rows is None:
+        return []
+    changed = changed_semantic_rows(previous_rows, rows)
+    current_by_key = {_row_key(row): row for row in rows}
+    previous_by_key = {_row_key(row): row for row in previous_rows}
+    changed = [
+        pair
+        for pair in changed
+        if (
+            (pair[1] or pair[0] or {}).get("profile") == "default"
+            or (
+                current_by_key.get(
+                    _row_key(pair[1] or pair[0] or {}),
+                    previous_by_key.get(_row_key(pair[1] or pair[0] or {}), {}),
+                ).get("summary_policy")
+                == "active-weekly"
+            )
+        )
+    ]
+    if not changed:
+        return []
+
+    weekly_rows = [
+        row
+        for row in rows
+        if row.get("summary_policy") == "active-weekly"
+    ]
+    ready_count = sum(row["ready"] for row in weekly_rows)
+    lines = [
+        f"Semantic readiness changed for {WEEK}.",
+        f"Index: {rel(INDEX_PATH)}",
+        f"Weekly-required summaries: {ready_count}/{len(weekly_rows)}",
+        "Changed signals:",
+    ]
+    for before, after in changed:
+        row = after or before
+        assert row is not None
+        before_state = before["state"] if before else "absent"
+        after_state = after["state"] if after else "absent"
+        lines.append(
+            f"- {row['domain']} ({row['profile']}): "
+            f"{before_state} -> {after_state}"
+        )
+    return lines
+
+
+def load_previous_rows(path: Path) -> list[dict] | None:
+    """Read a prior state defensively; malformed state becomes a silent baseline."""
+    if not path.exists():
+        return None
+    try:
+        stored_rows = json.loads(path.read_text()).get("rows")
+    except (OSError, AttributeError, UnicodeError, json.JSONDecodeError):
+        return None
+    if not isinstance(stored_rows, list) or not all(
+        isinstance(row, dict) for row in stored_rows
+    ):
+        return None
+    return stored_rows
+
+
 def main() -> int:
-    rows = [status_for(source) for source in SOURCES]
+    policies = load_summary_policies(REGISTRY_PATH)
+    rows = apply_summary_policies(
+        [status_for(source) for source in SOURCES], policies
+    )
     content = render(rows)
     atomic_write(INDEX_PATH, content)
 
-    digest_payload = json.dumps(
-        [
-            {
-                key: row[key]
-                for key in (
-                    "domain",
-                    "path",
-                    "exists",
-                    "size",
-                    "state",
-                    "ready",
-                    "sha256",
-                )
-            }
-            for row in rows
-        ],
-        sort_keys=True,
-        ensure_ascii=False,
+    semantic_payload = json.dumps(
+        semantic_snapshot(rows), sort_keys=True, ensure_ascii=False
     )
-    digest = hashlib.sha256(digest_payload.encode("utf-8")).hexdigest()
-    old = None
-    if STATE_FILE.exists():
-        try:
-            old = json.loads(STATE_FILE.read_text()).get("digest")
-        except Exception:
-            old = None
+    digest = hashlib.sha256(semantic_payload.encode("utf-8")).hexdigest()
+    previous_rows = load_previous_rows(STATE_FILE)
+    lines = notification_lines(previous_rows, rows)
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     atomic_write(
         STATE_FILE,
@@ -428,17 +630,8 @@ def main() -> int:
         ),
     )
 
-    if old != digest:
-        domain_rows = [row for row in rows if row["profile"] != "default"]
-        ready = [row for row in domain_rows if row["ready"]]
-        not_ready = [row for row in domain_rows if not row["ready"]]
-        print(f"Profile summary readiness changed for {WEEK}.")
-        print(f"Index: {rel(INDEX_PATH)}")
-        print(f"Domain-owned summaries: {len(ready)}/{len(domain_rows)}")
-        if not_ready:
-            print("Not-ready domain handoffs:")
-            for row in not_ready:
-                print(f"- {row['domain']} ({row['profile']}): {row['state']}")
+    if lines:
+        print("\n".join(lines))
     return 0
 
 
