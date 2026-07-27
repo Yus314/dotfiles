@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - '.github/actions/setup-nix/**'
+      - '.github/renovate.json5'
       - '.github/workflows/test.yml'
       - 'applications/**'
       - 'flake-module.nix'
@@ -23,6 +24,7 @@ on:
       - main
     paths:
       - '.github/actions/setup-nix/**'
+      - '.github/renovate.json5'
       - '.github/workflows/test.yml'
       - 'applications/**'
       - 'flake-module.nix'
@@ -49,6 +51,8 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Check flake
         run: nix flake check --no-build --all-systems --keep-going --allow-import-from-derivation
+      - name: Validate Renovate configuration
+        run: nix shell --inputs-from . nixpkgs#renovate -c renovate-config-validator .github/renovate.json5
   build:
     needs: check
     runs-on: ${{ matrix.os }}

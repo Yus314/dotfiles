@@ -15,6 +15,10 @@
 	},
 	automerge: false,
 	automergeStrategy: 'rebase',
+	ignoreDeps: [
+		'emacs-overlay-31',
+		'nixpkgs-emacs',
+	],
 	packageRules: [
 		{
 			matchUpdateTypes: [
