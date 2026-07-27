@@ -92,7 +92,12 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Prepare Nix build directory
         if: matrix.os == 'ubuntu-latest'
-        run: sudo install -d -m 1777 /nix/tmp
+        run: |
+          sudo install -d -m 1777 /nix/tmp /b
+          sudo mount --bind /nix/tmp /b
+      - name: Prepare Nix build directory
+        if: matrix.os == 'macos-14'
+        run: sudo install -d -m 1777 /nix/b
       - name: Create /run for darwin
         if: matrix.os == 'macos-14'
         run: |
@@ -104,7 +109,7 @@ jobs:
           NIX_CONFIG: |-
             max-jobs = 1
             cores = ${{ matrix.os == 'ubuntu-latest' && '2' || '1' }}
-            ${{ matrix.os == 'ubuntu-latest' && 'build-dir = /nix/tmp' || '' }}
+            build-dir = ${{ matrix.os == 'ubuntu-latest' && '/b' || '/nix/b' }}
         run: |-
           make build
           df -h

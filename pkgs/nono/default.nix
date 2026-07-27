@@ -2,9 +2,7 @@
   nono,
   fetchFromGitHub,
   gitMinimal,
-  lib,
   rustPlatform,
-  stdenv,
 }:
 
 nono.overrideAttrs (oldAttrs: rec {
@@ -48,36 +46,21 @@ nono.overrideAttrs (oldAttrs: rec {
 
   # nixpkgs masterの0.68.0 packageで追加済みのbuild-sandbox依存skip。
   # nixos-unstable側のpackage expressionが追いついたら、この差分は削除できる。
-  checkFlags =
-    (oldAttrs.checkFlags or [ ])
-    ++ [
-      "--skip=test_restrict_execute_does_not_break_rename_into_new_subdir"
-      "--skip=granted_path_exits_zero"
-      "--skip=env_credentials_with_command_policies_non_shim_entry_succeeds"
-      "--skip=proxy_runtime::tests::capture_helper_with_interaction_stdin_true_inherits_terminal_stdin"
-      "--skip=proxy_runtime::tests::capture_helper_with_stdio_true_receives_null_not_terminal_stdin"
-      "--skip=proxy_runtime::tests::proxy_credential_capture_backend_captures_and_caches"
-      "--skip=proxy_runtime::tests::proxy_credential_capture_backend_parses_json_headers"
-      "--skip=proxy_runtime::tests::proxy_credential_capture_backend_rejects_empty_stdout"
-      "--skip=proxy_runtime::tests::proxy_credential_capture_backend_sends_request_json_stdin"
-      "--skip=proxy_runtime::tests::proxy_credential_capture_backend_uses_path_cache_scope"
-      "--skip=server::tests::reactive_proxy_auth_retry_answered_after_407"
-      "--skip=server::tests::test_oauth_capture_routes_activate_intercept"
-      "--skip=server::tests::test_route_diagnostics_groups_credential_and_endpoint_routes"
-    ]
-    ++ lib.optionals stdenv.isDarwin [
-      # Darwin Nix builds live below /private/tmp, so these profile fixtures
-      # attempt to grant an ancestor of nono's protected state directory.
-      "--skip=capability_ext::tests::test_from_profile_allow_domain_does_not_open_raw_tcp_ports"
-      "--skip=capability_ext::tests::test_from_profile_allow_net_overrides_blocked_network"
-      "--skip=capability_ext::tests::test_from_profile_allowed_commands"
-      "--skip=capability_ext::tests::test_from_profile_ipc_mode_default"
-      "--skip=capability_ext::tests::test_from_profile_ipc_mode_full"
-      "--skip=capability_ext::tests::test_from_profile_ipc_mode_shared_memory_only"
-      "--skip=capability_ext::tests::test_from_profile_policy_exclude_groups_removes_non_required_group"
-      "--skip=capability_ext::tests::test_from_profile_process_info_mode_same_sandbox"
-      "--skip=config_with_valid_manifest_is_accepted"
-    ];
+  checkFlags = (oldAttrs.checkFlags or [ ]) ++ [
+    "--skip=test_restrict_execute_does_not_break_rename_into_new_subdir"
+    "--skip=granted_path_exits_zero"
+    "--skip=env_credentials_with_command_policies_non_shim_entry_succeeds"
+    "--skip=proxy_runtime::tests::capture_helper_with_interaction_stdin_true_inherits_terminal_stdin"
+    "--skip=proxy_runtime::tests::capture_helper_with_stdio_true_receives_null_not_terminal_stdin"
+    "--skip=proxy_runtime::tests::proxy_credential_capture_backend_captures_and_caches"
+    "--skip=proxy_runtime::tests::proxy_credential_capture_backend_parses_json_headers"
+    "--skip=proxy_runtime::tests::proxy_credential_capture_backend_rejects_empty_stdout"
+    "--skip=proxy_runtime::tests::proxy_credential_capture_backend_sends_request_json_stdin"
+    "--skip=proxy_runtime::tests::proxy_credential_capture_backend_uses_path_cache_scope"
+    "--skip=server::tests::reactive_proxy_auth_retry_answered_after_407"
+    "--skip=server::tests::test_oauth_capture_routes_activate_intercept"
+    "--skip=server::tests::test_route_diagnostics_groups_credential_and_endpoint_routes"
+  ];
 
   meta = oldAttrs.meta // {
     homepage = "https://github.com/nolabs-ai/nono";
