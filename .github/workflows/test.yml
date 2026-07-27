@@ -11,6 +11,7 @@ on:
       - 'flake.lock'
       - 'flake.nix'
       - 'homes/**'
+      - 'infra/**'
       - 'lib/**'
       - 'Makefile'
       - 'modules/**'
@@ -28,6 +29,7 @@ on:
       - 'flake.lock'
       - 'flake.nix'
       - 'homes/**'
+      - 'infra/**'
       - 'lib/**'
       - 'Makefile'
       - 'modules/**'
@@ -69,6 +71,9 @@ jobs:
       - uses: ./.github/actions/setup-nix
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Prepare Nix build directory
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo install -d -m 1777 /nix/tmp
       - name: Create /run for darwin
         if: matrix.os == 'macos-14'
         run: |
@@ -77,6 +82,7 @@ jobs:
       - name: build
         env:
           NIX: nix
+          NIX_CONFIG: ${{ matrix.os == 'ubuntu-latest' && 'build-dir = /nix/tmp' || '' }}
         run: |-
           make build
           df -h
