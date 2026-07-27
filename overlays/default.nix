@@ -22,4 +22,14 @@
     });
   };
 
+  # nixos-unstable 2026-07-11 predates nixpkgs#536365. Without this,
+  # ld64 traps while linking unrelated Darwin packages.
+  ld64-unhardened =
+    final: prev:
+    prev.lib.optionalAttrs prev.stdenv.isDarwin {
+      ld64 = prev.ld64.overrideAttrs (oldAttrs: {
+        hardeningDisable = (oldAttrs.hardeningDisable or [ ]) ++ [ "libcxxhardeningfast" ];
+      });
+    };
+
 }

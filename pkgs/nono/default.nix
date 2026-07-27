@@ -60,6 +60,9 @@ nono.overrideAttrs (oldAttrs: rec {
     "--skip=server::tests::reactive_proxy_auth_retry_answered_after_407"
     "--skip=server::tests::test_oauth_capture_routes_activate_intercept"
     "--skip=server::tests::test_route_diagnostics_groups_credential_and_endpoint_routes"
+    # The generated supervisor socket intermittently exceeds SUN_LEN in Nix
+    # build directories even when the configured build-dir is only `/b`.
+    "--skip=tool_sandbox::linux::tests::child_chaining_caps_do_not_grant_runtime_launch_specs"
   ];
 
   meta = oldAttrs.meta // {
