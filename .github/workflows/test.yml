@@ -101,7 +101,10 @@ jobs:
       - name: build
         env:
           NIX: nix
-          NIX_CONFIG: ${{ matrix.os == 'ubuntu-latest' && 'build-dir = /nix/tmp' || 'max-jobs = 1' }}
+          NIX_CONFIG: |-
+            max-jobs = 1
+            cores = ${{ matrix.os == 'ubuntu-latest' && '2' || '1' }}
+            ${{ matrix.os == 'ubuntu-latest' && 'build-dir = /nix/tmp' || '' }}
         run: |-
           make build
           df -h

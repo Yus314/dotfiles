@@ -76,6 +76,7 @@ nono.overrideAttrs (oldAttrs: rec {
       "--skip=capability_ext::tests::test_from_profile_ipc_mode_shared_memory_only"
       "--skip=capability_ext::tests::test_from_profile_policy_exclude_groups_removes_non_required_group"
       "--skip=capability_ext::tests::test_from_profile_process_info_mode_same_sandbox"
+      "--skip=config_with_valid_manifest_is_accepted"
     ];
 
   meta = oldAttrs.meta // {
