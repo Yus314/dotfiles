@@ -54,6 +54,18 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-14]
     steps:
+      - name: Free disk space
+        if: matrix.os == 'macos-14'
+        run: |
+          active_xcode="$(xcode-select -p)"
+          active_xcode="${active_xcode%/Contents/Developer}"
+          for xcode in /Applications/Xcode*.app; do
+            if [ -d "$xcode" ] && [ "$xcode" != "$active_xcode" ]; then
+              sudo rm -rf "$xcode"
+            fi
+          done
+          sudo rm -rf /Library/Developer/CoreSimulator/Profiles/Runtimes
+          df -h
       # workaround for "No space left on device"
       - name: Collect garbage
         if: matrix.os == 'ubuntu-latest'
