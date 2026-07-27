@@ -10,7 +10,7 @@
 	lockFileMaintenance: {
 		enabled: true,
 		schedule: [
-			'before 3:00am',
+			'* 0-2 * * 1',
 		],
 	},
 	automerge: false,
