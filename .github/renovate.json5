@@ -4,14 +4,39 @@
 		'config:best-practices',
 	],
 	timezone: 'Asia/Tokyo',
+	schedule: [
+		'before 3:00am',
+	],
 	lockFileMaintenance: {
 		enabled: true,
 		schedule: [
-			'before 3:00am',
+			'* 0-2 * * 1',
 		],
 	},
-	automerge: true,
+	automerge: false,
 	automergeStrategy: 'rebase',
+	ignoreDeps: [
+		'emacs-overlay-31',
+		'nixpkgs-emacs',
+	],
+	packageRules: [
+		{
+			matchUpdateTypes: [
+				'digest',
+				'pin',
+				'pinDigest',
+				'patch',
+				'minor',
+			],
+			automerge: true,
+		},
+		{
+			matchManagers: [
+				'terraform',
+			],
+			automerge: false,
+		},
+	],
 	nix: {
 		enabled: true,
 	},
