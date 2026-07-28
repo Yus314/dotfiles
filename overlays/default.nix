@@ -27,6 +27,12 @@
   ld64-unhardened =
     final: prev:
     prev.lib.optionalAttrs prev.stdenv.isDarwin {
+      # Rebuilding the Darwin bootstrap after overriding ld64 exposes GNU tar
+      # test 155 (`time: tricky time stamps`) failing on GitHub's arm64 runner.
+      # Keep the install/version check; only the build-time suite is disabled.
+      gnutar = prev.gnutar.overrideAttrs {
+        doCheck = false;
+      };
       ld64 = prev.ld64.overrideAttrs (oldAttrs: {
         hardeningDisable = (oldAttrs.hardeningDisable or [ ]) ++ [ "libcxxhardeningfast" ];
       });
