@@ -32,10 +32,10 @@
       # Skip that test only; both check and installCheck remain enabled.
       gnutar = prev.gnutar.overrideAttrs (oldAttrs: {
         postPatch = (oldAttrs.postPatch or "") + ''
-          substituteInPlace tests/time01.at \
+          substituteInPlace tests/testsuite \
             --replace-fail \
-              'AT_KEYWORDS([time time01])' \
-              $'AT_KEYWORDS([time time01])\nAT_SKIP_IF([test "$(uname -s)" = Darwin])'
+              $'155;time01.at:20;time: tricky time stamps;time time01;\n' \
+              ""
         '';
       });
       ld64 = prev.ld64.overrideAttrs (oldAttrs: {
