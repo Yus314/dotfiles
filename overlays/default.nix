@@ -29,10 +29,15 @@
     prev.lib.optionalAttrs prev.stdenv.isDarwin {
       # Rebuilding the Darwin bootstrap after overriding ld64 exposes GNU tar
       # test 155 (`time: tricky time stamps`) failing on GitHub's arm64 runner.
-      # Keep the install/version check; only the build-time suite is disabled.
-      gnutar = prev.gnutar.overrideAttrs {
-        doCheck = false;
-      };
+      # Skip that test only; both check and installCheck remain enabled.
+      gnutar = prev.gnutar.overrideAttrs (oldAttrs: {
+        postPatch = (oldAttrs.postPatch or "") + ''
+          substituteInPlace tests/time01.at \
+            --replace-fail \
+              'AT_KEYWORDS([time time01])' \
+              $'AT_KEYWORDS([time time01])\nAT_SKIP_IF([test "$(uname -s)" = Darwin])'
+        '';
+      });
       ld64 = prev.ld64.overrideAttrs (oldAttrs: {
         hardeningDisable = (oldAttrs.hardeningDisable or [ ]) ++ [ "libcxxhardeningfast" ];
       });
