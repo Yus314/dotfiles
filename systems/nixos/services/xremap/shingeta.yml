@@ -114,8 +114,8 @@ keymap:
         remap:
           i: [p, e]
           e: [p, a]
-          o: [s, y, o]
-          y: [s, y, u]
+          o: [b, y, a]
+          y: [x, u]
         timeout_millis: 40
         timeout_key: [b, a]
       l:
@@ -167,6 +167,7 @@ keymap:
       z:
         remap:
           e: [w, h, o]
+          i: [u, x, o]
         timeout_millis: 40
         timeout_key: [g, e]
       # middle row
@@ -196,6 +197,7 @@ keymap:
           m: [p, i]
           b: [p, o]
           x: [t, y, e]
+          z: [u, x, o]
         timeout_millis: 40
         timeout_key: [t, o]
       e:
@@ -300,7 +302,7 @@ keymap:
       v:
         remap:
           e: SHIFT-KEY_1
-          i: SHIFT-KEY_SLASH
+          i: [SHIFT-KEY_SLASH]
         timeout_millis: 40
         timeout_key: q
         # low column
@@ -338,7 +340,7 @@ keymap:
         remap:
           t: [f, o]
           n: [n, u]
-          l: [t, y, a]
+          l: [c, y, a]
           p: [n, y, a]
         timeout_millis: 40
         timeout_key: [t, u]

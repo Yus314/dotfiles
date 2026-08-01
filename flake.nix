@@ -155,6 +155,8 @@
             selection-batch-configured-smoke = config.packages.selection-batch-configured-smoke;
             selection-batch-minimal-configured-smoke = config.packages.selection-batch-minimal-configured-smoke;
             selection-batch-minimal-package-smoke = config.packages.selection-batch-minimal-package-smoke;
+            shingeta-chord-symmetry = import ./systems/nixos/services/xremap/check.nix { inherit pkgs; };
+            shingeta-kanata = import ./systems/nixos/services/kanata/check.nix { inherit pkgs; };
           };
           pre-commit = {
             check.enable = true;

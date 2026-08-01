@@ -21,6 +21,7 @@ in
     ../desktop.nix
     ./root-ssh.nix
     ./syncthing.nix
+    ../services/kanata
   ];
   inherit
     (pkgs.callPackage ./disko-config.nix {
