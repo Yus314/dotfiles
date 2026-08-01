@@ -15,13 +15,27 @@ let
   kanbanDispatchConfigRunner = pkgs.writeShellScript "kanban-dispatch-config" ''
     exec ${configPython}/bin/python ${./scripts/kanban_dispatch_config.py} "$@"
   '';
+  profileHandoffCheck = pkgs.writeShellScriptBin "profile-handoff-check" ''
+    exec ${pkgs.coreutils}/bin/env \
+      PYTHONPATH=${./scripts} \
+      ${configPython}/bin/python ${./scripts/profile_handoff_check.py} "$@"
+  '';
+  profileConsult = pkgs.writeShellScriptBin "profile-consult" ''
+    exec ${pkgs.coreutils}/bin/env \
+      PYTHONPATH=${./scripts} \
+      ${configPython}/bin/python ${./scripts/profile_consult.py} "$@"
+  '';
   sharedSkillsUnitTests = pkgs.runCommand "hermes-shared-skills-tests" { src = ./.; } ''
     cp -R "$src" source
     chmod -R u+w source
     cd source
-    PYTHONDONTWRITEBYTECODE=1 ${configPython}/bin/python -m unittest \
+    PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=scripts:tests \
+      ${configPython}/bin/python -m unittest \
       tests/test_shared_skills_config.py \
       tests/test_engineering_quality_core.py \
+      tests/test_profile_exchange_schema.py \
+      tests/test_profile_handoff_check.py \
+      tests/test_profile_consult.py \
       tests/test_profile_summary_source_check.py \
       tests/test_profile_registry_check.py \
       tests/test_kanban_dispatch_config.py \
@@ -43,17 +57,29 @@ let
   '';
 in
 {
+  home.packages = [
+    profileHandoffCheck
+    profileConsult
+  ];
+
   home.file = {
     ".hermes/scripts/shared_skills_config.py".source = sharedSkillsRunner;
     ".local/share/hermes/shared-skills".source = validatedSharedSkills;
     ".local/share/hermes/profile-registry.json".source = ./profile-registry.json;
+    ".hermes/profiles/finance/honcho.json".source = ./profile-configs/finance/honcho.json;
+    ".hermes/profiles/food/honcho.json".source = ./profile-configs/food/honcho.json;
+    ".hermes/profiles/health/honcho.json".source = ./profile-configs/health/honcho.json;
   };
 
   # Hermes rejects cron scripts whose resolved path escapes ~/.hermes/scripts.
   # Home Manager's normal home.file symlinks resolve into /nix/store, so install
-  # these two scripts as regular files after link generation instead.
+  # cron scripts and their local validator module as regular files after link generation.
   home.activation.hermesCronScripts = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     $DRY_RUN_CMD mkdir -p "$HOME/.hermes/scripts"
+    $DRY_RUN_CMD rm -f "$HOME/.hermes/scripts/profile_exchange_schema.py"
+    $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -m 0600 \
+      ${./scripts/profile_exchange_schema.py} \
+      "$HOME/.hermes/scripts/profile_exchange_schema.py"
     $DRY_RUN_CMD rm -f "$HOME/.hermes/scripts/profile_weekly_summary_bootstrap.py"
     $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -m 0700 \
       ${./scripts/profile_weekly_summary_bootstrap.py} \

@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 
 SCRIPT = Path(__file__).parents[1] / "scripts/profile_summary_source_check.py"
+sys.path.insert(0, str(SCRIPT.parent))
 SPEC = importlib.util.spec_from_file_location("profile_summary_source_check", SCRIPT)
 assert SPEC and SPEC.loader
 MODULE = importlib.util.module_from_spec(SPEC)
@@ -120,6 +122,58 @@ class SummaryClassificationTests(unittest.TestCase):
         self.assertEqual(result["state"], "domain-owned")
         self.assertTrue(result["ready"])
         self.assertEqual(result["schema_version"], "1")
+
+    def test_weekly_summary_family_is_validated(self) -> None:
+        result = self.classify(
+            "---\n"
+            "schema_family: weekly_summary\n"
+            "schema_version: 1\n"
+            "owner_profile: english\n"
+            "status: domain-owned\n"
+            "generated_at: 2026-07-16T20:00:00+09:00\n"
+            "coverage_start: 2026-07-13\n"
+            "coverage_end: 2026-07-19\n"
+            "source_watermark: review:2026-W29\n"
+            "---\n"
+            "# 2026-W29 English weekly summary\n"
+        )
+        self.assertEqual(result["state"], "domain-owned")
+        self.assertTrue(result["ready"])
+
+    def test_weekly_summary_family_rejects_invalid_coverage(self) -> None:
+        result = self.classify(
+            "---\n"
+            "schema_family: weekly_summary\n"
+            "schema_version: 1\n"
+            "owner_profile: english\n"
+            "status: domain-owned\n"
+            "generated_at: 2026-07-16T20:00:00+09:00\n"
+            "coverage_start: 2026-07-14\n"
+            "coverage_end: 2026-07-19\n"
+            "source_watermark: review:2026-W29\n"
+            "---\n"
+            "# 2026-W29 English weekly summary\n"
+        )
+        self.assertEqual(result["state"], "invalid")
+        self.assertFalse(result["ready"])
+        self.assertIn("week_not_covered", result["reason"])
+
+    def test_handoff_family_cannot_masquerade_as_weekly_summary(self) -> None:
+        result = self.classify(
+            "---\n"
+            "schema_family: cross_profile_handoff\n"
+            "schema_version: 2\n"
+            "owner_profile: english\n"
+            "status: domain-owned\n"
+            "generated_at: 2026-07-16T20:00:00+09:00\n"
+            "coverage_start: 2026-07-13\n"
+            "coverage_end: 2026-07-19\n"
+            "source_watermark: review:2026-W29\n"
+            "---\n"
+            "# 2026-W29 English weekly summary\n"
+        )
+        self.assertEqual(result["state"], "invalid")
+        self.assertIn("schema_family_invalid", result["reason"])
 
     def test_present_unreviewed_file_is_not_ready(self) -> None:
         result = self.classify(

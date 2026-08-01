@@ -1,0 +1,29 @@
+{
+	"workspace": "hermes-finance",
+	"peerName": "kaki",
+	"contextCadence": 1,
+	"dialecticCadence": 2,
+	"dialecticDepth": 1,
+	"dialecticReasoningLevel": "low",
+	"dialecticDynamic": false,
+	"contextTokens": 1500,
+	"dialecticMaxChars": 800,
+	"hosts": {
+		"hermes_finance": {
+			"enabled": true,
+			"aiPeer": "finance",
+			"peerName": "kaki",
+			"workspace": "hermes-finance",
+			"recallMode": "hybrid",
+			"writeFrequency": "async",
+			"sessionStrategy": "per-directory",
+			"observationMode": "directional",
+			"saveMessages": true,
+			"pinUserPeer": false,
+			"runtimePeerPrefix": "gateway_",
+			"userPeerAliases": {
+				"885083579367972874": "kaki"
+			}
+		}
+	}
+}

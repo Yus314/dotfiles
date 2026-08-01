@@ -15,6 +15,8 @@ import re
 import tempfile
 from pathlib import Path
 
+from profile_exchange_schema import validate_weekly_summary
+
 HOME = Path.home()
 TODAY = dt.date.today()
 ISO = TODAY.isocalendar()
@@ -254,6 +256,20 @@ def classify_summary(
             "status": "Bootstrap only: file exists but the owner profile has not attested a weekly handoff.",
             "reason": "bootstrap marker/status",
         }
+    if metadata.get("schema_family"):
+        schema_errors = validate_weekly_summary(
+            metadata,
+            expected_owner=expected_profile,
+            expected_week=expected_week,
+        )
+        if schema_errors:
+            return {
+                **base,
+                "state": "invalid",
+                "ready": False,
+                "status": "Invalid: weekly summary metadata failed schema validation.",
+                "reason": "schema:" + ",".join(schema_errors),
+            }
     if owner and owner != expected_profile:
         return {
             **base,
