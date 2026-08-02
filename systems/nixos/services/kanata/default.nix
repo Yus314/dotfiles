@@ -1,8 +1,7 @@
-{ lib, ... }:
+{ ... }:
 {
-  # Stage 1 of the xremap -> Kanata migration.  Keep the unit declarative and
-  # build-checked, but do not start it automatically while xremap remains the
-  # production input path.
+  # Production Corne input path. xremap remains available in previous NixOS
+  # generations and on hosts that have not migrated.
   services.kanata = {
     enable = true;
     keyboards.corne = {
@@ -20,9 +19,10 @@
   };
 
   systemd.services.kanata-corne = {
-    # A manual start stops xremap through Conflicts.  Until the rollout gate,
-    # use only the bounded canary wrapper that pre-arms automatic rollback.
-    wantedBy = lib.mkForce [ ];
     conflicts = [ "xremap.service" ];
+    serviceConfig = {
+      Restart = "on-failure";
+      RestartSec = "2s";
+    };
   };
 }
