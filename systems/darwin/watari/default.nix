@@ -51,17 +51,16 @@ in
       enable = true;
     };
   };
-  services.karabiner-elements = {
+  my.services.kanata-macos = {
     enable = true;
-    package = pkgs.karabiner-elements.overrideAttrs (old: {
-      version = "14.13.0";
-
-      src = pkgs.fetchurl {
-        inherit (old.src) url;
-        hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
-      };
-    });
+    deviceName = "Apple Internal Keyboard / Trackpad";
+    appPath = "/Users/kaki/Applications/KanataCanary.app";
+    # Adopt the ad-hoc-signed app that passed the five-minute real-device
+    # canary without touching its TCC-bound code identity.
+    adoptAppPath = "/Users/kaki/Applications/KanataCanary.app";
+    adoptCDHash = "8c31a4ec989ae59f4317fe7fa0ad78838f433085";
   };
+  services.karabiner-elements.enable = false;
   services.tailscale = {
     enable = true;
     overrideLocalDns = true;

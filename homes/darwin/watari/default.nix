@@ -1,5 +1,6 @@
 {
   inputs,
+  lib,
   specialArgs,
   ...
 }:
@@ -14,6 +15,9 @@ in
   ];
   home-manager.users.${username} = {
     imports = [ ../../../applications/ssh ];
+    # Goku remains enabled by the shared Darwin profile for other hosts;
+    # watari uses Kanata and must not generate a competing Karabiner mapping.
+    programs.goku.enable = lib.mkForce false;
     programs.man.enable = false;
   };
 }

@@ -12,6 +12,7 @@ in
   imports = [
     ../../modules/darwin
     ../common.nix
+    ./services/kanata
     inputs.sops-nix.darwinModules.sops
   ];
   system.stateVersion = 6;

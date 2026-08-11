@@ -157,6 +157,12 @@
             selection-batch-minimal-configured-smoke = config.packages.selection-batch-minimal-configured-smoke;
             selection-batch-minimal-package-smoke = config.packages.selection-batch-minimal-package-smoke;
           };
+          checks = pkgs.lib.optionalAttrs (system == "aarch64-darwin") {
+            shingeta-kanata-macos = import ./systems/darwin/services/kanata/check.nix {
+              inherit pkgs;
+              watariConfig = self.darwinConfigurations.watari.config;
+            };
+          };
           pre-commit = {
             check.enable = true;
             settings = {
