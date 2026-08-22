@@ -12,7 +12,10 @@ in
       ../desktop.nix
       ../../applications/obsidian
     ];
-    home.file."Library/Application\ Support/AquaSKK/keymap.conf".source = ./keymap.conf;
+    home.file."Library/Application\ Support/AquaSKK/keymap.conf" = {
+      source = ./keymap.conf;
+      force = true;
+    };
     home.packages = [
       (pkgs.brewCasks.adobe-acrobat-pro.overrideAttrs (oldAttrs: {
 
