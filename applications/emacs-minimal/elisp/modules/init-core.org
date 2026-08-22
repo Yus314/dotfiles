@@ -118,6 +118,29 @@ Waylandでペーストできるようにする設定
 #+begin_src emacs-lisp :tangle yes
   (keymap-global-set "C-q"  'scroll-down-command) ;元々M-vだったが、入力しにくいので、そっちをvterm-toggleにした
 #+end_src
+* Lean 4
+Lean本体はElanに任せ、プロジェクトの =lean-toolchain= に従う。
+#+begin_src emacs-lisp :tangle yes
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :custom
+    ;; The minimal profile does not use lenses, Company, or yasnippet.
+    (lsp-lens-enable nil)
+    (lsp-enable-snippet nil)
+    ;; :none disables Company auto-configuration; lsp-completion-mode still
+    ;; adds lsp-completion-at-point to completion-at-point-functions.
+    (lsp-completion-provider :none)
+    :config
+    ;; The current lsp-mode package keeps these UI functions in separate
+    ;; libraries without autoloads, while lsp-configure-buffer calls them.
+    (require 'lsp-lens)
+    (require 'lsp-modeline)
+    (require 'lsp-headerline)
+    (require 'lsp-diagnostics))
+
+  (use-package lean4-mode
+    :mode "\\.lean\\'")
+#+end_src
 * Provide
 #+begin_src emacs-lisp :tangle yes
   (provide 'init-core)

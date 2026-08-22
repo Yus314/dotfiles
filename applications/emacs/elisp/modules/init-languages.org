@@ -104,13 +104,9 @@
 #+end_src
 ** Lean4
 #+begin_src emacs-lisp :tangle yes
-   (add-to-list 'auto-mode-alist '("\\.lean\\'" . lean4-mode))
-   (autoload 'lean4-mode "lean4-mode" nil t)
-  (add-hook 'lean4-mode-hook (lambda ()
-  			     (lsp-mode)))
-  ;(with-eval-after-load 'lean4-mode
-   ; (require 'lsp-mode)
-   ; )
+  (add-to-list 'auto-mode-alist '("\\.lean\\'" . lean4-mode))
+  (autoload 'lean4-mode "lean4-mode" nil t)
+  (add-hook 'lean4-mode-hook (lambda () (lsp-mode)))
 #+end_src
 ** Common Lisp
 #+begin_src emacs-lisp :tangle yes

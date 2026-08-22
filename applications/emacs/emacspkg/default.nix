@@ -32,6 +32,7 @@ in
       prev
       // (pkgs.nurEmacsPackages or { })
       // {
+
         #        lsp-bridge = (prev.lsp-bridge or pkgs.emacsPackages.lsp-bridge).overrideAttrs (old: {
         #          src = /home/kaki/lsp-bridge;
         #        });
@@ -82,7 +83,7 @@ in
         aidermacs
         claude-code-ide
         # lsp-bridge # temporarily disabled due to rapidfuzz build failure on Python 3.13
-        # lsp-mode  # temporarily disabled due to build segfault
+        # lsp-mode # build segfaults on this revision; Lean support is disabled with it
         # lsp-ui
         nix-ts-mode
         yaml-mode
@@ -91,7 +92,7 @@ in
         python-mode
         # lsp-pyright  # depends on lsp-mode
         sly
-        # lean4-mode  # depends on lsp-mode
+        # lean4-mode # depends on lsp-mode
         typst-ts-mode
         typst-preview
         terraform-mode
@@ -99,7 +100,6 @@ in
         auctex
         auctex-latexmk
         atomic-chrome
-        # lean4-mode  # duplicate, depends on lsp-mode
         org-super-agenda
         org-modern
         org-modern-indent

@@ -25,8 +25,34 @@ in
   emacs-unstable = pkgs.emacsWithPackagesFromUsePackage {
     config = combinedConfig;
     defaultInitFile = false;
-    package = pkgs.emacs-unstable-pgtk;
+    package = if pkgs.stdenv.isDarwin then pkgs.emacs-unstable else pkgs.emacs-unstable-pgtk;
     alwaysTangle = true;
+    override =
+      final: prev:
+      prev
+      // {
+        # The generated nixpkgs expression for lean4-mode 1.1.2 currently has
+        # stale dependency arguments.  Build the released package with its
+        # actual package metadata until nixpkgs catches up.
+        lean4-mode = final.melpaBuild {
+          pname = "lean4-mode";
+          version = "1.1.2";
+          src = pkgs.fetchFromGitHub {
+            owner = "leanprover-community";
+            repo = "lean4-mode";
+            rev = "1.1.2";
+            hash = "sha256-DLgdxd0m3SmJ9heJ/pe5k8bZCfvWdaKAF0BDYEkwlMQ=";
+          };
+          files = ''("*.el" "data")'';
+          packageRequires = with final; [
+            compat
+            dash
+            lsp-mode
+            magit-section
+            transient
+          ];
+        };
+      };
     extraEmacsPackages =
       epkgs:
       let
@@ -69,6 +95,9 @@ in
         lsp-mode
         nix-ts-mode
         org-super-agenda
+        lsp-mode
+        lean4-mode
+        transient
 
         (treesit-grammars.with-grammars (
           p: with p; [
