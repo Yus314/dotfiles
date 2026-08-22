@@ -22,7 +22,7 @@
         dropdown #true
     }
     plugins {
-        enabled "cursor_line" "color_preview" "sel_badge" "fuzzy_finder" "image_preview"
+        enabled "color_preview" "sel_badge" "fuzzy_finder" "image_preview"
     }
   '';
 }
