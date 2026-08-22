@@ -27,7 +27,6 @@ in
     ../applications/ledger
     ../applications/kakoune
     ../applications/misc
-    ../applications/zathura
     ../applications/neomutt
     ../applications/neovim
     ../applications/offlineimap

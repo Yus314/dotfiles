@@ -291,17 +291,17 @@ in
     # にする。Linux 側のラッパーは --allow-gpu を付けないので no-op。
     allow_gpu = true;
     filesystem = {
+      # ~/.local/bin は意図的に未許可のまま。Landlock/Seatbelt の allow-list 不在で
+      # 自然にブロックされ、サンドボックス内からユーザー PATH へのバイナリ設置
+      # （escape 経路）を防ぐ。share/state は blanket 許可で運用コストを削減。
       allow = [
         "$HOME/ghq/github.com/Yus314"
         "$HOME/ledger"
         "$HOME/Maildir"
-        "$HOME/.local/share/nix"
-        "$HOME/.local/share/direnv"
-        "$HOME/.local/share/zoxide"
-        "$HOME/.local/share/gnupg"
+        "$HOME/.local/share"
+        "$HOME/.local/state"
         "$HOME/.cache"
-        "$HOME/.local/share/cargo"
-        "$HOME/.local/state/cabal"
+        "$HOME/.cargo"
         "$HOME/.config/codex"
         "/tmp"
       ];
@@ -309,8 +309,10 @@ in
         "$HOME/.config/gh"
         "$HOME/.config/cabal"
         "$HOME/.nix-profile"
-        # ~/.nix-profile → ~/.local/state/nix/profiles/profile のシンボリンク解決に必要
-        "$HOME/.local/state/nix/profiles"
+        # Nix CLI が legacy channel フォールバックで起動時に probe する。
+        # 実体は /nix/var/nix/profiles/... へのシンボリックリンクで、
+        # 解決先は /nix の system-level read 許可でカバーされる。
+        "$HOME/.nix-defexpr"
         # Claude Code がブラウザ検出で google-chrome config を probe する。
         # 未許可だと seccomp-notify の対話プロンプトが表示され、その間に
         # 他スレッドの通知がキューに溜まり、応答後にスーパーバイザーがハングする。

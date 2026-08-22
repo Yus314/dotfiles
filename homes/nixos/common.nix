@@ -12,6 +12,7 @@ in
     users.${username} = {
       imports = [
         ../common.nix
+        ../../applications/zathura
       ];
     };
     extraSpecialArgs = {
