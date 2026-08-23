@@ -21,10 +21,269 @@ ALLOWED_SHARED_SKILL_GROUPS = {
     "profile-ops",
     "usage-ops",
 }
+ALLOWED_SUMMARY_POLICIES = {
+    "none",
+    "active-weekly",
+    "on-demand",
+    "source-health-only",
+    "blocked",
+}
+ALLOWED_MEMORY_SHARING_CLASSES = {
+    "general-shared",
+    "sensitive-isolated",
+    "profile-local",
+    "disabled",
+}
+REQUIRED_HANDOFF_FIELDS = {
+    "schema_family",
+    "schema_version",
+    "handoff_id",
+    "source_profile",
+    "target_profiles",
+    "purpose",
+    "generated_at",
+    "valid_until",
+    "scope",
+    "status",
+    "source_refs",
+    "source_health",
+    "sensitivity",
+    "raw_data_included",
+    "retention_class",
+    "supersedes",
+    "assumptions",
+    "uncertainties",
+}
+OPTIONAL_HANDOFF_FIELDS = {
+    "in_reply_to",
+    "requested_fields",
+    "returned_fields",
+    "response_deadline",
+    "hop_count",
+    "max_hops",
+}
+REQUIRED_WEEKLY_SUMMARY_FIELDS = {
+    "schema_family",
+    "schema_version",
+    "owner_profile",
+    "generated_at",
+    "coverage_start",
+    "coverage_end",
+    "source_watermark",
+    "status",
+}
+REQUIRED_SENSITIVITY_LEVELS = {"ordinary", "sensitive", "restricted"}
+REQUIRED_RETENTION_CLASSES = {"transient", "promotable", "durable"}
+
+
+def _nonempty_string_list(value: object) -> bool:
+    return (
+        isinstance(value, list)
+        and bool(value)
+        and all(isinstance(item, str) and bool(item.strip()) for item in value)
+    )
+
+
+def _string_set(value: object) -> set[str]:
+    if not isinstance(value, list):
+        return set()
+    return {item for item in value if isinstance(item, str) and item.strip()}
 
 
 def profile_root(home: Path, name: str) -> Path:
     return home / ".hermes" if name == "default" else home / ".hermes/profiles" / name
+
+
+def honcho_config_path(home: Path, root: Path) -> Path:
+    """Resolve profile-local Honcho config with Hermes' default-profile fallback."""
+    local = root / "honcho.json"
+    if local.is_file() or root == home / ".hermes":
+        return local
+    return home / ".hermes/honcho.json"
+
+
+def validate_information_exchange(registry: dict) -> tuple[list[str], str | None]:
+    errors: list[str] = []
+    exchange = registry.get("information_exchange")
+    if not isinstance(exchange, dict):
+        return ["registry information_exchange must be an object"], None
+
+    semantic = exchange.get("semantic_memory")
+    general_workspace: str | None = None
+    if not isinstance(semantic, dict):
+        errors.append("information_exchange.semantic_memory must be an object")
+    else:
+        value = semantic.get("general_shared_workspace")
+        if isinstance(value, str) and value.strip():
+            general_workspace = value
+        else:
+            errors.append(
+                "information_exchange.semantic_memory.general_shared_workspace must be a non-empty string"
+            )
+        for field in ("allowed_content", "forbidden_content"):
+            items = semantic.get(field)
+            if not isinstance(items, list) or not items or any(
+                not isinstance(item, str) or not item.strip() for item in items
+            ):
+                errors.append(
+                    f"information_exchange.semantic_memory.{field} must be a non-empty string list"
+                )
+
+    weekly = exchange.get("weekly_summary")
+    if not isinstance(weekly, dict):
+        errors.append("information_exchange.weekly_summary must be an object")
+    else:
+        if weekly.get("schema_family") != "weekly_summary":
+            errors.append(
+                "information_exchange.weekly_summary schema_family must be weekly_summary"
+            )
+        if weekly.get("schema_version") != 1:
+            errors.append("information_exchange.weekly_summary schema_version must be 1")
+        fields = weekly.get("required_fields")
+        field_set = _string_set(fields)
+        missing = sorted(REQUIRED_WEEKLY_SUMMARY_FIELDS - field_set)
+        if missing or not isinstance(fields, list) or len(fields) != len(field_set):
+            errors.append(
+                "information_exchange.weekly_summary required_fields "
+                f"missing={missing} or contains duplicates/invalid values"
+            )
+
+    handoff = exchange.get("handoff")
+    if not isinstance(handoff, dict):
+        errors.append("information_exchange.handoff must be an object")
+    else:
+        if handoff.get("schema_family") != "cross_profile_handoff":
+            errors.append(
+                "information_exchange.handoff schema_family must be cross_profile_handoff"
+            )
+        if handoff.get("schema_version") != 2:
+            errors.append("information_exchange.handoff schema_version must be 2")
+        fields = handoff.get("required_fields")
+        field_set = _string_set(fields)
+        missing = sorted(REQUIRED_HANDOFF_FIELDS - field_set)
+        if missing or not isinstance(fields, list) or len(fields) != len(field_set):
+            errors.append(
+                f"information_exchange.handoff required_fields missing={missing} or contains duplicates/invalid values"
+            )
+        optional_fields = handoff.get("optional_fields")
+        optional_set = _string_set(optional_fields)
+        if (
+            optional_set != OPTIONAL_HANDOFF_FIELDS
+            or not isinstance(optional_fields, list)
+            or len(optional_fields) != len(optional_set)
+        ):
+            errors.append(
+                "information_exchange.handoff optional_fields must exactly match consultation correlation fields"
+            )
+        levels = handoff.get("sensitivity_levels")
+        level_set = _string_set(levels)
+        if level_set != REQUIRED_SENSITIVITY_LEVELS:
+            errors.append(
+                "information_exchange.handoff sensitivity_levels must be ordinary, sensitive, restricted"
+            )
+        retention = handoff.get("retention_classes")
+        retention_set = _string_set(retention)
+        if retention_set != REQUIRED_RETENTION_CLASSES:
+            errors.append(
+                "information_exchange.handoff retention_classes must be transient, promotable, durable"
+            )
+        purposes = handoff.get("allowed_purposes")
+        purpose_set = _string_set(purposes)
+        if (
+            not _nonempty_string_list(purposes)
+            or not {"review-request", "consultation-response"} <= purpose_set
+        ):
+            errors.append(
+                "information_exchange.handoff allowed_purposes must include consultation request and response"
+            )
+        matrix = handoff.get("destination_sensitivity")
+        profiles = registry.get("profiles")
+        if not isinstance(matrix, dict) or not matrix:
+            errors.append(
+                "information_exchange.handoff destination_sensitivity must be an object"
+            )
+        else:
+            for destination, allowed in matrix.items():
+                if not isinstance(destination, str) or not isinstance(profiles, dict) or destination not in profiles:
+                    errors.append(
+                        f"information_exchange.handoff destination_sensitivity has unknown profile {destination!r}"
+                    )
+                allowed_set = _string_set(allowed)
+                if not allowed_set or not allowed_set <= REQUIRED_SENSITIVITY_LEVELS:
+                    errors.append(
+                        "information_exchange.handoff destination_sensitivity "
+                        f"for {destination!r} must use known sensitivity levels"
+                    )
+        if handoff.get("raw_data_default") != "forbidden":
+            errors.append(
+                "information_exchange.handoff raw_data_default must be forbidden"
+            )
+
+    consultation = exchange.get("consultation")
+    if not isinstance(consultation, dict):
+        errors.append("information_exchange.consultation must be an object")
+    else:
+        if consultation.get("schema_version") != 1:
+            errors.append("information_exchange.consultation schema_version must be 1")
+        if consultation.get("max_hops") != 1:
+            errors.append("information_exchange.consultation max_hops must be 1")
+        routes = consultation.get("routes")
+        profiles = registry.get("profiles")
+        if not isinstance(routes, list):
+            errors.append("information_exchange.consultation routes must be a list")
+        else:
+            seen_routes: set[tuple[str, str]] = set()
+            for index, route in enumerate(routes):
+                prefix = f"information_exchange.consultation.routes[{index}]"
+                if not isinstance(route, dict) or set(route) != {
+                    "source",
+                    "target",
+                    "max_ttl_hours",
+                    "allowed_requested_fields",
+                }:
+                    errors.append(f"{prefix} must use the closed route schema")
+                    continue
+                source = route.get("source")
+                target = route.get("target")
+                if (
+                    not isinstance(source, str)
+                    or not isinstance(target, str)
+                    or not isinstance(profiles, dict)
+                    or source not in profiles
+                    or target not in profiles
+                    or source == target
+                ):
+                    errors.append(f"{prefix} has invalid source or target")
+                else:
+                    key = (source, target)
+                    if key in seen_routes:
+                        errors.append(f"{prefix} duplicates route {source}->{target}")
+                    seen_routes.add(key)
+                ttl = route.get("max_ttl_hours")
+                if isinstance(ttl, bool) or not isinstance(ttl, int) or not 1 <= ttl <= 168:
+                    errors.append(f"{prefix} max_ttl_hours must be 1..168")
+                allowed_fields = route.get("allowed_requested_fields")
+                allowed_set = _string_set(allowed_fields)
+                if (
+                    not _nonempty_string_list(allowed_fields)
+                    or not isinstance(allowed_fields, list)
+                    or len(allowed_fields) != len(allowed_set)
+                    or any(
+                        not item.replace("_", "").isalnum() or not item[0].islower()
+                        for item in allowed_set
+                    )
+                ):
+                    errors.append(f"{prefix} allowed_requested_fields is invalid")
+
+    kanban = exchange.get("kanban")
+    if (
+        not isinstance(kanban, dict)
+        or kanban.get("content_policy") != "redacted-work-orders-only"
+    ):
+        errors.append(
+            "information_exchange.kanban content_policy must be redacted-work-orders-only"
+        )
+    return errors, general_workspace
 
 
 def discovered_profiles(home: Path) -> set[str]:
@@ -62,11 +321,14 @@ def validate(
 ) -> list[str]:
     errors: list[str] = []
     registry = json.loads(registry_path.read_text())
-    if registry.get("schema_version") != 1:
-        errors.append("registry schema_version must be 1")
+    if registry.get("schema_version") != 2:
+        errors.append("registry schema_version must be 2")
     profiles = registry.get("profiles")
     if not isinstance(profiles, dict):
         return [*errors, "registry profiles must be an object"]
+
+    exchange_errors, general_shared_workspace = validate_information_exchange(registry)
+    errors.extend(exchange_errors)
 
     actual = discovered_profiles(home)
     expected = set(profiles)
@@ -78,6 +340,7 @@ def validate(
             f"profile roster drift: missing={sorted(expected-actual)} unexpected={sorted(actual-expected)}"
         )
 
+    sensitive_workspace_owners: dict[str, str] = {}
     for name, spec in sorted(profiles.items()):
         if not isinstance(spec, dict):
             errors.append(f"{name}: registry entry is not an object")
@@ -138,16 +401,106 @@ def validate(
                 f"{name}: memory provider drift: expected={spec.get('memory_provider')} actual={configured_provider}"
             )
 
+        sharing_class = spec.get("memory_sharing_class")
+        expected_workspace = spec.get("memory_workspace")
+        if sharing_class not in ALLOWED_MEMORY_SHARING_CLASSES:
+            errors.append(
+                f"{name}: memory sharing class must be one of {sorted(ALLOWED_MEMORY_SHARING_CLASSES)}"
+            )
+        elif sharing_class == "general-shared":
+            if configured_provider != "honcho" or expected_workspace != general_shared_workspace:
+                errors.append(
+                    f"{name}: general-shared memory sharing class requires honcho workspace {general_shared_workspace!r}"
+                )
+        elif sharing_class == "sensitive-isolated":
+            if (
+                configured_provider != "honcho"
+                or not isinstance(expected_workspace, str)
+                or not expected_workspace.strip()
+                or expected_workspace == general_shared_workspace
+            ):
+                errors.append(
+                    f"{name}: sensitive-isolated memory sharing class requires a non-general honcho workspace"
+                )
+            elif expected_workspace in sensitive_workspace_owners:
+                errors.append(
+                    f"{name}: sensitive workspace {expected_workspace!r} is already owned by {sensitive_workspace_owners[expected_workspace]}"
+                )
+            else:
+                sensitive_workspace_owners[expected_workspace] = name
+        elif sharing_class == "profile-local" and (
+            configured_provider != "builtin" or expected_workspace is not None
+        ):
+            errors.append(
+                f"{name}: profile-local memory sharing class requires builtin provider and no workspace"
+            )
+        elif sharing_class == "disabled" and (
+            configured_provider != "disabled" or expected_workspace is not None
+        ):
+            errors.append(
+                f"{name}: disabled memory sharing class requires disabled memory and no workspace"
+            )
+
+        if expected_workspace is not None:
+            if configured_provider != "honcho":
+                errors.append(
+                    f"{name}: memory_workspace requires the honcho provider"
+                )
+            elif not isinstance(expected_workspace, str) or not expected_workspace.strip():
+                errors.append(f"{name}: memory_workspace must be a non-empty string")
+            else:
+                honcho_path = honcho_config_path(home, root)
+                try:
+                    honcho = json.loads(honcho_path.read_text())
+                except (OSError, json.JSONDecodeError):
+                    errors.append(f"{name}: missing or invalid honcho.json")
+                else:
+                    host_key = "hermes" if name == "default" else f"hermes_{name}"
+                    hosts = honcho.get("hosts") if isinstance(honcho, dict) else None
+                    host = hosts.get(host_key, {}) if isinstance(hosts, dict) else {}
+                    actual_workspace = (
+                        host.get("workspace") if isinstance(host, dict) else None
+                    ) or (honcho.get("workspace") if isinstance(honcho, dict) else None)
+                    if actual_workspace != expected_workspace:
+                        errors.append(
+                            f"{name}: Honcho workspace drift: "
+                            f"expected={expected_workspace} actual={actual_workspace!r}"
+                        )
+
         for field in (
             "role",
             "primary_domains",
             "non_goals",
             "canonical_paths",
+            "summary_policy",
             "kanban_role",
             "gateway_expected",
         ):
             if field not in spec:
                 errors.append(f"{name}: registry missing {field}")
+        summary_policy = spec.get("summary_policy")
+        if summary_policy not in ALLOWED_SUMMARY_POLICIES:
+            errors.append(
+                f"{name}: summary_policy must be one of "
+                f"{sorted(ALLOWED_SUMMARY_POLICIES)}"
+            )
+        elif summary_policy == "blocked" and (
+            not isinstance(spec.get("summary_policy_reason"), str)
+            or not spec["summary_policy_reason"].strip()
+        ):
+            errors.append(
+                f"{name}: blocked summary_policy requires summary_policy_reason"
+            )
+        summary_path = spec.get("summary_path")
+        if summary_policy == "none" and summary_path is not None:
+            errors.append(f"{name}: summary_policy none requires null summary_path")
+        elif summary_policy in ALLOWED_SUMMARY_POLICIES - {"none"} and (
+            not isinstance(summary_path, str) or summary_path.count("{week}") != 1
+        ):
+            errors.append(
+                f"{name}: summary_policy {summary_policy} requires a string "
+                "summary_path containing exactly one {week}"
+            )
         expected_gateway = spec.get("gateway_expected")
         if expected_gateway not in {"running", "stopped"}:
             errors.append(

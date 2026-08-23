@@ -220,9 +220,38 @@ in
           fsWatcherDelayS = 5;
           rescanIntervalS = 1800;
         };
+        "hermes-session-archive-lawliet" = {
+          path = "/home/${user}/.local/share/hermes-session-archive/lawliet";
+          type = "sendonly";
+          devices = [ "watari" ];
+          fsWatcherEnabled = true;
+          fsWatcherDelayS = 10;
+          rescanIntervalS = 3600;
+          versioning = staggered1y;
+        };
+        "hermes-session-archive-watari" = {
+          path = "/home/${user}/.local/share/hermes-session-archive/watari";
+          type = "receiveonly";
+          devices = [ "watari" ];
+          fsWatcherEnabled = true;
+          fsWatcherDelayS = 10;
+          rescanIntervalS = 3600;
+          versioning = staggered1y;
+        };
       };
     };
   };
+
+  system.activationScripts.hermes-session-archive-setup = lib.stringAfter [ "users" ] ''
+    mkdir -p \
+      /home/${user}/.local/share/hermes-session-archive/lawliet \
+      /home/${user}/.local/share/hermes-session-archive/watari
+    chown -R ${user}:${group} /home/${user}/.local/share/hermes-session-archive
+    chmod 700 \
+      /home/${user}/.local/share/hermes-session-archive \
+      /home/${user}/.local/share/hermes-session-archive/lawliet \
+      /home/${user}/.local/share/hermes-session-archive/watari
+  '';
 
   # org同期ディレクトリと.stignore作成
   system.activationScripts.syncthing-org-setup = lib.stringAfter [ "users" ] ''

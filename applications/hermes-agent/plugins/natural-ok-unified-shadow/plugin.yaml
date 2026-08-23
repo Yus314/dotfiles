@@ -1,0 +1,12 @@
+manifest_version: 1
+name: natural-ok-unified-shadow
+version: 0.1.0
+kind: standalone
+description: "W40 unified issuance/consume shadow plane; non-actionable, offline, and unconfigured."
+author: "W40 isolated candidate"
+requires_env: []
+provides_tools:
+  - natural_ok_shadow_issue
+provides_hooks:
+  - pre_gateway_dispatch
+  - pre_llm_call

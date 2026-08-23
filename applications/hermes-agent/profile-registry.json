@@ -1,5 +1,5 @@
 {
-	"schema_version": 1,
+	"schema_version": 2,
 	"control_plane": "default",
 	"principles": [
 		"default routes, schedules, integrates, and orchestrates without absorbing domain raw data",
@@ -7,6 +7,149 @@
 		"Discord is a human routing surface, summaries are the low-volume integration bus, and Kanban is the durable work-order bus",
 		"Hermes profile separation is state separation, not an operating-system sandbox"
 	],
+	"information_exchange": {
+		"semantic_memory": {
+			"general_shared_workspace": "hermes",
+			"allowed_content": [
+				"stable cross-domain user preferences",
+				"durable goals and constraints useful across profiles",
+				"environment facts that reduce repeated steering"
+			],
+			"forbidden_content": [
+				"finance transactions or balances",
+				"raw health streams or medical detail",
+				"meal photos or raw meal logs",
+				"line-by-line corrections, exercise attempts, or temporary progress"
+			]
+		},
+		"weekly_summary": {
+			"schema_family": "weekly_summary",
+			"schema_version": 1,
+			"required_fields": [
+				"schema_family",
+				"schema_version",
+				"owner_profile",
+				"generated_at",
+				"coverage_start",
+				"coverage_end",
+				"source_watermark",
+				"status"
+			]
+		},
+		"handoff": {
+			"schema_family": "cross_profile_handoff",
+			"schema_version": 2,
+			"required_fields": [
+				"schema_family",
+				"schema_version",
+				"handoff_id",
+				"source_profile",
+				"target_profiles",
+				"purpose",
+				"generated_at",
+				"valid_until",
+				"scope",
+				"status",
+				"source_refs",
+				"source_health",
+				"sensitivity",
+				"raw_data_included",
+				"retention_class",
+				"supersedes",
+				"assumptions",
+				"uncertainties"
+			],
+			"optional_fields": [
+				"in_reply_to",
+				"requested_fields",
+				"returned_fields",
+				"response_deadline",
+				"hop_count",
+				"max_hops"
+			],
+			"allowed_purposes": [
+				"stable-preference-promotion",
+				"compact-status",
+				"task-result",
+				"review-request",
+				"consultation-response"
+			],
+			"sensitivity_levels": ["ordinary", "sensitive", "restricted"],
+			"retention_classes": ["transient", "promotable", "durable"],
+			"destination_sensitivity": {
+				"default": ["ordinary"],
+				"career": ["ordinary"],
+				"economics": ["ordinary"],
+				"engineering": ["ordinary"],
+				"english": ["ordinary"],
+				"finance": ["ordinary", "sensitive", "restricted"],
+				"food": ["ordinary", "sensitive"],
+				"health": ["ordinary", "sensitive", "restricted"],
+				"indiedev": ["ordinary"],
+				"math": ["ordinary"]
+			},
+			"raw_data_default": "forbidden"
+		},
+		"consultation": {
+			"schema_version": 1,
+			"max_hops": 1,
+			"routes": [
+				{
+					"source": "default",
+					"target": "finance",
+					"max_ttl_hours": 24,
+					"allowed_requested_fields": [
+						"status",
+						"decision",
+						"constraints",
+						"confidence",
+						"as_of",
+						"freshness",
+						"next_action"
+					]
+				},
+				{
+					"source": "default",
+					"target": "career",
+					"max_ttl_hours": 24,
+					"allowed_requested_fields": [
+						"availability_status",
+						"work_location_status",
+						"onsite_frequency_status",
+						"confidence",
+						"as_of"
+					]
+				},
+				{
+					"source": "default",
+					"target": "economics",
+					"max_ttl_hours": 72,
+					"allowed_requested_fields": [
+						"status",
+						"owner_attestation",
+						"confidence",
+						"updated_at",
+						"next_action"
+					]
+				},
+				{
+					"source": "math",
+					"target": "economics",
+					"max_ttl_hours": 72,
+					"allowed_requested_fields": [
+						"status",
+						"owner_attestation",
+						"confidence",
+						"updated_at",
+						"next_action"
+					]
+				}
+			]
+		},
+		"kanban": {
+			"content_policy": "redacted-work-orders-only"
+		}
+	},
 	"profiles": {
 		"default": {
 			"role": "control-plane personal secretary and cross-profile orchestrator",
@@ -25,7 +168,10 @@
 			],
 			"canonical_paths": ["~/org", "~/org/profile-summaries"],
 			"summary_path": null,
+			"summary_policy": "none",
 			"memory_provider": "honcho",
+			"memory_workspace": "hermes",
+			"memory_sharing_class": "general-shared",
 			"shared_skill_groups": [
 				"common",
 				"study",
@@ -52,7 +198,10 @@
 			],
 			"canonical_paths": ["~/career"],
 			"summary_path": "~/career/reviews/weekly/{week}.md",
+			"summary_policy": "on-demand",
 			"memory_provider": "honcho",
+			"memory_workspace": "hermes",
+			"memory_sharing_class": "general-shared",
 			"shared_skill_groups": [
 				"common",
 				"study",
@@ -77,8 +226,10 @@
 				"global task scheduling"
 			],
 			"canonical_paths": ["~/study_log/economics"],
-			"summary_path": "~/study_log/economics/reviews/weekly/{week}.md",
+			"summary_path": "~/.local/state/hermes/study-handoffs/economics/{week}.md",
+			"summary_policy": "on-demand",
 			"memory_provider": "builtin",
+			"memory_sharing_class": "profile-local",
 			"memory_policy_reason": "intentional compact study-local continuity; do not silently migrate to shared Honcho",
 			"shared_skill_groups": ["common", "study", "orchestration"],
 			"gateway_expected": "running",
@@ -98,11 +249,44 @@
 				"copy line-by-line corrections to default"
 			],
 			"canonical_paths": ["~/study_log/english"],
-			"summary_path": "~/study_log/english/reviews/weekly/{week}.md",
+			"summary_path": "~/.local/state/hermes/study-handoffs/english/{week}.md",
+			"summary_policy": "active-weekly",
 			"memory_provider": "honcho",
+			"memory_workspace": "hermes",
+			"memory_sharing_class": "general-shared",
 			"shared_skill_groups": ["common", "study", "orchestration", "usage-ops"],
 			"gateway_expected": "running",
 			"kanban_role": "domain worker"
+		},
+		"engineering": {
+			"role": "personal engineering and reusable technical-infrastructure specialist",
+			"primary_domains": [
+				"editor systems",
+				"Nix and dotfiles",
+				"Hermes extensions",
+				"CI and verification",
+				"reusable software infrastructure"
+			],
+			"non_goals": [
+				"product-market validation",
+				"calendar or Org task ownership",
+				"finance or health raw data",
+				"external publication or deployment without approval"
+			],
+			"canonical_paths": ["~/ghq/github.com/Yus314", "~/src"],
+			"summary_path": "~/.local/state/hermes/engineering-handoffs/{week}.md",
+			"summary_policy": "on-demand",
+			"memory_provider": "builtin",
+			"memory_sharing_class": "profile-local",
+			"memory_policy_reason": "engineering continuity stays profile-local; cross-profile context moves through explicit handoffs",
+			"shared_skill_groups": [
+				"common",
+				"engineering",
+				"orchestration",
+				"usage-ops"
+			],
+			"gateway_expected": "stopped",
+			"kanban_role": "internal engineering worker"
 		},
 		"finance": {
 			"role": "personal-finance and hledger specialist",
@@ -119,7 +303,11 @@
 			],
 			"canonical_paths": ["~/ledger/personal"],
 			"summary_path": "~/ledger/personal/reports/weekly/{week}.md",
+			"summary_policy": "source-health-only",
 			"memory_provider": "honcho",
+			"memory_workspace": "hermes-finance",
+			"memory_sharing_class": "sensitive-isolated",
+			"memory_policy_reason": "finance conversation-derived memory is isolated from general and health profiles",
 			"shared_skill_groups": ["common", "orchestration"],
 			"gateway_expected": "running",
 			"kanban_role": "sensitive domain worker"
@@ -139,7 +327,11 @@
 			],
 			"canonical_paths": ["~/org/food"],
 			"summary_path": "~/org/food/weekly/{week}.md",
+			"summary_policy": "on-demand",
 			"memory_provider": "honcho",
+			"memory_workspace": "hermes-food",
+			"memory_sharing_class": "sensitive-isolated",
+			"memory_policy_reason": "food conversation-derived memory is isolated; stable preferences reach general memory only through explicit promotion",
 			"shared_skill_groups": ["common", "orchestration"],
 			"gateway_expected": "running",
 			"kanban_role": "domain worker"
@@ -160,7 +352,12 @@
 			],
 			"canonical_paths": ["~/org/health/google-health"],
 			"summary_path": "~/org/health/google-health/weekly/{week}.md",
+			"summary_policy": "blocked",
+			"summary_policy_reason": "Google Health OAuth reauthorization required",
 			"memory_provider": "honcho",
+			"memory_workspace": "hermes-health",
+			"memory_sharing_class": "sensitive-isolated",
+			"memory_policy_reason": "health conversation-derived memory is isolated from general and finance profiles",
 			"shared_skill_groups": ["common", "orchestration"],
 			"gateway_expected": "running",
 			"kanban_role": "sensitive domain worker"
@@ -178,7 +375,10 @@
 			],
 			"canonical_paths": ["~/indiedev"],
 			"summary_path": "~/indiedev/reviews/weekly/{week}.md",
+			"summary_policy": "on-demand",
 			"memory_provider": "honcho",
+			"memory_workspace": "hermes",
+			"memory_sharing_class": "general-shared",
 			"shared_skill_groups": [
 				"common",
 				"engineering",
@@ -202,9 +402,12 @@
 				"global scheduling",
 				"replace the user's proof attempt"
 			],
-			"canonical_paths": ["~/study_log"],
-			"summary_path": "~/study_log/reviews/weekly/{week}.md",
+			"canonical_paths": ["~/study_log/math"],
+			"summary_path": "~/.local/state/hermes/study-handoffs/math/{week}.md",
+			"summary_policy": "on-demand",
 			"memory_provider": "honcho",
+			"memory_workspace": "hermes",
+			"memory_sharing_class": "general-shared",
 			"shared_skill_groups": ["common", "study", "orchestration"],
 			"gateway_expected": "running",
 			"kanban_role": "domain worker"
@@ -219,7 +422,9 @@
 			],
 			"canonical_paths": [],
 			"summary_path": null,
+			"summary_policy": "none",
 			"memory_provider": "disabled",
+			"memory_sharing_class": "disabled",
 			"memory_policy_reason": "clean-room evaluation",
 			"shared_skill_groups": [
 				"common",
@@ -243,6 +448,18 @@
 		"work": {
 			"primary": "career",
 			"coordination": ["default", "english", "economics", "math"]
+		},
+		"software_engineering": {
+			"primary": "engineering",
+			"coordination": ["default", "career", "indiedev"]
+		},
+		"product_experiment": {
+			"primary": "indiedev",
+			"coordination": ["engineering", "default"]
+		},
+		"hermes_operations": {
+			"primary": "default",
+			"coordination": ["engineering"]
 		},
 		"economics": {
 			"primary": "economics",

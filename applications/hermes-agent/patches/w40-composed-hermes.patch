@@ -1,0 +1,225 @@
+--- a/gateway/run.py
++++ b/gateway/run.py
+@@ -10021,12 +10021,10 @@
+                     continue
+                 _action = _result.get("action")
+                 if _action == "skip":
+-                    logger.info(
+-                        "pre_gateway_dispatch skip: reason=%s platform=%s chat=%s",
+-                        _result.get("reason"),
+-                        source.platform.value if source.platform else "unknown",
+-                        source.chat_id or "unknown",
+-                    )
++                    # The hook result and event source are plugin/provider data.
++                    # Do not persist any raw event identifiers (including IDs
++                    # embedded in a plugin-supplied reason) on the skip path.
++                    logger.info("pre_gateway_dispatch skip")
+                     return None
+                 if _action == "rewrite":
+                     _new_text = _result.get("text")
+@@ -14805,11 +14803,13 @@
+                     fallback_model=self._refresh_fallback_model(),
+                 )
+                 try:
++                    agent._current_gateway_source = source
+                     return agent.run_conversation(
+                         user_message=enriched_prompt,
+                         task_id=task_id,
+                     )
+                 finally:
++                    agent._current_gateway_source = None
+                     self._cleanup_agent_resources(agent)
+ 
+             result = await self._run_in_executor_with_context(run_sync)
+@@ -20909,8 +20909,10 @@
+                     _conversation_kwargs["moa_config"] = moa_config
+                 if _persist_user_timestamp_override is not None:
+                     _conversation_kwargs["persist_user_timestamp"] = _persist_user_timestamp_override
++                agent._current_gateway_source = source
+                 result = agent.run_conversation(_api_run_message, **_conversation_kwargs)
+             finally:
++                agent._current_gateway_source = None
+                 unregister_gateway_notify(_approval_session_key)
+                 # Cancel any pending clarify entries so blocked agent
+                 # threads don't hang past the end of the run (interrupt,
+--- a/agent/turn_context.py
++++ b/agent/turn_context.py
+@@ -141,6 +141,53 @@
+     return notes if isinstance(notes, str) else ""
+ 
+ 
++def _current_gateway_source_hook_kwargs(agent: Any) -> Dict[str, Any]:
++    """Project the active gateway source into non-throwing scalar hook fields.
++
++    Gateway agents can be cached across participants, so constructor-time
++    identity is not necessarily the current turn's source.  The gateway stages
++    the exact source for the duration of ``run_conversation``.  This boundary
++    deliberately fails closed: if any attribute access or scalar coercion
++    fails, no partially projected value (or exception payload) reaches plugins
++    or the caller's hook-error logger.
++    """
++    empty = {
++        "current_source_platform": "",
++        "current_source_user_id": "",
++        "current_source_chat_id": "",
++        "current_source_thread_id": "",
++        "current_source_guild_id": "",
++        "current_source_parent_chat_id": "",
++    }
++    try:
++        source = getattr(agent, "_current_gateway_source", None)
++    except Exception:
++        return {"current_source_present": True, "current_source_valid": False, **empty}
++    if source is None:
++        return {"current_source_present": False, "current_source_valid": False, **empty}
++
++    try:
++        platform = getattr(source, "platform", None)
++        platform = getattr(platform, "value", platform)
++
++        def _scalar(value: Any) -> str:
++            return "" if value is None else str(value)
++
++        projected = {
++            "current_source_platform": _scalar(platform),
++            "current_source_user_id": _scalar(getattr(source, "user_id", None)),
++            "current_source_chat_id": _scalar(getattr(source, "chat_id", None)),
++            "current_source_thread_id": _scalar(getattr(source, "thread_id", None)),
++            "current_source_guild_id": _scalar(getattr(source, "guild_id", None)),
++            "current_source_parent_chat_id": _scalar(
++                getattr(source, "parent_chat_id", None)
++            ),
++        }
++    except Exception:
++        return {"current_source_present": True, "current_source_valid": False, **empty}
++    return {"current_source_present": True, "current_source_valid": True, **projected}
++
++
+ def append_notes_to_multimodal_content(content: Any, notes: str) -> bool:
+     """Deliver must-deliver notes on a multimodal (list) user message.
+ 
+@@ -704,6 +751,7 @@
+             model=agent.model,
+             platform=getattr(agent, "platform", None) or "",
+             sender_id=getattr(agent, "_user_id", None) or "",
++            **_current_gateway_source_hook_kwargs(agent),
+         )
+         _ctx_parts: list[str] = []
+         # Spill oversized per-hook context to disk so a runaway plugin
+--- a/plugins/platforms/discord/adapter.py
++++ b/plugins/platforms/discord/adapter.py
+@@ -300,6 +300,84 @@
+     return entry.strip()
+ 
+ 
++def _discord_attr(value: Any, name: str) -> Any:
++    """Read an attribute from a potentially malformed discord.py object."""
++    try:
++        return getattr(value, name, None) if value is not None else None
++    except Exception:
++        return None
++
++
++_DISCORD_MAX_SNOWFLAKE = (1 << 64) - 1
++
++
++def _discord_snowflake_string(value: Any) -> Optional[str]:
++    """Return a strict canonical Discord snowflake string, or ``None``."""
++    if type(value) is int:
++        # Check the fixed-width range before str(); oversized Python integers can
++        # exceed the interpreter's integer-to-decimal conversion safety limit.
++        return str(value) if 1 <= value <= _DISCORD_MAX_SNOWFLAKE else None
++    if type(value) is not str or not 1 <= len(value) <= 20:
++        return None
++    if not "1" <= value[0] <= "9":
++        return None
++    if any(character < "0" or character > "9" for character in value[1:]):
++        return None
++    try:
++        snowflake = int(value)
++    except (ValueError, OverflowError):
++        return None
++    return value if snowflake <= _DISCORD_MAX_SNOWFLAKE else None
++
++
++def _discord_reply_context(
++    reference: Any,
++    client: Any,
++) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], bool]:
++    """Normalize an exact default Discord reply without trusting its shape."""
++    if _discord_attr(reference, "type") is not discord.MessageReferenceType.default:
++        return None, None, None, None, False
++
++    reply_to_message_id = _discord_snowflake_string(
++        _discord_attr(reference, "message_id")
++    )
++    resolved = _discord_attr(reference, "resolved")
++    if resolved is None:
++        return reply_to_message_id, None, None, None, False
++
++    content = _discord_attr(resolved, "content")
++    reply_to_text = content if isinstance(content, str) and content else None
++    author = _discord_attr(resolved, "author")
++    reply_to_author_id = _discord_snowflake_string(_discord_attr(author, "id"))
++
++    reply_to_author_name = None
++    for attribute in ("display_name", "name"):
++        value = _discord_attr(author, attribute)
++        try:
++            value = str(value) if value is not None else None
++        except Exception:
++            value = None
++        if value:
++            reply_to_author_name = value
++            break
++
++    client_user_id = _discord_snowflake_string(
++        _discord_attr(_discord_attr(client, "user"), "id")
++    )
++    reply_to_is_own_message = (
++        reply_to_author_id is not None
++        and client_user_id is not None
++        and reply_to_author_id == client_user_id
++    )
++    return (
++        reply_to_message_id,
++        reply_to_text,
++        reply_to_author_id,
++        reply_to_author_name,
++        reply_to_is_own_message,
++    )
++
++
+ def check_discord_requirements() -> bool:
+     """Check if Discord dependencies are available.
+ 
+@@ -7508,12 +7586,13 @@
+         _skills = self._resolve_channel_skills(_chan_id, _parent_id or None)
+         _channel_prompt = self._resolve_channel_prompt(_chan_id, _parent_id or None)
+ 
+-        reply_to_id = None
+-        reply_to_text = None
+-        if message.reference:
+-            reply_to_id = str(message.reference.message_id)
+-            if message.reference.resolved:
+-                reply_to_text = getattr(message.reference.resolved, "content", None) or None
++        (
++            reply_to_id,
++            reply_to_text,
++            reply_to_author_id,
++            reply_to_author_name,
++            reply_to_is_own_message,
++        ) = _discord_reply_context(getattr(message, "reference", None), self._client)
+ 
+         event = MessageEvent(
+             text=event_text,
+@@ -7525,6 +7604,9 @@
+             media_types=media_types,
+             reply_to_message_id=reply_to_id,
+             reply_to_text=reply_to_text,
++            reply_to_author_id=reply_to_author_id,
++            reply_to_author_name=reply_to_author_name,
++            reply_to_is_own_message=reply_to_is_own_message,
+             timestamp=message.created_at,
+             auto_skill=_skills,
+             channel_prompt=_channel_prompt,

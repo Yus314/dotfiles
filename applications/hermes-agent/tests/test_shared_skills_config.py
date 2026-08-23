@@ -41,7 +41,7 @@ class SharedSkillsConfigTests(unittest.TestCase):
                 for profile, groups in production_groups.items()
                 if "engineering" in groups
             },
-            {"default", "career", "indiedev", "researcheval"},
+            {"default", "career", "engineering", "indiedev", "researcheval"},
         )
         self.assertEqual(
             {
@@ -49,7 +49,7 @@ class SharedSkillsConfigTests(unittest.TestCase):
                 for profile, groups in production_groups.items()
                 if "usage-ops" in groups
             },
-            {"default", "career", "english", "indiedev", "researcheval"},
+            {"default", "career", "engineering", "english", "indiedev", "researcheval"},
         )
 
     def test_rejects_local_local_exact_and_command_collisions(self):
@@ -110,7 +110,7 @@ class SharedSkillsConfigTests(unittest.TestCase):
     def test_rejects_unsupported_registry_schema_before_use(self):
         with tempfile.TemporaryDirectory() as tmp:
             registry = Path(tmp) / "registry.json"
-            for schema in (None, 2):
+            for schema in (None, 1):
                 value: dict[str, object] = {
                     "profiles": {
                         "default": {"shared_skill_groups": ["common"]}

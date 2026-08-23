@@ -58,7 +58,7 @@ tf-wrapper plan
 
 ### 環境変数
 - `TF_WRAPPER_CONFIG_DIR_OVERRIDE`: 設定ディレクトリの上書き
-- `TF_VAR_key`: Backend key（デフォルト: 自動生成）
+- `TF_VAR_key`: Terraform入力変数。backend keyは各rootのbackend設定で別途管理
 - `TF_DEBUG=1`: デバッグ情報表示
 - `TF_LOG_LEVEL=ERROR`: エラーのみ表示
 

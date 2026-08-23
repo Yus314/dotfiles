@@ -21,6 +21,7 @@ in
     ../desktop.nix
     ./root-ssh.nix
     ./syncthing.nix
+    ../services/kanata
   ];
   inherit
     (pkgs.callPackage ./disko-config.nix {
@@ -88,7 +89,15 @@ in
   services.offlineimap = {
     enable = true;
     path = [ pkgs.mu ];
+    # A rebuilt Maildir can require a multi-day initial synchronization.
+    # Keep the timeout finite so a genuinely hung sync is eventually killed.
+    timeoutStartSec = "72h";
   };
+
+  # switch-to-configuration waits for restarted oneshot user services.  Let an
+  # in-flight mail sync finish under its existing definition instead of making
+  # every NixOS switch wait for the complete mailbox download.
+  systemd.user.services.offlineimap.restartIfChanged = false;
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;

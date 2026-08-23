@@ -94,9 +94,9 @@ def load_profile_groups(registry_path: Path) -> dict[str, tuple[str, ...]]:
         raise ValueError(f"invalid profile registry: {registry_path}") from error
     profiles = registry.get("profiles") if isinstance(registry, dict) else None
     schema_version = registry.get("schema_version") if isinstance(registry, dict) else None
-    if schema_version != 1:
+    if schema_version != 2:
         raise ValueError(
-            f"unsupported profile registry schema: expected=1 actual={schema_version!r}"
+            f"unsupported profile registry schema: expected=2 actual={schema_version!r}"
         )
     if not isinstance(profiles, dict) or not profiles:
         raise ValueError(f"profile registry has no profiles mapping: {registry_path}")

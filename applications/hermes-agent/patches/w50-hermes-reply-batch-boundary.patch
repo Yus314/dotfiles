@@ -1,0 +1,54 @@
+--- a/plugins/platforms/discord/adapter.py
++++ b/plugins/platforms/discord/adapter.py
+@@ -378,6 +378,19 @@
+     )
+ 
+ 
++def _discord_batch_boundary(event: Any, reference: Any) -> Tuple[bool, bool]:
++    """Return privacy-safe message-boundary booleans for text batching."""
++    reference_present = reference is not None
++    try:
++        text = event.text
++    except Exception:
++        text = None
++    reserved_exact_ok = (
++        type(text) is str and text.strip(" \t\r\n") == "OK"
++    )
++    return reference_present, reserved_exact_ok
++
++
+ def check_discord_requirements() -> bool:
+     """Check if Discord dependencies are available.
+ 
+@@ -7628,13 +7641,31 @@
+         # Only live plain text messages use split-message batching. Recovery
+         # candidates are already complete historical messages; coalescing them
+         # would lose constituent IDs and make later restarts replay them.
++        #
++        # A native reply is also a message-bound security/correlation boundary:
++        # merging it with a following message loses the second message ID while
++        # retaining only the first reply projection.  Exact reserved ``OK`` must
++        # likewise reach pre-dispatch hooks as its own event, including malformed
++        # or standalone attempts that those hooks must reject fail closed.
++        _reference_present, _reserved_exact_ok = _discord_batch_boundary(
++            event, getattr(message, "reference", None)
++        )
++        _batch_boundary = _reference_present or _reserved_exact_ok
+         if (
+             not recovered
+             and msg_type == MessageType.TEXT
+             and self._text_batch_delay_seconds > 0
++            and not _batch_boundary
+         ):
+             self._enqueue_text_event(event)
+         else:
++            if _batch_boundary:
++                logger.info(
++                    "[Discord] Bypassing text batch at message boundary "
++                    "(reference_present=%s, reserved_exact_ok=%s)",
++                    _reference_present,
++                    _reserved_exact_ok,
++                )
+             await self.handle_message(event)
+         return True
+ 

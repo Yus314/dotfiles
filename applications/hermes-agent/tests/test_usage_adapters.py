@@ -11,6 +11,7 @@ EXPECTED = {
     "default": "~/.hermes/state.db",
     "career": "~/.hermes/profiles/career/state.db",
     "english": "~/.hermes/profiles/english/state.db",
+    "engineering": "~/.hermes/profiles/engineering/state.db",
     "indiedev": "~/.hermes/profiles/indiedev/state.db",
     "researcheval": "~/.hermes/profiles/researcheval/state.db",
 }

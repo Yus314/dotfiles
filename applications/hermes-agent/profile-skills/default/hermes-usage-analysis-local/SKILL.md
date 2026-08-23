@@ -28,4 +28,6 @@ General assistant outcomes: prevented misses, reduced restart/decision cost, and
 
 Separate cross-domain assistant effectiveness from raw token minimization. Review task concentration, source/tool-output shares, retries, and whether infrastructure work produced a verified net benefit. Use the smallest reversible operational change and retire recurring reviews whose burden exceeds demonstrated value.
 
+Task-group titles are historical root-session labels and may be stale after a long continuation. Before classifying a summary candidate as pending, complete, or closed, inspect the protected tail and current durable artifacts. Record the actual current generation and status rather than copying the root title; preserve a closure record for a terminal predecessor and a separate restart stub for its live successor.
+
 Keep generated reports under `~/tmp` unless the user explicitly asks to promote a result. Do not create curated notes, diary entries, weekly reports, or domain records automatically. Process health and token reduction are supporting signals, not outcomes by themselves.

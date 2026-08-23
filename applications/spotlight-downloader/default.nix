@@ -10,11 +10,8 @@ in
 {
   home.packages = [ pkgs.spotlight-downloader ];
 
-  # SpotlightArchive ディレクトリを作成
-  home.file.SpotlightArchive = {
-    target = "SpotlightArchive/.keep";
-    text = "";
-  };
+  # SpotlightArchive ディレクトリをXDG data home配下に作成
+  xdg.dataFile."SpotlightArchive/.keep".text = "";
 
   # 毎日実行するsystemd サービス
   systemd.user.services.spotlight-downloader = {
@@ -28,7 +25,7 @@ in
       Type = "oneshot";
       ExecStart = "${lib.getExe pkgs.spotlight-downloader} download --outdir ${spotlightArchiveDir} --locale ja-JP";
 
-      # エラー時のリトライ設定
+      # Retry transient download failures instead of waiting for the next timer run.
       Restart = "on-failure";
       RestartSec = "30s";
 

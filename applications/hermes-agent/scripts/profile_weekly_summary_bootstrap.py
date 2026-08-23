@@ -194,9 +194,10 @@ This file intentionally contains only health/freshness signals, not transaction 
 
 
 def math_summary() -> None:
-    root = HOME / "study_log"
+    root = HOME / "study_log/math"
     sessions_root = root / "sessions"
     books_root = root / "books"
+    handoff = HOME / ".local/state/hermes/study-handoffs/math" / f"{WEEK}.md"
     week_files = files_in_week(sessions_root, ("*.md",))
     recent = newest_files(sessions_root, ("*.md",), 6) + newest_files(books_root, ("*.md",), 4)
     content = f"""{MARKER}
@@ -217,17 +218,18 @@ No math-profile weekly review was found for this week. Treat mathematics as **no
 
 ## Next session starter
 
-- [ ] Use the math profile to read recent `~/study_log/sessions/` and produce one Socratic next question plus unresolved-confusion list.
+- [ ] Use the math profile to read recent `~/study_log/math/sessions/` and produce one Socratic next question plus unresolved-confusion list.
 
 ## Integration note
 
 Default should consume only compact math summaries and leave deep proof dialogue / structural study_log edits to the math profile.
 """
-    write_bootstrap(root / "reviews/weekly" / f"{WEEK}.md", content)
+    write_bootstrap(handoff, content)
 
 
 def economics_summary() -> None:
     root = HOME / "study_log/economics"
+    handoff = HOME / ".local/state/hermes/study-handoffs/economics" / f"{WEEK}.md"
     active = root / "active.md"
     recent = newest_files(root, ("*.md", "*.json", "*.yaml"), 6)
     content = f"""{MARKER}
@@ -254,7 +256,7 @@ No economics-profile weekly review was found for this week. Source/PDF/OCR prepa
 
 Default should consume only this compact handoff. Keep detailed OCR, page corpus, source-quality experiments, and concept dialogue in the economics profile.
 """
-    write_bootstrap(root / "reviews/weekly" / f"{WEEK}.md", content)
+    write_bootstrap(handoff, content)
 
 
 def health_summary() -> None:
@@ -294,8 +296,10 @@ This bootstrap file does not copy raw health streams or minute-level data.
 
 def english_summary() -> None:
     root = HOME / "study_log/english"
-    lesson_reviews = newest_files(root / "lessons", ("review.md",), 5)
-    week_reviews = files_in_week(root / "lessons", ("review.md",))
+    lessons_root = HOME / ".local/share/study-artifacts/english/lessons"
+    handoff = HOME / ".local/state/hermes/study-handoffs/english" / f"{WEEK}.md"
+    lesson_reviews = newest_files(lessons_root, ("review.md",), 5)
+    week_reviews = files_in_week(lessons_root, ("review.md",))
     lesson_note = "none"
     if lesson_reviews:
         lesson_note = rel(lesson_reviews[0])
@@ -324,7 +328,7 @@ Generated: {TODAY.isoformat()}
 
 Do not copy line-by-line corrections into default. Use only compact progress, recurring error patterns, and next learning action.
 """
-    write_bootstrap(root / "reviews/weekly" / f"{WEEK}.md", content)
+    write_bootstrap(handoff, content)
 
 
 def career_summary() -> None:

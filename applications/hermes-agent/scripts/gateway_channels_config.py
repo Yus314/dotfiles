@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Declaratively set one exact Discord channel per Hermes profile."""
+"""Declaratively converge security-sensitive Hermes gateway settings."""
 
 from __future__ import annotations
 
@@ -10,6 +10,19 @@ import tempfile
 from pathlib import Path
 
 import yaml
+
+
+SENSITIVE_PROFILES = frozenset({"finance", "health"})
+
+
+def mapping(config: dict, key: str, path: Path) -> dict:
+    value = config.get(key)
+    if value is None:
+        value = {}
+        config[key] = value
+    elif not isinstance(value, dict):
+        raise ValueError(f"{key} config is not a mapping: {path}")
+    return value
 
 
 def config_path(home: Path, profile: str) -> Path:
@@ -31,13 +44,33 @@ def load_updates(home: Path, channels: dict[str, str]) -> list[tuple[Path, dict]
         if not isinstance(loaded, dict):
             raise ValueError(f"Hermes profile config is not a mapping: {path}")
         config = loaded
-        discord = config.get("discord")
-        if discord is None:
-            discord = {}
-            config["discord"] = discord
-        elif not isinstance(discord, dict):
-            raise ValueError(f"discord config is not a mapping: {path}")
+        discord = mapping(config, "discord", path)
         discord["allowed_channels"] = str(channel)
+
+        secrets = mapping(config, "secrets", path)
+        bitwarden = secrets.get("bitwarden")
+        if bitwarden is None:
+            bitwarden = {}
+            secrets["bitwarden"] = bitwarden
+        elif not isinstance(bitwarden, dict):
+            raise ValueError(f"secrets.bitwarden config is not a mapping: {path}")
+        # Gateway credentials and authorization boundaries are injected by the
+        # hardened systemd wrapper and must not be replaced by a bulk secret source.
+        bitwarden["override_existing"] = False
+
+        # Preserve long-running personal-assistant continuity explicitly instead
+        # of inheriting the v0.19 gateway default implicitly.
+        session_reset = mapping(config, "session_reset", path)
+        session_reset["mode"] = "none"
+
+        # Intermediate reasoning is unnecessary exposure in sensitive Discord
+        # profiles. Users can still opt into it for an individual session.
+        display = config.get("display")
+        if display is not None and not isinstance(display, dict):
+            raise ValueError(f"display config is not a mapping: {path}")
+        if profile in SENSITIVE_PROFILES:
+            display = mapping(config, "display", path)
+            display["show_reasoning"] = False
         updates.append((path, config))
     return updates
 

@@ -17,7 +17,9 @@ let
       }
       ''
             mkdir -p "$out/default"
+            cp "$src/assets/rules/metadata.toml" "$out/metadata.toml"
             cp "$src/assets/rules/default/rule.toml" "$out/default/rule.toml"
+            cp -r "$src/assets/rule" "$out/rule"
 
             for section in \
               direct.hiragana \
@@ -30,6 +32,16 @@ let
                 --replace-fail "[$section]" "[$section]
         \"Escape\" = [\"Abort\"]"
             done
+
+            for section in \
+              pre_composition.hiragana \
+              pre_composition.katakana \
+              pre_composition.hankakukatakana
+            do
+              substituteInPlace "$out/default/rule.toml" \
+                --replace-fail "[$section]" "[$section]
+        \"Escape\" = [\"ClearUnconfirmedInputs\", \"Abort\"]"
+            done
       '';
 in
 {
@@ -39,10 +51,19 @@ in
     type=file,file=${config.xdg.dataHome}/fcitx5/cskk/dictionary/SKK-JISYO.L,mode=readonly,encoding=euc-jp,complete=false
   '';
 
-  # Override the libcskk default rule so Escape aborts from the Direct state inside
-  # dictionary registration (e.g. ▼...【】), matching C-g.
+  # Override the libcskk default rule so Escape aborts both ▽ pre-composition
+  # and the Direct state nested inside dictionary registration (e.g. ▼...【】),
+  # matching C-g in each state.
   xdg.dataFile."libcskk/rules/default" = {
     source = "${cskkDefaultRuleWithEscapeAbort}/default";
+    force = true;
+  };
+  xdg.dataFile."libcskk/rules/metadata.toml" = {
+    source = "${cskkDefaultRuleWithEscapeAbort}/metadata.toml";
+    force = true;
+  };
+  xdg.dataFile."libcskk/rule" = {
+    source = "${cskkDefaultRuleWithEscapeAbort}/rule";
     force = true;
   };
 

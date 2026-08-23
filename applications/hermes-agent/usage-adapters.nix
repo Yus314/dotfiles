@@ -7,6 +7,8 @@
       ./profile-skills/career/hermes-usage-analysis-local/SKILL.md;
     ".hermes/profiles/english/skills/hermes-usage-analysis-local/SKILL.md".source =
       ./profile-skills/english/hermes-usage-analysis-local/SKILL.md;
+    ".hermes/profiles/engineering/skills/hermes-usage-analysis-local/SKILL.md".source =
+      ./profile-skills/engineering/hermes-usage-analysis-local/SKILL.md;
     ".hermes/profiles/indiedev/skills/hermes-usage-analysis-local/SKILL.md".source =
       ./profile-skills/indiedev/hermes-usage-analysis-local/SKILL.md;
     ".hermes/profiles/researcheval/skills/hermes-usage-analysis-local/SKILL.md".source =

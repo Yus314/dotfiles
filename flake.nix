@@ -44,10 +44,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Headless fork (web/TUI stubbed) of NousResearch/hermes-agent — upstream's
-    # Nix web/tui build is broken (#27430). No nixpkgs follows: the package is
-    # built with its own pinned nixpkgs (uv2nix) and must stay that way.
-    hermes-agent.url = "github:Yus314/hermes-agent/headless";
+    # Pin a qualified upstream release. No nixpkgs follows: the package is built
+    # with its own pinned nixpkgs (uv2nix) and must stay that way.
+    hermes-agent.url = "github:NousResearch/hermes-agent/v2026.7.20";
 
     disko.inputs.nixpkgs.follows = "nixpkgs";
     emacs-overlay.inputs.nixpkgs-stable.follows = "nixpkgs-stable";
@@ -156,6 +155,8 @@
             selection-batch-configured-smoke = config.packages.selection-batch-configured-smoke;
             selection-batch-minimal-configured-smoke = config.packages.selection-batch-minimal-configured-smoke;
             selection-batch-minimal-package-smoke = config.packages.selection-batch-minimal-package-smoke;
+            shingeta-chord-symmetry = import ./systems/nixos/services/xremap/check.nix { inherit pkgs; };
+            shingeta-kanata = import ./systems/nixos/services/kanata/check.nix { inherit pkgs; };
           }
           // pkgs.lib.optionalAttrs (system == "aarch64-darwin") {
             shingeta-kanata-macos = import ./systems/darwin/services/kanata/check.nix {
@@ -196,9 +197,18 @@
                 };
                 check-toml.enable = true;
                 treefmt.enable = true;
-                detect-private-keys.enable = true;
+                detect-private-keys = {
+                  enable = true;
+                  # This source intentionally contains private-key marker regexes
+                  # used to reject secrets from shared skill bundles.
+                  excludes = [ "applications/hermes-agent/scripts/shared_skills_config.py" ];
+                };
                 end-of-file-fixer.enable = true;
-                trim-trailing-whitespace.enable = true;
+                trim-trailing-whitespace = {
+                  enable = true;
+                  # Unified diffs require a leading space on blank context lines.
+                  excludes = [ "\\.patch$" ];
+                };
                 fix-byte-order-marker.enable = true;
                 actionlint.enable = true;
               };

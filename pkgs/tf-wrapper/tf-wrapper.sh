@@ -25,7 +25,12 @@ readonly LOG_LEVEL="${TF_LOG_LEVEL:-INFO}"
 # ========================================
 log_error() { echo -e "${RED}❌ ERROR: $*${NC}" >&2; }
 log_warn() { echo -e "${YELLOW}⚠️  WARN: $*${NC}" >&2; }
-log_info() { [[ $LOG_LEVEL != "ERROR" ]] && echo -e "${BLUE}ℹ️  INFO: $*${NC}"; }
+log_info() {
+  if [[ $LOG_LEVEL != "ERROR" ]]; then
+    echo -e "${BLUE}ℹ️  INFO: $*${NC}"
+  fi
+  return 0
+}
 log_success() { echo -e "${GREEN}✅ SUCCESS: $*${NC}"; }
 
 # ========================================
@@ -167,10 +172,12 @@ setup_oci_environment() {
     TF_VAR_private_key_path="$config_dir/private_key.pem"
   fi
 
-  # キーの設定（環境変数優先、なければ自動生成）
-  local backend_key
-  backend_key="${TF_VAR_key:-$(generate_backend_key)}"
-  export TF_VAR_key="$backend_key"
+  # 後方互換性のため、Terraform入力変数 key は引き続き設定する。
+  # 注意: TF_VAR_key は backend "oci" の key を設定しない。実際の
+  # backend key はTerraform設定または init -backend-config で決まる。
+  local terraform_input_key
+  terraform_input_key="${TF_VAR_key:-$(generate_backend_key)}"
+  export TF_VAR_key="$terraform_input_key"
 
   # 設定値検証
   local missing_vars=()
@@ -196,12 +203,12 @@ setup_oci_environment() {
     echo "  TF_VAR_bucket: ${TF_VAR_bucket}"
     echo "  TF_VAR_namespace: ${TF_VAR_namespace}"
     echo "  TF_VAR_region: ${TF_VAR_region}"
-    echo "  TF_VAR_key: ${TF_VAR_key}"
+    echo "  TF_VAR_key (Terraform input only; not backend config): ${TF_VAR_key}"
     echo "  TF_VAR_private_key_path: ${TF_VAR_private_key_path}"
   fi
 
   log_success "OCI環境設定完了"
-  log_info "Backend Key: $backend_key"
+  log_info "TF_VAR_key (Terraform input only; backend key is configured separately): $terraform_input_key"
 }
 
 # ========================================
@@ -275,7 +282,7 @@ Terraform 汎用OCIバックエンドラッパー（sops.nix統合版）
 
 環境変数:
     TF_WRAPPER_CONFIG_DIR_OVERRIDE  設定ディレクトリの上書き
-    TF_VAR_key                      Backend key (デフォルト: 自動生成)
+    TF_VAR_key                      Terraform入力変数key（backend設定には影響しない）
     TF_DEBUG=1                      デバッグ情報表示
     TF_LOG_LEVEL=ERROR              エラーのみ表示
     TF_WRAPPER_CLEANUP_ENV=1        終了時に環境変数をクリーンアップ
@@ -290,6 +297,7 @@ Terraform 汎用OCIバックエンドラッパー（sops.nix統合版）
 注意:
     このラッパーはHome Managerとsops.nixの統合により動作します。
     設定が見つからない場合、Home Manager設定を確認してください。
+    OCI backendのkeyはTerraform設定またはinit -backend-configで指定してください。
 
 EOF
 }

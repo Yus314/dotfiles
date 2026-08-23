@@ -44,7 +44,10 @@ class EngineeringQualityCoreTests(unittest.TestCase):
             for profile, record in registry["profiles"].items()
             if "engineering" in record["shared_skill_groups"]
         }
-        self.assertEqual(consumers, {"default", "career", "indiedev", "researcheval"})
+        self.assertEqual(
+            consumers,
+            {"default", "career", "engineering", "indiedev", "researcheval"},
+        )
 
 
 if __name__ == "__main__":

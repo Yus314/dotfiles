@@ -1,0 +1,252 @@
+diff --git a/include/modules/niri/workspace.hpp b/include/modules/niri/workspace.hpp
+index e1bf7ba..cee1130 100644
+--- a/include/modules/niri/workspace.hpp
++++ b/include/modules/niri/workspace.hpp
+@@ -6,7 +6,9 @@
+ #include <gtkmm/label.h>
+ #include <json/value.h>
+ 
++#include <memory>
+ #include <string>
++#include <vector>
+ 
+ namespace waybar::modules::niri {
+ 
+@@ -15,7 +17,7 @@ class Workspaces;
+ class Workspace {
+  public:
+   Workspace(const Json::Value& workspace_data, Workspaces& manager);
+-  ~Workspace() = default;
++  ~Workspace();
+ 
+   Workspace(const Workspace&) = delete;
+   Workspace& operator=(const Workspace&) = delete;
+@@ -27,7 +29,22 @@ class Workspace {
+               const std::string& windows_str, std::size_t total);
+ 
+  private:
++  struct TaskbarItem {
++    explicit TaskbarItem(uint64_t window_id) : id(window_id) {}
++
++    uint64_t id;
++    std::string app_id;
++    int icon_size = 0;
++
++    // Children must outlive their parent button. Members are destroyed in
++    // reverse declaration order, so declare the button last.
++    Gtk::Image image;
++    Gtk::Label label;
++    Gtk::Button button;
++  };
++
+   void rebuildTaskbar(const std::vector<Json::Value>& my_windows);
++  void clearTaskbar();
+ 
+   Glib::RefPtr<Gdk::Pixbuf> loadIcon(const std::string& app_id, int size);
+ 
+@@ -43,0 +61,3 @@ class Workspace {
++
++  // Own taskbar widgets independently of the GTK container.
++  std::vector<std::unique_ptr<TaskbarItem>> taskbar_items_;
+diff --git a/src/modules/niri/workspace.cpp b/src/modules/niri/workspace.cpp
+index 73445b5..1e292dd 100644
+--- a/src/modules/niri/workspace.cpp
++++ b/src/modules/niri/workspace.cpp
+@@ -1,5 +1,7 @@
+ #include "modules/niri/workspace.hpp"
+ 
++#include <algorithm>
++
+ #include <gdkmm/pixbuf.h>
+ #include <gtkmm/icontheme.h>
+ #include <gtkmm/image.h>
+@@ -43,6 +43,8 @@ Workspace::Workspace(const Json::Value& workspace_data, Workspaces& manager)
+   button_.show_all();
+ }
+ 
++Workspace::~Workspace() { clearTaskbar(); }
++
+ void Workspace::update(const Json::Value& data, const std::vector<Json::Value>& all_windows,
+                        const std::string& windows_str, std::size_t total) {
+   // ── CSS classes ──────────────────────────────────────────────────────────
+@@ -129,83 +131,129 @@ void Workspace::update(const Json::Value& data, const std::vector<Json::Value>&
+     taskbar_box_.show();
+     label_.hide();
+   } else {
+-    for (auto* child : taskbar_box_.get_children()) {
+-      taskbar_box_.remove(*child);
+-    }
++    clearTaskbar();
+     taskbar_box_.hide();
+   }
+ }
+ 
+-// ── Taskbar rebuild ──────────────────────────────────────────────────────────
+-
+-void Workspace::rebuildTaskbar(const std::vector<Json::Value>& my_windows) {
+-  for (auto* child : taskbar_box_.get_children()) {
+-    taskbar_box_.remove(*child);
++void Workspace::clearTaskbar() {
++  for (auto& item : taskbar_items_) {
++    taskbar_box_.remove(item->button);
+   }
++  taskbar_items_.clear();
++}
++
++// ── Taskbar reconciliation ───────────────────────────────────────────────────
+ 
++void Workspace::rebuildTaskbar(const std::vector<Json::Value>& my_windows) {
+   const auto& taskbar_cfg = manager_.config()["workspace-taskbar"];
+   const int icon_size = taskbar_cfg["icon-size"].isInt() ? taskbar_cfg["icon-size"].asInt() : 16;
+ 
+-  for (const auto& win : my_windows) {
++  std::vector<std::unique_ptr<TaskbarItem>> next_items;
++  next_items.reserve(my_windows.size());
++
++  for (std::size_t position = 0; position < my_windows.size(); ++position) {
++    const auto& win = my_windows[position];
+     const auto win_id = win["id"].asUInt64();
+     const std::string app_id = win["app_id"].isString() ? win["app_id"].asString() : "";
+     const std::string title = win["title"].isString() ? win["title"].asString() : app_id;
+     const bool is_focused = win["is_focused"].asBool();
+ 
+-    auto* btn = Gtk::make_managed<Gtk::Button>();
+-    btn->set_relief(Gtk::RELIEF_NONE);
+-    btn->get_style_context()->add_class("niri-taskbar-btn");
+-    if (is_focused) btn->get_style_context()->add_class("focused");
+-    btn->set_tooltip_text(title);
++    auto old_item = std::find_if(
++        taskbar_items_.begin(), taskbar_items_.end(),
++        [win_id](const std::unique_ptr<TaskbarItem>& item) { return item->id == win_id; });
+ 
+-    auto pixbuf = loadIcon(app_id, icon_size);
+-    if (pixbuf) {
+-      auto* img = Gtk::make_managed<Gtk::Image>(pixbuf);
+-      btn->add(*img);
++    std::unique_ptr<TaskbarItem> item;
++    if (old_item != taskbar_items_.end()) {
++      item = std::move(*old_item);
++      taskbar_items_.erase(old_item);
+     } else {
+-      std::string fallback = app_id.empty() ? title : app_id;
+-      if (!fallback.empty()) {
+-        fallback = fallback.substr(0, 3);
+-      } else {
+-        fallback = "?";
+-      }
+-      auto* lbl = Gtk::make_managed<Gtk::Label>(fallback);
+-      btn->add(*lbl);
+-    }
+-
+-    // Left click → focus window.
+-    btn->signal_clicked().connect([win_id] {
+-      try {
+-        Json::Value request(Json::objectValue);
+-        auto& action = (request["Action"] = Json::Value(Json::objectValue));
+-        auto& focusWindow = (action["FocusWindow"] = Json::Value(Json::objectValue));
+-        focusWindow["id"] = win_id;
+-        IPC::send(request);
+-      } catch (const std::exception& e) {
+-        spdlog::error("Niri: error focusing window {}: {}", win_id, e.what());
+-      }
+-    });
++      item = std::make_unique<TaskbarItem>(win_id);
++      item->button.set_relief(Gtk::RELIEF_NONE);
++      item->button.get_style_context()->add_class("niri-taskbar-btn");
+ 
+-    // Middle click → close window.
+-    btn->signal_button_release_event().connect([win_id](GdkEventButton* event) -> bool {
+-      if (event->button == GDK_BUTTON_MIDDLE) {
++      item->button.signal_clicked().connect([win_id] {
+         try {
+           Json::Value request(Json::objectValue);
+           auto& action = (request["Action"] = Json::Value(Json::objectValue));
+-          auto& closeWindow = (action["CloseWindow"] = Json::Value(Json::objectValue));
+-          closeWindow["id"] = win_id;
++          auto& focusWindow = (action["FocusWindow"] = Json::Value(Json::objectValue));
++          focusWindow["id"] = win_id;
+           IPC::send(request);
+         } catch (const std::exception& e) {
+-          spdlog::error("Niri: error closing window {}: {}", win_id, e.what());
++          spdlog::error("Niri: error focusing window {}: {}", win_id, e.what());
++        }
++      });
++
++      item->button.signal_button_release_event().connect([win_id](GdkEventButton* event) -> bool {
++        if (event->button == GDK_BUTTON_MIDDLE) {
++          try {
++            Json::Value request(Json::objectValue);
++            auto& action = (request["Action"] = Json::Value(Json::objectValue));
++            auto& closeWindow = (action["CloseWindow"] = Json::Value(Json::objectValue));
++            closeWindow["id"] = win_id;
++            IPC::send(request);
++          } catch (const std::exception& e) {
++            spdlog::error("Niri: error closing window {}: {}", win_id, e.what());
++          }
++          return true;
++        }
++        return false;
++      });
++
++      taskbar_box_.pack_start(item->button, false, false, 0);
++      item->button.show();
++    }
++
++    auto style = item->button.get_style_context();
++    if (is_focused) {
++      style->add_class("focused");
++    } else {
++      style->remove_class("focused");
++    }
++    item->button.set_tooltip_text(title);
++
++    if (item->app_id != app_id || item->icon_size != icon_size || !item->button.get_child()) {
++      auto pixbuf = loadIcon(app_id, icon_size);
++      Gtk::Widget* child = nullptr;
++      if (pixbuf) {
++        item->image.set(pixbuf);
++        child = &item->image;
++      } else {
++        child = &item->label;
++      }
++
++      if (item->button.get_child() != child) {
++        if (item->button.get_child()) {
++          item->button.remove();
+         }
+-        return true;
++        item->button.add(*child);
+       }
+-      return false;
+-    });
+ 
+-    taskbar_box_.pack_start(*btn, false, false, 0);
+-    btn->show_all();
++      item->app_id = app_id;
++      item->icon_size = icon_size;
++      child->show();
++    }
++
++    if (item->button.get_child() == &item->label) {
++      std::string fallback = app_id.empty() ? title : app_id;
++      if (!fallback.empty()) {
++        fallback = fallback.substr(0, 3);
++      } else {
++        fallback = "?";
++      }
++      item->label.set_text(fallback);
++    }
++
++    taskbar_box_.reorder_child(item->button, static_cast<int>(position));
++    next_items.push_back(std::move(item));
+   }
++
++  // Items still in taskbar_items_ represent closed or moved windows.
++  for (auto& item : taskbar_items_) {
++    taskbar_box_.remove(item->button);
++  }
++
++  taskbar_items_ = std::move(next_items);
+ }
+ 
+ // ── Icon loading ─────────────────────────────────────────────────────────────
