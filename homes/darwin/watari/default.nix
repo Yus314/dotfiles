@@ -15,6 +15,7 @@ in
   home-manager.users.${username} = {
     imports = [
       ../../../applications/hermes-agent
+      ../../../applications/hermes-session-archive
       ../../../applications/ssh
     ];
     programs.man.enable = false;

@@ -103,6 +103,36 @@ in
               };
             };
           };
+          "hermes-session-archive-lawliet" = {
+            path = "/Users/${username}/.local/share/hermes-session-archive/lawliet";
+            type = "receiveonly";
+            devices = [ "lawliet" ];
+            fsWatcherEnabled = true;
+            fsWatcherDelayS = 10;
+            rescanIntervalS = 3600;
+            versioning = {
+              type = "staggered";
+              params = {
+                cleanInterval = "3600";
+                maxAge = "31536000";
+              };
+            };
+          };
+          "hermes-session-archive-watari" = {
+            path = "/Users/${username}/.local/share/hermes-session-archive/watari";
+            type = "sendonly";
+            devices = [ "lawliet" ];
+            fsWatcherEnabled = true;
+            fsWatcherDelayS = 10;
+            rescanIntervalS = 3600;
+            versioning = {
+              type = "staggered";
+              params = {
+                cleanInterval = "3600";
+                maxAge = "31536000";
+              };
+            };
+          };
         };
       };
     };

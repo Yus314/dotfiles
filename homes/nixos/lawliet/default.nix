@@ -27,6 +27,7 @@ in
         ../desktop.nix
         ../../../applications/ledger/gmail-fetch.nix
         ../../../applications/hermes-agent
+        ../../../applications/hermes-session-archive
       ];
       home.packages = with pkgs; [ bluetui ];
       programs.emacs.selectionFirst.enable = true;
