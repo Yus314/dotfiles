@@ -1,16 +1,19 @@
 terraform {
+  # The native OCI backend is available in Terraform 1.12 and later.
+  required_version = ">= 1.12.0, < 2.0.0"
+
   required_providers {
     github = {
-      source = "integrations/github"
-    }
-    sops = {
-      source = "carlpett/sops"
+      source  = "integrations/github"
+      version = "~> 6.11.1"
     }
   }
 
   backend "oci" {
-    bucket    = "terraform-states"
-    key       = "github/terraform.tfstate"
+    bucket = "terraform-states"
+    # This state is intentionally limited to GitHub user SSH/GPG keys.
+    # Repository settings and Actions secrets are owned by the standalone stack.
+    key       = "github/user-keys/terraform.tfstate"
     namespace = "nr8pzcksrfds"
     region    = "ap-tokyo-1"
 
@@ -22,32 +25,36 @@ terraform {
   }
 }
 
-provider "sops" {}
-
-# 既存のローカルシークレットファイル（一時的）
-data "sops_file" "secret" {
-  source_file = "./secrets.yaml"
-}
-
 provider "github" {
   owner = "Yus314"
-  token = data.sops_file.secret.data["token"]
 }
 
 # SSH Keys
 resource "github_user_ssh_key" "default" {
   title = "mac_book"
   key   = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAHvJKRmO1WHVDdcPTyc7E7t0nLA8QNLt6SqrYC0zCLPP71J7gul03nNwPObQV57H/so1Fgds/tA4NZCAOxDBPmjXwAZG1z6bi/uzUcvviFGZftuh8zB4+jNyZ7yoJZNIpOZNz0Miyo46qg+FSygVmAknxmabh/zvKyDIiv4lpW+8Iz2Vw=="
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "github_user_ssh_key" "sub" {
   title = "lab_main"
   key   = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBABF3IhEIQiwFjYWAuZ+vug+YKI2IGCDMGe637XdOJcffcgdkdBc3wA3SglQNxr25NHS3Zbk5kaq3CV+r4jiksnVpgAQADghKpOZYbE9JZ6JpHAHzPUT4QGawlE3QCGg0D6iOG0Af+oneZSAGc5oIS1LMck5lbuOBwcdgX6mqEsJAyp4vQ=="
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "github_user_ssh_key" "desktop" {
   title = "my_desktop"
   key   = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGoH/MMMVf2dOmZdh6eppe3zmVmgBCw0CEXHs+VVl6pDWBsZCjBhmwszk6qRXO3hH8vNZlCeqZpTsMVoRxjrYm0xgBks/YXiC9cyPy5sVmvf3Qy4R2DdtgqkJiqei9cZ9ybvjtc92GdYAH5cS88TzLmAgKFFeuK30nchy+qgBHcZQ/bwA=="
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # GPG Key
@@ -85,29 +92,8 @@ F8TkrjHoD1xclctqoCVlsZS6Xut3xrdfZ4qL
 =jW8g
 -----END PGP PUBLIC KEY BLOCK-----
 EOT
-}
 
-# GitHub Actions Secrets
-resource "github_actions_secret" "cachix_auth_token" {
-  repository      = "dotfiles"
-  secret_name     = "CACHIX_AUTH_TOKEN"
-  plaintext_value = data.sops_file.secret.data["cachix_auth_token"]
-}
-
-resource "github_actions_secret" "cachix_auth_token_for_nur" {
-  repository      = "nur-packages"
-  secret_name     = "CACHIX_AUTH_TOKEN"
-  plaintext_value = data.sops_file.secret.data["cachix_auth_token"]
-}
-
-resource "github_actions_secret" "nur_update_packages_app_id" {
-  repository      = "nur-packages"
-  secret_name     = "APP_ID"
-  plaintext_value = data.sops_file.secret.data["app_id"]
-}
-
-resource "github_actions_secret" "nur_update_packages_app_key" {
-  repository      = "nur-packages"
-  secret_name     = "APP_PRIVATE_KEY"
-  plaintext_value = data.sops_file.secret.data["app_private_key"]
+  lifecycle {
+    prevent_destroy = true
+  }
 }

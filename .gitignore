@@ -2,6 +2,7 @@
 /result
 result-*
 .terraform.lock.hcl
+!/infra/services/github/.terraform.lock.hcl
 .terraform/
 *.tfstate*
 .pre-commit-config.yaml
