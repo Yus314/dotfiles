@@ -35,6 +35,10 @@ class ResearchConfigTests(unittest.TestCase):
                 result["providers"]["openai-codex"]["models"]["gpt-5.6-sol"]["stale_timeout_seconds"],
                 300,
             )
+            self.assertEqual(
+                result["mcp_servers"]["research_providers"]["args"][:3],
+                ["run", "--with", "mcp<2"],
+            )
             self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
 
     def test_rejects_non_mapping_without_replacing_original(self):

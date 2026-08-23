@@ -21,6 +21,7 @@ def test_phase_context_config_preserves_existing_settings(tmp_path: Path) -> Non
             {
                 "model": {"default": "openai-codex/gpt-5.6-sol"},
                 "compression": {"threshold": 0.42, "protect_last_n": 12},
+                "agent": {"gateway_timeout": 3600, "max_turns": 90},
                 "context": {"custom": "kept"},
                 "plugins": {"enabled": ["web-exa"]},
             }
@@ -41,6 +42,7 @@ def test_phase_context_config_preserves_existing_settings(tmp_path: Path) -> Non
         "in_place": True,
         "codex_app_server_auto": "hermes",
     }
+    assert config["agent"] == {"gateway_timeout": 3600, "max_turns": 120}
 
 
 def test_phase_context_config_is_idempotent(tmp_path: Path) -> None:

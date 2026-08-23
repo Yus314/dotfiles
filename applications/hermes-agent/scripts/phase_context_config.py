@@ -66,6 +66,14 @@ def main() -> None:
         # lets the selected engine trigger Codex's native thread compaction.
         compression["codex_app_server_auto"] = "hermes"
 
+        agent = config.get("agent")
+        if not isinstance(agent, dict):
+            agent = {}
+            config["agent"] = agent
+        # Give long, productive implementation/research turns more room while
+        # retaining a finite global stop. Re-evaluate before increasing again.
+        agent["max_turns"] = 120
+
         write_config(config_path, config)
 
 

@@ -58,7 +58,7 @@ def configured(config: dict, home: Path) -> dict:
         "args": [
             "run",
             "--with",
-            "mcp",
+            "mcp<2",
             str(home / ".hermes/mcp/research_providers_server.py"),
         ],
         "enabled": True,
