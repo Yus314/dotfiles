@@ -45,6 +45,11 @@ in
       "nix-command"
       "flakes"
     ];
+    # Keep enough headroom for large Darwin builds (QtWebEngine, Rust, Emacs).
+    max-jobs = 2;
+    cores = 4;
+    min-free = 10 * 1024 * 1024 * 1024;
+    max-free = 30 * 1024 * 1024 * 1024;
   };
   programs.gnupg = {
     agent = {
