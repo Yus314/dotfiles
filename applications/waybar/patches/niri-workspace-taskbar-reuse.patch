@@ -44,14 +44,10 @@ index e1bf7ba..cee1130 100644
  
    Glib::RefPtr<Gdk::Pixbuf> loadIcon(const std::string& app_id, int size);
  
-@@ -44,0 +62,3 @@ class Workspace {
+@@ -43,0 +61,3 @@ class Workspace {
 +
 +  // Own taskbar widgets independently of the GTK container.
 +  std::vector<std::unique_ptr<TaskbarItem>> taskbar_items_;
- };
- 
- }  // namespace waybar::modules::niri
-\ No newline at end of file
 diff --git a/src/modules/niri/workspace.cpp b/src/modules/niri/workspace.cpp
 index 73445b5..1e292dd 100644
 --- a/src/modules/niri/workspace.cpp
