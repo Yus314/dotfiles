@@ -53,6 +53,7 @@ in
   programs.codex = {
     enable = true;
     settings = {
+      model_reasoning_effort = "xhigh";
       sandbox_mode = "workspace-write";
       approval_policy = "on-request";
       sandbox_workspace_write = {
