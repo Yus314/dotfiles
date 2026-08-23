@@ -43,18 +43,51 @@ let
     pythonImportsCheck = [ "honcho" ];
   };
 
-  # v0.19.0 may emit blank tool-only intermediate turns to Discord, whose API
-  # rejects them with error 50006. Keep the release pin and patch only the
-  # bundled messaging plugin; remove this once upstream ships the same guard.
-  hermesPlugins =
-    pkgs.runCommand "hermes-agent-plugins-0.19.0-patched" { nativeBuildInputs = [ pkgs.patch ]; }
-      ''
-        cp -R ${inputs.hermes-agent}/plugins "$out"
-        chmod -R u+w "$out"
-        patch --fuzz=0 -p1 -d "$out" < ${./discord-skip-empty-messages.patch}
-        cp -R ${./plugins/context_engine/phase_checkpoint} \
-          "$out/phase_checkpoint"
-      '';
+  # W50 production-SHADOW diagnostics: layer the reviewed reply/message
+  # batching-boundary repair after the existing exact W40 composition.
+  w40HermesPlane =
+    assert inputs.hermes-agent.packages.${pkgs.system}.messaging.version == "0.19.0";
+    pkgs.runCommand "hermes-agent-w50-shadow-0.19.0" { nativeBuildInputs = [ pkgs.patch ]; } ''
+      cp -R ${inputs.hermes-agent} "$out"
+      chmod -R u+w "$out"
+
+      test "$(sha256sum "$out/gateway/run.py" | cut -d' ' -f1)" = c6e0f443772e4a8a7eac0d9ccf9a4f659de5fc5493c572a69a46e4c61a8aa966
+      test "$(sha256sum "$out/agent/turn_context.py" | cut -d' ' -f1)" = fa273c7496c4e06a8c1834f835acdf8b0b12e7302d9ed9048118f4a3f442178d
+      test "$(sha256sum "$out/plugins/platforms/discord/adapter.py" | cut -d' ' -f1)" = 84b0f4912d6661ab57b102bb6d0509206b6383ba1384feae80b5894d320466d7
+      test "$(sha256sum ${./patches/w40-composed-hermes.patch} | cut -d' ' -f1)" = 7f7f1b6ebeda471be511030c8e90c2cd5be54deef7bba2eec103e9e8e9ddf027
+
+      mkdir -p "$out/.w40-baseline/gateway" "$out/.w40-baseline/agent" \
+        "$out/.w40-baseline/plugins/platforms/discord"
+      cp "$out/gateway/run.py" "$out/.w40-baseline/gateway/run.py"
+      cp "$out/agent/turn_context.py" "$out/.w40-baseline/agent/turn_context.py"
+      cp "$out/plugins/platforms/discord/adapter.py" \
+        "$out/.w40-baseline/plugins/platforms/discord/adapter.py"
+
+      patch --fuzz=0 -p1 -d "$out" < ${./patches/w40-composed-hermes.patch}
+      test "$(sha256sum "$out/gateway/run.py" | cut -d' ' -f1)" = b816475affba3ae946ffb8dd365d7da8b29a1b877148d331abdf5b16a4e4e425
+      test "$(sha256sum "$out/agent/turn_context.py" | cut -d' ' -f1)" = 5752abc7ec12966a1ef4a6f77e3cbba8f9dcfec78f161f6268d4e06c244cb02e
+      test "$(sha256sum "$out/plugins/platforms/discord/adapter.py" | cut -d' ' -f1)" = f8fd891c9e9c47d02ed84b360e5bff5690b998afeb942ce6ccf6de681e8d3dcd
+
+      patch --fuzz=0 -p1 -d "$out/plugins" < ${./discord-skip-empty-messages.patch}
+      test "$(sha256sum "$out/plugins/platforms/discord/adapter.py" | cut -d' ' -f1)" = 91d34ac557e735103393534c6bc066f9fc6e1bc8d1767d6c9842ad0620e04b38
+
+      test "$(sha256sum ${./patches/w50-hermes-reply-batch-boundary.patch} | cut -d' ' -f1)" = 583b0a57c422b6822922c8121da8d772566c18fd3404e2bd1989a8e1a850f35d
+      patch --fuzz=0 -p1 -d "$out" < ${./patches/w50-hermes-reply-batch-boundary.patch}
+      test "$(sha256sum "$out/plugins/platforms/discord/adapter.py" | cut -d' ' -f1)" = c2ce0a2dcf645e19bf7c4bf3de341c2cc18da93fe290783f940b589f6c667713
+
+      test "$(sha256sum ${./plugins/natural-ok-unified-shadow/__init__.py} | cut -d' ' -f1)" = 9e3299c64984446a0c938369fdaa069d3258c2e3cf07737b2a23ad402f0df221
+      test "$(sha256sum ${./plugins/natural-ok-unified-shadow/core/state.py} | cut -d' ' -f1)" = 455336733e0494f4be524cede77fa8ab997f05e9ea4e062afb4c90b31d2fa91d
+      cp -R ${./plugins/natural-ok-unified-shadow} \
+        "$out/plugins/natural-ok-unified-shadow"
+      test "$(sha256sum "$out/plugins/natural-ok-unified-shadow/__init__.py" | cut -d' ' -f1)" = 9e3299c64984446a0c938369fdaa069d3258c2e3cf07737b2a23ad402f0df221
+      test "$(sha256sum "$out/plugins/natural-ok-unified-shadow/core/state.py" | cut -d' ' -f1)" = 455336733e0494f4be524cede77fa8ab997f05e9ea4e062afb4c90b31d2fa91d
+    '';
+
+  hermesPlugins = pkgs.runCommand "hermes-agent-plugins-0.19.0-w50-shadow" { } ''
+    cp -R ${w40HermesPlane}/plugins "$out"
+    chmod -R u+w "$out"
+    cp -R ${./plugins/context_engine/phase_checkpoint} "$out/phase_checkpoint"
+  '';
 
   hermes = inputs.hermes-agent.packages.${pkgs.system}.messaging.overrideAttrs (old: {
     postInstall = (old.postInstall or "") + ''
@@ -64,7 +97,8 @@ let
 
       for executable in hermes hermes-agent hermes-acp; do
         wrapProgram "$out/bin/$executable" \
-          --set PYTHONPATH "${honchoAi}/${pkgs.python312.sitePackages}"
+          --set PYTHONPATH "${w40HermesPlane}:${honchoAi}/${pkgs.python312.sitePackages}" \
+          --set HERMES_LAZY_INSTALL_TARGET ${lib.escapeShellArg hermesLazyInstallTarget}
       done
     '';
   });
@@ -187,12 +221,30 @@ let
 
   gatewayPath = "${agentBrowser}/bin:${pkgs.nodejs_24}/bin:%h/.nix-profile/bin:/run/current-system/sw/bin:/usr/local/bin:/usr/bin:/bin";
   healthGoogleEnvFile = config.sops.secrets."hermes-health-google-env".path;
+  # Hermes' Python environment is immutable under Nix. Redirect its pinned,
+  # allowlisted optional SDK installs to a durable append-only user directory
+  # instead of attempting ensurepip inside /nix/store.
+  hermesLazyInstallTarget = "${config.xdg.dataHome}/hermes/lazy-packages";
   hermesConfigPython = pkgs.python312.withPackages (ps: [ ps.pyyaml ]);
   gatewayPreflight = ./scripts/gateway_preflight.py;
   gatewayChannelsConfig = ./scripts/gateway_channels_config.py;
   researchConfig = ./scripts/research_config.py;
   phaseContextConfig = ./scripts/phase_context_config.py;
+  desktopNotificationConfig = ./scripts/desktop_notification_config.py;
   computerUseConfig = ./scripts/computer_use_config.py;
+  naturalOkShadowConfig = ./scripts/natural_ok_shadow_config.py;
+  naturalOkShadowPreflight = ./scripts/natural_ok_shadow_preflight.py;
+  naturalOkShadowStateRoot = "${config.xdg.stateHome}/hermes-natural-ok-shadow";
+  naturalOkShadowVersionFile = pkgs.writeText "hermes-w40-version" "0.19.0\n";
+  # Values belong in the existing SOPS-backed hermes-gateway-env. All five are
+  # mandatory together. Optional scope values use literal `null`; empty is invalid.
+  naturalOkShadowSecretNames = [
+    "HERMES_NATURAL_OK_OWNER_ACTOR_SHA256"
+    "HERMES_NATURAL_OK_SCOPE_CHAT_ID"
+    "HERMES_NATURAL_OK_SCOPE_THREAD_ID"
+    "HERMES_NATURAL_OK_SCOPE_GUILD_ID"
+    "HERMES_NATURAL_OK_SCOPE_PARENT_CHAT_ID"
+  ];
 
   gatewayChannels = {
     default = "1515982177454653582";
@@ -259,6 +311,25 @@ let
     profile = "default";
     tokenVariable = "DISCORD_BOT_TOKEN";
   };
+  naturalOkShadowGatewayRunner = pkgs.writeShellScript "hermes-default-w50-shadow-gateway" ''
+    set -eu
+    # Force all five names to be dereferenced without printing their values.
+    for variable in ${lib.concatStringsSep " " naturalOkShadowSecretNames}; do
+      test -n "''${!variable-}" || {
+        printf '%s\n' "W50 production-SHADOW: missing required environment name" >&2
+        exit 1
+      }
+    done
+    ${hermesConfigPython}/bin/python ${naturalOkShadowPreflight} \
+      --config "$HOME/.hermes/config.yaml" \
+      --state-root ${lib.escapeShellArg naturalOkShadowStateRoot} \
+      --version-file ${naturalOkShadowVersionFile} \
+      --baseline-root ${w40HermesPlane}/.w40-baseline \
+      --patched-root ${w40HermesPlane} \
+      --patch ${./patches/w40-composed-hermes.patch} \
+      --w50-patch ${./patches/w50-hermes-reply-batch-boundary.patch}
+    exec ${defaultGatewayRunner}
+  '';
   foodGatewayRunner = mkGatewayRunner {
     profile = "food";
     tokenVariable = "DISCORD_FOOD";
@@ -398,14 +469,27 @@ in
         ".hermes/skins/modus-operandi.yaml".text = modusOperandiSkin;
       };
 
-      home.activation.hermesResearchProvidersConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${researchConfig} "$HOME/.hermes/config.yaml"
+      home.activation.hermesLazyInstallTarget = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -d -m 0700 \
+          ${lib.escapeShellArg hermesLazyInstallTarget}
       '';
+
+      home.activation.hermesResearchProvidersConfig =
+        lib.hm.dag.entryAfter [ "hermesLazyInstallTarget" ]
+          ''
+            $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${researchConfig} "$HOME/.hermes/config.yaml"
+          '';
 
       home.activation.hermesPhaseContextConfig =
         lib.hm.dag.entryAfter [ "hermesResearchProvidersConfig" ]
           ''
             $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${phaseContextConfig} "$HOME/.hermes/config.yaml"
+          '';
+
+      home.activation.hermesDesktopNotificationConfig =
+        lib.hm.dag.entryAfter [ "hermesPhaseContextConfig" ]
+          ''
+            $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${desktopNotificationConfig} "$HOME/.hermes/config.yaml"
           '';
     }
 
@@ -428,9 +512,18 @@ in
         computerUseSyntheticTarget
       ];
 
-      home.activation.hermesComputerUseConfig = lib.hm.dag.entryAfter [ "hermesPhaseContextConfig" ] ''
-        $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${computerUseConfig} \
-          "$HOME/.hermes/config.yaml" ${computerUseReadonlyBroker}/bin/hermes-computer-use-readonly
+      home.activation.hermesComputerUseConfig =
+        lib.hm.dag.entryAfter [ "hermesDesktopNotificationConfig" ]
+          ''
+            $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${computerUseConfig} \
+              "$HOME/.hermes/config.yaml" ${computerUseReadonlyBroker}/bin/hermes-computer-use-readonly
+          '';
+
+      home.activation.hermesNaturalOkShadowConfig = lib.hm.dag.entryAfter [ "hermesComputerUseConfig" ] ''
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -d -m 0700 \
+          ${lib.escapeShellArg naturalOkShadowStateRoot}
+        $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${naturalOkShadowConfig} \
+          --enable "$HOME/.hermes/config.yaml"
       '';
 
       home.activation.hermesGatewayChannels =
@@ -438,6 +531,7 @@ in
           [
             "writeBoundary"
             "hermesComputerUseConfig"
+            "hermesNaturalOkShadowConfig"
           ]
           ''
             $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${gatewayChannelsConfig} ${lib.escapeShellArg (builtins.toJSON gatewayChannels)}
@@ -460,6 +554,9 @@ in
       systemd.user.services.hermes-gateway = {
         Unit = {
           Description = "Hermes Agent messaging gateway (Discord)";
+          # Deployment and restart are separate gates for W47. Home Manager may
+          # install the new unit, but must not restart the live gateway implicitly.
+          X-RestartIfChanged = false;
           After = [
             "network-online.target"
             "sops-nix.service"
@@ -470,14 +567,16 @@ in
         Service = {
           Environment = [
             "HERMES_HOME=%h/.hermes"
+            "HERMES_NATURAL_OK_STATE_ROOT=${naturalOkShadowStateRoot}"
+            "HERMES_NATURAL_OK_TIMEDATECTL=${pkgs.systemd}/bin/timedatectl"
             "DISCORD_ALLOWED_USERS=${discordUserId}"
             "DISCORD_REQUIRE_MENTION=false"
             "PATH=${gatewayPath}"
           ];
-          # The wrapper validates the default channel allowlist and removes all
-          # profile-specific Discord tokens before starting Hermes.
+          # The W47 wrapper performs the value-hidden exact-version/hash/config
+          # preflight before delegating to the existing default runner.
           EnvironmentFile = config.sops.secrets."hermes-gateway-env".path;
-          ExecStart = "${defaultGatewayRunner}";
+          ExecStart = "${naturalOkShadowGatewayRunner}";
           # Retries until the one-time `hermes model` (Codex auth) has populated
           # ~/.hermes (auth.json + config.yaml).
           Restart = "always";

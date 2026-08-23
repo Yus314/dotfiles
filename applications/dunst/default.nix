@@ -170,6 +170,19 @@ in
         icon_position = "right";
       };
 
+      zhermes-cli-completion = {
+        appname = "hermes-cli";
+        summary = "タスク完了";
+        script = "${playCompletionSound}";
+        background = colors.claude.completion.bg;
+        foreground = colors.claude.completion.fg;
+        frame_color = colors.claude.completion.frame;
+        highlight = colors.claude.completion.highlight;
+        timeout = 10;
+        default_icon = "emblem-checked";
+        icon_position = "right";
+      };
+
     };
   };
 }
