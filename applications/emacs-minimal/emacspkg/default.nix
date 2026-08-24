@@ -82,25 +82,6 @@ in
           src = ../../emacs/elisp/packages;
           packageRequires = [ epkgs.meow ];
         };
-        # The NUR expression currently passes an obsolete argument to
-        # lean4-mode, so package the pinned upstream release directly.
-        lean4Mode = epkgs.melpaBuild rec {
-          pname = "lean4-mode";
-          version = "1.1.2";
-          src = pkgs.fetchFromGitHub {
-            owner = "leanprover-community";
-            repo = "lean4-mode";
-            rev = version;
-            hash = "sha256-DLgdxd0m3SmJ9heJ/pe5k8bZCfvWdaKAF0BDYEkwlMQ=";
-          };
-          files = ''("*.el" "data")'';
-          packageRequires = with epkgs; [
-            compat
-            dash
-            lsp-mode
-            magit-section
-          ];
-        };
       in
       with epkgs;
       [
@@ -111,8 +92,6 @@ in
         modus-themes
         darkman
         auto-dark
-        lean4Mode
-        lsp-mode
         nix-ts-mode
         org-super-agenda
         lsp-mode

@@ -181,29 +181,6 @@ Waylandでペーストできるようにする設定
 #+begin_src emacs-lisp :tangle yes
   (keymap-global-set "C-q"  'scroll-down-command) ;元々M-vだったが、入力しにくいので、そっちをvterm-toggleにした
 #+end_src
-* Lean 4
-Lean本体はElanに任せ、プロジェクトの =lean-toolchain= に従う。
-#+begin_src emacs-lisp :tangle yes
-  (use-package lsp-mode
-    :commands (lsp lsp-deferred)
-    :custom
-    ;; The minimal profile does not use lenses, Company, or yasnippet.
-    (lsp-lens-enable nil)
-    (lsp-enable-snippet nil)
-    ;; :none disables Company auto-configuration; lsp-completion-mode still
-    ;; adds lsp-completion-at-point to completion-at-point-functions.
-    (lsp-completion-provider :none)
-    :config
-    ;; The current lsp-mode package keeps these UI functions in separate
-    ;; libraries without autoloads, while lsp-configure-buffer calls them.
-    (require 'lsp-lens)
-    (require 'lsp-modeline)
-    (require 'lsp-headerline)
-    (require 'lsp-diagnostics))
-
-  (use-package lean4-mode
-    :mode "\\.lean\\'")
-#+end_src
 * Provide
 #+begin_src emacs-lisp :tangle yes
   (provide 'init-core)
@@ -346,12 +323,24 @@ left unbound for the guarded selection-batch prefix; uppercase ~G~ remains
 
   (use-package lsp-mode
     :ensure nil
-    :defer t
+    :commands (lsp lsp-deferred)
     :custom
+    ;; The minimal profile does not use lenses, Company, or yasnippet.
+    (lsp-lens-enable nil)
     (lsp-enable-snippet nil)
+    ;; :none disables Company auto-configuration; lsp-completion-mode still
+    ;; adds lsp-completion-at-point to completion-at-point-functions.
+    (lsp-completion-provider :none)
     ;; Do not let a future transitive Flycheck dependency silently change the
     ;; diagnostics UI selected by lsp-mode.
-    (lsp-diagnostics-provider :flymake))
+    (lsp-diagnostics-provider :flymake)
+    :config
+    ;; The current lsp-mode package keeps these UI functions in separate
+    ;; libraries without autoloads, while lsp-configure-buffer calls them.
+    (require 'lsp-lens)
+    (require 'lsp-modeline)
+    (require 'lsp-headerline)
+    (require 'lsp-diagnostics))
 
   ;; Lean's language server sends this request even though lsp-mode advertises
   ;; that inlay-hint refresh is unsupported.  Suppress only that known warning;
@@ -370,7 +359,12 @@ left unbound for the guarded selection-batch prefix; uppercase ~G~ remains
   (use-package lean4-mode
     :ensure nil
     :mode "\\.lean\\'"
-    :hook (lean4-mode . lsp-deferred))
+    :config
+    ;; lean4-mode 1.1.2 defaults to synchronous `lsp'.  Replace that default
+    ;; only after the package defines its hook, avoiding load-order-dependent
+    ;; hook initialization while preserving unrelated user hook functions.
+    (remove-hook 'lean4-mode-hook #'lsp)
+    (add-hook 'lean4-mode-hook #'lsp-deferred))
 #+end_src
 * Provide
 #+begin_src emacs-lisp :tangle yes

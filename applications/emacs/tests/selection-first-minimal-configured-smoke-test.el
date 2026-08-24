@@ -2,6 +2,14 @@
 
 (require 'ert)
 
+(ert-deftest selection-first-minimal-lean4-uses-deferred-lsp-startup ()
+  (should (locate-library "lsp-mode"))
+  (should (locate-library "lean4-mode"))
+  (should (require 'lsp-mode nil t))
+  (should (require 'lean4-mode nil t))
+  (should (memq #'lsp-deferred lean4-mode-hook))
+  (should-not (memq #'lsp lean4-mode-hook)))
+
 (ert-deftest selection-first-minimal-native-package-closure-is-loaded ()
   (dolist (primitive '(set-window-extra-cursors
                        window-extra-cursors
