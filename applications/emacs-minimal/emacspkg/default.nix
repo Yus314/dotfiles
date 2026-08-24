@@ -20,6 +20,18 @@ let
     assert pkgs.lib.assertMsg (builtins.readFile ./emacs-config.org == allOrgContent)
       "emacs-minimal/emacspkg/emacs-config.org is stale; run applications/emacs/generate-package-config.py --profile minimal";
     ./emacs-config.org;
+
+  orgVersion = "9.8.7";
+  orgElpaArchive = pkgs.fetchurl {
+    url = "https://elpa.gnu.org/packages/org-${orgVersion}.tar.lz";
+    hash = "sha256-Gl0e+jT/K8EQ1iY6pKhtX+VmaN+vwnCCM39ZTQ6BUew=";
+    # GNU ELPA serves .tar.lz files with Content-Encoding: x-lzip. Preserve
+    # the archive bytes so the explicit lzip step below can unpack them.
+    curlOptsList = [ "--raw" ];
+  };
+  orgElpaTar = pkgs.runCommand "org-${orgVersion}.tar" { nativeBuildInputs = [ pkgs.lzip ]; } ''
+    lzip -dc ${orgElpaArchive} > "$out"
+  '';
 in
 {
   emacs-unstable = pkgs.emacsWithPackagesFromUsePackage {
@@ -31,6 +43,14 @@ in
       final: prev:
       prev
       // {
+        # Keep the qualified package set reproducible after GNU ELPA moves a
+        # superseded Org release from .tar to its compressed .tar.lz archive.
+        org =
+          assert prev.org.version == orgVersion;
+          prev.org.overrideAttrs (_: {
+            src = orgElpaTar;
+          });
+
         # The generated nixpkgs expression for lean4-mode 1.1.2 currently has
         # stale dependency arguments.  Build the released package with its
         # actual package metadata until nixpkgs catches up.
