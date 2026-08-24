@@ -20,6 +20,21 @@
       });
     };
 
+  # Anki 26.08 still ships its macOS helper wheel as version 0.1.1.  Nixpkgs
+  # inherits Anki's release version for the helper derivation, which makes the
+  # Python metadata check reject an otherwise valid wheel on Darwin.
+  anki-mac-helper-version-fix =
+    final: prev:
+    prev.lib.optionalAttrs prev.stdenv.hostPlatform.isDarwin {
+      pythonPackagesExtensions = (prev.pythonPackagesExtensions or [ ]) ++ [
+        (_pythonFinal: pythonPrev: {
+          anki-mac-helper = pythonPrev.anki-mac-helper.overridePythonAttrs (_: {
+            version = "0.1.1";
+          });
+        })
+      ];
+    };
+
   kakoune-updated = final: prev: {
     kakoune-unwrapped = prev.kakoune-unwrapped.overrideAttrs (oldAttrs: {
       version = "unstable-2026-05-07";
