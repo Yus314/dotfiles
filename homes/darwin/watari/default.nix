@@ -17,6 +17,7 @@ in
     imports = [
       ../../../applications/hermes-agent
       ../../../applications/hermes-session-archive
+      ../../../applications/omniwm
       ../../../applications/ssh
     ];
     # Goku remains enabled by the shared Darwin profile for other hosts;
@@ -24,4 +25,10 @@ in
     programs.goku.enable = lib.mkForce false;
     programs.man.enable = false;
   };
+
+  # OmniWM refuses to start while yabai is resident.  Keep both the window
+  # manager and its now-obsolete hotkey daemon disabled only on watari during
+  # the OmniWM trial.
+  services.yabai.enable = lib.mkForce false;
+  services.skhd.enable = lib.mkForce false;
 }

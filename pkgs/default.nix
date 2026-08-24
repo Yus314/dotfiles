@@ -8,6 +8,7 @@ in
   #fcitx5-cskk-qt = self.fcitx-cskk-override { enableQt = true; };
   adb-mcp = super.callPackage ./adb-mcp { };
   nono = super.callPackage ./nono { nono = super.nono; };
+  omniwm = super.callPackage ./omniwm { };
   tf-wrapper = super.callPackage ./tf-wrapper { };
   #  nyxt-4 = super.callPackage ./nyxt { };
   khalorg = super.callPackage ./khalorg { };
