@@ -1,0 +1,60 @@
+{
+  "aggregate_sha256": "d0e907589faa68a06018265c1aa5b19e034dff23d32d75ed710d3d749761544a",
+  "bundle_version": "1.0.0-candidate.1",
+  "content_digests": {
+    "SOUL.md": "9c8e5e376247be337b4ba687884e3544583f2d2c87e2f31f3dc8f8fc825d8f66",
+    "behavior-fixture.json": "5dcb2cd40a39fcd3a865adde72716ddb19501de19f434c05375392b2fb601244",
+    "config-fragment.json": "826daf000d09bfe2fba9df02186d03ba250e5a4dc6890a872f4a66aae4fb81b2",
+    "contract.md": "a82469d64c216219dcbb8729fe83b187d49f776978f74c7868fabd4b84ffbd7a",
+    "default.nix": "eaf58c9a950e8237c8b9e34d47d861b35c0c1afb07221220b4e283eed174507a",
+    "overlays/lawliet.json": "c8b12b5ae8cc40158e6bf76b01c7279d4d7da33baac3cb6b8ebffbae181b0f23",
+    "overlays/watari.json": "195989fbd69ede78f381b300ead9dbbc2e556170579ac27a5f5993d75a9f866c",
+    "runbooks/disposable-honcho-and-watari-canary.md": "9345a1e4f75b0169dfae174b5dc5ab396131930bd5105e439e385cbbd8a4fc34",
+    "scripts/build_candidate.py": "4f95c4d5f66d6c016434e33eba02476741c603bc32f55adf7af025aa4d3a5b14",
+    "scripts/drift_check.py": "41e457eb99102335824be34f51d5882a56ae61ddf302b1fe37ae2e2dc5fb2365",
+    "scripts/refresh_manifest.py": "ee1787fbeb07c25919f411aa41da5a65a3cc2065c280b07d9f6bb2163f5b83c0",
+    "skills/cross-machine-study-environments/SKILL.md": "ef2c09915557a861ddbbbfd9ad13078a76e174d41497c401ce3fef18890addb5",
+    "skills/cross-machine-study-environments/references/git-artifact-agent-handoff.md": "bf1048503574696ab6801034a270e778b9b552c4a04f23b12abd92d18307b3d9",
+    "skills/cross-machine-study-environments/references/profile-parity-and-control-plane-handoff.md": "3b2e442e5046fe8b81caa00fcf16921a2fab80aec82a3376ce611c260f8d3579",
+    "skills/grounded-math-document-study/SKILL.md": "2f2cf1d13ba81f812e22c470af450c05a9836719e56b91280a3089e75c0d2e53",
+    "skills/grounded-math-document-study/references/atomic-evidence-completion.md": "227888eaf32c1029887ea64eed50adf1d90cf6c0a8e141d666ed00c1f751a84e",
+    "skills/grounded-math-document-study/references/native-pdf-dual-representation.md": "32b646c5328d1bd98cfed58cf68191cc736770098853d1ab65754a4a353a2b71",
+    "skills/grounded-math-document-study/references/research-evidence-and-source-drift.md": "8943ef96757a03fde730cee7db5205351d124f8a9931f57fd817d4ddbd6ffa52",
+    "skills/grounded-math-document-study/references/typed-mathematical-query-normalization.md": "01d8b063fec96903a0479190fab9bf6f97726699a3969067d8203581c53d1b21",
+    "skills/grounded-math-document-study/references/verified-structure-graphs.md": "0bf520518fb3980c0d8728cf9cc2ae995ea0f1eb85a681ca7a2b4c53c116b9dd",
+    "skills/math-book-study-workflow/SKILL.md": "2429840a4f961b6201aee65720d555d57d4ac4e95d63340fb034ad04f5efd36f",
+    "skills/math-book-study-workflow/references/hermes-math-profile.md": "05849c357a3bd850250092dfc86317d62bcf8329727b200b341e6eae1941bde6",
+    "skills/math-book-study-workflow/references/lean-assisted-proof-exercises.md": "32b7f7214c9ab812d8448db1b1325d1b8e780126c8dc245f92f75569c52b7920",
+    "skills/math-book-study-workflow/references/pdf-grounded-study-evaluation.md": "be9ba23a2fe161c701ce63b1a40a8042efffdcdf2f16b7f92b7d25c199d890ea"
+  },
+  "expected_model": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex"
+  },
+  "honcho": {
+    "ai_peers": [
+      "math-lawliet",
+      "math-watari"
+    ],
+    "user_peer": "kaki-math",
+    "workspace": "hermes-math"
+  },
+  "schema_version": 1,
+  "skill_allowlist": [
+    {
+      "name": "math-book-study-workflow",
+      "rationale": "Core proof-book registration, Socratic hint ladder, and small durable learning-delta logs.",
+      "source": "skills/math-book-study-workflow"
+    },
+    {
+      "name": "grounded-math-document-study",
+      "rationale": "Exact PDF/source identity, formula/page evidence, and abstention for source-grounded mathematics.",
+      "source": "skills/grounded-math-document-study"
+    },
+    {
+      "name": "cross-machine-study-environments",
+      "rationale": "Git/one-way-artifact authority and host-local live-state rules needed for Lawliet/Watari handoff.",
+      "source": "skills/cross-machine-study-environments"
+    }
+  ]
+}

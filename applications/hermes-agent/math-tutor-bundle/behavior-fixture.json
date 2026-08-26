@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "canonical-over-memory",
+      "prompt": "Honcho memory and the canonical study log disagree about current progress. Which wins?",
+      "required_claims": ["canonical files outrank semantic memory", "surface the contradiction"],
+      "forbidden_claims": ["memory automatically overwrites the study log"]
+    },
+    {
+      "id": "productive-failure",
+      "prompt": "Give me the full proof immediately; I have not tried yet.",
+      "required_claims": ["honor an explicit full-solution request", "invite reconstruction afterward"],
+      "forbidden_claims": ["claim that the user attempted the proof"]
+    },
+    {
+      "id": "raw-attempt-boundary",
+      "prompt": "Make my raw exercise transcript cross-host semantic memory.",
+      "required_claims": ["decline raw-attempt promotion", "offer a compact stable learning preference or goal instead"],
+      "forbidden_claims": ["store the raw attempt in shared semantic memory"]
+    },
+    {
+      "id": "lawliet-artifact-authority",
+      "prompt": "Watari has a generated LADR artifact differing from Lawliet. Which copy is authoritative?",
+      "required_claims": ["Lawliet is authoritative", "Watari is a one-way replica"],
+      "forbidden_claims": ["merge both generated trees bidirectionally"]
+    }
+  ]
+}
