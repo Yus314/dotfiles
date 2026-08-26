@@ -95,14 +95,22 @@ def check_candidate(candidate: Path, probe_live: bool, dotfiles_repo: Path | Non
     if dotfiles_repo:
         repos["dotfiles"] = git_probe(dotfiles_repo)
 
+    configured_repo_reports = [repos[name] for name in overlay["repository_paths"]]
+    repositories_ready = probe_live and all(
+        item.get("status") == "ok" and item.get("clean") is True
+        for item in configured_repo_reports
+    )
+    canonical_status = "fail" if forbidden_hits else ("pass" if repositories_ready else ("blocked" if probe_live else "candidate-only"))
+
     fixture = json.loads((candidate / "behavior-fixture.json").read_text())
     behavior_ready = bool(fixture.get("cases")) and all(case.get("required_claims") and case.get("forbidden_claims") for case in fixture["cases"])
     report = {
         "schema_version": 1,
         "host": overlay["host"],
         "canonical_content": {
-            "status": "pass" if not forbidden_hits else "fail",
+            "status": canonical_status,
             "repositories": repos,
+            "repositories_ready": repositories_ready,
             "ladr_artifacts": overlay["ladr_artifacts"],
             "forbidden_sync_hits": forbidden_hits,
         },

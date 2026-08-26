@@ -1,5 +1,5 @@
 {
-  "aggregate_sha256": "d0e907589faa68a06018265c1aa5b19e034dff23d32d75ed710d3d749761544a",
+  "aggregate_sha256": "b681014822b4b4dceccfcad6d2f6cef5dd3eb0c18bbc518602e651265e5f6d30",
   "bundle_version": "1.0.0-candidate.1",
   "content_digests": {
     "SOUL.md": "9c8e5e376247be337b4ba687884e3544583f2d2c87e2f31f3dc8f8fc825d8f66",
@@ -11,7 +11,7 @@
     "overlays/watari.json": "195989fbd69ede78f381b300ead9dbbc2e556170579ac27a5f5993d75a9f866c",
     "runbooks/disposable-honcho-and-watari-canary.md": "9345a1e4f75b0169dfae174b5dc5ab396131930bd5105e439e385cbbd8a4fc34",
     "scripts/build_candidate.py": "4f95c4d5f66d6c016434e33eba02476741c603bc32f55adf7af025aa4d3a5b14",
-    "scripts/drift_check.py": "41e457eb99102335824be34f51d5882a56ae61ddf302b1fe37ae2e2dc5fb2365",
+    "scripts/drift_check.py": "b7d9cc02ea098cb4ddac6091c28c79f686027054bd6cea3920e1a2a36fbd300b",
     "scripts/refresh_manifest.py": "ee1787fbeb07c25919f411aa41da5a65a3cc2065c280b07d9f6bb2163f5b83c0",
     "skills/cross-machine-study-environments/SKILL.md": "ef2c09915557a861ddbbbfd9ad13078a76e174d41497c401ce3fef18890addb5",
     "skills/cross-machine-study-environments/references/git-artifact-agent-handoff.md": "bf1048503574696ab6801034a270e778b9b552c4a04f23b12abd92d18307b3d9",

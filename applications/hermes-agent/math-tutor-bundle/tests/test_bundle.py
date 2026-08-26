@@ -50,7 +50,7 @@ class BundleTests(unittest.TestCase):
                 checked = run(str(SCRIPTS / "drift_check.py"), "--candidate", str(first), env=env)
                 self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)
                 report = json.loads(checked.stdout)
-                self.assertEqual(report["canonical_content"]["status"], "pass")
+                self.assertEqual(report["canonical_content"]["status"], "candidate-only")
                 self.assertEqual(report["static_policy"]["status"], "pass")
                 self.assertEqual(report["semantic_memory_readiness"]["status"], "blocked")
                 self.assertEqual(report["semantic_memory_readiness"]["HONCHO_API_KEY"], "missing")
