@@ -44,7 +44,8 @@ in
       alt - b : ${activateApplication} app.zen-browser.zen
 
       # Match Niri's launcher and close-window actions.
-      ctrl + shift + alt - return : /usr/bin/osascript -e 'tell application "System Events" to keystroke " " using command down'
+      # Wait for the triggering modifiers to be released before sending Command-Space.
+      ctrl + shift + alt - return : /bin/sleep 0.2; /usr/bin/osascript -e 'tell application "System Events" to keystroke " " using command down'
       alt - q : /usr/bin/osascript -e 'tell application "System Events" to tell first application process whose frontmost is true to click button 1 of window 1'
     '';
   };
