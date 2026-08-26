@@ -48,6 +48,7 @@ in
     ../applications/khalorg
     ../applications/sdcv
     ../applications/kasane
+    ../applications/lean
   ];
   services.gpg-agent = {
     enable = true;

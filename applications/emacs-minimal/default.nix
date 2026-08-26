@@ -92,9 +92,6 @@ in
   home = {
     packages = with pkgs; [
       texliveForOrg
-      # Elan follows each project's lean-toolchain file, including mathlib
-      # projects such as Mathematics in Lean.
-      elan
       nil
       nixfmt
     ];

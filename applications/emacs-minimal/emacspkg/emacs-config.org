@@ -70,7 +70,7 @@ unwind-protect により、途中でエラーが発生しても確実に復元�
 #+begin_src emacs-lisp :tangle yes
     (when (memq window-system '(mac ns x))
       (require 'exec-path-from-shell)
-      (dolist (var '("GNUPGHOME" "NIX_PATH"))
+      (dolist (var '("GNUPGHOME" "NIX_PATH" "ELAN_HOME"))
       (add-to-list 'exec-path-from-shell-variables var))
       (exec-path-from-shell-initialize))
 #+end_src
