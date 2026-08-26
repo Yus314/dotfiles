@@ -36,7 +36,12 @@ def path_forbidden(rel: str, patterns: list[str]) -> bool:
     return any(fnmatch.fnmatch(part.lower(), pattern.lower()) for part in parts for pattern in patterns)
 
 
-def check_candidate(candidate: Path, probe_live: bool, dotfiles_repo: Path | None) -> tuple[dict, bool]:
+def check_candidate(
+    candidate: Path,
+    probe_live: bool,
+    dotfiles_repo: Path | None,
+    topology_report: Path | None = None,
+) -> tuple[dict, bool]:
     errors: list[str] = []
     metadata = json.loads((candidate / "candidate-metadata.json").read_text())
     sync = json.loads((candidate / "sync-inputs.json").read_text())
@@ -102,6 +107,28 @@ def check_candidate(candidate: Path, probe_live: bool, dotfiles_repo: Path | Non
     )
     canonical_status = "fail" if forbidden_hits else ("pass" if repositories_ready else ("blocked" if probe_live else "candidate-only"))
 
+    topology_evidence = None
+    external_test = "prepared-not-run"
+    semantic_topology_ready = topology_ok
+    if topology_report:
+        topology_evidence = json.loads(topology_report.read_text(encoding="utf-8"))
+        observer_visible = topology_evidence.get("authoritative_checks", {}).get(
+            "watari_observer_sees_lawliet_user_conclusion"
+        )
+        cleaned = topology_evidence.get("cleanup", {}).get("workspace_deleted") is True
+        if observer_visible is True and cleaned:
+            external_test = "pass-cleaned"
+        elif observer_visible is False and cleaned:
+            external_test = "blocked-observer-scope-not-shared-cleaned"
+            semantic_topology_ready = False
+        else:
+            external_test = "invalid-or-cleanup-unverified"
+            semantic_topology_ready = False
+
+    credential_present = bool(os.getenv("HONCHO_API_KEY")) or (
+        topology_evidence is not None
+        and topology_evidence.get("secret_readiness", {}).get("HONCHO_API_KEY") == "present"
+    )
     fixture = json.loads((candidate / "behavior-fixture.json").read_text())
     behavior_ready = bool(fixture.get("cases")) and all(case.get("required_claims") and case.get("forbidden_claims") for case in fixture["cases"])
     report = {
@@ -124,13 +151,19 @@ def check_candidate(candidate: Path, probe_live: bool, dotfiles_repo: Path | Non
             "undeclared_overlay_fields": undeclared_overlay,
         },
         "semantic_memory_readiness": {
-            "status": "ready" if topology_ok and os.getenv("HONCHO_API_KEY") else "blocked",
+            "status": "ready" if semantic_topology_ready and credential_present else "blocked",
             "topology_match": topology_ok,
+            "observer_scope_cross_host_visible": (
+                topology_evidence.get("authoritative_checks", {}).get(
+                    "watari_observer_sees_lawliet_user_conclusion"
+                )
+                if topology_evidence is not None else None
+            ),
             "workspace_user_peer_fingerprint": hmeta["user_peer_fingerprint"],
             "ai_peer_fingerprint": hmeta["ai_peer_fingerprint"],
             "distinct_ai_peers": hmeta["expected_distinct_ai_peers"],
-            "HONCHO_API_KEY": "present" if os.getenv("HONCHO_API_KEY") else "missing",
-            "external_test": "prepared-not-run",
+            "HONCHO_API_KEY": "present" if credential_present else "missing",
+            "external_test": external_test,
         },
         "behavior_test": {
             "status": "prepared-not-run" if behavior_ready else "fail",
@@ -147,9 +180,15 @@ def main() -> int:
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--probe-live", action="store_true")
     parser.add_argument("--dotfiles-repo", type=Path)
+    parser.add_argument("--topology-report", type=Path)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    report, ok = check_candidate(args.candidate.resolve(), args.probe_live, args.dotfiles_repo.resolve() if args.dotfiles_repo else None)
+    report, ok = check_candidate(
+        args.candidate.resolve(),
+        args.probe_live,
+        args.dotfiles_repo.resolve() if args.dotfiles_repo else None,
+        args.topology_report.resolve() if args.topology_report else None,
+    )
     text = json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

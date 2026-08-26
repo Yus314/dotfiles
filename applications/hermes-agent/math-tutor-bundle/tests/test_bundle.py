@@ -62,6 +62,35 @@ class BundleTests(unittest.TestCase):
             self.assertEqual(differing, ["candidate-metadata.json", "config.fragment.json", "honcho.json"])
             self.assertEqual(sorted(left), sorted(right))
 
+    def test_disposable_topology_failure_blocks_semantic_readiness(self) -> None:
+        with tempfile.TemporaryDirectory() as name:
+            tmp = Path(name)
+            candidate = tmp / "lawliet"
+            built = run(str(SCRIPTS / "build_candidate.py"), "--host", "lawliet", "--output", str(candidate))
+            self.assertEqual(built.returncode, 0, built.stdout + built.stderr)
+            topology = tmp / "topology.json"
+            topology.write_text(json.dumps({
+                "authoritative_checks": {
+                    "watari_observer_sees_lawliet_user_conclusion": False,
+                },
+                "cleanup": {"workspace_deleted": True},
+                "secret_readiness": {"HONCHO_API_KEY": "present"},
+            }))
+            checked = run(
+                str(SCRIPTS / "drift_check.py"),
+                "--candidate", str(candidate),
+                "--topology-report", str(topology),
+            )
+            self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)
+            readiness = json.loads(checked.stdout)["semantic_memory_readiness"]
+            self.assertEqual(readiness["status"], "blocked")
+            self.assertEqual(readiness["HONCHO_API_KEY"], "present")
+            self.assertFalse(readiness["observer_scope_cross_host_visible"])
+            self.assertEqual(
+                readiness["external_test"],
+                "blocked-observer-scope-not-shared-cleaned",
+            )
+
     def test_allowlist_is_exact_and_minimal(self) -> None:
         manifest = json.loads((ROOT / "manifest.json").read_text())
         self.assertEqual(

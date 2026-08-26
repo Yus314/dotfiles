@@ -1,6 +1,21 @@
-# Prepared-only Honcho topology test and Watari canary
+# Disposable Honcho topology result and Watari canary
 
-STATUS: PREPARED; DO NOT RUN FROM THIS CANDIDATE TASK.
+STATUS: DISPOSABLE TEST EXECUTED; SEMANTIC PARITY BLOCKED; WATARI CANARY NOT APPROVED.
+
+The approved disposable test was executed on 2026-08-26 with benign random
+identifiers only. Its authoritative report is
+`artifacts/disposable-honcho-topology-report.json` in the Kanban workspace.
+All five conclusions were deleted and the disposable workspace was deleted.
+No canonical file digest changed.
+
+The test found an important topology constraint: a conclusion created by the
+Lawliet AI observer about the shared user peer is not listed in the Watari AI
+observer's conclusion scope. A user-self conclusion is shared, and the two AI
+self-scopes remain correctly distinct. Therefore the candidate's default
+`ai.observeOthers = true` behavior does not provide cross-host inferred-memory
+parity merely by sharing the user-peer ID. Do not activate either host until a
+separate design choice is approved (user-self conclusion scope, a shared AI
+observer, or an explicit reviewed promotion/replication route).
 
 ## Preconditions
 

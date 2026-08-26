@@ -18,7 +18,8 @@ Lawliet and Watari provide equivalent mathematics tutoring policy and user-cente
 - Lawliet AI peer: `math-lawliet`
 - Watari AI peer: `math-watari`
 - The user peer is intentionally shared. The AI peer is intentionally host-specific for provenance and independent rollback.
-- Topology is first proven with disposable workspace/peer names. Writing a durable smoke fact to the real workspace requires separate approval for the exact fact.
+- The disposable test proved that user-self conclusions are shared and AI self-scopes are distinct, but a Lawliet-AI conclusion about the user is not visible in the Watari-AI observer scope. Therefore these identifiers alone do not yet deliver inferred semantic continuity under the default `ai.observeOthers = true` behavior.
+- Activation is blocked until a separately approved design selects user-self conclusion scope, a shared AI observer, or an explicit reviewed promotion/replication route. Writing a durable smoke fact to the real workspace still requires separate approval for the exact fact.
 
 ## Included static inputs
 
@@ -38,11 +39,12 @@ Changing future routing does not migrate, delete, or rewrite prior Honcho data. 
 
 ## Rollout gates
 
-1. Candidate review and exact allowlist approval.
-2. Disposable Honcho topology test.
-3. Separate approval to activate Watari.
-4. Watari policy/behavior/canonical lookup canary and independent rollback proof.
-5. Separate content-specific approval for one real-workspace durable smoke fact.
-6. Lawliet activation only after Watari passes and receives a separate activation approval.
+1. Candidate review and exact allowlist approval (complete).
+2. Disposable Honcho topology test and cleanup (executed; observer-scope parity failed, so activation remains blocked).
+3. Separate design approval resolving cross-host user-conclusion visibility.
+4. Separate approval to activate Watari.
+5. Watari policy/behavior/canonical lookup canary and independent rollback proof.
+6. Separate content-specific approval for one real-workspace durable smoke fact.
+7. Lawliet activation only after Watari passes and receives a separate activation approval.
 
 No file in this bundle activates a profile, restarts a gateway, changes cron, installs credentials, or writes Honcho memory.
