@@ -10,4 +10,5 @@
     package = pkgs.aquaskk;
   };
   system.defaults.NSGlobalDomain.AppleInterfaceStyleSwitchesAutomatically = true;
+  system.defaults.dock.autohide = true;
 }

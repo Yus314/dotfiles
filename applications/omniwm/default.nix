@@ -10,6 +10,13 @@ in
 {
   home.packages = [ pkgs.omniwm ];
 
+  # OmniWM's settings UI writes this file imperatively. Keep the qualified
+  # watari configuration reproducible and make the Nix source authoritative.
+  xdg.configFile."omniwm/settings.toml" = {
+    source = ./settings.toml;
+    force = true;
+  };
+
   home.activation.omniwmStateDirectory = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     $DRY_RUN_CMD mkdir -p ${lib.escapeShellArg stateDir}
   '';

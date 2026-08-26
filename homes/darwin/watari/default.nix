@@ -11,6 +11,7 @@ in
   imports = [
     ../common.nix
     ../desktop.nix
+    ./skhd.nix
     ./syncthing.nix
   ];
   home-manager.users.${username} = {
@@ -26,9 +27,8 @@ in
     programs.man.enable = false;
   };
 
-  # OmniWM refuses to start while yabai is resident.  Keep both the window
-  # manager and its now-obsolete hotkey daemon disabled only on watari during
-  # the OmniWM trial.
+  # OmniWM refuses to start while yabai is resident. Keep the old window
+  # manager disabled; the host-specific skhd config only fills OmniWM's
+  # application-launch and close-window gaps.
   services.yabai.enable = lib.mkForce false;
-  services.skhd.enable = lib.mkForce false;
 }
