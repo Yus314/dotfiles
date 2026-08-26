@@ -61,7 +61,10 @@
     ))
 
     # --- GUI Applications ---
-    anki # Build against the same Nixpkgs Qt stack as the fcitx5 input method.
+    # The native QtWebEngine 6.11 build is currently broken on Darwin
+    # (nixpkgs#514179).  The official macOS bundle avoids that toolchain while
+    # Linux keeps the source build so it shares Qt with the fcitx5 input method.
+    (if stdenv.hostPlatform.isDarwin then anki-bin else anki)
     # mpv # temporarily disabled: jeepney test fails on Darwin (D-Bus unavailable in sandbox)
     rquickshare
   ];
