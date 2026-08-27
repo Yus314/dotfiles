@@ -409,6 +409,35 @@ class ProfileRegistryCheckTests(unittest.TestCase):
             any("blocked summary_policy requires" in error for error in self.validate())
         )
 
+    def test_validates_closed_parity_candidate_contract(self) -> None:
+        profile = self.registry["profiles"]["default"]
+        profile["parity_candidate"] = {
+            "canonical_root": "~/org",
+            "summary_path": None,
+            "skill_packages": ["one", "two", "three"],
+            "memory_workspace": "candidate-memory",
+            "semantic_memory_readiness": "approved-presence-gated",
+            "continuity_policy": {
+                "shared_durable_scope": "user-self",
+                "observer_inference_scope": "host-local",
+                "ai_peers": ["math-lawliet", "math-watari"],
+            },
+            "runtime_identity": {
+                "hermes_version": "1.0.0",
+                "source_revision": "reviewed-revision",
+                "enabled_plugins": [],
+            },
+        }
+        self.write_registry()
+        self.assertEqual(self.validate(), [])
+
+        profile["parity_candidate"]["semantic_memory_readiness"] = "ready"
+        profile["parity_candidate"]["skill_packages"].append("four")
+        self.write_registry()
+        errors = self.validate()
+        self.assertTrue(any("exactly three" in error for error in errors))
+        self.assertTrue(any("approved-presence-gated" in error for error in errors))
+
     def test_rejects_old_registry_schema(self) -> None:
         self.registry["schema_version"] = 1
         self.write_registry()

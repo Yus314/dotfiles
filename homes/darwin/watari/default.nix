@@ -25,6 +25,7 @@ in
     # watari uses Kanata and must not generate a competing Karabiner mapping.
     programs.goku.enable = lib.mkForce false;
     programs.man.enable = false;
+    home.sessionPath = [ "$HOME/.local/bin" ];
   };
 
   # OmniWM refuses to start while yabai is resident. Keep the old window

@@ -457,6 +457,16 @@ in
 
   config = lib.mkMerge [
     {
+      # The math profile reads its own .env through Hermes' profile-aware
+      # HERMES_HOME resolution. sops-nix decrypts at activation time; neither
+      # the value nor a derived fingerprint enters Nix evaluation or the store.
+      sops.secrets."hermes-math-env" = {
+        sopsFile = ./secrets.yaml;
+        key = "math_honcho_env";
+        path = "${config.home.homeDirectory}/.hermes/profiles/math/.env";
+        mode = "0400";
+      };
+
       home.packages = [
         hermes
         pkgs.nodejs_24
