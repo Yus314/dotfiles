@@ -1,50 +1,93 @@
-# Math tutor parity contract (schema 1)
+# Math tutor parity candidate contract (schema 2)
 
-## Goal
+## Scope and non-claim
 
-Lawliet and Watari provide equivalent mathematics tutoring policy and user-centered semantic continuity without synchronizing mutable Hermes state. Parity means matching canonical content and static policy plus an explicitly tested Honcho identity topology; it does not mean equal session, message, cache, or installed-skill counts.
+This directory builds review-only Lawliet and Watari math-profile candidates. It does not activate a profile, switch a Nix generation, restart/create a gateway, install credentials, write Honcho memory, or claim behavioral parity from static files. A fresh-session model canary and qualified manual mathematical review remain separate approval gates.
 
-## Authorities
+Parity means the same frozen synthetic learner state stays in the same permitted hint band and follows the same evidence/privacy rules. It does not mean equal prose, session/message/cache counts, built-in skill totals, or copied host state.
 
-1. `study_log` and Lean source are Git-authoritative. Each study session follows fetch/fast-forward, one active writer for the scoped work, reviewed commit, and push.
-2. Lawliet is the sole authority for generated LADR artifacts under the configured artifact root. Watari receives the existing one-way replica or regenerates only where a separate source explicitly permits it; it is never promoted to a second writer by this bundle.
-3. This directory in the dotfiles repository is authoritative for `SOUL.md`, the allowlisted skill packages, non-secret profile fragments, host overlays, and bundle digests.
-4. Canonical files and this static tutor policy outrank Honcho conclusions, representations, and inferred semantic memory. A conflict is surfaced and corrected explicitly; semantic memory never rewrites canonical files automatically.
+## F1 — portable policy and exact approved skill plane
 
-## Honcho topology
+- `SOUL.md` is host-neutral and uses `~/study_log/math`; effective candidate policy must contain neither `/home/kaki` nor `/Users/kaki`.
+- R1–R12 are explicit invariants in SOUL. Detailed procedure remains in three complete packages:
+  1. `math-book-study-workflow`
+  2. `grounded-math-document-study`
+  3. `cross-machine-study-environments`
+- `refresh_manifest.py` hashes every package file into `package_sha256`. Candidate drift checks fail closed on an extra/missing package, any package-byte change, directory/frontmatter mismatch, normalized slash/Discord command collision, probable secret material, or forbidden live state.
+- This bundle-local, digest-pinned `skills/study` tree is the single approved parity supply path. Built-ins and preserved unmanaged roots are outside the explicit parity claim and must not shadow/collide with the three names.
 
-- Workspace: `hermes-math`
-- Shared user peer: `kaki-math`
-- Lawliet AI peer: `math-lawliet`
-- Watari AI peer: `math-watari`
-- The user peer is intentionally shared. The AI peer is intentionally host-specific for provenance and independent rollback.
-- The disposable test proved that user-self conclusions are shared and AI self-scopes are distinct, but a Lawliet-AI conclusion about the user is not visible in the Watari-AI observer scope. Therefore these identifiers alone do not yet deliver inferred semantic continuity under the default `ai.observeOthers = true` behavior.
-- Activation is blocked until a separately approved design selects user-self conclusion scope, a shared AI observer, or an explicit reviewed promotion/replication route. Writing a durable smoke fact to the real workspace still requires separate approval for the exact fact.
+## F2 — registry, runtime, plugin, and drift identity
 
-## Included static inputs
+- `profile-registry.json.profiles.math.parity_candidate` is the declarative candidate contract for role-adjacent identity, canonical root, summary boundary, exact skill packages, candidate Honcho workspace, presence-gated semantic readiness, continuity scope, Hermes revision, and enabled math-profile plugins.
 
-- `SOUL.md`
-- `config-fragment.json`
-- `skills/<allowlisted-package>/**`
-- exactly one declared host overlay
-- generated `honcho.json`, `candidate-metadata.json`, and `sync-inputs.json`
+`runtime-identity.json` records the reviewed Hermes v0.19.0 composition and the sorted enabled plugin set. The math candidate enables no profile plugin; packaged default-only plugins, including natural-OK shadow behavior, are not attributed to math. `drift_check.py` reports independent dimensions for:
 
-## Exclusions and forbidden synchronization inputs
+- canonical repository readiness;
+- static policy/content;
+- exact skill provenance;
+- runtime revision and plugin set;
+- registry/candidate consistency;
+- semantic-memory readiness;
+- behavior-harness readiness.
 
-Never synchronize or bundle live Hermes state: `state.db`, `state.db-wal`, `state.db-shm`, `sessions`, `logs`, `cache`/`caches`, `auth.json`, `.env`, credentials, OAuth data, `cron`, gateway state, process files, or lock files. Build outputs, architecture-specific Lean state, and generated package caches remain local. Secrets are injected locally and reported only as `present` or `missing`; no value or hash may enter a candidate or report.
+A green static dimension is not activation or runtime behavior evidence. Secret readiness is reported only as `present`/`missing`; values and hashes never enter reports.
 
-## Retention and rollback
+## F3 — bounded fixture-only materializer
 
-Changing future routing does not migrate, delete, or rewrite prior Honcho data. On an affected host, rollback static policy to the prior declarative generation and stop new Honcho writes or disable Honcho. Continue from canonical files and host-local sessions. Investigate contradictions with provenance; do not automatically delete semantic history.
+`math_profile_materialize.py` consumes an immutable candidate and refuses destinations below the running user's real `~/.hermes`. Its only supported target is an isolated fixture profile containing a regular `.math-parity-fixture` marker; dry-run performs no filesystem mutation.
 
-## Rollout gates
+It may update only:
 
-1. Candidate review and exact allowlist approval (complete).
-2. Disposable Honcho topology test and cleanup (executed; observer-scope parity failed, so activation remains blocked).
-3. Separate design approval resolving cross-host user-conclusion visibility.
-4. Separate approval to activate Watari.
-5. Watari policy/behavior/canonical lookup canary and independent rollback proof.
-6. Separate content-specific approval for one real-workspace durable smoke fact.
-7. Lawliet activation only after Watari passes and receives a separate activation approval.
+- `config.yaml`: `model.default`, `model.provider`, `terminal.cwd`, approved `memory` keys, and the managed parity skill external-dir entry;
+- `SOUL.md`;
+- `honcho.json` with non-secret identity and observation policy;
+- `.parity/candidate-metadata.json`;
+- `skills/parity-study/**` (the materializer-owned exact package tree).
 
-No file in this bundle activates a profile, restarts a gateway, changes cron, installs credentials, or writes Honcho memory.
+All unrelated config keys, plugins, model fallbacks, unmanaged external skill roots, and unrelated files survive. The script never materializes credentials, `.env`, databases, sessions, caches, cron, gateway/process state, auth, or lock files. Dry-run emits path/action/digest/mode only. Apply uses atomic file replacement, mode 0600 for `config.yaml` and `honcho.json`, and is byte-idempotent.
+
+`default.nix` is build-only. For either `host="lawliet"` or `host="watari"`, it builds the immutable candidate, executes the behavior-harness self-test, executes a dry-run materialization into `$TMPDIR`, and exports the candidate, redacted plan, and tools. It has no Home Manager activation wiring.
+
+## F4 — frozen synthetic behavior gate
+
+`behavior-fixture.json` freezes A1–A18, including every P0 case (A1–A5, A7–A15, A17), P1 cases (A6, A16, A18), answer-key decisive bridges, acceptable pre-bridge hints, decisive/privacy forbidden terms, expected fixture-relative writes, target surfaces, and the 0–2 manual rubric.
+
+`run_behavior_parity.py --self-test` exercises one deliberate pass and one deliberate forbidden-term failure oracle for every scenario. This proves only that the harness distinguishes its synthetic pass/fail records; its report says `behavioral_compliance_claim: not-run`.
+
+A later real parity run must use fresh sessions, an isolated study root, frozen model/provider settings, at least three runs per host, and result records containing host, candidate digest, model/provider, surface, scenario, run index, tool traces, fixture-relative writes, and manual-review state. Any P0 leak blocks acceptance. Automatic checks do not replace mathematical review.
+
+## Authorities and forbidden state
+
+1. `study_log` and Lean source remain Git-authoritative with fetch/fast-forward and one active writer for scoped updates.
+2. Lawliet remains sole authority for configured generated LADR artifacts; Watari is a one-way replica or separately approved regenerator.
+3. This bundle and the math parity registry entry are the static candidate authorities.
+4. Canonical files outrank semantic-memory conclusions; contradictions are surfaced, never auto-overwritten.
+
+Never bundle or synchronize: `state.db*`, sessions, logs, caches, auth, `.env`, credentials, OAuth, cron, gateway/process state, lock files, architecture-specific Lean build state, or raw learner attempts.
+
+## Honcho continuity and credential gate
+
+The candidate workspace is `hermes-math`, with shared user peer `kaki-math` and host-specific AI peers `math-lawliet` and `math-watari`. The approved continuity model writes stable cross-host learning goals/preferences as user-self conclusions. `ai.observeOthers=false` makes explicit `peer=user` conclusions resolve to the shared user's self-scope, while AI self-observation remains attributable to each host-specific AI peer. Observer-scoped AI inference is host-local and is never silently replicated or promoted.
+
+Semantic memory is `approved-presence-gated`: configuration may be materialized, but actual readiness is `ready` only when `HONCHO_API_KEY` is present. The credential is decrypted by sops-nix directly to the profile-local `.env` with mode 0400. Candidates, plans, drift reports, and Nix store-facing source contain no credential value or value-derived evidence; reports say only `present` or `missing`.
+
+## Verification commands
+
+From `applications/hermes-agent/math-tutor-bundle`:
+
+```sh
+python scripts/refresh_manifest.py --write
+PYTHONDONTWRITEBYTECODE=1 python tests/test_bundle.py -v
+PYTHONDONTWRITEBYTECODE=1 python tests/test_first_set.py -v
+python scripts/run_behavior_parity.py --fixture behavior-fixture.json --self-test
+nix-build default.nix --argstr host lawliet --no-out-link
+nix-build default.nix --argstr host watari --no-out-link
+```
+
+From `applications/hermes-agent`:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python tests/test_profile_registry_check.py -v
+```
+
+These commands verify static candidates, fixture-only materialization, and harness oracles. They do not switch either host or establish real model parity.

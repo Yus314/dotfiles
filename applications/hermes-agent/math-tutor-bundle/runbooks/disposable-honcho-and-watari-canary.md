@@ -1,6 +1,6 @@
 # Disposable Honcho topology result and Watari canary
 
-STATUS: DISPOSABLE TEST EXECUTED; SEMANTIC PARITY BLOCKED; WATARI CANARY NOT APPROVED.
+STATUS: USER-SELF CONTINUITY APPROVED; CREDENTIAL PRESENCE-GATED; WATARI CANARY NOT APPROVED.
 
 The approved disposable test was executed on 2026-08-26 with benign random
 identifiers only. Its authoritative report is
@@ -11,16 +11,16 @@ No canonical file digest changed.
 The test found an important topology constraint: a conclusion created by the
 Lawliet AI observer about the shared user peer is not listed in the Watari AI
 observer's conclusion scope. A user-self conclusion is shared, and the two AI
-self-scopes remain correctly distinct. Therefore the candidate's default
-`ai.observeOthers = true` behavior does not provide cross-host inferred-memory
-parity merely by sharing the user-peer ID. Do not activate either host until a
-separate design choice is approved (user-self conclusion scope, a shared AI
-observer, or an explicit reviewed promotion/replication route).
+self-scopes remain correctly distinct. The approved design therefore sets
+`ai.observeOthers = false`: explicit durable goals/preferences written for
+`peer=user` resolve to the shared user-self scope, while host-specific AI
+observations remain local to `math-lawliet` or `math-watari`. Promotion of an AI
+inference to user-self requires explicit review; it is never automatic.
 
 ## Preconditions
 
 - Candidate digests reviewed and minimal allowlist approved.
-- `HONCHO_API_KEY` is installed through each host's profile-local secret mechanism; checks print only `present`/`missing`.
+- `HONCHO_API_KEY` is installed from `applications/hermes-agent/secrets.yaml` through each host's profile-local sops-nix secret path; checks print only `present`/`missing`.
 - No real workspace/user/AI peer names are reused in the disposable test.
 - Watari activation has separate explicit approval.
 
@@ -30,7 +30,7 @@ Generate a random test suffix locally. Use workspace `hermes-math-disposable-<su
 
 1. Create two disposable profile roots outside every real `HERMES_HOME` and study repository.
 2. Materialize the same candidate bundle into both, changing only the disposable workspace/user/AI peer identifiers in temporary untracked config.
-3. Through Lawliet, write one benign exact token as the disposable user peer.
+3. Through Lawliet, write one benign exact token as the disposable user peer's self-conclusion.
 4. Through Watari, retrieve the exact token using the provider's authoritative conclusion/list API, not semantic similarity alone.
 5. Through each AI peer, create distinct benign attribution tokens; list them and verify host attribution is distinct.
 6. Create a synthetic contradiction from one AI peer; verify attribution and verify no canonical Git file changed.
@@ -52,10 +52,18 @@ Generate a random test suffix locally. Use workspace `hermes-math-disposable-<su
 
 Ask the user to approve the exact ordinary durable math preference or goal to write. Do not use an exercise attempt, confusion transcript, or temporary progress. Write through one host, retrieve through the other, retain evidence, and do not auto-delete unless deletion was part of the approval.
 
+## Value-hidden credential migration
+
+Run from the repository root on Lawliet. The migration script first checks the existing SOPS `env` field in memory, then falls back to the existing regular Lawliet `~/.hermes/.env` source when that field has no Honcho entry. It extracts the already-used value without printing it and feeds a JSON string to `sops set --value-stdin`. It creates no plaintext temporary file and reports presence only:
+
+```sh
+python applications/hermes-agent/scripts/migrate_math_honcho_secret.py
+```
+
+Then build both hosts without switching. Activation decrypts the dedicated `math_honcho_env` field to `~/.hermes/profiles/math/.env` with mode 0400. Do not compare values with hashes, suffixes, shell arguments, or diagnostic output.
+
 ## Actions still requiring user approval
 
-- Exact three-skill allowlist.
-- Disposable external Honcho writes and cleanup (even though isolated).
 - Watari activation/restart and canary.
 - Exact real-workspace durable smoke fact.
 - Lawliet activation/restart.

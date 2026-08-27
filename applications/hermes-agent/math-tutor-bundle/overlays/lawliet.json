@@ -1,24 +1,24 @@
 {
-  "schema_version": 1,
-  "host": "lawliet",
-  "platform": "x86_64-linux",
-  "home": "/home/kaki",
-  "ai_peer": "math-lawliet",
-  "overlay_allowlist": [
-    "host",
-    "platform",
-    "home",
-    "ai_peer",
-    "repository_paths",
-    "ladr_artifacts"
-  ],
-  "repository_paths": {
-    "study_log": "/home/kaki/study_log",
-    "atcoder_lean": "/home/kaki/atcoder-lean",
-    "atcoder_lean_lib": "/home/kaki/atcoder-lean-lib"
-  },
-  "ladr_artifacts": {
-    "path": "/home/kaki/.local/share/study-artifacts/ladr",
-    "role": "authority"
-  }
+	"schema_version": 1,
+	"host": "lawliet",
+	"platform": "x86_64-linux",
+	"home": "/home/kaki",
+	"ai_peer": "math-lawliet",
+	"overlay_allowlist": [
+		"host",
+		"platform",
+		"home",
+		"ai_peer",
+		"repository_paths",
+		"ladr_artifacts"
+	],
+	"repository_paths": {
+		"study_log": "/home/kaki/study_log",
+		"atcoder_lean": "/home/kaki/atcoder-lean",
+		"atcoder_lean_lib": "/home/kaki/atcoder-lean-lib"
+	},
+	"ladr_artifacts": {
+		"path": "/home/kaki/.local/share/study-artifacts/ladr",
+		"role": "authority"
+	}
 }

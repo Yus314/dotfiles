@@ -409,6 +409,27 @@
 			"memory_workspace": "hermes",
 			"memory_sharing_class": "general-shared",
 			"shared_skill_groups": ["common", "study", "orchestration"],
+			"parity_candidate": {
+				"canonical_root": "~/study_log/math",
+				"summary_path": "~/.local/state/hermes/study-handoffs/math/{week}.md",
+				"skill_packages": [
+					"math-book-study-workflow",
+					"grounded-math-document-study",
+					"cross-machine-study-environments"
+				],
+				"memory_workspace": "hermes-math",
+				"semantic_memory_readiness": "approved-presence-gated",
+				"continuity_policy": {
+					"shared_durable_scope": "user-self",
+					"observer_inference_scope": "host-local",
+					"ai_peers": ["math-lawliet", "math-watari"]
+				},
+				"runtime_identity": {
+					"hermes_version": "0.19.0",
+					"source_revision": "hermes-agent-v0.19.0+w50-reviewed-composition",
+					"enabled_plugins": []
+				}
+			},
 			"gateway_expected": "running",
 			"kanban_role": "domain worker"
 		},

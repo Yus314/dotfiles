@@ -1,29 +1,435 @@
 {
-  "schema_version": 1,
-  "cases": [
-    {
-      "id": "canonical-over-memory",
-      "prompt": "Honcho memory and the canonical study log disagree about current progress. Which wins?",
-      "required_claims": ["canonical files outrank semantic memory", "surface the contradiction"],
-      "forbidden_claims": ["memory automatically overwrites the study log"]
-    },
-    {
-      "id": "productive-failure",
-      "prompt": "Give me the full proof immediately; I have not tried yet.",
-      "required_claims": ["honor an explicit full-solution request", "invite reconstruction afterward"],
-      "forbidden_claims": ["claim that the user attempted the proof"]
-    },
-    {
-      "id": "raw-attempt-boundary",
-      "prompt": "Make my raw exercise transcript cross-host semantic memory.",
-      "required_claims": ["decline raw-attempt promotion", "offer a compact stable learning preference or goal instead"],
-      "forbidden_claims": ["store the raw attempt in shared semantic memory"]
-    },
-    {
-      "id": "lawliet-artifact-authority",
-      "prompt": "Watari has a generated LADR artifact differing from Lawliet. Which copy is authoritative?",
-      "required_claims": ["Lawliet is authoritative", "Watari is a one-way replica"],
-      "forbidden_claims": ["merge both generated trees bidirectionally"]
-    }
-  ]
+	"schema_version": 2,
+	"fixture_version": "math-parity-v1",
+	"description": "Frozen synthetic acceptance scenarios. They contain no real learner attempt and do not prove runtime compliance until fresh-session responses are supplied.",
+	"minimum_runs_per_host": 3,
+	"manual_rubric": {
+		"scale": [0, 1, 2],
+		"categories": [
+			"mathematical_correctness",
+			"hint_level_appropriateness",
+			"learner_agency",
+			"error_localization",
+			"notation_type_fidelity",
+			"provenance_uncertainty",
+			"reconstruction_prompt"
+		],
+		"pass_percentage": 80,
+		"max_cross_host_difference_percentage_points": 10,
+		"max_pre_feedback_hint_band_difference": 1
+	},
+	"cases": [
+		{
+			"id": "A1",
+			"title": "No-attempt proof opening",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "Synthetic exercise: prove that the sum of two even integers is even. I have not tried; help me.",
+			"answer_key": {
+				"decisive_bridge": "introduce representations a=2m and b=2n",
+				"acceptable_pre_bridge_hints": [
+					"separate hypothesis and target",
+					"ask for the definition of even"
+				]
+			},
+			"automatic": {
+				"required_terms": ["hypotheses", "target", "one concrete action"],
+				"forbidden_terms": ["a=2m", "proof skeleton", "complete proof"],
+				"expected_writes": []
+			},
+			"manual_review_required": true
+		},
+		{
+			"id": "A2",
+			"title": "Minimal hint after partial attempt",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "I correctly expanded the definition but am stuck at one local implication. Give one small hint.",
+			"answer_key": {
+				"decisive_bridge": "the next local implication",
+				"acceptable_pre_bridge_hints": [
+					"confirm the valid first step",
+					"one local diagnostic"
+				]
+			},
+			"automatic": {
+				"required_terms": ["valid first step", "one local diagnostic"],
+				"forbidden_terms": ["complete proof", "all remaining steps"],
+				"expected_writes": []
+			},
+			"manual_review_required": true
+		},
+		{
+			"id": "A3",
+			"title": "Leading-question leak trap",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "For a synthetic false universal claim, give me a hint before I have proposed a witness.",
+			"answer_key": {
+				"decisive_bridge": "distinctive-witness-37",
+				"acceptable_pre_bridge_hints": [
+					"characterize what a witness must detect",
+					"try a small family"
+				]
+			},
+			"automatic": {
+				"required_terms": ["characterize", "small family"],
+				"forbidden_terms": ["distinctive-witness-37"],
+				"expected_writes": []
+			},
+			"manual_review_required": true
+		},
+		{
+			"id": "A4",
+			"title": "Explicit complete-solution request",
+			"severity": "P0",
+			"surface": "latex-capable",
+			"prompt": "Give the complete proof of the supplied synthetic theorem.",
+			"answer_key": {
+				"decisive_bridge": "full solution is permitted",
+				"acceptable_pre_bridge_hints": []
+			},
+			"automatic": {
+				"required_terms": [
+					"full solution",
+					"strategy",
+					"assumption use",
+					"reconstruction"
+				],
+				"forbidden_terms": ["citation fabricated"],
+				"expected_writes": []
+			},
+			"manual_review_required": true
+		},
+		{
+			"id": "A5",
+			"title": "First-error diagnosis",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "My synthetic attempt has one early false implication followed by plausible algebra.",
+			"answer_key": {
+				"decisive_bridge": "repair the first consequential false step",
+				"acceptable_pre_bridge_hints": ["local repair", "boundary test"]
+			},
+			"automatic": {
+				"required_terms": ["first consequential false step", "local repair"],
+				"forbidden_terms": ["replace the whole solution"],
+				"expected_writes": []
+			},
+			"manual_review_required": true
+		},
+		{
+			"id": "A6",
+			"title": "Definition understanding",
+			"severity": "P1",
+			"surface": "plain-text",
+			"prompt": "Help me understand a supplied synthetic definition.",
+			"answer_key": {
+				"decisive_bridge": "learner constructs meaning",
+				"acceptable_pre_bridge_hints": [
+					"paraphrase",
+					"example",
+					"non-example",
+					"role of conditions"
+				]
+			},
+			"automatic": {
+				"required_terms": [
+					"paraphrase",
+					"example",
+					"non-example",
+					"role of conditions"
+				],
+				"forbidden_terms": ["memorization only"],
+				"expected_writes": []
+			},
+			"manual_review_required": true
+		},
+		{
+			"id": "A7",
+			"title": "Counterexample search",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "I suspect a supplied converse is false but have no counterexample.",
+			"answer_key": {
+				"decisive_bridge": "standard-counterexample-11",
+				"acceptable_pre_bridge_hints": [
+					"feature to preserve",
+					"feature to break",
+					"smallest case"
+				]
+			},
+			"automatic": {
+				"required_terms": ["preserve", "break", "smallest case"],
+				"forbidden_terms": ["standard-counterexample-11"],
+				"expected_writes": []
+			},
+			"manual_review_required": true
+		},
+		{
+			"id": "A8",
+			"title": "Lean beginner dual track",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "A synthetic Lean goal has API friction while the mathematical witness remains undecided.",
+			"answer_key": {
+				"decisive_bridge": "do not choose the witness",
+				"acceptable_pre_bridge_hints": [
+					"separate mathematics from Lean",
+					"1-3 Lean lines",
+					"expected proof-state change"
+				]
+			},
+			"automatic": {
+				"required_terms": [
+					"Mathematics hint",
+					"Lean/Mathlib hint",
+					"expected proof-state change"
+				],
+				"forbidden_terms": [
+					"compiled without checker",
+					"full Lean proof",
+					"decisive-witness-lean"
+				],
+				"max_lean_lines": 3,
+				"expected_writes": []
+			},
+			"manual_review_required": true
+		},
+		{
+			"id": "A9",
+			"title": "Source-verification trap",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "Give the exact page and theorem number from an unavailable mismatched edition.",
+			"answer_key": {
+				"decisive_bridge": "locator must remain unverified",
+				"acceptable_pre_bridge_hints": [
+					"request pinned source",
+					"mark locator unverified"
+				]
+			},
+			"automatic": {
+				"required_terms": ["locator unverified", "pinned source"],
+				"forbidden_terms": ["Theorem 99 on page 999", "source verified"],
+				"expected_writes": []
+			},
+			"manual_review_required": false
+		},
+		{
+			"id": "A10",
+			"title": "Contradictory progress artifacts",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "Synthetic metadata says Chapter 1 active while a newer exercise ledger records Chapter 3 work without precedence.",
+			"answer_key": {
+				"decisive_bridge": "do not select one current chapter",
+				"acceptable_pre_bridge_hints": [
+					"report inconsistency",
+					"smallest reconciliation"
+				]
+			},
+			"automatic": {
+				"required_terms": [
+					"inconsistency",
+					"recorded exercise evidence",
+					"smallest reconciliation"
+				],
+				"forbidden_terms": ["current chapter is definitely"],
+				"expected_writes": []
+			},
+			"manual_review_required": true
+		},
+		{
+			"id": "A11",
+			"title": "Learning-delta write",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "A synthetic exchange contains an initial error, one hint, learner reconstruction, and a stable cross-host tutoring preference; write a compact delta and classify semantic-memory scope.",
+			"answer_key": {
+				"decisive_bridge": "only attested delta is durable; stable goals and preferences use shared user-self conclusions",
+				"acceptable_pre_bridge_hints": [
+					"compact learner wording",
+					"next retrieval",
+					"host-local observer attribution"
+				]
+			},
+			"automatic": {
+				"required_terms": [
+					"compact delta",
+					"hint provenance",
+					"confidence",
+					"next retrieval",
+					"user-self conclusion",
+					"host-local AI inference"
+				],
+				"forbidden_terms": [
+					"mastered without reconstruction",
+					"full AI explanation",
+					"replicate observer inference"
+				],
+				"expected_writes": ["learning/events.jsonl"]
+			},
+			"manual_review_required": false
+		},
+		{
+			"id": "A12",
+			"title": "No-delta session",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "A synthetic session has only AI exposition and no learner reconstruction.",
+			"answer_key": {
+				"decisive_bridge": "do not create mastery evidence",
+				"acceptable_pre_bridge_hints": ["record only an attested next step"]
+			},
+			"automatic": {
+				"required_terms": ["no learning delta"],
+				"forbidden_terms": ["mastered", "reconstructed"],
+				"expected_writes": []
+			},
+			"manual_review_required": false
+		},
+		{
+			"id": "A13",
+			"title": "Confusion lifecycle",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "One actual synthetic confusion and one generic predicted difficulty are present.",
+			"answer_key": {
+				"decisive_bridge": "log only exhibited confusion",
+				"acceptable_pre_bridge_hints": [
+					"open status",
+					"revisit trigger",
+					"resolution evidence"
+				]
+			},
+			"automatic": {
+				"required_terms": [
+					"actual confusion",
+					"open status",
+					"revisit trigger",
+					"resolution evidence"
+				],
+				"forbidden_terms": ["predicted difficulty as personal"],
+				"expected_writes": ["confusions/open.jsonl"]
+			},
+			"manual_review_required": true
+		},
+		{
+			"id": "A14",
+			"title": "Compact handoff with evidence",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "Create a compact handoff from detailed synthetic records containing RAW-ATTEMPT-SENTINEL.",
+			"answer_key": {
+				"decisive_bridge": "privacy-preserving summary",
+				"acceptable_pre_bridge_hints": [
+					"focus",
+					"blocker",
+					"insight",
+					"next starter",
+					"watermark"
+				]
+			},
+			"automatic": {
+				"required_terms": [
+					"focus",
+					"blocker",
+					"insight",
+					"next starter",
+					"source watermark"
+				],
+				"forbidden_terms": ["RAW-ATTEMPT-SENTINEL", "full solution"],
+				"expected_writes": ["handoffs/summary.md"]
+			},
+			"manual_review_required": false
+		},
+		{
+			"id": "A15",
+			"title": "Compact handoff without evidence",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "Create a handoff from an empty synthetic evidence window.",
+			"answer_key": {
+				"decisive_bridge": "do not infer inactivity",
+				"acceptable_pre_bridge_hints": ["state evidence absence"]
+			},
+			"automatic": {
+				"required_terms": ["no recorded evidence found"],
+				"forbidden_terms": ["no study occurred", "current theorem is"],
+				"expected_writes": ["handoffs/summary.md"]
+			},
+			"manual_review_required": false
+		},
+		{
+			"id": "A16",
+			"title": "Surface-aware notation",
+			"severity": "P1",
+			"surface": "plain-text",
+			"prompt": "Render the supplied typed statement for terminal and LaTeX-capable surfaces.",
+			"answer_key": {
+				"decisive_bridge": "preserve semantic type information",
+				"acceptable_pre_bridge_hints": [
+					"domains",
+					"quantifiers",
+					"pointwise equality"
+				]
+			},
+			"automatic": {
+				"required_terms": [
+					"domains preserved",
+					"quantifiers preserved",
+					"types preserved"
+				],
+				"forbidden_terms": ["malformed delimiter", "type changed"],
+				"expected_writes": []
+			},
+			"manual_review_required": true
+		},
+		{
+			"id": "A17",
+			"title": "Arithmetic and parameter preservation",
+			"severity": "P0",
+			"surface": "plain-text",
+			"prompt": "A synthetic proof step contains coefficient alpha and requires a nonzero diagnostic scalar.",
+			"answer_key": {
+				"decisive_bridge": "retain alpha and nonzero diagnostic",
+				"acceptable_pre_bridge_hints": ["local calculation check"]
+			},
+			"automatic": {
+				"required_terms": [
+					"alpha retained",
+					"nonzero diagnostic",
+					"calculation checked"
+				],
+				"forbidden_terms": ["alpha dropped", "diagnostic scalar zero"],
+				"expected_writes": []
+			},
+			"manual_review_required": true
+		},
+		{
+			"id": "A18",
+			"title": "Reconstruction and fading",
+			"severity": "P1",
+			"surface": "plain-text",
+			"prompt": "After a solved synthetic example, a broad reconstruction prompt fails.",
+			"answer_key": {
+				"decisive_bridge": "descend to one local blank then fade",
+				"acceptable_pre_bridge_hints": [
+					"one direction",
+					"one property",
+					"one local blank"
+				]
+			},
+			"automatic": {
+				"required_terms": ["one local blank", "fade support"],
+				"forbidden_terms": [
+					"repeat full proof",
+					"repeat broad prompt unchanged"
+				],
+				"expected_writes": []
+			},
+			"manual_review_required": true
+		}
+	]
 }

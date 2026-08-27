@@ -144,7 +144,9 @@ def main() -> int:
         }
         report["created_object_ids"] = [item_id for _, item_id in created]
     except Exception as exc:
-        report["error"] = f"{type(exc).__name__}: {exc}"
+        # Provider failures can contain request material. Keep reports
+        # presence-only for credentials and retain only the exception class.
+        report["error"] = type(exc).__name__
     finally:
         cleanup_errors: list[str] = []
         for scope, item_id in reversed(created):
@@ -167,8 +169,12 @@ def main() -> int:
     report["canonical_files_unchanged"] = before == after
     checks = report.get("authoritative_checks", {})
     report["result"] = "pass" if (
-        checks
-        and all(checks.values())
+        checks.get("lawliet_observer_sees_own_user_conclusion") is True
+        and checks.get("watari_observer_sees_lawliet_user_conclusion") is False
+        and checks.get("shared_user_self_scope_visible_from_watari") is True
+        and checks.get("lawliet_ai_attribution_isolated") is True
+        and checks.get("watari_ai_attribution_isolated") is True
+        and checks.get("contradiction_attributed_to_watari") is True
         and report["canonical_files_unchanged"]
         and report["cleanup"]["conclusions_removed"]
         and report["cleanup"]["workspace_deleted"]

@@ -90,6 +90,88 @@ def _string_set(value: object) -> set[str]:
     return {item for item in value if isinstance(item, str) and item.strip()}
 
 
+def validate_parity_candidate(name: str, spec: dict) -> list[str]:
+    candidate = spec.get("parity_candidate")
+    if candidate is None:
+        return []
+    prefix = f"{name}: parity_candidate"
+    required = {
+        "canonical_root",
+        "summary_path",
+        "skill_packages",
+        "memory_workspace",
+        "semantic_memory_readiness",
+        "continuity_policy",
+        "runtime_identity",
+    }
+    if not isinstance(candidate, dict) or set(candidate) != required:
+        return [f"{prefix} must use the closed candidate schema"]
+    errors: list[str] = []
+    if candidate.get("canonical_root") not in (spec.get("canonical_paths") or []):
+        errors.append(f"{prefix} canonical_root must be a declared canonical path")
+    if candidate.get("summary_path") != spec.get("summary_path"):
+        errors.append(f"{prefix} summary_path must match the profile summary path")
+    skills = candidate.get("skill_packages")
+    skill_set = _string_set(skills)
+    if (
+        not isinstance(skills, list)
+        or len(skills) != 3
+        or len(skills) != len(skill_set)
+    ):
+        errors.append(f"{prefix} skill_packages must contain exactly three unique names")
+    workspace = candidate.get("memory_workspace")
+    if not isinstance(workspace, str) or not workspace.strip():
+        errors.append(f"{prefix} memory_workspace must be non-empty")
+    if candidate.get("semantic_memory_readiness") != "approved-presence-gated":
+        errors.append(
+            f"{prefix} semantic_memory_readiness must be approved-presence-gated"
+        )
+    continuity = candidate.get("continuity_policy")
+    if not isinstance(continuity, dict) or set(continuity) != {
+        "shared_durable_scope",
+        "observer_inference_scope",
+        "ai_peers",
+    }:
+        errors.append(f"{prefix} continuity_policy must use the closed scope schema")
+    else:
+        if continuity.get("shared_durable_scope") != "user-self":
+            errors.append(f"{prefix} shared durable scope must be user-self")
+        if continuity.get("observer_inference_scope") != "host-local":
+            errors.append(f"{prefix} observer inference scope must be host-local")
+        ai_peers = continuity.get("ai_peers")
+        if (
+            not isinstance(ai_peers, list)
+            or len(ai_peers) != 2
+            or len(set(ai_peers)) != 2
+            or any(not isinstance(peer, str) or not peer for peer in ai_peers)
+        ):
+            errors.append(f"{prefix} continuity_policy must declare two distinct AI peers")
+    runtime = candidate.get("runtime_identity")
+    if not isinstance(runtime, dict) or set(runtime) != {
+        "hermes_version",
+        "source_revision",
+        "enabled_plugins",
+    }:
+        errors.append(f"{prefix} runtime_identity must use the closed identity schema")
+    else:
+        for field in ("hermes_version", "source_revision"):
+            if not isinstance(runtime.get(field), str) or not runtime[field].strip():
+                errors.append(f"{prefix} runtime_identity.{field} must be non-empty")
+        plugins = runtime.get("enabled_plugins")
+        if (
+            not isinstance(plugins, list)
+            or any(
+                not isinstance(plugin, str) or not plugin.strip()
+                for plugin in plugins
+            )
+            or len(plugins) != len(set(plugins))
+        ):
+            errors.append(
+                f"{prefix} runtime_identity.enabled_plugins must be unique strings"
+            )
+    return errors
+
+
 def profile_root(home: Path, name: str) -> Path:
     return home / ".hermes" if name == "default" else home / ".hermes/profiles" / name
 
@@ -345,6 +427,7 @@ def validate(
         if not isinstance(spec, dict):
             errors.append(f"{name}: registry entry is not an object")
             continue
+        errors.extend(validate_parity_candidate(name, spec))
         root = profile_root(home, name)
         config_path = root / "config.yaml"
         if not config_path.is_file():

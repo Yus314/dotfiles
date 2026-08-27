@@ -62,7 +62,7 @@ class BundleTests(unittest.TestCase):
             self.assertEqual(differing, ["candidate-metadata.json", "config.fragment.json", "honcho.json"])
             self.assertEqual(sorted(left), sorted(right))
 
-    def test_disposable_topology_failure_blocks_semantic_readiness(self) -> None:
+    def test_approved_user_self_topology_is_presence_gated(self) -> None:
         with tempfile.TemporaryDirectory() as name:
             tmp = Path(name)
             candidate = tmp / "lawliet"
@@ -72,6 +72,9 @@ class BundleTests(unittest.TestCase):
             topology.write_text(json.dumps({
                 "authoritative_checks": {
                     "watari_observer_sees_lawliet_user_conclusion": False,
+                    "shared_user_self_scope_visible_from_watari": True,
+                    "lawliet_ai_attribution_isolated": True,
+                    "watari_ai_attribution_isolated": True,
                 },
                 "cleanup": {"workspace_deleted": True},
                 "secret_readiness": {"HONCHO_API_KEY": "present"},
@@ -83,12 +86,14 @@ class BundleTests(unittest.TestCase):
             )
             self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)
             readiness = json.loads(checked.stdout)["semantic_memory_readiness"]
-            self.assertEqual(readiness["status"], "blocked")
+            self.assertEqual(readiness["status"], "ready")
             self.assertEqual(readiness["HONCHO_API_KEY"], "present")
             self.assertFalse(readiness["observer_scope_cross_host_visible"])
+            self.assertTrue(readiness["shared_user_self_scope_cross_host_visible"])
+            self.assertTrue(readiness["host_specific_ai_scopes_isolated"])
             self.assertEqual(
                 readiness["external_test"],
-                "blocked-observer-scope-not-shared-cleaned",
+                "pass-user-self-shared-ai-scopes-isolated-cleaned",
             )
 
     def test_allowlist_is_exact_and_minimal(self) -> None:
@@ -117,11 +122,62 @@ class BundleTests(unittest.TestCase):
             built = run(str(SCRIPTS / "build_candidate.py"), "--host", "watari", "--output", str(candidate))
             self.assertEqual(built.returncode, 0, built.stdout + built.stderr)
             paths = [path.relative_to(candidate).as_posix() for path in candidate.rglob("*") if path.is_file()]
-            forbidden_names = {"state.db", "state.db-wal", "state.db-shm", "auth.json", ".env", "processes.json"}
+            forbidden_names = {
+                "state.db", "state.db-wal", "state.db-shm", "auth.json", ".env",
+                "processes.json", "gateway_state.json", ".ruff_cache", "__pycache__",
+            }
             self.assertFalse(forbidden_names.intersection(Path(path).name for path in paths))
+            forbidden_parts = {
+                "sessions", "logs", "cache", "caches", "cron", "gateway",
+                "credentials", "oauth", ".ruff_cache", "__pycache__",
+            }
+            self.assertFalse(
+                [path for path in paths if forbidden_parts.intersection(Path(path).parts)]
+            )
             joined = b"\n".join(path.read_bytes() for path in candidate.rglob("*") if path.is_file())
             self.assertNotIn(b"HONCHO_API_KEY=", joined)
             self.assertNotIn(b"sk-", joined)
+
+    def test_credential_report_is_presence_only_and_never_echoes_input(self) -> None:
+        with tempfile.TemporaryDirectory() as name:
+            candidate = Path(name) / "lawliet"
+            built = run(str(SCRIPTS / "build_candidate.py"), "--host", "lawliet", "--output", str(candidate))
+            self.assertEqual(built.returncode, 0, built.stdout + built.stderr)
+            env = dict(os.environ)
+            marker = "credential-marker-that-must-never-appear"
+            env["HONCHO_API_KEY"] = marker
+            checked = run(str(SCRIPTS / "drift_check.py"), "--candidate", str(candidate), env=env)
+            self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)
+            self.assertNotIn(marker, checked.stdout)
+            report = json.loads(checked.stdout)
+            self.assertEqual(
+                report["semantic_memory_readiness"]["HONCHO_API_KEY"], "present"
+            )
+
+    def test_manifest_excludes_caches_and_live_state_from_store_source(self) -> None:
+        refresh = importlib.util.spec_from_file_location(
+            "refresh_manifest", SCRIPTS / "refresh_manifest.py"
+        )
+        assert refresh and refresh.loader
+        module = importlib.util.module_from_spec(refresh)
+        refresh.loader.exec_module(module)
+        paths = {path.as_posix() for path in module.payload_files()}
+        forbidden = {
+            ".coverage", ".mypy_cache", ".pytest_cache", ".ruff_cache",
+            "__pycache__", "state.db", "sessions", "logs", "cache", "caches",
+            "candidate", "candidates", "dist", "result", "cron", "gateway",
+            "auth.json", ".env", "credentials", "oauth",
+        }
+        self.assertFalse(
+            [path for path in paths if forbidden.intersection(Path(path).parts)]
+        )
+        default_nix = (ROOT / "default.nix").read_text()
+        self.assertIn("cleanSourceWith", default_nix)
+        for name in (
+            ".pytest_cache", ".ruff_cache", "candidates", "result", "state.db",
+            "auth.json", ".env", "cron",
+        ):
+            self.assertIn(name, default_nix)
 
 
 if __name__ == "__main__":

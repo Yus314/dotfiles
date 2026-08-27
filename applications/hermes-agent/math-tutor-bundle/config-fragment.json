@@ -1,19 +1,19 @@
 {
-  "model": {
-    "default": "gpt-5.6-sol",
-    "provider": "openai-codex"
-  },
-  "memory": {
-    "memory_enabled": true,
-    "provider": "honcho",
-    "user_profile_enabled": true,
-    "write_approval": false
-  },
-  "skills": {
-    "external_dirs": ["${PROFILE_HOME}/skills/study"]
-  },
-  "terminal": {
-    "backend": "local",
-    "cwd": "${MATH_STUDY_ROOT}"
-  }
+	"model": {
+		"default": "gpt-5.6-sol",
+		"provider": "openai-codex"
+	},
+	"memory": {
+		"memory_enabled": true,
+		"provider": "honcho",
+		"user_profile_enabled": true,
+		"write_approval": false
+	},
+	"skills": {
+		"external_dirs": ["${PROFILE_HOME}/skills/study"]
+	},
+	"terminal": {
+		"backend": "local",
+		"cwd": "${MATH_STUDY_ROOT}"
+	}
 }

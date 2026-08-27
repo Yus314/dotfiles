@@ -248,7 +248,7 @@ Recommended pattern:
 
 1. Keep `~/study_log` as the shared repository and `~/study_log/math` as the canonical mathematics root; do not duplicate the mathematics record per profile.
 2. Use a dedicated Hermes profile such as `math` for Socratic mathematics conversations, proof reconstruction, confusion review, and structural edits to `~/study_log/math`.
-3. Set the math profile's default workspace to `~/study_log/math` when configuring it, e.g. `hermes -p math config set terminal.cwd /home/kaki/study_log/math`.
+3. Set the math profile's default workspace to `~/study_log/math` when configuring it, e.g. `hermes -p math config set terminal.cwd ~/study_log/math`.
 4. Give the math profile a mathematics-specific `SOUL.md`: protect productive failure, ask for attempts before full solutions, use examples/non-examples, avoid Goodhart metrics, and log understanding changes rather than polished AI summaries.
 5. Leave the default profile as the general personal secretary for calendar, diary, tasks, finance, and PC/file help. It may read or summarize math context, but deep math dialogue and study_log edits should belong to the math profile.
 6. Do not start by splitting the messaging gateway unless the user explicitly wants a separate Discord/Telegram math bot. First validate the profile via CLI or explicit `hermes -p math ...` usage; add gateway separation later if the workflow sticks.

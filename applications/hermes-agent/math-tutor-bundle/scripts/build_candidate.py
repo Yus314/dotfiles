@@ -54,9 +54,51 @@ def write_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
 
 
+def registry_contract(manifest: dict) -> dict:
+    registry_path = ROOT.parent / "profile-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    math = registry["profiles"]["math"]
+    parity = math.get("parity_candidate")
+    if not isinstance(parity, dict):
+        raise SystemExit("math registry is missing parity_candidate contract")
+    expected_skills = [item["name"] for item in manifest["skill_allowlist"]]
+    if parity.get("skill_packages") != expected_skills:
+        raise SystemExit("math registry skill package contract mismatch")
+    expected_runtime = {
+        key: manifest["runtime_identity"][key]
+        for key in ("hermes_version", "source_revision", "enabled_plugins")
+    }
+    if parity.get("runtime_identity") != expected_runtime:
+        raise SystemExit("math registry runtime identity contract mismatch")
+    if parity.get("memory_workspace") != manifest["honcho"]["workspace"]:
+        raise SystemExit("math registry candidate memory workspace mismatch")
+    if parity.get("semantic_memory_readiness") != "approved-presence-gated":
+        raise SystemExit("math registry semantic memory must be approved and presence-gated")
+    continuity = parity.get("continuity_policy")
+    expected_continuity = {
+        "shared_durable_scope": manifest["honcho"]["shared_durable_scope"],
+        "observer_inference_scope": manifest["honcho"]["observer_inference_scope"],
+        "ai_peers": manifest["honcho"]["ai_peers"],
+    }
+    if continuity != expected_continuity:
+        raise SystemExit("math registry continuity policy mismatch")
+    return {
+        "role": math["role"],
+        "canonical_root": parity["canonical_root"],
+        "summary_path": parity["summary_path"],
+        "summary_policy": math["summary_policy"],
+        "skill_packages": parity["skill_packages"],
+        "memory_workspace": parity["memory_workspace"],
+        "semantic_memory_readiness": parity["semantic_memory_readiness"],
+        "continuity_policy": parity["continuity_policy"],
+        "runtime_identity": parity["runtime_identity"],
+    }
+
+
 def build(host: str, output: Path) -> None:
     manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
     verify_manifest(manifest)
+    profile_contract = registry_contract(manifest)
     overlay = json.loads((ROOT / "overlays" / f"{host}.json").read_text(encoding="utf-8"))
     declared_overlay_keys = set(overlay["overlay_allowlist"]) | {"schema_version", "overlay_allowlist"}
     if set(overlay) != declared_overlay_keys:
@@ -78,6 +120,11 @@ def build(host: str, output: Path) -> None:
         honcho = {
             "workspace": honcho_identity["workspace"],
             "peerName": honcho_identity["user_peer"],
+            "continuityPolicy": {
+                "sharedDurableScope": honcho_identity["shared_durable_scope"],
+                "observerInferenceScope": honcho_identity["observer_inference_scope"],
+                "promotion": "explicit-reviewed-only",
+            },
             "hosts": {
                 "hermes_math": {
                     "enabled": True,
@@ -91,11 +138,17 @@ def build(host: str, output: Path) -> None:
                     "pinUserPeer": False,
                     "runtimePeerPrefix": "gateway_",
                     "userPeerAliases": {"885083579367972874": honcho_identity["user_peer"]},
+                    "observation": {
+                        "user": {"observeMe": True, "observeOthers": False},
+                        "ai": {"observeMe": True, "observeOthers": False},
+                    },
                 }
             },
         }
         shutil.copy2(ROOT / "SOUL.md", temp / "SOUL.md")
         shutil.copy2(ROOT / "behavior-fixture.json", temp / "behavior-fixture.json")
+        shutil.copy2(ROOT / "runtime-identity.json", temp / "runtime-identity.json")
+        write_json(temp / "registry-contract.json", profile_contract)
         write_json(temp / "config.fragment.json", config)
         write_json(temp / "honcho.json", honcho)
         for skill in manifest["skill_allowlist"]:
@@ -113,6 +166,8 @@ def build(host: str, output: Path) -> None:
             "overlay_allowlist": overlay["overlay_allowlist"],
             "expected_model": manifest["expected_model"],
             "skill_allowlist": manifest["skill_allowlist"],
+            "runtime_identity": manifest["runtime_identity"],
+            "registry_contract": profile_contract,
             "effective_file_digests": effective,
             "honcho": {
                 "workspace": honcho_identity["workspace"],
@@ -121,6 +176,8 @@ def build(host: str, output: Path) -> None:
                 "ai_peer": overlay["ai_peer"],
                 "ai_peer_fingerprint": fingerprint(honcho_identity["workspace"], overlay["ai_peer"]),
                 "expected_distinct_ai_peers": honcho_identity["ai_peers"],
+                "shared_durable_scope": honcho_identity["shared_durable_scope"],
+                "observer_inference_scope": honcho_identity["observer_inference_scope"],
             },
             "secret_requirements": {"HONCHO_API_KEY": "presence-only"},
         }

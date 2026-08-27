@@ -1,24 +1,24 @@
 {
-  "schema_version": 1,
-  "host": "watari",
-  "platform": "aarch64-darwin",
-  "home": "/Users/kaki",
-  "ai_peer": "math-watari",
-  "overlay_allowlist": [
-    "host",
-    "platform",
-    "home",
-    "ai_peer",
-    "repository_paths",
-    "ladr_artifacts"
-  ],
-  "repository_paths": {
-    "study_log": "/Users/kaki/study_log",
-    "atcoder_lean": "/Users/kaki/atcoder-lean",
-    "atcoder_lean_lib": "/Users/kaki/atcoder-lean-lib"
-  },
-  "ladr_artifacts": {
-    "path": "/Users/kaki/.local/share/study-artifacts/ladr",
-    "role": "one-way-replica"
-  }
+	"schema_version": 1,
+	"host": "watari",
+	"platform": "aarch64-darwin",
+	"home": "/Users/kaki",
+	"ai_peer": "math-watari",
+	"overlay_allowlist": [
+		"host",
+		"platform",
+		"home",
+		"ai_peer",
+		"repository_paths",
+		"ladr_artifacts"
+	],
+	"repository_paths": {
+		"study_log": "/Users/kaki/study_log",
+		"atcoder_lean": "/Users/kaki/atcoder-lean",
+		"atcoder_lean_lib": "/Users/kaki/atcoder-lean-lib"
+	},
+	"ladr_artifacts": {
+		"path": "/Users/kaki/.local/share/study-artifacts/ladr",
+		"role": "one-way-replica"
+	}
 }

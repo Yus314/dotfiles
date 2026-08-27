@@ -19,7 +19,7 @@ A dedicated Hermes profile is useful when mathematics study has its own long-run
 
 1. Create or inspect the profile: `hermes profile show math`.
 2. Set/verify the model and profile config as needed.
-3. Set the intended workspace: `hermes -p math config set terminal.cwd /home/kaki/study_log/math`.
+3. Set the intended workspace: `hermes -p math config set terminal.cwd ~/study_log/math`.
 4. Update profile-local `SOUL.md` with the Socratic math-study role and `study_log/math` boundaries.
 5. Ensure math skills are installed in the math profile; if copying skills manually, copy whole skill directories and verify with `hermes -p math skills list`.
 6. Run `hermes -p math doctor --fix` to migrate config.
