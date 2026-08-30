@@ -907,6 +907,12 @@ in
     })
 
     (lib.mkIf pkgs.stdenv.isDarwin {
+      home.activation.hermesMathGatewayChannels = lib.hm.dag.entryAfter [ "hermesMathProfile" ] ''
+        $DRY_RUN_CMD ${hermesConfigPython}/bin/python ${gatewayChannelsConfig} ${
+          lib.escapeShellArg (builtins.toJSON { math = gatewayChannels.math; })
+        }
+      '';
+
       home.activation.hermesMathGatewayState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -d -m 0700 \
           ${lib.escapeShellArg mathDarwinGatewayStateRoot}
