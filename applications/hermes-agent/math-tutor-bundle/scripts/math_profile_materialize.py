@@ -333,6 +333,7 @@ def main() -> int:
         if args.apply:
             apply_plan(args.profile_root.resolve(), desired)
             plan["mode"] = "applied-production" if args.production else "applied-fixture-only"
+            plan["activation_performed"] = True
     except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, yaml.YAMLError) as error:
         print(json.dumps({"schema_version": 1, "status": "error", "error": str(error)}))
         return 1

@@ -406,9 +406,9 @@
 			"summary_path": "~/.local/state/hermes/study-handoffs/math/{week}.md",
 			"summary_policy": "on-demand",
 			"memory_provider": "honcho",
-			"memory_workspace": "hermes",
-			"memory_sharing_class": "general-shared",
-			"shared_skill_groups": ["common", "study", "orchestration"],
+			"memory_workspace": "hermes-math",
+			"memory_sharing_class": "domain-shared",
+			"shared_skill_groups": [],
 			"parity_candidate": {
 				"canonical_root": "~/study_log/math",
 				"summary_path": "~/.local/state/hermes/study-handoffs/math/{week}.md",

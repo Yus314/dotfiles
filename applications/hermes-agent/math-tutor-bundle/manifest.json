@@ -1,5 +1,5 @@
 {
-	"aggregate_sha256": "1cc904ef54ccbe1b3c1e738e37e93e776625c0763fcbd2669f09187af371730a",
+	"aggregate_sha256": "bdaa222802a56352ee965a9abfb8da8c3a196533f78da6824d598e5035b80998",
 	"bundle_version": "1.1.0-candidate.1",
 	"content_digests": {
 		"SOUL.md": "255aeb7822e1bdfd1a465e2adf212c8ac4192fa9bff230c7680358d7e710a3d2",
@@ -14,7 +14,7 @@
 		"scripts/build_candidate.py": "94d09d8768fddeff0a14c2ddce81161d0a030b0c585294ada3dd2939e8ebaba7",
 		"scripts/disposable_honcho_topology.py": "1213a415584e70436adbb73b804d85bf8a8c76980f2c783192ea53c3539c6e3c",
 		"scripts/drift_check.py": "23e41abcffdb93d7da9b6151bb07a920cb0250c52ca6ded48ae59bec7bdc8689",
-		"scripts/math_profile_materialize.py": "e5497a20e5d2eec5abc8ac0b13baa61036cf0018b80b0bc4ac0a556633f02bb2",
+		"scripts/math_profile_materialize.py": "cda027a55010fe2dc11402b5ca8f265f38d1ba6dbe2a3c513dd90bf7db42eb5f",
 		"scripts/refresh_manifest.py": "a90dae61e3e69ddfcdedc003f5cedc9f55222c7024bbd69d5859ae77dcfa398c",
 		"scripts/run_behavior_parity.py": "0827415cfe3122abb09575502519d09ffc94c1b3ab57ebf3d86503311349233a",
 		"skills/cross-machine-study-environments/SKILL.md": "ef2c09915557a861ddbbbfd9ad13078a76e174d41497c401ce3fef18890addb5",

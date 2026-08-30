@@ -488,7 +488,7 @@ in
           ${lib.escapeShellArg hermesLazyInstallTarget}
       '';
 
-      home.activation.hermesMathProfile = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      home.activation.hermesMathProfile = lib.hm.dag.entryAfter [ "hermesSharedSkillsConfig" ] ''
         $DRY_RUN_CMD ${mathProfileCandidate}/bin/math-profile-materialize \
           --candidate ${mathProfileCandidate}/profile \
           --profile-root "$HOME/.hermes/profiles/math" \

@@ -24,7 +24,7 @@ class SharedSkillsConfigTests(unittest.TestCase):
         "finance": ("common",),
     }
 
-    def test_production_matrix_shares_orchestration_with_every_profile(self):
+    def test_production_matrix_reserves_math_for_exact_managed_bundle(self):
         registry = Path(__file__).resolve().parents[1] / "profile-registry.json"
         production_groups = shared_skills_config.load_profile_groups(registry)
         self.assertEqual(
@@ -33,8 +33,9 @@ class SharedSkillsConfigTests(unittest.TestCase):
                 for profile, groups in production_groups.items()
                 if "orchestration" in groups
             },
-            set(production_groups),
+            set(production_groups) - {"math"},
         )
+        self.assertEqual(production_groups["math"], ())
         self.assertEqual(
             {
                 profile
