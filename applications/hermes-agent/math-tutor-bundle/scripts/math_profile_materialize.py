@@ -59,11 +59,18 @@ def verify_candidate(candidate: Path) -> dict:
     return metadata
 
 
-def ensure_fixture_root(profile_root: Path) -> None:
+def ensure_profile_root(profile_root: Path, production: bool) -> None:
     root = profile_root.resolve(strict=False)
-    production = (Path.home() / ".hermes").resolve(strict=False)
+    hermes_root = (Path.home() / ".hermes").resolve(strict=False)
+    expected = (Path.home() / ".hermes/profiles/math").resolve(strict=False)
+    if production:
+        if profile_root.is_symlink() or root != expected:
+            raise ValueError(
+                "production materializer requires the exact non-symlink ~/.hermes/profiles/math root"
+            )
+        return
     try:
-        root.relative_to(production)
+        root.relative_to(hermes_root)
     except ValueError:
         pass
     else:
@@ -107,7 +114,35 @@ def load_config(path: Path) -> dict:
     return loaded
 
 
-def merged_config(current: dict, fragment: dict, managed_root: Path) -> dict:
+def installed_skill_names(skills_root: Path) -> set[str]:
+    names: set[str] = set()
+    if not skills_root.is_dir():
+        return names
+    for skill_file in skills_root.rglob("SKILL.md"):
+        if skill_file.is_symlink() or not skill_file.is_file():
+            continue
+        names.add(skill_file.parent.name)
+        try:
+            text = skill_file.read_text(encoding="utf-8")
+            if text.startswith("---\n"):
+                end = text.find("\n---", 4)
+                if end != -1:
+                    frontmatter = yaml.safe_load(text[4:end]) or {}
+                    name = frontmatter.get("name") if isinstance(frontmatter, dict) else None
+                    if isinstance(name, str) and name.strip():
+                        names.add(name.strip())
+        except (OSError, UnicodeError, yaml.YAMLError):
+            continue
+    return names
+
+
+def merged_config(
+    current: dict,
+    fragment: dict,
+    managed_root: Path,
+    production_mode: bool,
+    approved_skills: set[str],
+) -> dict:
     result = dict(current)
     model = result.get("model")
     if not isinstance(model, dict):
@@ -122,12 +157,29 @@ def merged_config(current: dict, fragment: dict, managed_root: Path) -> dict:
     skills = result.get("skills")
     if not isinstance(skills, dict):
         skills = {}
-    external = skills.get("external_dirs", [])
-    if not isinstance(external, list) or any(not isinstance(item, str) for item in external):
-        raise ValueError("skills.external_dirs must be a string list")
     managed = str(managed_root)
-    unmanaged = [item for item in external if item != managed]
-    result["skills"] = {**skills, "external_dirs": [managed, *unmanaged]}
+    if production_mode:
+        existing_disabled = skills.get("disabled", [])
+        if isinstance(existing_disabled, str):
+            existing_disabled = [existing_disabled]
+        if not isinstance(existing_disabled, list):
+            raise ValueError("skills.disabled must be a string list")
+        disabled = {
+            str(item).strip() for item in existing_disabled if str(item).strip()
+        }
+        disabled.update(installed_skill_names(managed_root.parents[1]) - approved_skills)
+        disabled.difference_update(approved_skills)
+        result["skills"] = {
+            **skills,
+            "external_dirs": [managed],
+            "disabled": sorted(disabled),
+        }
+    else:
+        external = skills.get("external_dirs", [])
+        if not isinstance(external, list) or any(not isinstance(item, str) for item in external):
+            raise ValueError("skills.external_dirs must be a string list")
+        unmanaged = [item for item in external if item != managed]
+        result["skills"] = {**skills, "external_dirs": [managed, *unmanaged]}
     memory = result.get("memory")
     if not isinstance(memory, dict):
         memory = {}
@@ -159,14 +211,25 @@ def desired_files(candidate: Path, profile_root: Path, config: dict) -> dict[Pat
     return files
 
 
-def build_plan(candidate: Path, profile_root: Path) -> tuple[dict, dict[Path, tuple[bytes, int]]]:
+def build_plan(
+    candidate: Path,
+    profile_root: Path,
+    production_mode: bool = False,
+) -> tuple[dict, dict[Path, tuple[bytes, int]]]:
     metadata = verify_candidate(candidate)
-    ensure_fixture_root(profile_root)
+    ensure_profile_root(profile_root, production_mode)
     ensure_managed_paths_are_bounded(profile_root)
     fragment = json.loads((candidate / "config.fragment.json").read_text())
     current = load_config(profile_root / "config.yaml")
     managed_root = (profile_root / MANAGED_SKILL_RELATIVE).resolve(strict=False)
-    config = merged_config(current, fragment, managed_root)
+    approved_skills = {item["name"] for item in metadata["skill_allowlist"]}
+    config = merged_config(
+        current,
+        fragment,
+        managed_root,
+        production_mode,
+        approved_skills,
+    )
     desired = desired_files(candidate, profile_root, config)
     changes = []
     for path, (content, mode) in sorted(desired.items(), key=lambda item: str(item[0])):
@@ -201,10 +264,11 @@ def build_plan(candidate: Path, profile_root: Path) -> tuple[dict, dict[Path, tu
         "schema_version": 1,
         "mode": "dry-run",
         "candidate_digest": metadata["bundle_aggregate_sha256"],
-        "profile_root_kind": "isolated-fixture",
+        "profile_root_kind": "production-exact" if production_mode else "isolated-fixture",
         "changes": changes,
         "preserves_unmanaged_config": True,
         "preserves_unmanaged_skill_roots": True,
+        "exact_skill_allowlist": sorted(approved_skills) if production_mode else None,
         "honcho_materialized": True,
         "credentials_materialized": False,
         "activation_performed": False,
@@ -257,13 +321,18 @@ def main() -> int:
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--profile-root", type=Path, required=True)
     parser.add_argument("--apply", action="store_true")
+    parser.add_argument("--production", action="store_true")
 
     args = parser.parse_args()
     try:
-        plan, desired = build_plan(args.candidate.resolve(), args.profile_root.resolve())
+        plan, desired = build_plan(
+            args.candidate.resolve(),
+            args.profile_root.resolve(),
+            production_mode=args.production,
+        )
         if args.apply:
             apply_plan(args.profile_root.resolve(), desired)
-            plan["mode"] = "applied-fixture-only"
+            plan["mode"] = "applied-production" if args.production else "applied-fixture-only"
     except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, yaml.YAMLError) as error:
         print(json.dumps({"schema_version": 1, "status": "error", "error": str(error)}))
         return 1

@@ -226,6 +226,10 @@ let
   # instead of attempting ensurepip inside /nix/store.
   hermesLazyInstallTarget = "${config.xdg.dataHome}/hermes/lazy-packages";
   hermesConfigPython = pkgs.python312.withPackages (ps: [ ps.pyyaml ]);
+  mathProfileHost = if pkgs.stdenv.hostPlatform.isDarwin then "watari" else "lawliet";
+  mathProfileCandidate = pkgs.callPackage ./math-tutor-bundle {
+    host = mathProfileHost;
+  };
   gatewayPreflight = ./scripts/gateway_preflight.py;
   gatewayChannelsConfig = ./scripts/gateway_channels_config.py;
   researchConfig = ./scripts/research_config.py;
@@ -482,6 +486,14 @@ in
       home.activation.hermesLazyInstallTarget = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -d -m 0700 \
           ${lib.escapeShellArg hermesLazyInstallTarget}
+      '';
+
+      home.activation.hermesMathProfile = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        $DRY_RUN_CMD ${mathProfileCandidate}/bin/math-profile-materialize \
+          --candidate ${mathProfileCandidate}/profile \
+          --profile-root "$HOME/.hermes/profiles/math" \
+          --production \
+          --apply
       '';
 
       home.activation.hermesResearchProvidersConfig =
