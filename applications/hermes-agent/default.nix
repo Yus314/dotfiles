@@ -346,6 +346,45 @@ let
     profile = "math";
     tokenVariable = "DISCORD_MATH_BOT_TOKEN";
   };
+  mathDarwinGatewayEnvLoader = pkgs.writeText "hermes-math-darwin-gateway-env.py" ''
+    import os
+    import shlex
+    import sys
+
+    env_path, runner = sys.argv[1:]
+    token = None
+    with open(env_path, encoding="utf-8") as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("export "):
+                line = line.removeprefix("export ").lstrip()
+            key, separator, value = line.partition("=")
+            if separator and key.strip() == "DISCORD_MATH_BOT_TOKEN":
+                value = value.strip()
+                if value[:1] in {"'", '"'}:
+                    parsed = shlex.split(value, posix=True)
+                    if len(parsed) != 1:
+                        raise SystemExit("invalid DISCORD_MATH_BOT_TOKEN encoding")
+                    value = parsed[0]
+                token = value
+                break
+
+    if not token:
+        raise SystemExit("DISCORD_MATH_BOT_TOKEN is missing or empty")
+    os.environ["DISCORD_MATH_BOT_TOKEN"] = token
+    os.execv(runner, [runner])
+  '';
+  mathDarwinGatewayRunner = pkgs.writeShellScript "hermes-math-darwin-gateway" ''
+    set -eu
+    exec ${hermesConfigPython}/bin/python \
+      ${mathDarwinGatewayEnvLoader} \
+      ${lib.escapeShellArg config.sops.secrets."hermes-gateway-env".path} \
+      ${mathGatewayRunner}
+  '';
+  mathDarwinGatewayStateRoot = "${config.xdg.stateHome}/hermes-math-gateway";
+  darwinGatewayPath = "${pkgs.nodejs_24}/bin:${config.home.homeDirectory}/.nix-profile/bin:/run/current-system/sw/bin:/usr/local/bin:/usr/bin:/bin";
   healthGatewayRunner = mkGatewayRunner {
     profile = "health";
     tokenVariable = "DISCORD_HEALTH_BOT_TOKEN";
@@ -471,6 +510,14 @@ in
         mode = "0400";
       };
 
+      # Linux systemd units consume this as EnvironmentFile; the Darwin math
+      # LaunchAgent reads only DISCORD_MATH_BOT_TOKEN through a value-hidden loader.
+      sops.secrets."hermes-gateway-env" = {
+        sopsFile = ./secrets.yaml;
+        key = "env";
+        mode = "0400";
+      };
+
       home.packages = [
         hermes
         pkgs.nodejs_24
@@ -516,12 +563,6 @@ in
     }
 
     (lib.mkIf pkgs.stdenv.isLinux {
-      sops.secrets."hermes-gateway-env" = {
-        sopsFile = ./secrets.yaml;
-        key = "env";
-        mode = "0400";
-      };
-
       sops.secrets."hermes-health-google-env" = {
         sopsFile = ./secrets.yaml;
         key = "health_google_env";
@@ -862,6 +903,31 @@ in
         };
 
         Install.WantedBy = [ "default.target" ];
+      };
+    })
+
+    (lib.mkIf pkgs.stdenv.isDarwin {
+      home.activation.hermesMathGatewayState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -d -m 0700 \
+          ${lib.escapeShellArg mathDarwinGatewayStateRoot}
+      '';
+
+      launchd.agents.hermes-math-gateway = {
+        enable = true;
+        config = {
+          ProgramArguments = [ "${mathDarwinGatewayRunner}" ];
+          EnvironmentVariables = {
+            HERMES_HOME = "${config.home.homeDirectory}/.hermes";
+            DISCORD_REQUIRE_MENTION = "false";
+            PATH = darwinGatewayPath;
+          };
+          RunAtLoad = true;
+          KeepAlive = true;
+          ThrottleInterval = 10;
+          ProcessType = "Background";
+          StandardOutPath = "${mathDarwinGatewayStateRoot}/launchd.log";
+          StandardErrorPath = "${mathDarwinGatewayStateRoot}/launchd-error.log";
+        };
       };
     })
   ];
