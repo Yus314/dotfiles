@@ -179,6 +179,86 @@ class BundleTests(unittest.TestCase):
         ):
             self.assertIn(name, default_nix)
 
+    def test_production_materializer_is_exact_root_guarded_and_state_preserving(self) -> None:
+        with tempfile.TemporaryDirectory() as name:
+            tmp = Path(name)
+            home = tmp / "home"
+            profile = home / ".hermes/profiles/math"
+            legacy = profile / "skills/legacy/example"
+            legacy.mkdir(parents=True)
+            (legacy / "SKILL.md").write_text(
+                "---\nname: legacy-example\ndescription: legacy\n---\n"
+            )
+            state = profile / "state.db"
+            state.write_bytes(b"preserve-me")
+            (profile / "config.yaml").write_text(
+                "skills:\n"
+                "  external_dirs:\n"
+                "    - /old/shared/skills\n"
+                "  disabled:\n"
+                "    - grounded-math-document-study\n"
+            )
+
+            candidate = tmp / "candidate"
+            built = run(
+                str(SCRIPTS / "build_candidate.py"),
+                "--host",
+                "watari",
+                "--output",
+                str(candidate),
+            )
+            self.assertEqual(built.returncode, 0, built.stdout + built.stderr)
+
+            env = {**os.environ, "HOME": str(home)}
+            wrong = run(
+                str(SCRIPTS / "math_profile_materialize.py"),
+                "--candidate",
+                str(candidate),
+                "--profile-root",
+                str(home / ".hermes/profiles/not-math"),
+                "--production",
+                "--apply",
+                env=env,
+            )
+            self.assertNotEqual(wrong.returncode, 0)
+
+            applied = run(
+                str(SCRIPTS / "math_profile_materialize.py"),
+                "--candidate",
+                str(candidate),
+                "--profile-root",
+                str(profile),
+                "--production",
+                "--apply",
+                env=env,
+            )
+            self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
+            report = json.loads(applied.stdout)
+            self.assertEqual(report["mode"], "applied-production")
+            self.assertEqual(report["profile_root_kind"], "production-exact")
+            self.assertEqual(state.read_bytes(), b"preserve-me")
+
+            config = __import__("yaml").safe_load((profile / "config.yaml").read_text())
+            approved = {
+                "grounded-math-document-study",
+                "math-book-study-workflow",
+                "cross-machine-study-environments",
+            }
+            self.assertEqual(
+                config["skills"]["external_dirs"],
+                [str((profile / "skills/parity-study").resolve())],
+            )
+            self.assertIn("legacy-example", config["skills"]["disabled"])
+            self.assertTrue(approved.isdisjoint(config["skills"]["disabled"]))
+            self.assertEqual(
+                {
+                    path.name
+                    for path in (profile / "skills/parity-study").iterdir()
+                    if path.is_dir()
+                },
+                approved,
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
