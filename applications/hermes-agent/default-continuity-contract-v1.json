@@ -31,13 +31,13 @@
 	"session_continuity": {
 		"mechanism": "existing-source-authoritative-archive",
 		"implementation": "not-reimplemented-by-this-candidate",
-		"sources": ["lawliet", "watari"]
+		"sources": ["lawliet", "watari"],
+		"transport_readiness": "blocked-pending-separate-device-reconciliation"
 	},
 	"control_plane_authority": "lawliet",
 	"nodes": {
 		"lawliet": {
 			"system": "x86_64-linux",
-			"syncthing_device_id": "Q3KQM42-QOQX74N-WWFNOJJ-YVWL3HZ-RXPPYX5-UUFQQ25-RKHKDJP-6D2EJAR",
 			"roles": [
 				"always-on-gateway",
 				"scheduler",
@@ -51,7 +51,6 @@
 		},
 		"watari": {
 			"system": "aarch64-darwin",
-			"syncthing_device_id": "3XNHQ5T-LBTQ3PJ-EXYZUJA-SSUF3B7-GX3XCCU-ADNBUPR-KRDYYJF-JBUIDAG",
 			"roles": [
 				"first-class-local-cli",
 				"local-macos-executor",

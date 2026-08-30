@@ -130,4 +130,20 @@ in
           --registry "$HOME/.local/share/hermes/profile-registry.json" \
           --skip-gateways
       '';
+
+  # Gate both Linux and Darwin activation on the deployed continuity inputs.
+  # The store-resident wrapper uses an absolute Python path and deliberately
+  # blocks Watari until its separate Honcho aiPeer reconciliation is complete.
+  home.activation.hermesDefaultContinuityCheck =
+    lib.hm.dag.entryAfter
+      [
+        "linkGeneration"
+        "hermesProfilePolicyCheck"
+      ]
+      ''
+        $DRY_RUN_CMD ${defaultContinuityCheck}/bin/hermes-default-continuity-check \
+          --contract "$HOME/.local/share/hermes/default-continuity-contract-v1.json" \
+          --registry "$HOME/.local/share/hermes/profile-registry.json" \
+          --honcho "$HOME/.hermes/honcho.json"
+      '';
 }

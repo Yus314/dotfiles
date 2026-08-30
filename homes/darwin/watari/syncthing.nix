@@ -24,10 +24,7 @@ in
         };
         devices = {
           "lawliet" = {
-            # Lawliet's current Syncthing identity. Keep this paired with
-            # systems/nixos/lawliet/syncthing.nix and qualify it against the
-            # live `syncthing cli show system` value before rollout.
-            id = "Q3KQM42-QOQX74N-WWFNOJJ-YVWL3HZ-RXPPYX5-UUFQQ25-RKHKDJP-6D2EJAR";
+            id = "5DKI3TB-RHCDNPG-KQFLPIA-NPQNV45-UEPFADB-RQKZBG4-RT6KU6K-P6BX3AP";
           };
           "android-mole" = {
             id = "UWBK2PL-5L6CQUN-PMJF2TQ-5OBPRFT-ZFDRPTK-OXSGBQH-WWU2Y65-7WRVIAF";

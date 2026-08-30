@@ -210,7 +210,12 @@
 					"user_peer": "kaki",
 					"ai_peer": "personal-assistant"
 				},
-				"session_continuity": "existing-source-authoritative-archive"
+				"session_continuity": {
+					"mechanism": "existing-source-authoritative-archive",
+					"implementation": "not-reimplemented-by-this-candidate",
+					"sources": ["lawliet", "watari"],
+					"transport_readiness": "blocked-pending-separate-device-reconciliation"
+				}
 			},
 			"shared_skill_groups": [
 				"common",
