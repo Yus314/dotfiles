@@ -530,7 +530,7 @@ def _same_physical_path(left: Path, right: Path) -> bool:
 
 
 def _nix_store_root() -> Path:
-    return Path(os.environ.get("NIX_STORE_DIR", "/nix/store")).resolve(strict=False)
+    return _logical_absolute(Path(os.environ.get("NIX_STORE_DIR", "/nix/store")))
 
 
 def _managed_path_kind(

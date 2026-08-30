@@ -30,6 +30,7 @@ ALLOWED_SUMMARY_POLICIES = {
 }
 ALLOWED_MEMORY_SHARING_CLASSES = {
     "general-shared",
+    "domain-shared",
     "sensitive-isolated",
     "profile-local",
     "disabled",
@@ -511,6 +512,15 @@ def validate(
                 )
             else:
                 sensitive_workspace_owners[expected_workspace] = name
+        elif sharing_class == "domain-shared" and (
+            configured_provider != "honcho"
+            or not isinstance(expected_workspace, str)
+            or not expected_workspace.strip()
+            or expected_workspace == general_shared_workspace
+        ):
+            errors.append(
+                f"{name}: domain-shared memory sharing class requires a non-general honcho workspace"
+            )
         elif sharing_class == "profile-local" and (
             configured_provider != "builtin" or expected_workspace is not None
         ):

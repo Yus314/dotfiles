@@ -6,10 +6,10 @@ This directory is the user-owned source of truth for procedures intentionally sh
 
 | Group | Profiles | Purpose |
 |---|---|---|
-| `common/` | all configured profiles | Minimal universally safe procedures and safe user handoffs |
-| `study/` | default, career, economics, english, math | Book/source ingestion and cross-subject study procedures |
+| `common/` | default, career, economics, engineering, english, finance, food, health, indiedev, researcheval | Minimal universally safe procedures and safe user handoffs |
+| `study/` | default, career, economics, english | Book/source ingestion and cross-subject study procedures |
 | `engineering/` | default, career, engineering, indiedev, researcheval | Shared software/research engineering procedures |
-| `orchestration/` | all configured profiles | Generic Kanban and multi-worker coordination procedures |
+| `orchestration/` | default, career, economics, engineering, english, finance, food, health, indiedev, researcheval | Generic Kanban and multi-worker coordination procedures |
 | `profile-ops/` | default | Profile orchestration and handoff procedures |
 | `usage-ops/` | default, career, engineering, english, indiedev, researcheval | Local usage accounting and context-efficiency diagnostics |
 

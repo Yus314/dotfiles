@@ -329,6 +329,13 @@ class ProfileRegistryCheckTests(unittest.TestCase):
             any("memory sharing class" in error for error in self.validate())
         )
 
+    def test_domain_shared_requires_non_general_honcho_workspace(self) -> None:
+        self.registry["profiles"]["default"]["memory_sharing_class"] = "domain-shared"
+        self.write_registry()
+        self.assertTrue(
+            any("domain-shared memory sharing class" in error for error in self.validate())
+        )
+
     def test_requires_information_exchange_contract(self) -> None:
         del self.registry["information_exchange"]
         self.write_registry()

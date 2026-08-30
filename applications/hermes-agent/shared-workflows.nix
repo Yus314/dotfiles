@@ -112,6 +112,7 @@ in
     lib.hm.dag.entryAfter
       [
         "hermesCronScripts"
+        "hermesMathProfile"
         "hermesSharedSkillsConfig"
       ]
       ''
