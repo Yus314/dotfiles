@@ -1,0 +1,65 @@
+{
+	"schema_version": 1,
+	"profile": "default",
+	"semantic_identity": {
+		"honcho_host": "hermes",
+		"workspace": "hermes",
+		"user_peer": "kaki",
+		"ai_peer": "personal-assistant"
+	},
+	"shared_memory": {
+		"allowed": [
+			"stable cross-domain user preferences",
+			"durable goals and constraints useful across profiles",
+			"environment facts that reduce repeated steering"
+		],
+		"scope": "ordinary-only"
+	},
+	"host_local_state": [
+		"state.db",
+		"state.db-wal",
+		"state.db-shm",
+		"routing",
+		"queues",
+		"cron-runtime",
+		"auth",
+		".env",
+		"secrets",
+		"logs",
+		"caches"
+	],
+	"session_continuity": {
+		"mechanism": "existing-source-authoritative-archive",
+		"implementation": "not-reimplemented-by-this-candidate",
+		"sources": ["lawliet", "watari"]
+	},
+	"control_plane_authority": "lawliet",
+	"nodes": {
+		"lawliet": {
+			"system": "x86_64-linux",
+			"syncthing_device_id": "Q3KQM42-QOQX74N-WWFNOJJ-YVWL3HZ-RXPPYX5-UUFQQ25-RKHKDJP-6D2EJAR",
+			"roles": [
+				"always-on-gateway",
+				"scheduler",
+				"control-plane-writer",
+				"local-linux-executor",
+				"session-archive-source"
+			],
+			"gateway_writer": true,
+			"scheduler_writer": true,
+			"control_plane_writer": true
+		},
+		"watari": {
+			"system": "aarch64-darwin",
+			"syncthing_device_id": "3XNHQ5T-LBTQ3PJ-EXYZUJA-SSUF3B7-GX3XCCU-ADNBUPR-KRDYYJF-JBUIDAG",
+			"roles": [
+				"first-class-local-cli",
+				"local-macos-executor",
+				"session-archive-source"
+			],
+			"gateway_writer": false,
+			"scheduler_writer": false,
+			"control_plane_writer": false
+		}
+	}
+}

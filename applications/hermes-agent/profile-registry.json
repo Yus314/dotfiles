@@ -7,6 +7,36 @@
 		"Discord is a human routing surface, summaries are the low-volume integration bus, and Kanban is the durable work-order bus",
 		"Hermes profile separation is state separation, not an operating-system sandbox"
 	],
+	"nodes": {
+		"lawliet": {
+			"system": "x86_64-linux",
+			"default_profile_roles": [
+				"always-on-gateway",
+				"scheduler",
+				"control-plane-writer",
+				"local-linux-executor",
+				"session-archive-source"
+			],
+			"default_profile_claims": {
+				"gateway_writer": true,
+				"scheduler_writer": true,
+				"control_plane_writer": true
+			}
+		},
+		"watari": {
+			"system": "aarch64-darwin",
+			"default_profile_roles": [
+				"first-class-local-cli",
+				"local-macos-executor",
+				"session-archive-source"
+			],
+			"default_profile_claims": {
+				"gateway_writer": false,
+				"scheduler_writer": false,
+				"control_plane_writer": false
+			}
+		}
+	},
 	"information_exchange": {
 		"semantic_memory": {
 			"general_shared_workspace": "hermes",
@@ -172,6 +202,16 @@
 			"memory_provider": "honcho",
 			"memory_workspace": "hermes",
 			"memory_sharing_class": "general-shared",
+			"cross_host_continuity": {
+				"contract_version": 1,
+				"nodes": ["lawliet", "watari"],
+				"semantic_identity": {
+					"workspace": "hermes",
+					"user_peer": "kaki",
+					"ai_peer": "personal-assistant"
+				},
+				"session_continuity": "existing-source-authoritative-archive"
+			},
 			"shared_skill_groups": [
 				"common",
 				"study",

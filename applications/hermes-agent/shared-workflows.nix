@@ -25,6 +25,12 @@ let
       PYTHONPATH=${./scripts} \
       ${configPython}/bin/python ${./scripts/profile_consult.py} "$@"
   '';
+  defaultContinuityCheck = pkgs.writeShellScriptBin "hermes-default-continuity-check" ''
+    exec ${configPython}/bin/python ${./scripts/default_continuity_check.py} \
+      --contract "$HOME/.local/share/hermes/default-continuity-contract-v1.json" \
+      --registry "$HOME/.local/share/hermes/profile-registry.json" \
+      "$@"
+  '';
   sharedSkillsUnitTests = pkgs.runCommand "hermes-shared-skills-tests" { src = ./.; } ''
     cp -R "$src" source
     chmod -R u+w source
@@ -43,6 +49,7 @@ let
       tests/test_usage_adapters.py \
       tests/test_gateway_channels_config.py \
       tests/test_gateway_preflight.py \
+      tests/test_default_continuity_check.py \
       tests/test_research_config.py
     touch "$out"
   '';
@@ -60,12 +67,15 @@ in
   home.packages = [
     profileHandoffCheck
     profileConsult
+    defaultContinuityCheck
   ];
 
   home.file = {
     ".hermes/scripts/shared_skills_config.py".source = sharedSkillsRunner;
     ".local/share/hermes/shared-skills".source = validatedSharedSkills;
     ".local/share/hermes/profile-registry.json".source = ./profile-registry.json;
+    ".local/share/hermes/default-continuity-contract-v1.json".source =
+      ./default-continuity-contract-v1.json;
     ".hermes/profiles/finance/honcho.json".source = ./profile-configs/finance/honcho.json;
     ".hermes/profiles/food/honcho.json".source = ./profile-configs/food/honcho.json;
     ".hermes/profiles/health/honcho.json".source = ./profile-configs/health/honcho.json;
