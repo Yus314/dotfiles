@@ -562,6 +562,17 @@ in
           '';
     }
 
+    (lib.mkIf pkgs.stdenv.isDarwin {
+      # Watari's default CLI needs only the Honcho credential. Keep gateway,
+      # Discord, research-provider, and model credentials outside this host.
+      sops.secrets."hermes-default-honcho-env" = {
+        sopsFile = ./secrets.yaml;
+        key = "default_honcho_env";
+        path = "${config.home.homeDirectory}/.hermes/.env";
+        mode = "0400";
+      };
+    })
+
     (lib.mkIf pkgs.stdenv.isLinux {
       sops.secrets."hermes-health-google-env" = {
         sopsFile = ./secrets.yaml;

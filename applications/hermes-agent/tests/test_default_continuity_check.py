@@ -190,6 +190,22 @@ class DefaultContinuityCheckTests(unittest.TestCase):
         self.assertTrue(all(error.isupper() and " " not in error for error in errors))
         self.assertNotIn("secret", "\n".join(errors).lower())
 
+    def test_darwin_default_honcho_secret_is_narrow_and_declarative(self) -> None:
+        module_text = (SOURCE_ROOT / "default.nix").read_text()
+        darwin_block = module_text.split(
+            "(lib.mkIf pkgs.stdenv.isDarwin {", maxsplit=1
+        )[1].split("(lib.mkIf pkgs.stdenv.isLinux {", maxsplit=1)[0]
+        self.assertIn('sops.secrets."hermes-default-honcho-env"', darwin_block)
+        self.assertIn('key = "default_honcho_env";', darwin_block)
+        self.assertIn(
+            'path = "${config.home.homeDirectory}/.hermes/.env";', darwin_block
+        )
+        self.assertIn('mode = "0400";', darwin_block)
+        self.assertNotIn('key = "env";', darwin_block)
+        encrypted = (SOURCE_ROOT / "secrets.yaml").read_text()
+        self.assertIn("default_honcho_env: ENC[", encrypted)
+        self.assertNotIn("HONCHO_API_KEY", encrypted)
+
     def test_activation_gate_uses_store_command_and_deployed_inputs(self) -> None:
         module_text = (SOURCE_ROOT / "shared-workflows.nix").read_text()
         gate = module_text.split(
