@@ -116,6 +116,7 @@ pkgs.runCommand "shingeta-kanata-macos-check"
     SHINGETA_GENERATOR=${../../../nixos/services/kanata/generate_shingeta.py} \
       SHINGETA_SOURCE=${../../../nixos/services/xremap/shingeta.yml} \
       SHINGETA_MAC_GENERATED=${./shingeta.kbd} \
+      AQUASKK_KEYMAP=${../../../../homes/darwin/keymap.conf} \
       python ${./test_generate_shingeta.py}
 
     python ${../../../nixos/services/kanata/generate_shingeta.py} \

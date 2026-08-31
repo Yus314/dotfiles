@@ -25,6 +25,9 @@ SOURCE = Path(
     )
 )
 GENERATED = Path(os.environ.get("SHINGETA_MAC_GENERATED", HERE / "shingeta.kbd"))
+AQUASKK_KEYMAP = Path(
+    os.environ.get("AQUASKK_KEYMAP", ROOT / "homes/darwin/keymap.conf")
+)
 LINUX_GENERATED_ENV = os.environ.get("SHINGETA_LINUX_GENERATED")
 LINUX_GENERATED = Path(LINUX_GENERATED_ENV) if LINUX_GENERATED_ENV else None
 
@@ -90,6 +93,12 @@ class MacShingetaGenerationTest(unittest.TestCase):
         self.assertEqual(self.shinyou["v"]["timeout_key"], "q")
         self.assertNotIn("macos_timeout_key", self.shinyou["v"])
         self.assertIn("single-v (macro q)", self.text)
+        toggle_kana = re.findall(
+            r"^ToggleKana\s+(\S+)\s*$",
+            AQUASKK_KEYMAP.read_text(),
+            flags=re.MULTILINE,
+        )
+        self.assertEqual(toggle_kana, ["q"])
         linux_text = generator.generate_linux(self.default, self.shinyou)[0]
         self.assertIn("single-v (macro q)", linux_text)
 
