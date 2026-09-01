@@ -68,6 +68,8 @@ in
   services.karabiner-elements.enable = false;
   services.tailscale = {
     enable = true;
-    overrideLocalDns = true;
+    # Keep ordinary DNS independent from Tailscale so an expired node key
+    # cannot break public name resolution. MagicDNS remains scoped to ts.net.
+    overrideLocalDns = false;
   };
 }
