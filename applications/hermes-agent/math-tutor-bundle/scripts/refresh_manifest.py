@@ -87,7 +87,7 @@ def build_manifest() -> dict:
             "shared_durable_scope": "user-self",
             "observer_inference_scope": "host-local",
         },
-        "expected_model": {"provider": "openai-codex", "model": "gpt-5.6-sol"},
+        "expected_model": {"provider": "openai-codex", "model": "gpt-6-astra"},
         "skill_allowlist": skills,
         "runtime_identity": runtime_identity,
         "content_digests": digests,

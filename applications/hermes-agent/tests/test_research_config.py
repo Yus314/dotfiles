@@ -31,10 +31,13 @@ class ResearchConfigTests(unittest.TestCase):
             self.assertEqual(result["web"]["backend"], "firecrawl")
             self.assertEqual(result["web"]["other"], "value")
             self.assertEqual(result["model"]["provider"], "openai-codex")
+            self.assertEqual(result["model"]["default"], "gpt-6-astra")
             self.assertEqual(
-                result["providers"]["openai-codex"]["models"]["gpt-5.6-sol"]["stale_timeout_seconds"],
+                result["providers"]["openai-codex"]["models"]["gpt-6-astra"]["stale_timeout_seconds"],
                 300,
             )
+            self.assertEqual(result["auxiliary"]["compression"]["model"], "gpt-6-astra")
+            self.assertEqual(result["auxiliary"]["title_generation"]["model"], "gpt-6-astra")
             self.assertEqual(
                 result["mcp_servers"]["research_providers"]["args"][:3],
                 ["run", "--with", "mcp<2"],

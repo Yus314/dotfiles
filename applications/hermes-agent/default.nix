@@ -6,7 +6,7 @@
 #
 # One-time interactive setup (run as your user, on this host):
 #   hermes model      # choose "OpenAI Codex" -> device-code login (ChatGPT
-#                     #   Plus) -> set default model to gpt-5.6-sol
+#                     #   Plus) -> set default model to gpt-6-astra
 #   hermes fallback add openrouter/anthropic/claude-sonnet-4   # optional fallback
 #   systemctl --user restart hermes-gateway
 #

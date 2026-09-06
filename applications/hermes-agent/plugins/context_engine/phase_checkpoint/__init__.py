@@ -61,7 +61,7 @@ class PhaseCheckpointEngine(ContextCompressor):
         # loading the engine.  These values mirror the default-profile settings
         # and make discovery/testing safe before that binding occurs.
         super().__init__(
-            model="gpt-5.6-sol",
+            model="gpt-6-astra",
             threshold_percent=0.50,
             protect_first_n=3,
             protect_last_n=20,

@@ -1,10 +1,10 @@
 {
-	"aggregate_sha256": "bdaa222802a56352ee965a9abfb8da8c3a196533f78da6824d598e5035b80998",
+	"aggregate_sha256": "a8d55e6ffdc65114bdee5ab9b7ad77b8363feb57bc0ebd966284b483389a4191",
 	"bundle_version": "1.1.0-candidate.1",
 	"content_digests": {
 		"SOUL.md": "255aeb7822e1bdfd1a465e2adf212c8ac4192fa9bff230c7680358d7e710a3d2",
 		"behavior-fixture.json": "b3364e8525482a85101147b939afb31ad73e7ce1903b90b66857bc476ae201ed",
-		"config-fragment.json": "f6881e7232edffdb407516229c46821411544621c2f5c79d6f64a64969ee2475",
+		"config-fragment.json": "0b06cab6a84d8527739278f759a1ba2169fc1973d07c7413103702cdf6a31449",
 		"contract.md": "4c5876e24c58ddb9805e0f43d046eb333519af5382ee736f741c742a835cc7a2",
 		"default.nix": "f03dfe48b18f161eedbcfe0b0ad5a7e478396ae89d2e7b8e1f859d401cf48da3",
 		"overlays/lawliet.json": "12039fb31d0127b2c192a1b74078df1c605b37e8639cf64c8b64ec48abcb4b76",
@@ -15,7 +15,7 @@
 		"scripts/disposable_honcho_topology.py": "1213a415584e70436adbb73b804d85bf8a8c76980f2c783192ea53c3539c6e3c",
 		"scripts/drift_check.py": "23e41abcffdb93d7da9b6151bb07a920cb0250c52ca6ded48ae59bec7bdc8689",
 		"scripts/math_profile_materialize.py": "cda027a55010fe2dc11402b5ca8f265f38d1ba6dbe2a3c513dd90bf7db42eb5f",
-		"scripts/refresh_manifest.py": "a90dae61e3e69ddfcdedc003f5cedc9f55222c7024bbd69d5859ae77dcfa398c",
+		"scripts/refresh_manifest.py": "6cb3fc11266c072121a847a6f23c4a77127ce21cea017673bd9becf5c7ffa3af",
 		"scripts/run_behavior_parity.py": "0827415cfe3122abb09575502519d09ffc94c1b3ab57ebf3d86503311349233a",
 		"skills/cross-machine-study-environments/SKILL.md": "ef2c09915557a861ddbbbfd9ad13078a76e174d41497c401ce3fef18890addb5",
 		"skills/cross-machine-study-environments/references/git-artifact-agent-handoff.md": "bf1048503574696ab6801034a270e778b9b552c4a04f23b12abd92d18307b3d9",
@@ -32,7 +32,7 @@
 		"skills/math-book-study-workflow/references/pdf-grounded-study-evaluation.md": "be9ba23a2fe161c701ce63b1a40a8042efffdcdf2f16b7f92b7d25c199d890ea"
 	},
 	"expected_model": {
-		"model": "gpt-5.6-sol",
+		"model": "gpt-6-astra",
 		"provider": "openai-codex"
 	},
 	"honcho": {

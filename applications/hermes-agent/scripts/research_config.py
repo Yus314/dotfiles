@@ -10,7 +10,8 @@ from pathlib import Path
 
 import yaml
 
-MODEL_SLUGS = ("gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5")
+DEFAULT_MODEL = "gpt-6-astra"
+MODEL_SLUGS = (DEFAULT_MODEL, "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5")
 
 
 def mapping(parent: dict, key: str, *, path: str) -> dict:
@@ -32,7 +33,7 @@ def configured(config: dict, home: Path) -> dict:
 
     model = mapping(config, "model", path="config")
     model.update(
-        default="gpt-5.6-sol",
+        default=DEFAULT_MODEL,
         provider="openai-codex",
         base_url="https://chatgpt.com/backend-api/codex",
     )
@@ -40,7 +41,7 @@ def configured(config: dict, home: Path) -> dict:
     auxiliary = mapping(config, "auxiliary", path="config")
     for key in ("compression", "title_generation"):
         section = mapping(auxiliary, key, path="config.auxiliary")
-        section.update(provider="openai-codex", model="gpt-5.6-sol")
+        section.update(provider="openai-codex", model=DEFAULT_MODEL)
 
     providers = mapping(config, "providers", path="config")
     openai_codex = mapping(providers, "openai-codex", path="config.providers")
