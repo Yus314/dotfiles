@@ -5,6 +5,11 @@
     nixpkgs.url = "git+https://github.com/nixos/nixpkgs?shallow=1&ref=nixos-unstable";
     nixpkgs-stable.url = "git+https://github.com/nixos/nixpkgs?shallow=1&ref=nixos-24.05";
 
+    # Track upstream stable Codex releases independently of the system nixpkgs.
+    codex-cli-nix = {
+      url = "github:sadjow/codex-cli-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     disko.url = "github:nix-community/disko";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
     # Keep the daily system package set stable while pinning the Emacs 31

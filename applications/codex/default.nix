@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -52,6 +53,7 @@ in
 
   programs.codex = {
     enable = true;
+    package = inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
     settings = {
       model_reasoning_effort = "xhigh";
       sandbox_mode = "workspace-write";
