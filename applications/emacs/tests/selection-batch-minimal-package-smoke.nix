@@ -73,9 +73,31 @@ pkgs.runCommandLocal "selection-batch-minimal-package-smoke"
       --funcall ert-run-tests-batch-and-exit \
       2>&1 | tee package-smoke.log
 
+    ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+      app_emacs=${home.config.programs.emacs.finalPackage}/Applications/Emacs.app/Contents/MacOS/Emacs
+      test -x "$app_emacs"
+      "$app_emacs" --batch --quick \
+        --load "$XDG_CONFIG_HOME/emacs/init.el" \
+        --eval '(progn
+          (dolist (library (list "exec-path-from-shell" "lsp-mode" "lean4-mode"))
+            (unless (locate-library library)
+              (error "Darwin app wrapper cannot locate %s" library)))
+          (unless (getenv "emacsWithPackages_siteLisp")
+            (error "Darwin app wrapper did not set emacsWithPackages_siteLisp"))
+          (with-temp-buffer
+            (setq buffer-file-name "/tmp/emacs-daemon-smoke.lean")
+            (normal-mode)
+            (unless (eq major-mode (intern "lean4-mode"))
+              (error "Expected lean4-mode, got %S" major-mode))))' \
+        2>&1 | tee darwin-app-smoke.log
+    ''}
+
     mkdir -p "$out"
     cp package-smoke.log "$out/test.log"
     cp standalone-smoke.log "$out/standalone-test.log"
+    ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+      cp darwin-app-smoke.log "$out/darwin-app-smoke.log"
+    ''}
     printf '%s\n' ${actualEmacs} > "$out/emacs-package"
     printf '%s\n' ${home.config.programs.emacs.finalPackage} > "$out/final-package"
     printf '%s\n' ${home.config.services.emacs.package} > "$out/service-package"

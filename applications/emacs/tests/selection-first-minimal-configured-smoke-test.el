@@ -1,6 +1,21 @@
 ;;; selection-first-minimal-configured-smoke-test.el --- Configured profile smoke -*- lexical-binding: t; -*-
 
 (require 'ert)
+(require 'exec-path-from-shell)
+
+(ert-deftest selection-first-minimal-shell-environment-initializer-is-idempotent ()
+  (let ((my/shell-environment-initialized-p nil)
+        (exec-path-from-shell-variables nil)
+        (calls 0))
+    (cl-letf (((symbol-function 'exec-path-from-shell-initialize)
+               (lambda () (setq calls (1+ calls)))))
+      (my/initialize-shell-environment)
+      (my/initialize-shell-environment))
+    (should (= calls 1))
+    (dolist (variable '("GNUPGHOME" "NIX_PATH" "ELAN_HOME"))
+      (should (= 1 (length (seq-filter
+                            (lambda (candidate) (equal candidate variable))
+                            exec-path-from-shell-variables)))))))
 
 (ert-deftest selection-first-minimal-lean4-uses-deferred-lsp-startup ()
   (should (locate-library "lsp-mode"))

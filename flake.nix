@@ -159,6 +159,10 @@
             shingeta-kanata = import ./systems/nixos/services/kanata/check.nix { inherit pkgs; };
           }
           // pkgs.lib.optionalAttrs (system == "aarch64-darwin") {
+            emacs-daemon-darwin = import ./applications/emacs/tests/emacs-daemon-darwin-smoke.nix {
+              inherit pkgs;
+              watariConfig = self.darwinConfigurations.watari.config;
+            };
             shingeta-kanata-macos = import ./systems/darwin/services/kanata/check.nix {
               inherit pkgs;
               watariConfig = self.darwinConfigurations.watari.config;

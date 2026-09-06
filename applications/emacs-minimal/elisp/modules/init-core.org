@@ -5,11 +5,20 @@
 #+end_src
 * exec-path-from-shell[macOS]
 #+begin_src emacs-lisp :tangle yes
-    (when (memq window-system '(mac ns x))
+  (defvar my/shell-environment-initialized-p nil
+    "Non-nil after importing the login-shell environment into Emacs.")
+
+  (defun my/initialize-shell-environment ()
+    "Import the login-shell environment once for GUI or daemon Emacs."
+    (unless my/shell-environment-initialized-p
       (require 'exec-path-from-shell)
-      (dolist (var '("GNUPGHOME" "NIX_PATH" "ELAN_HOME"))
-      (add-to-list 'exec-path-from-shell-variables var))
-      (exec-path-from-shell-initialize))
+      (dolist (variable '("GNUPGHOME" "NIX_PATH" "ELAN_HOME"))
+        (add-to-list 'exec-path-from-shell-variables variable))
+      (exec-path-from-shell-initialize)
+      (setq my/shell-environment-initialized-p t)))
+
+  (when (or (daemonp) (memq window-system '(mac ns x pgtk)))
+    (my/initialize-shell-environment))
 #+end_src
 * builtin properties
 #+begin_src emacs-lisp :tangle yes

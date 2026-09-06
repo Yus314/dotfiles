@@ -87,12 +87,7 @@ in
 
       binds = defaultKeyBind // {
         "Mod+K".action.spawn = "kitty";
-        "Mod+E".action.spawn = [
-          "emacsclient"
-          "-c"
-          "-a"
-          ""
-        ];
+        "Mod+E".action.spawn = "emacs-frame";
         "Mod+B".action.spawn = [
           "zen-beta"
         ];

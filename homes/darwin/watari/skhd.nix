@@ -40,7 +40,8 @@ in
     skhdConfig = lib.mkForce ''
       # Launch or focus applications.
       alt - k : /usr/bin/osascript -e 'tell application id "com.mitchellh.ghostty" to new window'
-      alt - e : ${activateApplication} org.gnu.Emacs
+      # Emacs Client exits after creating a frame, so do not wait for an app process.
+      alt - e : /usr/bin/open -b dev.yus314.emacs-client
       alt - b : ${activateApplication} app.zen-browser.zen
 
       # Match Niri's launcher and close-window actions.
