@@ -80,6 +80,11 @@
   (set-language-environment 'Japanese)
   (prefer-coding-system 'utf-8-unix)
   (set-face-attribute 'default nil :family "Bizin Gothic Discord NF" :height 160)
+  ;; mac-ct does not discover hidden system fonts automatically.  Keep
+  ;; existing font choices and use the system font only as a last fallback.
+  ;; Set the default fontset before daemon clients create graphical frames.
+  (when (and (eq system-type 'darwin) (fboundp 'set-fontset-font))
+    (set-fontset-font t nil (font-spec :family ".AppleSystemUIFont") nil 'append))
   ;)
 #+end_src
 ** x session resourcesを無視します
