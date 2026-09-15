@@ -15,7 +15,7 @@
     # Keep the daily system package set stable while pinning the Emacs 31
     # toolchain that has passed selection-first dogfood qualification.
     nixpkgs-emacs.url = "github:NixOS/nixpkgs/e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3";
-    emacs-overlay-31.url = "github:nix-community/emacs-overlay/723bc7fa2449e2cba507fb3bcd5caaa67728e023";
+    emacs-overlay-31.url = "github:nix-community/emacs-overlay/a6fa7e4a704942e48ffce52de9de9e884f06f091";
     flake-parts.url = "github:hercules-ci/flake-parts";
     git-hooks.url = "github:cachix/git-hooks.nix";
     home-manager.url = "github:nix-community/home-manager";
