@@ -512,17 +512,17 @@
     },
     "nixpkgs-emacs": {
       "locked": {
-        "lastModified": 1783776592,
-        "narHash": "sha256-UgCQzxeWI75XM8G+hPrPh+MKzEPjG3SpAj7dtqSbksA=",
+        "lastModified": 1789816776,
+        "narHash": "sha256-9CQMavMptb86dssf11Mg0I4xJJqJlv2ZZ+2AmiC+Vvw=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3",
+        "rev": "9395be2d343d2ff95181c502b71a8bc029f2a5ad",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3",
+        "rev": "9395be2d343d2ff95181c502b71a8bc029f2a5ad",
         "type": "github"
       }
     },
