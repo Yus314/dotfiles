@@ -1,1 +1,0 @@
-engine.py is the official Kaggle kaggle-environments 1.32.7 Kaggriculture engine. The only change is a local seed resolver replacing the package import. Original distribution and SHA-256: see engine-provenance.json. No competitor source code is included.
