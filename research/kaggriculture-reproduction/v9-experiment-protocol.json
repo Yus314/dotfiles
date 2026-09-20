@@ -1,0 +1,14 @@
+{
+  "candidate_limit": 2,
+  "primary_objective": "Reproduce submission 56216119 task destinations and actions while improving autonomous outcomes.",
+  "development_episodes": 18,
+  "final_episodes": 20,
+  "final_acceptance": {
+    "recorded_town_mean_cash_gain_min": 0.03,
+    "endogenous_mean_cash_gain_min": 0.0,
+    "worker_action_agreement": "no decrease versus v7 on the same final games",
+    "destination_agreement": "no decrease versus v7 on the same final games",
+    "uncertainty": "Report episode-paired bootstrap intervals and all cases; do not claim statistically demonstrated superiority unless the interval excludes zero."
+  },
+  "stop": "If neither targeted candidate passes development, do not consume final replays; stop this scheduling direction and keep v7."
+}

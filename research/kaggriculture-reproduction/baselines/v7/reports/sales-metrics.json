@@ -1,0 +1,17 @@
+{
+  "fraction_previous": {
+    "quantity_mae": 0.6151281516982705,
+    "quantity_exact": 0.681947627978051
+  },
+  "fraction": {
+    "quantity_mae": 0.6151281516982705,
+    "quantity_exact": 0.681947627978051
+  },
+  "quantity": {
+    "quantity_mae": 0.6330485517816211,
+    "quantity_exact": 0.8355212891574634
+  },
+  "selected": "fraction",
+  "inference_export_equivalent": true,
+  "selection_reason": "Quantity head rejected after autonomous liquidity failure, confirmed on original development replay. Fraction head has lowest quantity MAE."
+}

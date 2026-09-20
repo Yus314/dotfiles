@@ -1,0 +1,15 @@
+{
+  "v7": {
+    "_snapshot": "baselines/v7"
+  },
+  "dig": {
+    "_snapshot": "baselines/v9-candidate",
+    "canonical_dig": true,
+    "assignment": "global"
+  },
+  "dig_regret": {
+    "_snapshot": "baselines/v9-candidate",
+    "canonical_dig": true,
+    "assignment": "regret"
+  }
+}

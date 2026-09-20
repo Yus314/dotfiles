@@ -1,0 +1,14 @@
+test_animal_budget_blocks_replacement_but_allows_expansion (test_invariants.TestPolicy.test_animal_budget_blocks_replacement_but_allows_expansion) ... ok
+test_animal_budget_survives_transfers_losses_and_restart (test_invariants.TestPolicy.test_animal_budget_survives_transfers_losses_and_restart) ... ok
+test_export_is_finite (test_invariants.TestPolicy.test_export_is_finite) ... ok
+test_feature_schema_and_hidden_fields (test_invariants.TestPolicy.test_feature_schema_and_hidden_fields) ... ok
+test_final_day_candidates_can_return_harvest (test_invariants.TestPolicy.test_final_day_candidates_can_return_harvest) ... ok
+test_last_two_decisions_allow_harvest_then_drop (test_invariants.TestPolicy.test_last_two_decisions_allow_harvest_then_drop) ... ok
+test_observation_not_mutated_and_opening_exact (test_invariants.TestPolicy.test_observation_not_mutated_and_opening_exact) ... ok
+test_pinned_engine_reproduces_every_transition (test_invariants.TestPolicy.test_pinned_engine_reproduces_every_transition) ... ok
+test_isolated_archive_predictions_match_source (test_package.TestPackage.test_isolated_archive_predictions_match_source) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 2.146s
+
+OK

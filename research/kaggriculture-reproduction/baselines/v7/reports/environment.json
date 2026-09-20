@@ -1,0 +1,8 @@
+{
+  "python": "3.12.14 (main, Aug 12 2026, 13:57:54) [Clang 21.1.8 ]",
+  "platform": "macOS-26.3-arm64-arm-64bit",
+  "numpy": "2.5.3",
+  "scikit-learn": "1.9.1",
+  "scipy": "1.18.1",
+  "threadpoolctl": "3.7.0"
+}

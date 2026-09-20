@@ -1,0 +1,12 @@
+{
+  "care2": {
+    "animal_purchase_cap": false,
+    "deficit_weight": 0.0,
+    "emergency_weight": 2.0,
+    "goal_bonus": 0.0,
+    "crop_mode": "hard",
+    "crop_slack": 4,
+    "crop_penalty": 2.0,
+    "_snapshot": "baselines/v8-candidate"
+  }
+}

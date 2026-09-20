@@ -1,0 +1,86 @@
+{
+  "purpose": "Post-evaluation assessment of whether and where further improvement is justified; runtime unchanged.",
+  "development_plant_candidate_audit": {
+    "episodes": 6,
+    "reference_plant_instructions": 1731,
+    "excluded_by_predicted_crop_target": 614,
+    "fraction_excluded": 0.35470826112073944,
+    "by_crop": {
+      "WHEAT": {
+        "reference": 925,
+        "excluded_by_target": 245
+      },
+      "CARROT": {
+        "reference": 492,
+        "excluded_by_target": 336
+      },
+      "TOMATO": {
+        "reference": 52,
+        "excluded_by_target": 11
+      },
+      "STRAWBERRY": {
+        "reference": 191,
+        "excluded_by_target": 22
+      },
+      "MELON": {
+        "reference": 71,
+        "excluded_by_target": 0
+      }
+    },
+    "method": "For each original development observation with a recorded PLANT instruction, generate candidates once with targets=None and once with the frozen v7 crop targets and opening overrides. Count when the recorded instruction exists without the target cap and is excluded with it. Does not count the later cross-worker reservation filter; no improvement is presumed from removing the cap."
+  },
+  "eight_episode_recorded_town_diagnostics": {
+    "mean_cash_shortfall": 21135.625,
+    "mean_income_shortfall": 18942.25,
+    "mean_excess_spending": 2193.375,
+    "mean_excess_livestock_spending": 1850.0,
+    "livestock_excess_spending_games": 7,
+    "mean_animal_escapes_original": 6.75,
+    "mean_animal_escapes_replica": 11.75,
+    "production_totals_original_replica": {
+      "WOOL": [
+        1018,
+        1001
+      ],
+      "MELON": [
+        557,
+        549
+      ],
+      "FERTILIZER": [
+        2834,
+        2581
+      ],
+      "CARROT": [
+        1453,
+        811
+      ],
+      "TOMATO": [
+        475,
+        121
+      ],
+      "STRAWBERRY": [
+        1719,
+        1343
+      ],
+      "MILK": [
+        1579,
+        1196
+      ],
+      "WHEAT": [
+        4643,
+        3184
+      ],
+      "EGG": [
+        471,
+        453
+      ]
+    },
+    "interpretation": "Accounting decomposition and fixed-opponent diagnostics, not causal attribution or live competitive performance."
+  },
+  "action_mismatches": {
+    "all": 14988,
+    "movement": 9743,
+    "movement_fraction": 0.6500533760341607,
+    "interpretation": "A path-order mismatch can be economically harmless; inspect destination and task before assigning value to direction agreement."
+  }
+}

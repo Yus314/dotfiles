@@ -1,0 +1,127 @@
+{
+  "model_version": "v7",
+  "teacher": {
+    "correct": {
+      "unit": 42654,
+      "op": 43220,
+      "nonmovement": 25330,
+      "market_exact": 1394
+    },
+    "total": {
+      "unit": 57642,
+      "op": 57642,
+      "nonmovement": 30575,
+      "market_exact": 5752
+    },
+    "rates": {
+      "unit": 0.7399812636619132,
+      "op": 0.7498004926962979,
+      "nonmovement": 0.828454619787408,
+      "market_exact": 0.24235048678720444
+    },
+    "by_operation": {
+      "PASS": {
+        "total": 440,
+        "correct": 282
+      },
+      "PICKUP": {
+        "total": 1540,
+        "correct": 805
+      },
+      "BUILD_PASTURE": {
+        "total": 118,
+        "correct": 116
+      },
+      "PLACE": {
+        "total": 908,
+        "correct": 832
+      },
+      "NORTH": {
+        "total": 8846,
+        "correct": 5026
+      },
+      "WEST": {
+        "total": 7558,
+        "correct": 5219
+      },
+      "FEED": {
+        "total": 2399,
+        "correct": 2256
+      },
+      "CARE": {
+        "total": 2491,
+        "correct": 2198
+      },
+      "SOUTH": {
+        "total": 5312,
+        "correct": 3339
+      },
+      "PLANT": {
+        "total": 2313,
+        "correct": 1102
+      },
+      "WATER": {
+        "total": 11247,
+        "correct": 10290
+      },
+      "EAST": {
+        "total": 5351,
+        "correct": 3740
+      },
+      "COLLECT_FERTILIZER": {
+        "total": 2882,
+        "correct": 2354
+      },
+      "HARVEST": {
+        "total": 4030,
+        "correct": 3383
+      },
+      "DROP": {
+        "total": 636,
+        "correct": 624
+      },
+      "FERTILIZE": {
+        "total": 1268,
+        "correct": 1020
+      },
+      "DIG": {
+        "total": 291,
+        "correct": 56
+      },
+      "BUILD_COOP": {
+        "total": 12,
+        "correct": 12
+      }
+    }
+  },
+  "endogenous_town": {
+    "episodes": 8,
+    "mean_cash": 91597.375,
+    "mean_cash_ratio": 0.9012230492348096,
+    "median_cash_ratio": 0.8113812497542733,
+    "min_cash_ratio": 0.7186540744622822,
+    "max_cash_ratio": 1.2288035334016878,
+    "wins_vs_recorded_actions": 1,
+    "cash_identities_verified": true
+  },
+  "recorded_town": {
+    "episodes": 8,
+    "mean_cash": 81006.0,
+    "mean_cash_ratio": 0.7918423527096715,
+    "median_cash_ratio": 0.7836379437076245,
+    "min_cash_ratio": 0.6585554985201123,
+    "max_cash_ratio": 0.8890220536636521,
+    "wins_vs_recorded_actions": 0,
+    "cash_identities_verified": true
+  },
+  "verified_replay_episodes": 72,
+  "verified_transitions": 51768,
+  "exported_inference": {
+    "runtime_mean": 0.1822613251615887,
+    "runtime_p95": 0.2997859249881003,
+    "runtime_max": 0.445398208044935,
+    "native_exported_action_sha256": "ca665eb584a8a9fb42be7f62ae4eea270a9b8972ace596af445ac5b7a94a09dc",
+    "all_719_actions_identical": true
+  },
+  "submission_not_sent": true
+}

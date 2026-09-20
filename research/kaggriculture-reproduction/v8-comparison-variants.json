@@ -1,0 +1,8 @@
+{
+  "v7": {
+    "_snapshot": "baselines/v7"
+  },
+  "v8": {
+    "_snapshot": "baselines/v8-candidate"
+  }
+}

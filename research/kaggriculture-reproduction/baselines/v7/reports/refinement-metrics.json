@@ -1,0 +1,8 @@
+{
+  "rank_pair_auc": 0.9820308849298598,
+  "movement_axis_accuracy": 0.9183203911417889,
+  "movement_axis_vertical_baseline": 0.8815070463042853,
+  "pickup_wheat_mae": 0.4724903252114948,
+  "seconds": 337.9428861141205,
+  "inference_export_equivalent": true
+}

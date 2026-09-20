@@ -1,0 +1,1620 @@
+[
+  {
+    "episode": 111105944,
+    "seed": 20260921,
+    "target_seat": 0,
+    "mode": "closed_loop_vs_self",
+    "town_mode": "endogenous",
+    "money": [
+      128970.0,
+      119752.0
+    ],
+    "target_money": 128970.0,
+    "reference_target_money": null,
+    "fraction_of_reference": null,
+    "action_sha256": "cde228c282f2afdbc418420fdc841950f2f211e71fcae71c2ea9d89709607a06",
+    "margin": 9218.0,
+    "runtime_mean": 0.08134357865429606,
+    "runtime_p95": 0.18667676220065915,
+    "runtime_max": 0.43658649997087196,
+    "actions": {
+      "PASS": 389,
+      "PICKUP": 246,
+      "BUILD_PASTURE": 17,
+      "PLACE": 160,
+      "NORTH": 914,
+      "WEST": 1021,
+      "FEED": 304,
+      "CARE": 322,
+      "PLANT": 224,
+      "WATER": 1157,
+      "SOUTH": 553,
+      "COLLECT_FERTILIZER": 359,
+      "EAST": 687,
+      "DROP": 194,
+      "HARVEST": 434,
+      "BUILD_COOP": 3,
+      "FERTILIZE": 138,
+      "DIG": 44
+    },
+    "days": [
+      {
+        "day": 0,
+        "cash": 6.0,
+        "counts": {
+          "WHEAT": 10,
+          "MELON": 6,
+          "SHEEP": 3,
+          "COW": 2
+        },
+        "land": 1,
+        "shops": [],
+        "prices": {
+          "CARROT": 35,
+          "EGG": 50,
+          "FERTILIZER": 100,
+          "MELON": 256,
+          "MILK": 169,
+          "STRAWBERRY": 128,
+          "TOMATO": 60,
+          "WHEAT": 28,
+          "WOOL": 206
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 0,
+          "FERTILIZER": 0,
+          "GOOSE": 0,
+          "MELON": 0,
+          "MILK": 0,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 0,
+          "WOOL": 0
+        }
+      },
+      {
+        "day": 1,
+        "cash": 1.0,
+        "counts": {
+          "WHEAT": 10,
+          "MELON": 9,
+          "SHEEP": 3,
+          "COW": 2
+        },
+        "land": 1,
+        "shops": [],
+        "prices": {
+          "CARROT": 35,
+          "EGG": 50,
+          "FERTILIZER": 98,
+          "MELON": 260,
+          "MILK": 172,
+          "STRAWBERRY": 132,
+          "TOMATO": 60,
+          "WHEAT": 30,
+          "WOOL": 209
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 0,
+          "FERTILIZER": 0,
+          "GOOSE": 0,
+          "MELON": 0,
+          "MILK": 0,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 1,
+          "WOOL": 0
+        }
+      },
+      {
+        "day": 2,
+        "cash": 38.0,
+        "counts": {
+          "MELON": 12,
+          "WHEAT": 3,
+          "SHEEP": 3,
+          "COW": 2
+        },
+        "land": 1,
+        "shops": [
+          "ICE_CREAM_SHOP"
+        ],
+        "prices": {
+          "CARROT": 35,
+          "EGG": 50,
+          "FERTILIZER": 96,
+          "MELON": 262,
+          "MILK": 175,
+          "STRAWBERRY": 135,
+          "TOMATO": 60,
+          "WHEAT": 30,
+          "WOOL": 212
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 0,
+          "FERTILIZER": 0,
+          "GOOSE": 0,
+          "MELON": 0,
+          "MILK": 0,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 17,
+          "WOOL": 0
+        }
+      },
+      {
+        "day": 3,
+        "cash": 84.0,
+        "counts": {
+          "STRAWBERRY": 4,
+          "MELON": 12,
+          "WHEAT": 4,
+          "SHEEP": 3,
+          "COW": 2
+        },
+        "land": 1,
+        "shops": [
+          "ICE_CREAM_SHOP"
+        ],
+        "prices": {
+          "CARROT": 35,
+          "EGG": 50,
+          "FERTILIZER": 94,
+          "MELON": 264,
+          "MILK": 187,
+          "STRAWBERRY": 147,
+          "TOMATO": 60,
+          "WHEAT": 30,
+          "WOOL": 214
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 0,
+          "FERTILIZER": 0,
+          "GOOSE": 0,
+          "MELON": 0,
+          "MILK": 0,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 8,
+          "WOOL": 0
+        }
+      },
+      {
+        "day": 4,
+        "cash": 460.0,
+        "counts": {
+          "STRAWBERRY": 6,
+          "MELON": 12,
+          "WHEAT": 2,
+          "SHEEP": 3,
+          "COW": 2
+        },
+        "land": 1,
+        "shops": [
+          "ICE_CREAM_SHOP"
+        ],
+        "prices": {
+          "CARROT": 35,
+          "EGG": 50,
+          "FERTILIZER": 92,
+          "MELON": 266,
+          "MILK": 196,
+          "STRAWBERRY": 155,
+          "TOMATO": 61,
+          "WHEAT": 30,
+          "WOOL": 215
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 0,
+          "FERTILIZER": 0,
+          "GOOSE": 0,
+          "MELON": 0,
+          "MILK": 0,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 6,
+          "WOOL": 0
+        }
+      },
+      {
+        "day": 5,
+        "cash": 726.0,
+        "counts": {
+          "STRAWBERRY": 8,
+          "MELON": 12,
+          "SHEEP": 3,
+          "COW": 2
+        },
+        "land": 1,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT"
+        ],
+        "prices": {
+          "CARROT": 35,
+          "EGG": 50,
+          "FERTILIZER": 90,
+          "MELON": 267,
+          "MILK": 203,
+          "STRAWBERRY": 161,
+          "TOMATO": 61,
+          "WHEAT": 31,
+          "WOOL": 217
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 0,
+          "FERTILIZER": 0,
+          "GOOSE": 0,
+          "MELON": 0,
+          "MILK": 0,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 4,
+          "WOOL": 0
+        }
+      },
+      {
+        "day": 6,
+        "cash": 78.0,
+        "counts": {
+          "STRAWBERRY": 15,
+          "MELON": 12,
+          "SHEEP": 3,
+          "COW": 6,
+          "GOOSE": 3
+        },
+        "land": 2,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 51,
+          "FERTILIZER": 88,
+          "MELON": 268,
+          "MILK": 208,
+          "STRAWBERRY": 171,
+          "TOMATO": 61,
+          "WHEAT": 33,
+          "WOOL": 158
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 0,
+          "FERTILIZER": 0,
+          "GOOSE": 0,
+          "MELON": 0,
+          "MILK": 0,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 1,
+          "WOOL": 0
+        }
+      },
+      {
+        "day": 7,
+        "cash": 172.0,
+        "counts": {
+          "STRAWBERRY": 19,
+          "MELON": 12,
+          "SHEEP": 3,
+          "COW": 6,
+          "GOOSE": 3,
+          "WHEAT": 1
+        },
+        "land": 2,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 51,
+          "FERTILIZER": 83,
+          "MELON": 269,
+          "MILK": 214,
+          "STRAWBERRY": 179,
+          "TOMATO": 61,
+          "WHEAT": 35,
+          "WOOL": 161
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 0,
+          "FERTILIZER": 0,
+          "GOOSE": 0,
+          "MELON": 0,
+          "MILK": 0,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 2,
+          "WOOL": 0
+        }
+      },
+      {
+        "day": 8,
+        "cash": 1242.0,
+        "counts": {
+          "STRAWBERRY": 24,
+          "MELON": 12,
+          "COW": 7,
+          "SHEEP": 3,
+          "GOOSE": 3,
+          "WHEAT": 1
+        },
+        "land": 2,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 52,
+          "FERTILIZER": 80,
+          "MELON": 270,
+          "MILK": 202,
+          "STRAWBERRY": 187,
+          "TOMATO": 61,
+          "WHEAT": 37,
+          "WOOL": 164
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 1,
+          "EGG": 0,
+          "FERTILIZER": 1,
+          "GOOSE": 0,
+          "MELON": 0,
+          "MILK": 1,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 3,
+          "WOOL": 0
+        }
+      },
+      {
+        "day": 9,
+        "cash": 1388.0,
+        "counts": {
+          "STRAWBERRY": 25,
+          "MELON": 12,
+          "COW": 7,
+          "SHEEP": 3,
+          "GOOSE": 3
+        },
+        "land": 2,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 52,
+          "FERTILIZER": 75,
+          "MELON": 271,
+          "MILK": 211,
+          "STRAWBERRY": 196,
+          "TOMATO": 61,
+          "WHEAT": 38,
+          "WOOL": 125
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 4,
+          "EGG": 0,
+          "FERTILIZER": 1,
+          "GOOSE": 0,
+          "MELON": 0,
+          "MILK": 0,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 4,
+          "WOOL": 2
+        }
+      },
+      {
+        "day": 10,
+        "cash": 3649.0,
+        "counts": {
+          "STRAWBERRY": 25,
+          "MELON": 8,
+          "COW": 11,
+          "SHEEP": 3,
+          "GOOSE": 3,
+          "WHEAT": 15
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 52,
+          "FERTILIZER": 70,
+          "MELON": 249,
+          "MILK": 213,
+          "STRAWBERRY": 204,
+          "TOMATO": 61,
+          "WHEAT": 40,
+          "WOOL": 82
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 1,
+          "EGG": 2,
+          "FERTILIZER": 0,
+          "GOOSE": 0,
+          "MELON": 13,
+          "MILK": 1,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 4,
+          "WOOL": 1
+        }
+      },
+      {
+        "day": 11,
+        "cash": 7205.0,
+        "counts": {
+          "STRAWBERRY": 28,
+          "MELON": 4,
+          "PASTURE": 1,
+          "COW": 11,
+          "WEED": 1,
+          "SHEEP": 3,
+          "GOOSE": 3,
+          "WHEAT": 19
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 52,
+          "FERTILIZER": 67,
+          "MELON": 227,
+          "MILK": 221,
+          "STRAWBERRY": 212,
+          "TOMATO": 61,
+          "WHEAT": 41,
+          "WOOL": 88
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 1,
+          "EGG": 7,
+          "FERTILIZER": 5,
+          "GOOSE": 0,
+          "MELON": 16,
+          "MILK": 1,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 3,
+          "WOOL": 1
+        }
+      },
+      {
+        "day": 12,
+        "cash": 13628.0,
+        "counts": {
+          "STRAWBERRY": 31,
+          "COW": 12,
+          "WEED": 1,
+          "SHEEP": 3,
+          "GOOSE": 3,
+          "WHEAT": 17
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 52,
+          "FERTILIZER": 62,
+          "MELON": 140,
+          "MILK": 229,
+          "STRAWBERRY": 221,
+          "TOMATO": 62,
+          "WHEAT": 42,
+          "WOOL": 82
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 5,
+          "FERTILIZER": 4,
+          "GOOSE": 0,
+          "MELON": 10,
+          "MILK": 4,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 22,
+          "WOOL": 12
+        }
+      },
+      {
+        "day": 13,
+        "cash": 15684.0,
+        "counts": {
+          "STRAWBERRY": 32,
+          "COW": 12,
+          "WEED": 2,
+          "SHEEP": 3,
+          "GOOSE": 3,
+          "WHEAT": 15
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 51,
+          "FERTILIZER": 59,
+          "MELON": 120,
+          "MILK": 237,
+          "STRAWBERRY": 230,
+          "TOMATO": 62,
+          "WHEAT": 42,
+          "WOOL": 43
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 3,
+          "FERTILIZER": 3,
+          "GOOSE": 0,
+          "MELON": 5,
+          "MILK": 2,
+          "SHEEP": 0,
+          "STRAWBERRY": 4,
+          "TOMATO": 0,
+          "WHEAT": 26,
+          "WOOL": 8
+        }
+      },
+      {
+        "day": 14,
+        "cash": 20340.0,
+        "counts": {
+          "STRAWBERRY": 32,
+          "COW": 12,
+          "SHEEP": 3,
+          "GOOSE": 3,
+          "WHEAT": 17,
+          "WEED": 1
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 51,
+          "FERTILIZER": 56,
+          "MELON": 118,
+          "MILK": 231,
+          "STRAWBERRY": 237,
+          "TOMATO": 62,
+          "WHEAT": 42,
+          "WOOL": 31
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 2,
+          "FERTILIZER": 2,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 15,
+          "SHEEP": 0,
+          "STRAWBERRY": 4,
+          "TOMATO": 0,
+          "WHEAT": 11,
+          "WOOL": 6
+        }
+      },
+      {
+        "day": 15,
+        "cash": 23561.0,
+        "counts": {
+          "STRAWBERRY": 35,
+          "COW": 11,
+          "WHEAT": 15,
+          "SHEEP": 3,
+          "GOOSE": 3,
+          "WEED": 2,
+          "PASTURE": 1
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 51,
+          "FERTILIZER": 55,
+          "MELON": 120,
+          "MILK": 234,
+          "STRAWBERRY": 243,
+          "TOMATO": 62,
+          "WHEAT": 43,
+          "WOOL": 31
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 5,
+          "FERTILIZER": 9,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 6,
+          "SHEEP": 0,
+          "STRAWBERRY": 12,
+          "TOMATO": 0,
+          "WHEAT": 25,
+          "WOOL": 9
+        }
+      },
+      {
+        "day": 16,
+        "cash": 32824.0,
+        "counts": {
+          "STRAWBERRY": 36,
+          "COW": 11,
+          "WHEAT": 12,
+          "SHEEP": 3,
+          "GOOSE": 3,
+          "PASTURE": 1,
+          "WEED": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 51,
+          "FERTILIZER": 48,
+          "MELON": 122,
+          "MILK": 235,
+          "STRAWBERRY": 240,
+          "TOMATO": 62,
+          "WHEAT": 43,
+          "WOOL": 11
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 2,
+          "FERTILIZER": 4,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 7,
+          "SHEEP": 0,
+          "STRAWBERRY": 8,
+          "TOMATO": 0,
+          "WHEAT": 12,
+          "WOOL": 10
+        }
+      },
+      {
+        "day": 17,
+        "cash": 36535.0,
+        "counts": {
+          "STRAWBERRY": 36,
+          "COW": 11,
+          "WHEAT": 14,
+          "SHEEP": 3,
+          "GOOSE": 3,
+          "WEED": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 51,
+          "FERTILIZER": 45,
+          "MELON": 125,
+          "MILK": 242,
+          "STRAWBERRY": 243,
+          "TOMATO": 62,
+          "WHEAT": 43,
+          "WOOL": 11
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 2,
+          "FERTILIZER": 3,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 1,
+          "SHEEP": 0,
+          "STRAWBERRY": 10,
+          "TOMATO": 0,
+          "WHEAT": 11,
+          "WOOL": 10
+        }
+      },
+      {
+        "day": 18,
+        "cash": 48027.0,
+        "counts": {
+          "STRAWBERRY": 33,
+          "WEED": 5,
+          "COW": 11,
+          "WHEAT": 13,
+          "SHEEP": 3,
+          "GOOSE": 3
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE"
+        ],
+        "prices": {
+          "CARROT": 36,
+          "EGG": 50,
+          "FERTILIZER": 41,
+          "MELON": 127,
+          "MILK": 230,
+          "STRAWBERRY": 241,
+          "TOMATO": 62,
+          "WHEAT": 44,
+          "WOOL": 5
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 4,
+          "FERTILIZER": 4,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 10,
+          "SHEEP": 0,
+          "STRAWBERRY": 10,
+          "TOMATO": 0,
+          "WHEAT": 23,
+          "WOOL": 17
+        }
+      },
+      {
+        "day": 19,
+        "cash": 54293.0,
+        "counts": {
+          "WEED": 6,
+          "STRAWBERRY": 33,
+          "COW": 10,
+          "WHEAT": 13,
+          "SHEEP": 3,
+          "COOP": 1,
+          "PASTURE": 1,
+          "GOOSE": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE"
+        ],
+        "prices": {
+          "CARROT": 37,
+          "EGG": 50,
+          "FERTILIZER": 39,
+          "MELON": 129,
+          "MILK": 235,
+          "STRAWBERRY": 240,
+          "TOMATO": 62,
+          "WHEAT": 44,
+          "WOOL": 31
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 2,
+          "FERTILIZER": 2,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 2,
+          "SHEEP": 0,
+          "STRAWBERRY": 8,
+          "TOMATO": 0,
+          "WHEAT": 12,
+          "WOOL": 15
+        }
+      },
+      {
+        "day": 20,
+        "cash": 63054.0,
+        "counts": {
+          "WEED": 5,
+          "STRAWBERRY": 31,
+          "WHEAT": 15,
+          "COW": 9,
+          "SHEEP": 3,
+          "PASTURE": 2,
+          "COOP": 1,
+          "GOOSE": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE",
+          "FARMERS_MARKET"
+        ],
+        "prices": {
+          "CARROT": 37,
+          "EGG": 51,
+          "FERTILIZER": 36,
+          "MELON": 131,
+          "MILK": 229,
+          "STRAWBERRY": 239,
+          "TOMATO": 63,
+          "WHEAT": 44,
+          "WOOL": 55
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 1,
+          "FERTILIZER": 5,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 8,
+          "SHEEP": 0,
+          "STRAWBERRY": 16,
+          "TOMATO": 0,
+          "WHEAT": 13,
+          "WOOL": 11
+        }
+      },
+      {
+        "day": 21,
+        "cash": 69858.0,
+        "counts": {
+          "WEED": 5,
+          "STRAWBERRY": 30,
+          "WHEAT": 20,
+          "COW": 9,
+          "SHEEP": 3,
+          "PASTURE": 2,
+          "GOOSE": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE",
+          "FARMERS_MARKET"
+        ],
+        "prices": {
+          "CARROT": 37,
+          "EGG": 51,
+          "FERTILIZER": 33,
+          "MELON": 133,
+          "MILK": 235,
+          "STRAWBERRY": 241,
+          "TOMATO": 63,
+          "WHEAT": 45,
+          "WOOL": 61
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 1,
+          "FERTILIZER": 3,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 4,
+          "SHEEP": 0,
+          "STRAWBERRY": 13,
+          "TOMATO": 0,
+          "WHEAT": 10,
+          "WOOL": 7
+        }
+      },
+      {
+        "day": 22,
+        "cash": 77003.0,
+        "counts": {
+          "WEED": 5,
+          "STRAWBERRY": 29,
+          "WHEAT": 20,
+          "COW": 9,
+          "SHEEP": 3,
+          "PASTURE": 2,
+          "GOOSE": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE",
+          "FARMERS_MARKET"
+        ],
+        "prices": {
+          "CARROT": 38,
+          "EGG": 51,
+          "FERTILIZER": 31,
+          "MELON": 136,
+          "MILK": 235,
+          "STRAWBERRY": 245,
+          "TOMATO": 64,
+          "WHEAT": 45,
+          "WOOL": 77
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 1,
+          "FERTILIZER": 3,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 9,
+          "SHEEP": 0,
+          "STRAWBERRY": 19,
+          "TOMATO": 0,
+          "WHEAT": 22,
+          "WOOL": 3
+        }
+      },
+      {
+        "day": 23,
+        "cash": 84337.0,
+        "counts": {
+          "WEED": 5,
+          "STRAWBERRY": 22,
+          "WHEAT": 26,
+          "COW": 9,
+          "SHEEP": 3,
+          "PASTURE": 1,
+          "GOOSE": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE",
+          "FARMERS_MARKET",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 38,
+          "EGG": 51,
+          "FERTILIZER": 29,
+          "MELON": 138,
+          "MILK": 240,
+          "STRAWBERRY": 245,
+          "TOMATO": 65,
+          "WHEAT": 45,
+          "WOOL": 116
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 1,
+          "FERTILIZER": 2,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 5,
+          "SHEEP": 0,
+          "STRAWBERRY": 14,
+          "TOMATO": 0,
+          "WHEAT": 17,
+          "WOOL": 6
+        }
+      },
+      {
+        "day": 24,
+        "cash": 92452.0,
+        "counts": {
+          "WEED": 7,
+          "STRAWBERRY": 18,
+          "WHEAT": 30,
+          "COW": 9,
+          "SHEEP": 3,
+          "PASTURE": 1,
+          "GOOSE": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE",
+          "FARMERS_MARKET",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 39,
+          "EGG": 51,
+          "FERTILIZER": 26,
+          "MELON": 140,
+          "MILK": 240,
+          "STRAWBERRY": 251,
+          "TOMATO": 66,
+          "WHEAT": 45,
+          "WOOL": 107
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 1,
+          "FERTILIZER": 2,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 6,
+          "SHEEP": 0,
+          "STRAWBERRY": 10,
+          "TOMATO": 0,
+          "WHEAT": 22,
+          "WOOL": 3
+        }
+      },
+      {
+        "day": 25,
+        "cash": 97558.0,
+        "counts": {
+          "WEED": 7,
+          "WHEAT": 28,
+          "STRAWBERRY": 12,
+          "PASTURE": 2,
+          "SHEEP": 3,
+          "COW": 8,
+          "GOOSE": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE",
+          "FARMERS_MARKET",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 39,
+          "EGG": 52,
+          "FERTILIZER": 24,
+          "MELON": 142,
+          "MILK": 249,
+          "STRAWBERRY": 258,
+          "TOMATO": 67,
+          "WHEAT": 45,
+          "WOOL": 129
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 1,
+          "FERTILIZER": 1,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 3,
+          "SHEEP": 0,
+          "STRAWBERRY": 13,
+          "TOMATO": 0,
+          "WHEAT": 25,
+          "WOOL": 3
+        }
+      },
+      {
+        "day": 26,
+        "cash": 105468.0,
+        "counts": {
+          "WEED": 6,
+          "WHEAT": 29,
+          "STRAWBERRY": 10,
+          "PASTURE": 3,
+          "SHEEP": 3,
+          "COW": 7,
+          "GOOSE": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE",
+          "FARMERS_MARKET",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 40,
+          "EGG": 52,
+          "FERTILIZER": 22,
+          "MELON": 144,
+          "MILK": 249,
+          "STRAWBERRY": 264,
+          "TOMATO": 68,
+          "WHEAT": 45,
+          "WOOL": 154
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 1,
+          "FERTILIZER": 0,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 8,
+          "SHEEP": 0,
+          "STRAWBERRY": 6,
+          "TOMATO": 0,
+          "WHEAT": 34,
+          "WOOL": 4
+        }
+      },
+      {
+        "day": 27,
+        "cash": 113086.0,
+        "counts": {
+          "WEED": 3,
+          "CARROT": 1,
+          "WHEAT": 27,
+          "STRAWBERRY": 10,
+          "SHEEP": 3,
+          "COW": 7,
+          "GOOSE": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE",
+          "FARMERS_MARKET",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 40,
+          "EGG": 52,
+          "FERTILIZER": 21,
+          "MELON": 146,
+          "MILK": 256,
+          "STRAWBERRY": 270,
+          "TOMATO": 68,
+          "WHEAT": 44,
+          "WOOL": 137
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 2,
+          "FERTILIZER": 0,
+          "GOOSE": 0,
+          "MELON": 4,
+          "MILK": 3,
+          "SHEEP": 0,
+          "STRAWBERRY": 8,
+          "TOMATO": 0,
+          "WHEAT": 20,
+          "WOOL": 6
+        }
+      },
+      {
+        "day": 28,
+        "cash": 122024.0,
+        "counts": {
+          "WEED": 4,
+          "CARROT": 1,
+          "WHEAT": 10,
+          "STRAWBERRY": 8,
+          "SHEEP": 3,
+          "COW": 7,
+          "GOOSE": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE",
+          "FARMERS_MARKET",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 41,
+          "EGG": 52,
+          "FERTILIZER": 19,
+          "MELON": 144,
+          "MILK": 258,
+          "STRAWBERRY": 276,
+          "TOMATO": 69,
+          "WHEAT": 43,
+          "WOOL": 151
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 1,
+          "FERTILIZER": 1,
+          "GOOSE": 0,
+          "MELON": 2,
+          "MILK": 4,
+          "SHEEP": 0,
+          "STRAWBERRY": 3,
+          "TOMATO": 0,
+          "WHEAT": 26,
+          "WOOL": 1
+        }
+      },
+      {
+        "day": 29,
+        "cash": 128970.0,
+        "counts": {
+          "CARROT": 1,
+          "WHEAT": 1,
+          "STRAWBERRY": 7,
+          "SHEEP": 3,
+          "WEED": 1,
+          "COW": 7,
+          "GOOSE": 2
+        },
+        "land": 3,
+        "shops": [
+          "ICE_CREAM_SHOP",
+          "BRUNCH_SPOT",
+          "SMOOTHIE_SHOP",
+          "ICE_CREAM_SHOP",
+          "SMOOTHIE_SHOP",
+          "YARN_STORE",
+          "FARMERS_MARKET",
+          "SMOOTHIE_SHOP"
+        ],
+        "prices": {
+          "CARROT": 41,
+          "EGG": 52,
+          "FERTILIZER": 15,
+          "MELON": 133,
+          "MILK": 266,
+          "STRAWBERRY": 280,
+          "TOMATO": 70,
+          "WHEAT": 41,
+          "WOOL": 179
+        },
+        "shed": {
+          "CARROT": 0,
+          "COW": 0,
+          "EGG": 0,
+          "FERTILIZER": 0,
+          "GOOSE": 0,
+          "MELON": 0,
+          "MILK": 0,
+          "SHEEP": 0,
+          "STRAWBERRY": 0,
+          "TOMATO": 0,
+          "WHEAT": 0,
+          "WOOL": 0
+        }
+      }
+    ],
+    "final_private": {
+      "inventories": [
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      "seeds": {
+        "CARROT": 4,
+        "MELON": 2,
+        "STRAWBERRY": 1,
+        "TOMATO": 0,
+        "WHEAT": 1
+      },
+      "shed": {
+        "CARROT": 0,
+        "COW": 0,
+        "EGG": 0,
+        "FERTILIZER": 0,
+        "GOOSE": 0,
+        "MELON": 0,
+        "MILK": 0,
+        "SHEEP": 0,
+        "STRAWBERRY": 0,
+        "TOMATO": 0,
+        "WHEAT": 0,
+        "WOOL": 0
+      }
+    },
+    "diagnostics": {
+      "income": 155806,
+      "cost": 29836.0,
+      "ledger": {
+        "BUY_ANIMAL:COW": {
+          "quantity": 13,
+          "coins": 5200
+        },
+        "BUY_PRODUCT:WHEAT": {
+          "quantity": 185,
+          "coins": 7275
+        },
+        "SELL:WHEAT": {
+          "quantity": 330,
+          "coins": 14206
+        },
+        "HIRE:HAND": {
+          "quantity": 285,
+          "coins": 4921.0
+        },
+        "BUY_ANIMAL:SHEEP": {
+          "quantity": 3,
+          "coins": 1500
+        },
+        "BUY_SEED:MELON": {
+          "quantity": 14,
+          "coins": 1120
+        },
+        "BUY_SEED:WHEAT": {
+          "quantity": 172,
+          "coins": 1720
+        },
+        "SELL:FERTILIZER": {
+          "quantity": 221,
+          "coins": 12452
+        },
+        "BUY_SEED:STRAWBERRY": {
+          "quantity": 41,
+          "coins": 4100
+        },
+        "SELL:WOOL": {
+          "quantity": 96,
+          "coins": 11688
+        },
+        "BUY_ANIMAL:GOOSE": {
+          "quantity": 3,
+          "coins": 900
+        },
+        "BUY_LAND:LAND": {
+          "quantity": 2,
+          "coins": 3000.0
+        },
+        "SELL:MILK": {
+          "quantity": 205,
+          "coins": 48898
+        },
+        "SELL:EGG": {
+          "quantity": 84,
+          "coins": 4330
+        },
+        "SELL:MELON": {
+          "quantity": 69,
+          "coins": 14316
+        },
+        "SELL:STRAWBERRY": {
+          "quantity": 200,
+          "coins": 49916
+        },
+        "BUY_SEED:CARROT": {
+          "quantity": 5,
+          "coins": 100
+        }
+      },
+      "production": {
+        "FERTILIZER": 359,
+        "WHEAT": 449,
+        "WOOL": 96,
+        "MILK": 205,
+        "EGG": 84,
+        "MELON": 69,
+        "STRAWBERRY": 200
+      },
+      "harvests": {
+        "WHEAT:age2:yield2": 107,
+        "WHEAT:age3:yield3": 16,
+        "WOOL:age6:yield6": 2,
+        "WOOL:age6:yield5": 1,
+        "MILK:age8:yield6": 9,
+        "WOOL:age9:yield4": 2,
+        "MILK:age10:yield3": 8,
+        "EGG:age4:yield4": 2,
+        "WOOL:age10:yield4": 1,
+        "MELON:age10:yield6": 7,
+        "EGG:age5:yield2": 2,
+        "MELON:age10:yield5": 3,
+        "EGG:age5:yield4": 1,
+        "MELON:age11:yield6": 1,
+        "MILK:age12:yield3": 7,
+        "EGG:age6:yield2": 1,
+        "MELON:age12:yield6": 1,
+        "WOOL:age12:yield4": 3,
+        "EGG:age6:yield1": 1,
+        "EGG:age7:yield3": 1,
+        "STRAWBERRY:age10:yield1": 15,
+        "WHEAT:age2:yield3": 15,
+        "EGG:age7:yield1": 1,
+        "MILK:age14:yield3": 4,
+        "EGG:age8:yield2": 1,
+        "MILK:age8:yield5": 1,
+        "MILK:age14:yield2": 3,
+        "WHEAT:age2:yield1": 1,
+        "EGG:age8:yield1": 1,
+        "EGG:age9:yield2": 2,
+        "EGG:age9:yield3": 1,
+        "WOOL:age15:yield4": 1,
+        "WHEAT:age3:yield5": 26,
+        "STRAWBERRY:age11:yield2": 1,
+        "STRAWBERRY:age12:yield2": 24,
+        "STRAWBERRY:age10:yield2": 20,
+        "MILK:age16:yield3": 2,
+        "EGG:age10:yield1": 2,
+        "WOOL:age16:yield4": 1,
+        "MILK:age16:yield1": 2,
+        "MILK:age10:yield1": 1,
+        "EGG:age11:yield1": 2,
+        "EGG:age11:yield4": 1,
+        "STRAWBERRY:age14:yield1": 10,
+        "MILK:age18:yield3": 2,
+        "EGG:age12:yield2": 3,
+        "MILK:age18:yield1": 1,
+        "WOOL:age18:yield6": 1,
+        "WOOL:age18:yield3": 1,
+        "WOOL:age18:yield4": 1,
+        "STRAWBERRY:age15:yield2": 2,
+        "MILK:age12:yield2": 3,
+        "STRAWBERRY:age14:yield2": 17,
+        "STRAWBERRY:age12:yield1": 7,
+        "EGG:age13:yield2": 1,
+        "MILK:age8:yield1": 1,
+        "STRAWBERRY:age13:yield1": 1,
+        "EGG:age13:yield1": 2,
+        "STRAWBERRY:age16:yield1": 6,
+        "MILK:age20:yield3": 3,
+        "STRAWBERRY:age16:yield2": 16,
+        "MILK:age14:yield1": 1,
+        "MILK:age20:yield2": 1,
+        "EGG:age14:yield1": 1,
+        "EGG:age15:yield1": 1,
+        "WOOL:age21:yield4": 1,
+        "MILK:age11:yield2": 1,
+        "EGG:age15:yield4": 1,
+        "MILK:age10:yield2": 1,
+        "MILK:age22:yield3": 2,
+        "MILK:age16:yield2": 4,
+        "EGG:age16:yield2": 1,
+        "WHEAT:age4:yield5": 1,
+        "MILK:age22:yield2": 2,
+        "EGG:age17:yield2": 2,
+        "WOOL:age23:yield4": 1,
+        "MILK:age13:yield2": 1,
+        "MILK:age24:yield3": 1,
+        "EGG:age18:yield2": 1,
+        "EGG:age18:yield1": 1,
+        "WOOL:age24:yield4": 1,
+        "EGG:age19:yield2": 2,
+        "MILK:age19:yield2": 1,
+        "WOOL:age25:yield4": 1,
+        "MILK:age26:yield3": 1,
+        "EGG:age20:yield2": 2,
+        "WOOL:age26:yield6": 1,
+        "STRAWBERRY:age15:yield1": 1,
+        "WHEAT:age3:yield4": 1,
+        "MILK:age26:yield4": 1,
+        "WOOL:age27:yield4": 3,
+        "MILK:age15:yield3": 1,
+        "EGG:age21:yield2": 2,
+        "MILK:age28:yield3": 1,
+        "MILK:age18:yield2": 2,
+        "EGG:age22:yield2": 2,
+        "MILK:age28:yield2": 1,
+        "EGG:age23:yield1": 2,
+        "WHEAT:age3:yield2": 1
+      },
+      "noops": {
+        "PASS": 389,
+        "BUILD_PASTURE": 1,
+        "PLACE": 1,
+        "WATER": 1
+      },
+      "losses": {
+        "overflow_units": 0,
+        "drought_STRAWBERRY": 8,
+        "escaped_COW": 6,
+        "drought_WHEAT": 2,
+        "escaped_GOOSE": 1
+      },
+      "cash_identity_verified": true
+    }
+  }
+]

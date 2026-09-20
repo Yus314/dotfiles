@@ -1,0 +1,256 @@
+{
+  "candidate_version": "v8",
+  "accepted_as_default": false,
+  "recorded": {
+    "n": 12,
+    "mean_cash": {
+      "v8": 82644.08333333333,
+      "v7": 82395.41666666667
+    },
+    "relative_mean_gain": 0.003017967221073059,
+    "mean_paired_gain": 248.66666666666666,
+    "median_paired_gain": -897.5,
+    "positive_pairs": 4,
+    "negative_pairs": 7,
+    "tied_pairs": 1,
+    "paired_bootstrap_mean_gain_95pct": [
+      -1823.3520833333332,
+      2637.5187499999984
+    ],
+    "diagnostics": {
+      "v8": {
+        "mean_income": 108046.25,
+        "mean_cost": 28402.166666666668,
+        "mean_animal_spending": 7750.0,
+        "mean_escapes": 10.333333333333334
+      },
+      "v7": {
+        "mean_income": 109445.83333333333,
+        "mean_cost": 30050.416666666668,
+        "mean_animal_spending": 9216.666666666666,
+        "mean_escapes": 12.916666666666666
+      }
+    },
+    "episodes": [
+      {
+        "episode": 108737476,
+        "v7": 66552.0,
+        "v8": 68911.0,
+        "original": 86768.0
+      },
+      {
+        "episode": 108763300,
+        "v7": 81424.0,
+        "v8": 79318.0,
+        "original": 95762.0
+      },
+      {
+        "episode": 108924601,
+        "v7": 93124.0,
+        "v8": 90267.0,
+        "original": 116403.0
+      },
+      {
+        "episode": 109182060,
+        "v7": 74473.0,
+        "v8": 74279.0,
+        "original": 97493.0
+      },
+      {
+        "episode": 109345915,
+        "v7": 67271.0,
+        "v8": 67271.0,
+        "original": 91603.0
+      },
+      {
+        "episode": 109583885,
+        "v7": 86993.0,
+        "v8": 96314.0,
+        "original": 108715.0
+      },
+      {
+        "episode": 109910434,
+        "v7": 80420.0,
+        "v8": 74959.0,
+        "original": 87596.0
+      },
+      {
+        "episode": 110199768,
+        "v7": 75881.0,
+        "v8": 73948.0,
+        "original": 90750.0
+      },
+      {
+        "episode": 110338107,
+        "v7": 101875.0,
+        "v8": 99505.0,
+        "original": 135115.0
+      },
+      {
+        "episode": 110470026,
+        "v7": 103790.0,
+        "v8": 105172.0,
+        "original": 129342.0
+      },
+      {
+        "episode": 110735210,
+        "v7": 73213.0,
+        "v8": 71612.0,
+        "original": 89569.0
+      },
+      {
+        "episode": 110948948,
+        "v7": 83729.0,
+        "v8": 90173.0,
+        "original": 101045.0
+      }
+    ]
+  },
+  "endogenous": {
+    "n": 12,
+    "mean_cash": {
+      "v7": 87213.5,
+      "v8": 86045.58333333333
+    },
+    "relative_mean_gain": -0.013391466535188634,
+    "mean_paired_gain": -1167.9166666666667,
+    "median_paired_gain": 403.5,
+    "positive_pairs": 6,
+    "negative_pairs": 4,
+    "tied_pairs": 2,
+    "paired_bootstrap_mean_gain_95pct": [
+      -6477.445833333333,
+      3676.5104166666656
+    ],
+    "diagnostics": {
+      "v7": {
+        "mean_income": 115606.16666666667,
+        "mean_cost": 31392.666666666668,
+        "mean_animal_spending": 9800.0,
+        "mean_escapes": 14.25
+      },
+      "v8": {
+        "mean_income": 112776.5,
+        "mean_cost": 29730.916666666668,
+        "mean_animal_spending": 8408.333333333334,
+        "mean_escapes": 11.75
+      }
+    },
+    "episodes": [
+      {
+        "episode": 108737476,
+        "v7": 51818.0,
+        "v8": 51818.0,
+        "original": 86768.0
+      },
+      {
+        "episode": 108763300,
+        "v7": 104425.0,
+        "v8": 102220.0,
+        "original": 95762.0
+      },
+      {
+        "episode": 108924601,
+        "v7": 76918.0,
+        "v8": 76918.0,
+        "original": 116403.0
+      },
+      {
+        "episode": 109182060,
+        "v7": 103452.0,
+        "v8": 84635.0,
+        "original": 97493.0
+      },
+      {
+        "episode": 109345915,
+        "v7": 75192.0,
+        "v8": 77308.0,
+        "original": 91603.0
+      },
+      {
+        "episode": 109583885,
+        "v7": 115868.0,
+        "v8": 116675.0,
+        "original": 108715.0
+      },
+      {
+        "episode": 109910434,
+        "v7": 97419.0,
+        "v8": 105643.0,
+        "original": 87596.0
+      },
+      {
+        "episode": 110199768,
+        "v7": 105471.0,
+        "v8": 106987.0,
+        "original": 90750.0
+      },
+      {
+        "episode": 110338107,
+        "v7": 110560.0,
+        "v8": 93429.0,
+        "original": 135115.0
+      },
+      {
+        "episode": 110470026,
+        "v7": 76637.0,
+        "v8": 68147.0,
+        "original": 129342.0
+      },
+      {
+        "episode": 110735210,
+        "v7": 84761.0,
+        "v8": 95443.0,
+        "original": 89569.0
+      },
+      {
+        "episode": 110948948,
+        "v7": 44041.0,
+        "v8": 53324.0,
+        "original": 101045.0
+      }
+    ]
+  },
+  "teacher": {
+    "v8": {
+      "correct": {
+        "unit": 63783,
+        "op": 64675,
+        "nonmovement": 37736,
+        "market_exact": 2164
+      },
+      "total": {
+        "unit": 86509,
+        "op": 86509,
+        "nonmovement": 45740,
+        "market_exact": 8628
+      },
+      "rate": {
+        "unit": 0.7372990093516282,
+        "op": 0.7476100752522858,
+        "nonmovement": 0.825010931351115,
+        "market_exact": 0.2508113120074177
+      }
+    },
+    "v7": {
+      "correct": {
+        "unit": 63783,
+        "op": 64675,
+        "nonmovement": 37736,
+        "market_exact": 2164
+      },
+      "total": {
+        "unit": 86509,
+        "op": 86509,
+        "nonmovement": 45740,
+        "market_exact": 8628
+      },
+      "rate": {
+        "unit": 0.7372990093516282,
+        "op": 0.7476100752522858,
+        "nonmovement": 0.825010931351115,
+        "market_exact": 0.2508113120074177
+      }
+    }
+  }
+}

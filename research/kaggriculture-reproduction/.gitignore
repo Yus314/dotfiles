@@ -1,0 +1,6 @@
+__pycache__/
+artifacts/
+/data
+*.tar.gz
+*.zip
+.venv/

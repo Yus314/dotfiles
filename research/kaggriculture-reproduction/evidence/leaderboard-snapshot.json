@@ -1,0 +1,96 @@
+{
+  "capture_jst": "2026-09-20T14:40:55.620837+09:00",
+  "competition": "kaggriculture",
+  "top10": [
+    {
+      "teamId": 16718819,
+      "submissionId": 56216119,
+      "rank": 1,
+      "displayScore": "3275.5",
+      "medal": "GOLD",
+      "inTheMoney": true,
+      "teamName": "Majkel1337"
+    },
+    {
+      "teamId": 16732748,
+      "submissionId": 56361903,
+      "rank": 2,
+      "displayScore": "3183.5",
+      "medal": "GOLD",
+      "inTheMoney": true,
+      "teamName": "DSM"
+    },
+    {
+      "teamId": 16730524,
+      "submissionId": 56354460,
+      "rank": 3,
+      "displayScore": "3082.8",
+      "medal": "GOLD",
+      "inTheMoney": true,
+      "teamName": "THIRD FARM CLUB"
+    },
+    {
+      "teamId": 16640510,
+      "submissionId": 56352346,
+      "rank": 4,
+      "displayScore": "3066.8",
+      "medal": "GOLD",
+      "inTheMoney": true,
+      "teamName": "SpaTaro"
+    },
+    {
+      "teamId": 16732403,
+      "submissionId": 56305515,
+      "rank": 5,
+      "displayScore": "3044.6",
+      "medal": "GOLD",
+      "inTheMoney": true,
+      "teamName": "ymg_aq"
+    },
+    {
+      "teamId": 16760701,
+      "submissionId": 56356292,
+      "rank": 6,
+      "displayScore": "3041.9",
+      "medal": "GOLD",
+      "inTheMoney": true,
+      "teamName": "Yannik Schiffner"
+    },
+    {
+      "teamId": 16730612,
+      "submissionId": 56360271,
+      "rank": 7,
+      "displayScore": "3033.1",
+      "medal": "GOLD",
+      "inTheMoney": true,
+      "teamName": "Unknown Mother-Goose"
+    },
+    {
+      "teamId": 16760569,
+      "submissionId": 56328447,
+      "rank": 8,
+      "displayScore": "3026.4",
+      "medal": "GOLD",
+      "inTheMoney": true,
+      "teamName": "Otter Vibe"
+    },
+    {
+      "teamId": 16675778,
+      "submissionId": 56263779,
+      "rank": 9,
+      "displayScore": "3022.3",
+      "medal": "GOLD",
+      "inTheMoney": true,
+      "teamName": "Orbital Terraformer"
+    },
+    {
+      "teamId": 16621799,
+      "submissionId": 56341959,
+      "rank": 10,
+      "displayScore": "3018.6",
+      "medal": "GOLD",
+      "inTheMoney": true,
+      "teamName": "Artem The Farmer 🍅"
+    }
+  ]
+}
