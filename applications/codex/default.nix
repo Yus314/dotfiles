@@ -55,6 +55,9 @@ in
     enable = true;
     package = inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
     settings = {
+      # 0.157 enables daemon auto-start, but codex-cli-nix lacks codex-package.json.
+      # Keep embedded sessions until the Nix package supports managed daemons.
+      features.daemon_auto_start = false;
       model_reasoning_effort = "xhigh";
       sandbox_mode = "workspace-write";
       approval_policy = "on-request";
