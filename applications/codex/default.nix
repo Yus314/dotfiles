@@ -8,6 +8,23 @@
 
 let
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
+  codexConfigDir =
+    if config.home.preferXdgDirectories then
+      "${config.xdg.configHome}/codex"
+    else
+      "${config.home.homeDirectory}/.codex";
+  codexConfigKey =
+    if config.home.preferXdgDirectories then
+      "${lib.removePrefix config.home.homeDirectory config.xdg.configHome}/codex/config.toml"
+    else
+      ".codex/config.toml";
+  configPython = pkgs.python3.withPackages (ps: [ ps.tomlkit ]);
+  mutableConfig = pkgs.runCommand "codex-mutable-config" { } ''
+    cp ${./mutable_config.py} mutable_config.py
+    cp ${./test_mutable_config.py} test_mutable_config.py
+    ${configPython}/bin/python test_mutable_config.py
+    cp mutable_config.py "$out"
+  '';
 
   # 通知スクリプト
   notifyScript =
@@ -73,6 +90,18 @@ in
       };
     };
   };
+
+  # Codex persists trust and TUI state here. Keep HM's generated settings (including
+  # MCP integration), but merge them into a regular file instead of a store link.
+  home.file.${codexConfigKey}.enable = false;
+  # Migrate BEFORE linkGeneration removes the old generation's config symlink.
+  home.activation.codexMutableConfig =
+    lib.hm.dag.entryBetween [ "linkGeneration" ] [ "writeBoundary" ]
+      ''
+        run ${configPython}/bin/python ${mutableConfig} \
+          ${config.home.file.${codexConfigKey}.source} \
+          ${lib.escapeShellArg "${codexConfigDir}/config.toml"}
+      '';
 
   # Fish shellでOPENAI_API_KEY環境変数を設定
   programs.fish.interactiveShellInit = lib.mkAfter ''

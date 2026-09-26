@@ -1,6 +1,7 @@
+{ config, ... }:
 {
   programs.nh = {
     enable = true;
-    flake = "/home/kaki/ghq/github.com/Yus314/dotfiles";
+    flake = "${config.home.homeDirectory}/ghq/github.com/Yus314/dotfiles";
   };
 }

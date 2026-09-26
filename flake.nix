@@ -18,6 +18,11 @@
     emacs-overlay-31.url = "github:nix-community/emacs-overlay/723bc7fa2449e2cba507fb3bcd5caaa67728e023";
     flake-parts.url = "github:hercules-ci/flake-parts";
     git-hooks.url = "github:cachix/git-hooks.nix";
+    # Track official Herdr releases independently of the system nixpkgs.
+    herdr-nix = {
+      url = "github:herdrdev/herdr-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager.url = "github:nix-community/home-manager";
     mcp-servers.url = "github:natsukium/mcp-servers-nix";
     niri.url = "github:sodiboo/niri-flake";
@@ -138,6 +143,7 @@
             overlays = [ self.inputs.nur-packages.overlays.default ] ++ builtins.attrValues self.overlays;
           };
           packages = rec {
+            herdr = inputs.herdr-nix.packages.${system}.default;
             tf-wrapper = pkgs.tf-wrapper;
             adb-mcp = pkgs.adb-mcp;
             selection-batch-configured-smoke =

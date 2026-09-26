@@ -327,15 +327,15 @@ binding = "Control+Option+Tab"
 id = "workspaceBackAndForth"
 
 [[hotkeys]]
-binding = "Option+S"
+binding = ""
 id = "switchWorkspace.next"
 
 [[hotkeys]]
-binding = "Option+T"
+binding = ""
 id = "switchWorkspace.previous"
 
 [[hotkeys]]
-binding = "Option+D"
+binding = ""
 id = "focus.left"
 
 [[hotkeys]]
@@ -347,7 +347,7 @@ binding = "Option+Up Arrow"
 id = "focus.up"
 
 [[hotkeys]]
-binding = "Option+N"
+binding = ""
 id = "focus.right"
 
 [[hotkeys]]

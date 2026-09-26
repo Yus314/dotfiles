@@ -21,9 +21,13 @@
   lib,
   pkgs,
   inputs,
+  hermesMacosLiveSkin ? false,
   ...
 }:
 let
+  hermesMacosSkinSource =
+    if hermesMacosLiveSkin then ./scripts/macos_skin.py else ./scripts/macos_skin_startup.py;
+
   honchoAi = pkgs.python312Packages.buildPythonPackage rec {
     pname = "honcho-ai";
     version = "2.0.1";
@@ -89,19 +93,83 @@ let
     cp -R ${./plugins/context_engine/phase_checkpoint} "$out/phase_checkpoint"
   '';
 
-  hermes = inputs.hermes-agent.packages.${pkgs.system}.messaging.overrideAttrs (old: {
-    postInstall = (old.postInstall or "") + ''
-      test -L "$out/share/hermes-agent/plugins"
-      rm "$out/share/hermes-agent/plugins"
-      ln -s ${hermesPlugins} "$out/share/hermes-agent/plugins"
+  # Layer the CLI-only Darwin policy without changing the Linux gateway plane.
+  hermesCliPlane =
+    if pkgs.stdenv.isDarwin then
+      pkgs.runCommand "hermes-agent-macos-skin-0.19.0"
+        {
+          nativeBuildInputs = [
+            pkgs.patch
+            (pkgs.python312.withPackages (ps: [
+              ps.pyyaml
+              ps.prompt-toolkit
+            ]))
+          ];
+        }
+        ''
+          mkdir -p policy/scripts policy/tests
+          cp ${hermesMacosSkinSource} policy/scripts/macos_skin.py
+          cp ${./tests/test_macos_skin.py} policy/tests/test_macos_skin.py
+          python -m unittest discover -s policy/tests -p test_macos_skin.py -v
+          cp -R ${w40HermesPlane} "$out"
+          chmod -R u+w "$out"
+          cp ${hermesMacosSkinSource} "$out/hermes_cli/macos_skin.py"
+          patch --fuzz=0 -p1 -d "$out" < ${./patches/macos-startup-skin.patch}
+          PYTHONPATH="$out" python ${./tests/test_macos_skin_integration.py}
+          ${lib.optionalString hermesMacosLiveSkin ''
+            patch --fuzz=0 -p1 -d "$out" < ${./patches/macos-live-skin-server.patch}
+            cp ${./scripts/macos_skin_cli.py} "$out/hermes_cli/macos_skin_cli.py"
+            patch --fuzz=0 -p1 -d "$out" < ${./patches/macos-live-skin-cli.patch}
+            cp ${./tests/test_macos_skin_live.py} policy/tests/test_macos_skin_live.py
+            cp ${./tests/test_macos_skin_cli.py} policy/tests/test_macos_skin_cli.py
+            PYTHONPATH="$out" python -m unittest discover -s policy/tests -p test_macos_skin_live.py -v
+            PYTHONPATH="$out" python -m unittest discover -s policy/tests -p test_macos_skin_cli.py -v
+            PYTHONPATH="$out" python ${./tests/test_macos_skin_integration.py}
+          ''}
+        ''
+    else
+      w40HermesPlane;
 
-      for executable in hermes hermes-agent hermes-acp; do
-        wrapProgram "$out/bin/$executable" \
-          --set PYTHONPATH "${w40HermesPlane}:${honchoAi}/${pkgs.python312.sitePackages}" \
-          --set HERMES_LAZY_INSTALL_TARGET ${lib.escapeShellArg hermesLazyInstallTarget}
-      done
-    '';
+  # Rebuild the actual bundled renderer, not only the unused TypeScript sources.
+  hermesLiveTui = inputs.hermes-agent.packages.${pkgs.system}.tui.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ./patches/macos-live-skin-tui.patch ];
   });
+
+  mkHermes =
+    sourcePlane: autoSkin:
+    inputs.hermes-agent.packages.${pkgs.system}.messaging.overrideAttrs (old: {
+      postInstall =
+        (old.postInstall or "")
+        + ''
+          test -L "$out/share/hermes-agent/plugins"
+          rm "$out/share/hermes-agent/plugins"
+          ln -s ${hermesPlugins} "$out/share/hermes-agent/plugins"
+
+          for executable in hermes hermes-agent hermes-acp; do
+            wrapProgram "$out/bin/$executable" \
+              --set PYTHONPATH "${sourcePlane}:${honchoAi}/${pkgs.python312.sitePackages}" \
+              --set HERMES_LAZY_INSTALL_TARGET ${lib.escapeShellArg hermesLazyInstallTarget}
+          done
+        ''
+        + lib.optionalString autoSkin ''
+          # Keep PATH's ACP entrypoint on the same unmodified service package.
+          rm "$out/bin/hermes-acp"
+          ln -s ${hermes}/bin/hermes-acp "$out/bin/hermes-acp"
+          ${lib.optionalString hermesMacosLiveSkin ''
+            test -L "$out/ui-tui"
+            rm "$out/ui-tui"
+            ln -s ${hermesLiveTui}/lib/hermes-tui "$out/ui-tui"
+          ''}
+          for executable in hermes hermes-agent; do
+            wrapProgram "$out/bin/$executable" \
+              --set HERMES_MACOS_SKIN_HOME ${lib.escapeShellArg "${config.home.homeDirectory}/.hermes"}
+          done
+        '';
+    });
+
+  # Gateway/ACP service wrappers retain their existing package and store path.
+  hermes = mkHermes w40HermesPlane false;
+  hermesCli = if pkgs.stdenv.isDarwin then mkHermes hermesCliPlane true else hermes;
 
   # agent-browser ships prebuilt native binaries in the npm tarball. Package it
   # directly instead of relying on `npx agent-browser`: Hermes' bundled Node can
@@ -500,6 +568,8 @@ in
 
   config = lib.mkMerge [
     {
+      _module.args.hermesMacosLiveSkin = lib.mkDefault false;
+
       # The math profile reads its own .env through Hermes' profile-aware
       # HERMES_HOME resolution. sops-nix decrypts at activation time; neither
       # the value nor a derived fingerprint enters Nix evaluation or the store.
@@ -519,7 +589,7 @@ in
       };
 
       home.packages = [
-        hermes
+        hermesCli
         pkgs.nodejs_24
         pkgs.uv
       ];

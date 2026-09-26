@@ -33,6 +33,22 @@ mapping, and synchronized AquaSKK layer transitions validated by the prototype.
 Kanata 1.12.0 still has no Karabiner `input_source_if` equivalent, so external
 input-source changes can desynchronize AquaSKK and the Kanata layer.
 
+## Brightness and audio keys
+
+Both ASCII and Shingeta layers explicitly map `f1` / `f2` to `brdn` / `brup`
+for display brightness. The grabbed internal keyboard sends function keys;
+Kanata must emit the corresponding consumer keys to retain the macOS controls.
+
+Both ASCII and Shingeta layers explicitly map `f10` / `f11` / `f12` to
+`mute` / `vold` / `volu`. On watari, audio keys failed while Kanata was
+running, worked after stopping it, and worked with this mapping while the
+remapper remained active. The generated configuration preserves that tested
+mapping; the macOS test checks all five brightness/audio positions in both layers.
+
+This mapping uses F1–F2 for brightness and F10–F12 for audio. It does not
+implement a Fn-held override to restore those ordinary function keys.
+Other function keys are unchanged.
+
 ## Declarative lifecycle
 
 `systems/darwin/watari/default.nix` enables the module and disables

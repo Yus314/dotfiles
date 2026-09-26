@@ -45,6 +45,27 @@ class MacShingetaGenerationTest(unittest.TestCase):
             cls.default, cls.shinyou
         )
 
+    def test_brightness_and_audio_keys_in_both_layers(self):
+        source_match = re.search(r"\(defsrc\s+([^()]+)\)", self.text)
+        assert source_match is not None
+        source = source_match.group(1).split()
+        for name in ("ascii", "shingeta"):
+            layer_match = re.search(
+                rf"\(deflayer {name}\s+([^()]+)\)", self.text
+            )
+            assert layer_match is not None
+            actions = layer_match.group(1).split()
+            self.assertEqual(len(source), len(actions))
+            mapping = dict(zip(source, actions))
+            for key, action in (
+                ("f1", "brdn"),
+                ("f2", "brup"),
+                ("f10", "mute"),
+                ("f11", "vold"),
+                ("f12", "volu"),
+            ):
+                self.assertEqual(mapping.get(key), action)
+
     def test_exact_canonical_counts_and_timing(self):
         self.assertEqual(self.singles, 32)
         self.assertEqual(self.chords, 102)

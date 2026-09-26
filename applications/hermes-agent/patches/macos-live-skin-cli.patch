@@ -1,0 +1,33 @@
+--- a/cli.py
++++ b/cli.py
+@@ -14869,6 +14869,8 @@
+         )
+         _disable_prompt_toolkit_cpr_warning(app)
+         self._app = app  # Store reference for clarify_callback
++        from hermes_cli.macos_skin_cli import install_classic_skin_sync
++        install_classic_skin_sync(self, app)
+
+         # ── Fix ghost status-bar lines on terminal resize ──────────────
+         # Resize handling: monkey-patch prompt_toolkit's _output_screen_diff
+--- a/hermes_cli/cli_commands_mixin.py
++++ b/hermes_cli/cli_commands_mixin.py
+@@ -2306,6 +2306,9 @@
+             current = get_active_skin_name()
+             skins = list_skins()
+             print(f"\n  Current skin: {current}")
++            sync = getattr(self, "_macos_skin_sync", None)
++            if sync is not None:
++                print(f"  Mode: {sync.mode} (use /skin auto to follow macOS)")
+             print("  Available skins:")
+             for s in skins:
+                 marker = " ●" if s["name"] == current else "  "
+@@ -2316,6 +2319,9 @@
+             return
+
+         new_skin = parts[1].strip().lower()
++        from hermes_cli.macos_skin_cli import select_classic_skin
++        if select_classic_skin(self, new_skin):
++            return
+         available = {s["name"] for s in list_skins()}
+         if new_skin not in available:
+             print(f"  Unknown skin: {new_skin}")

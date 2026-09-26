@@ -1,0 +1,27 @@
+--- a/hermes_cli/main.py
++++ b/hermes_cli/main.py
+@@ -2414,2 +2414,4 @@
+     """Run interactive chat CLI."""
++    from hermes_cli.macos_skin import prepare_chat
++    prepare_chat(args, get_hermes_home())
+     use_tui = _resolve_use_tui(args)
+--- a/hermes_cli/skin_engine.py
++++ b/hermes_cli/skin_engine.py
+@@ -799,3 +799,4 @@
+     if isinstance(skin_name, str) and skin_name.strip():
+-        set_active_skin(skin_name.strip())
++        from hermes_cli.macos_skin import select_skin
++        set_active_skin(select_skin(skin_name.strip(), get_hermes_home()))
+     else:
+--- a/tui_gateway/server.py
++++ b/tui_gateway/server.py
+@@ -11881,2 +11881,4 @@
+                 if key == "skin":
++                    from hermes_cli.macos_skin import manual_skin_selected
++                    manual_skin_selected()
+                     _emit("skin.changed", "", resolve_skin())
+@@ -12382,3 +12384,3 @@
+         return _ok(
+-            rid, {"value": (_load_cfg().get("display") or {}).get("skin", "default")}
++            rid, {"value": resolve_skin().get("name", "default")}
+         )

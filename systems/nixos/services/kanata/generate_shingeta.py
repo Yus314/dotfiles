@@ -300,6 +300,14 @@ def generate_macos(_default, shinyou):
     if timeouts != {40}:
         raise ValueError(f"macOS tranche requires one 40ms timeout, got {sorted(timeouts)}")
 
+    # The grabbed internal keyboard needs explicit consumer-key output.
+    consumer_actions = {
+        "f1": "brdn",
+        "f2": "brup",
+        "f10": "mute",
+        "f11": "vold",
+        "f12": "volu",
+    }
     physical = [
         "eisu",
         "kana",
@@ -309,6 +317,7 @@ def generate_macos(_default, shinyou):
         "rsft",
         "spc",
         *MAC_BASE_ACTIONS.keys(),
+        *consumer_actions.keys(),
     ]
     aliases = [
         "to-shingeta (multi (macro kana) (layer-switch shingeta))",
@@ -370,6 +379,8 @@ def generate_macos(_default, shinyou):
                 actions.append("@" + alias_name(original))
             elif key in base_actions:
                 actions.append(base_actions[key])
+            elif key in consumer_actions:
+                actions.append(consumer_actions[key])
             else:
                 actions.append(key)
         return actions

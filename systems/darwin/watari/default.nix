@@ -31,6 +31,7 @@ in
   imports = [
     ../common.nix
     ../desktop.nix
+    ./input-plist-identity.nix
   ];
 
   #fonts.font = with pkgs; [
@@ -58,6 +59,7 @@ in
   };
   my.services.kanata-macos = {
     enable = true;
+    installationMode = "preserve-existing";
     deviceName = "Apple Internal Keyboard / Trackpad";
     appPath = "/Users/kaki/Applications/KanataCanary.app";
     # Adopt the ad-hoc-signed app that passed the five-minute real-device

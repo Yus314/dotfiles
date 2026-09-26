@@ -23,6 +23,7 @@ in
     ../applications/emacs-minimal/service.nix
     ../applications/fish
     ../applications/git
+    ../applications/herdr
     ../applications/lazygit
     ../applications/ledger
     ../applications/kakoune

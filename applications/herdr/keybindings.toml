@@ -1,0 +1,22 @@
+# Merge this table into ~/.config/herdr/config.toml.
+# Direction keys follow the Kanata ASCII layout and Meow: d/s/t/n.
+# Keep the default prefix actions alongside direct shortcuts.
+[keys]
+prefix = "ctrl+b"
+
+focus_pane_left = ["prefix+h", "ctrl+alt+d"]
+focus_pane_down = ["prefix+j", "ctrl+alt+shift+s"]
+focus_pane_up = ["prefix+k", "ctrl+alt+shift+t"]
+focus_pane_right = ["prefix+l", "ctrl+alt+n"]
+
+previous_workspace = "ctrl+alt+t"
+next_workspace = "ctrl+alt+s"
+
+previous_tab = ["prefix+p", "ctrl+alt+i"]
+next_tab = ["prefix+n", "ctrl+alt+u"]
+zoom = ["prefix+z", "ctrl+alt+z"]
+
+navigate_pane_left = "d"
+navigate_pane_down = "s"
+navigate_pane_up = "t"
+navigate_pane_right = "n"

@@ -1,0 +1,412 @@
+--- /dev/null
++++ b/ui-tui/src/app/skinSync.ts
+@@ -0,0 +1,67 @@
++import type { GatewayClient } from '../gatewayClient.js'
++import type { GatewayEvent, GatewaySkin } from '../gatewayTypes.js'
++import { asRpcResult } from '../lib/rpc.js'
++
++import { applySkin } from './createGatewayEventHandler.js'
++
++// Owned by the event-subscription effect, not render. A fresh effect may attach
++// after gateway.ready was drained, so probe once if already connected.
++export function startSkinSync(
++  gw: Pick<GatewayClient, 'connected' | 'request' | 'on' | 'off'>,
++  apply: (skin: GatewaySkin) => void = applySkin
++): () => void {
++  let stopped = false
++  let inFlight = false
++  let revision = 0
++  let mode: GatewaySkin['mode']
++  let timer: ReturnType<typeof setInterval> | undefined
++
++  const clear = () => {
++    if (timer !== undefined) clearInterval(timer)
++    timer = undefined
++  }
++  const schedule = () => {
++    clear()
++    if (!stopped && mode === 'auto') timer = setInterval(() => void refresh(), 3000)
++  }
++  const refresh = async () => {
++    if (stopped || inFlight || !gw.connected) return
++    inFlight = true
++    const at = revision
++    try {
++      const skin = asRpcResult<GatewaySkin>(await gw.request<GatewaySkin>('skin.refresh'))
++      // A manual choice / reconnect / unmount supersedes the old response.
++      if (stopped || at !== revision || !gw.connected || !skin) return
++      mode = skin.mode
++      apply(skin)
++      schedule()
++    } catch {
++      // Background appearance detection must never add transcript noise.
++    } finally {
++      inFlight = false
++    }
++  }
++  const onEvent = (event: GatewayEvent) => {
++    if (event.type !== 'gateway.ready' && event.type !== 'skin.changed') return
++    const skin = event.type === 'gateway.ready' ? event.payload?.skin : event.payload
++    revision++
++    mode = skin?.mode
++    schedule()
++  }
++  const onExit = () => {
++    revision++
++    mode = undefined
++    clear()
++  }
++  gw.on('event', onEvent)
++  gw.on('exit', onExit)
++  if (gw.connected) void refresh()
++
++  return () => {
++    stopped = true
++    revision++
++    clear()
++    gw.off('event', onEvent)
++    gw.off('exit', onExit)
++  }
++}
+--- a/ui-tui/src/app/createGatewayEventHandler.ts
++++ b/ui-tui/src/app/createGatewayEventHandler.ts
+@@ -17 +17 @@
+-import { fromSkin } from '../theme.js'
++import { detectLightMode, fromSkin } from '../theme.js'
+@@ -32 +32 @@
+-const applySkin = (s: GatewaySkin) =>
++export const applySkin = (s: GatewaySkin) =>
+@@ -40 +40,12 @@
+-      s.help_header ?? ''
++      s.help_header ?? '',
++      // Manual palettes use their own background, never stale OS appearance.
++      // Legacy servers without metadata retain terminal-derived defaults.
++      s.mode === 'auto' && s.appearance
++        ? s.appearance
++        : s.mode === 'manual'
++          ? detectLightMode({
++              HERMES_TUI_BACKGROUND: s.colors?.completion_menu_bg
++            })
++            ? 'light'
++            : 'dark'
++          : undefined
+--- a/ui-tui/src/app/useMainApp.ts
++++ b/ui-tui/src/app/useMainApp.ts
+@@ -43,0 +44 @@
++import { startSkinSync } from './skinSync.js'
+@@ -841,0 +843 @@
++    const stopSkinSync = startSkinSync(gw)
+@@ -845,0 +848 @@
++      stopSkinSync()
+--- a/ui-tui/src/app/slash/commands/session.ts
++++ b/ui-tui/src/app/slash/commands/session.ts
+@@ -418 +418 @@
+-    help: 'switch theme skin (fires skin.changed)',
++    help: 'switch theme skin, or auto to follow macOS appearance',
+@@ -420,2 +420,4 @@
+-    run: (arg, ctx) => {
+-      if (!arg) {
++    usage: '/skin [auto|name]',
++    run: (arg, ctx) => {
++      const value = arg.trim()
++      if (!value) {
+@@ -424,2 +426,10 @@
+-          .then(ctx.guarded<ConfigGetValueResponse>(r => ctx.transcript.sys(`skin: ${r.value || 'default'}`)))
+-      }
++          .then(
++            ctx.guarded<ConfigGetValueResponse>(r =>
++              ctx.transcript.sys(
++                `skin: ${r.value || 'default'} · mode: ${r.mode ?? 'manual'} · source: ${r.source ?? 'config'}`
++              )
++            )
++          )
++      }
++
++      if (/\s/.test(value)) return ctx.transcript.sys('usage: /skin [auto|name]')
+@@ -428 +438,4 @@
+-        .rpc<ConfigSetResponse>('config.set', { key: 'skin', value: arg })
++        .rpc<ConfigSetResponse>('config.set', {
++          key: 'skin',
++          value: value.toLowerCase() === 'auto' ? 'auto' : value
++        })
+--- a/ui-tui/src/theme.ts
++++ b/ui-tui/src/theme.ts
+@@ -519 +519,2 @@
+-  helpHeader = ''
++  helpHeader = '',
++  base?: 'dark' | 'light'
+@@ -521 +522,2 @@
+-  const d = DEFAULT_THEME
++  const lightMode = base ? base === 'light' : DEFAULT_LIGHT_MODE
++  const d = base ? (lightMode ? LIGHT_THEME : DARK_THEME) : DEFAULT_THEME
+@@ -591 +593 @@
+-    DEFAULT_LIGHT_MODE
++    lightMode
+--- a/ui-tui/src/gatewayTypes.ts
++++ b/ui-tui/src/gatewayTypes.ts
+@@ -5 +5,7 @@
+-export interface GatewaySkin {
++export interface SkinMetadata {
++  mode?: 'auto' | 'manual' | 'disabled'
++  appearance?: 'dark' | 'light' | null
++  source?: 'macos'
++}
++
++export interface GatewaySkin extends SkinMetadata {
+@@ -126 +132 @@
+-export interface ConfigGetValueResponse {
++export interface ConfigGetValueResponse extends SkinMetadata {
+--- a/ui-tui/src/gatewayClient.ts
++++ b/ui-tui/src/gatewayClient.ts
+@@ -157,0 +158,9 @@
++  }
++
++  get connected(): boolean {
++    return (
++      this.ready &&
++      (this.attachUrl
++        ? this.ws?.readyState === WS_OPEN
++        : !!this.proc && !this.proc.killed && this.proc.exitCode === null && !!this.proc.stdin?.writable)
++    )
+--- a/ui-tui/src/hooks/useCompletion.ts
++++ b/ui-tui/src/hooks/useCompletion.ts
+@@ -38,0 +39,9 @@
++}
++
++export function withSkinAutoCompletion(input: string, items: CompletionItem[], replaceFrom = 1): CompletionItem[] {
++  const match = input.match(/^\/skin\s+(\S*)$/i)
++  if (!match || !'auto'.startsWith(match[1].toLowerCase())) return items
++  const text = `${input.slice(0, input.length - match[1].length)}auto`.slice(replaceFrom)
++  return items.some(item => item.text === text)
++    ? items
++    : [{ text, display: 'auto', meta: 'follow macOS appearance' }, ...items]
+@@ -88 +97 @@
+-          setCompletions(r?.items ?? [])
++          setCompletions(withSkinAutoCompletion(input, r?.items ?? [], r?.replace_from ?? 1))
+--- /dev/null
++++ b/ui-tui/src/__tests__/skinSync.test.ts
+@@ -0,0 +1,153 @@
++import { EventEmitter } from 'node:events'
++import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
++
++import { startSkinSync } from '../app/skinSync.js'
++import type { GatewaySkin } from '../gatewayTypes.js'
++import { withSkinAutoCompletion } from '../hooks/useCompletion.js'
++
++class FakeGateway extends EventEmitter {
++  connected = false
++  request = vi.fn(async (): Promise<GatewaySkin> => ({
++    mode: 'auto',
++    appearance: 'dark',
++    source: 'macos'
++  }))
++}
++
++const deferred = () => {
++  let resolve!: (skin: GatewaySkin) => void
++  const promise = new Promise<GatewaySkin>(r => {
++    resolve = r
++  })
++  return { promise, resolve }
++}
++
++// Structural fake only: production code uses GatewayClient's live transport getter.
++const start = (gw: FakeGateway, apply = vi.fn()) => startSkinSync(gw as any, apply)
++const ready = (gw: FakeGateway, mode = 'auto') => {
++  gw.connected = true
++  gw.emit('event', {
++    type: 'gateway.ready',
++    payload: { skin: { mode, source: 'macos' } }
++  })
++}
++
++describe('skin refresh lifecycle', () => {
++  beforeEach(() => vi.useFakeTimers())
++  afterEach(() => vi.useRealTimers())
++
++  it('waits for ready; polls every 3s, never overlaps, skips disconnected', async () => {
++    const gw = new FakeGateway()
++    const pending = deferred()
++    gw.request.mockImplementationOnce(() => pending.promise)
++    const apply = vi.fn()
++    const stop = start(gw, apply)
++    await vi.advanceTimersByTimeAsync(9000)
++    expect(gw.request).not.toHaveBeenCalled()
++    ready(gw)
++    await vi.advanceTimersByTimeAsync(2999)
++    expect(gw.request).not.toHaveBeenCalled()
++    await vi.advanceTimersByTimeAsync(1)
++    expect(gw.request).toHaveBeenCalledExactlyOnceWith('skin.refresh')
++    await vi.advanceTimersByTimeAsync(9000)
++    expect(gw.request).toHaveBeenCalledTimes(1)
++    pending.resolve({ mode: 'auto', appearance: 'light', source: 'macos' })
++    await vi.advanceTimersByTimeAsync(0)
++    expect(apply).toHaveBeenCalledWith({
++      mode: 'auto',
++      appearance: 'light',
++      source: 'macos'
++    })
++    gw.connected = false
++    await vi.advanceTimersByTimeAsync(6000)
++    expect(gw.request).toHaveBeenCalledTimes(1)
++    gw.connected = true
++    await vi.advanceTimersByTimeAsync(3000)
++    expect(gw.request).toHaveBeenCalledTimes(2)
++    stop()
++    expect(vi.getTimerCount()).toBe(0)
++    expect(gw.listenerCount('event')).toBe(0)
++    expect(gw.listenerCount('exit')).toBe(0)
++  })
++
++  it('is quiet on errors, retries, stops on exit and resumes on ready', async () => {
++    const gw = new FakeGateway()
++    gw.request.mockRejectedValueOnce(new Error('offline'))
++    const apply = vi.fn()
++    const stop = start(gw, apply)
++    ready(gw)
++    await vi.advanceTimersByTimeAsync(6000)
++    expect(gw.request).toHaveBeenCalledTimes(2)
++    expect(apply).toHaveBeenCalledTimes(1)
++    gw.emit('exit')
++    expect(vi.getTimerCount()).toBe(0)
++    ready(gw)
++    await vi.advanceTimersByTimeAsync(3000)
++    expect(gw.request).toHaveBeenCalledTimes(3)
++    stop()
++  })
++
++  it.each(['manual', 'disabled'])(
++    'stops polls in %s mode, rejects stale refresh and can return to auto',
++    async mode => {
++      const gw = new FakeGateway()
++      const pending = deferred()
++      gw.request.mockImplementationOnce(() => pending.promise)
++      const apply = vi.fn()
++      const stop = start(gw, apply)
++      ready(gw)
++      await vi.advanceTimersByTimeAsync(3000)
++      gw.emit('event', {
++        type: 'skin.changed',
++        payload: { mode, source: 'macos' }
++      })
++      pending.resolve({ mode: 'auto', appearance: 'light' })
++      await vi.advanceTimersByTimeAsync(9000)
++      expect(apply).not.toHaveBeenCalled()
++      expect(gw.request).toHaveBeenCalledTimes(1)
++      expect(vi.getTimerCount()).toBe(0)
++      gw.emit('event', {
++        type: 'skin.changed',
++        payload: { mode: 'auto', source: 'macos' }
++      })
++      await vi.advanceTimersByTimeAsync(3000)
++      expect(gw.request).toHaveBeenCalledTimes(2)
++      stop()
++    }
++  )
++
++  it('disabled scope never starts a timer; late mount probes once; cleanup ignores pending results', async () => {
++    const gw = new FakeGateway()
++    let stop = start(gw)
++    ready(gw, 'disabled')
++    await vi.advanceTimersByTimeAsync(9000)
++    expect(gw.request).not.toHaveBeenCalled()
++    expect(vi.getTimerCount()).toBe(0)
++    stop()
++    gw.request.mockResolvedValueOnce({ mode: 'disabled', source: 'macos' })
++    stop = start(gw)
++    await vi.advanceTimersByTimeAsync(9000)
++    expect(gw.request).toHaveBeenCalledTimes(1)
++    expect(vi.getTimerCount()).toBe(0)
++    stop()
++    const pending = deferred()
++    gw.request.mockImplementationOnce(() => pending.promise)
++    const apply = vi.fn()
++    stop = start(gw, apply)
++    stop()
++    pending.resolve({ mode: 'auto', appearance: 'light' })
++    await vi.advanceTimersByTimeAsync(9000)
++    expect(apply).not.toHaveBeenCalled()
++    expect(vi.getTimerCount()).toBe(0)
++    expect(gw.listenerCount('event')).toBe(0)
++  })
++})
++
++it('completes /skin auto for either server replacement offset without duplicates', () => {
++  expect(withSkinAutoCompletion('/skin a', [], 1)[0].text).toBe('skin auto')
++  expect(withSkinAutoCompletion('/skin a', [], 6)[0].text).toBe('auto')
++  const items = [{ text: 'auto', display: 'auto' }]
++  expect(withSkinAutoCompletion('/skin ', items, 6)).toBe(items)
++  expect(withSkinAutoCompletion('/skin x', [])).toEqual([])
++  expect(withSkinAutoCompletion('/skin auto extra', [])).toEqual([])
++})
+--- a/ui-tui/src/__tests__/createGatewayEventHandler.test.ts
++++ b/ui-tui/src/__tests__/createGatewayEventHandler.test.ts
+@@ -60,0 +61,43 @@
++  it('rebuilds the full palette on ready and dark-light-dark changes, including manual fallback', async () => {
++    const { DARK_THEME, LIGHT_THEME } = await import('../theme.js')
++    const handler = createGatewayEventHandler(buildCtx([]))
++    const skin = (appearance: 'dark' | 'light') => ({
++      mode: 'auto' as const,
++      appearance,
++      source: 'macos' as const,
++      colors: { ui_primary: '#123456' },
++      branding: { agent_name: 'Watari' }
++    })
++    handler({ type: 'gateway.ready', payload: { skin: skin('dark') } })
++    const first = getUiState().theme
++    expect(first.color.primary).toBe('#123456')
++    expect(first.color.statusBg).toBe(DARK_THEME.color.statusBg)
++    expect(first.brand.name).toBe('Watari')
++    handler({ type: 'skin.changed', payload: skin('light') })
++    const light = getUiState().theme
++    for (const key of [
++      'statusBg',
++      'statusFg',
++      'diffAdded',
++      'diffRemoved',
++      'diffAddedWord',
++      'diffRemovedWord'
++    ] as const) {
++      expect(light.color[key]).toBe(LIGHT_THEME.color[key])
++    }
++    expect(light.color.primary).toBe('#123456')
++    handler({ type: 'skin.changed', payload: skin('dark') })
++    expect(getUiState().theme).toEqual(first)
++    handler({ type: 'skin.changed', payload: skin('light') })
++    handler({
++      type: 'skin.changed',
++      payload: { mode: 'manual', appearance: 'light', source: 'macos' }
++    })
++    expect(getUiState().theme.color).toEqual(DARK_THEME.color)
++    handler({
++      type: 'skin.changed',
++      payload: { mode: 'manual', colors: { completion_menu_bg: '#ffffff' } }
++    })
++    expect(getUiState().theme.color.statusBg).toBe(LIGHT_THEME.color.statusBg)
++  })
++
+--- a/ui-tui/src/__tests__/createSlashHandler.test.ts
++++ b/ui-tui/src/__tests__/createSlashHandler.test.ts
+@@ -25,0 +26,22 @@
++  it('accepts /skin auto, rejects extra arguments, and shows top-level mode/source', async () => {
++    const ctx = buildCtx()
++    ctx.gateway.rpc.mockResolvedValue({
++      value: 'modus-operandi',
++      mode: 'auto',
++      source: 'macos'
++    })
++    const slash = createSlashHandler(ctx)
++    expect(slash('/skin AUTO')).toBe(true)
++    expect(ctx.gateway.rpc).toHaveBeenCalledWith('config.set', {
++      key: 'skin',
++      value: 'auto'
++    })
++    ctx.gateway.rpc.mockClear()
++    slash('/skin auto extra')
++    expect(ctx.gateway.rpc).not.toHaveBeenCalled()
++    expect(ctx.transcript.sys).toHaveBeenCalledWith('usage: /skin [auto|name]')
++    slash('/skin')
++    await Promise.resolve()
++    expect(ctx.transcript.sys).toHaveBeenCalledWith('skin: modus-operandi · mode: auto · source: macos')
++  })
++

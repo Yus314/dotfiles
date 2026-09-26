@@ -13,6 +13,11 @@ plan.txt
 **/plan.txt
 **/*_plain.yaml
 
+# Kaggle credentials belong outside the repository; only SOPS ciphertext is tracked.
+.kaggle/
+kaggle.json
+access_token
+
 # Local Claude settings
 .claude/
 

@@ -111,6 +111,20 @@ in
       description = "Stable, root-controlled real app-bundle path used for TCC and launchd.";
     };
 
+    installationMode = mkOption {
+      type = types.enum [
+        "install"
+        "preserve-existing"
+      ];
+      default = "install";
+      description = ''
+        Whether activation explicitly installs the pinned app and DriverKit
+        payload, or only validates an already-installed deployment. The
+        preserve-existing mode never copies or signs either payload and is
+        intended for a qualified TCC-bound app identity.
+      '';
+    };
+
     adoptAppPath = mkOption {
       type = types.nullOr (types.strMatching "^/[A-Za-z0-9._ /-]+[.]app$");
       default = null;
@@ -176,6 +190,12 @@ in
         message = "adoptAppPath and adoptCDHash must either both be set or both be null";
       }
       {
+        assertion =
+          cfg.installationMode != "preserve-existing"
+          || (cfg.adoptAppPath == cfg.appPath && cfg.adoptCDHash != null);
+        message = "preserve-existing requires adoptAppPath = appPath and a configured adoptCDHash";
+      }
+      {
         assertion = cfg.deviceName != devicePlaceholder;
         message = "my.services.kanata-macos.deviceName must be an exact name from `kanata --list`";
       }
@@ -189,115 +209,157 @@ in
       }
     ];
 
-    # These must be real copies. DriverKit will not load its extension from a
-    # Nix-store symlink, and Kanata must execute from the stable TCC app path.
-    system.activationScripts.applications.text = mkAfter ''
-      kanata_app='${cfg.appPath}'
-      kanata_marker="${cfg.appPath}.nix-bundle-revision"
-      adopt_app='${if cfg.adoptAppPath == null then "" else cfg.adoptAppPath}'
-      expected_revision='${bundleRevision}'
-      adopt_cdhash='${if cfg.adoptCDHash == null then "" else cfg.adoptCDHash}'
-      adopt_existing=false
+    # Installation is an explicit lifecycle choice. The normal watari path
+    # validates the existing qualified deployment without copying or signing
+    # it; daemon declarations below remain managed in either mode.
+    system.activationScripts.applications.text = mkAfter (
+      if cfg.installationMode == "preserve-existing" then
+        ''
+          kanata_app='${cfg.appPath}'
+          expected_cdhash='${if cfg.adoptCDHash == null then "" else cfg.adoptCDHash}'
+          driver_manager='${driverManagerPath}'
+          driver_daemon='${driverDaemonPath}'
 
-      validate_kanata_app() {
-        candidate="$1"
-        expected_cdhash="$2"
-        [ -x "$candidate/Contents/MacOS/${bundleExecutable}" ] \
-          && [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$candidate/Contents/Info.plist" 2>/dev/null || true)" = '${bundleIdentifier}' ] \
-          && [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$candidate/Contents/Info.plist" 2>/dev/null || true)" = '${bundleExecutable}' ] \
-          && "$candidate/Contents/MacOS/${bundleExecutable}" --version 2>&1 | /usr/bin/grep -q '${kanataVersion}' \
-          && /usr/bin/codesign --verify --deep --strict "$candidate" >/dev/null 2>&1 \
-          && { [ -z "$expected_cdhash" ] || /usr/bin/codesign -dvvv "$candidate" 2>&1 | /usr/bin/grep -q "^CDHash=$expected_cdhash$"; }
-      }
+          validate_kanata_app() {
+            candidate="$1"
+            expected_cdhash="$2"
+            [ -x "$candidate/Contents/MacOS/${bundleExecutable}" ] \
+              && [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$candidate/Contents/Info.plist" 2>/dev/null || true)" = '${bundleIdentifier}' ] \
+              && [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$candidate/Contents/Info.plist" 2>/dev/null || true)" = '${bundleExecutable}' ] \
+              && "$candidate/Contents/MacOS/${bundleExecutable}" --version 2>&1 | /usr/bin/grep '${kanataVersion}' >/dev/null \
+              && /usr/bin/codesign --verify --deep --strict "$candidate" >/dev/null 2>&1 \
+              && /usr/bin/codesign -dvvv "$candidate" 2>&1 | /usr/bin/grep "^CDHash=$expected_cdhash$" >/dev/null
+          }
 
-      install_kanata_app() {
-        source_app="$1"
-        resign="$2"
-        app_parent="$(dirname "$kanata_app")"
-        app_stage="$app_parent/.KanataCanary.app.nix-new.$$"
-        app_backup="$app_parent/.KanataCanary.app.nix-old.$$"
-        mkdir -p "$app_parent"
-        rm -rf "$app_stage" "$app_backup"
-        /usr/bin/ditto "$source_app" "$app_stage"
-        if [ "$resign" = true ]; then
-          /usr/bin/codesign --force --deep --sign - --identifier '${bundleIdentifier}' "$app_stage"
-        fi
-        /usr/bin/codesign --verify --deep --strict "$app_stage"
-        /usr/sbin/chown -R root:wheel "$app_stage"
-        /usr/bin/find "$app_stage" -type d -exec /bin/chmod 0555 {} +
-        /usr/bin/find "$app_stage" -type f -exec /bin/chmod 0444 {} +
-        /bin/chmod 0555 "$app_stage/Contents/MacOS/${bundleExecutable}"
-        if [ -e "$kanata_app" ]; then mv "$kanata_app" "$app_backup"; fi
-        if ! mv "$app_stage" "$kanata_app"; then
-          rm -rf "$app_stage" "$kanata_app"
-          if [ -e "$app_backup" ]; then mv "$app_backup" "$kanata_app"; fi
-          echo "failed to install stable Kanata app; previous app restored" >&2
-          exit 1
-        fi
-        if ! printf '%s\n' "$expected_revision" > "$kanata_marker"; then
-          rm -rf "$kanata_app"
-          if [ -e "$app_backup" ]; then mv "$app_backup" "$kanata_app"; fi
-          echo "failed to record Kanata app revision; previous app restored" >&2
-          exit 1
-        fi
-        /usr/sbin/chown root:wheel "$kanata_marker"
-        /bin/chmod 0444 "$kanata_marker"
-        rm -rf "$app_backup"
-      }
+          if ! validate_kanata_app "$kanata_app" "$expected_cdhash"; then
+            echo "existing Kanata app failed configured identity validation; refusing to replace or re-sign it" >&2
+            exit 1
+          fi
 
-      if [ -f "$kanata_marker" ] \
-        && [ "$(cat "$kanata_marker")" = "$expected_revision" ] \
-        && validate_kanata_app "$kanata_app" "$adopt_cdhash"; then
-        adopt_existing=true
-      elif [ -n "$adopt_app" ] \
-        && [ -n "$adopt_cdhash" ] \
-        && validate_kanata_app "$adopt_app" "$adopt_cdhash"; then
-        # Preserve the exact code signature/CDHash that passed the canary while
-        # moving it under root-controlled /Applications before root executes it.
-        install_kanata_app "$adopt_app" false
-        adopt_existing=true
-      fi
+          if [ -L "$driver_manager" ] \
+            || [ ! -x "$driver_daemon" ] \
+            || ! /usr/bin/codesign --verify --deep --strict "$driver_manager" >/dev/null 2>&1 \
+            || ! /usr/bin/codesign --verify --deep --strict \
+              '${driverSupportPath}/Applications/Karabiner-VirtualHIDDevice-Daemon.app' >/dev/null 2>&1; then
+            echo "existing DriverKit payload failed validation; refusing to replace it during normal activation" >&2
+            exit 1
+          fi
+        ''
+      else
+        ''
+              # DriverKit will not load its extension from a Nix-store symlink, and
+              # Kanata must execute from the stable TCC app path.
+          kanata_app='${cfg.appPath}'
+          kanata_marker="${cfg.appPath}.nix-bundle-revision"
+          adopt_app='${if cfg.adoptAppPath == null then "" else cfg.adoptAppPath}'
+          expected_revision='${bundleRevision}'
+          adopt_cdhash='${if cfg.adoptCDHash == null then "" else cfg.adoptCDHash}'
+          adopt_existing=false
 
-      if [ "$adopt_existing" != true ]; then
-        # Fallback for a missing or mismatched canary app. This deterministic
-        # official no-cmd bundle gets a stable identity but may need TCC regrant.
-        install_kanata_app '${cfg.appBundle}/KanataCanary.app' true
-      fi
+          validate_kanata_app() {
+            candidate="$1"
+            expected_cdhash="$2"
+            [ -x "$candidate/Contents/MacOS/${bundleExecutable}" ] \
+              && [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$candidate/Contents/Info.plist" 2>/dev/null || true)" = '${bundleIdentifier}' ] \
+              && [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$candidate/Contents/Info.plist" 2>/dev/null || true)" = '${bundleExecutable}' ] \
+              && "$candidate/Contents/MacOS/${bundleExecutable}" --version 2>&1 | /usr/bin/grep '${kanataVersion}' >/dev/null \
+              && /usr/bin/codesign --verify --deep --strict "$candidate" >/dev/null 2>&1 \
+              && { [ -z "$expected_cdhash" ] || /usr/bin/codesign -dvvv "$candidate" 2>&1 | /usr/bin/grep "^CDHash=$expected_cdhash$" >/dev/null; }
+          }
 
-      driver_support='${driverSupportPath}'
-      driver_manager='${driverManagerPath}'
-      support_stage="${driverSupportPath}.nix-new.$$"
-      support_backup="${driverSupportPath}.nix-old.$$"
-      manager_stage="${driverManagerPath}.nix-new.$$"
-      manager_backup="${driverManagerPath}.nix-old.$$"
-      rm -rf "$support_stage" "$support_backup" "$manager_stage" "$manager_backup"
-      /usr/bin/ditto '${cfg.driverPackage}/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice' "$support_stage"
-      /usr/bin/ditto '${cfg.driverPackage}/Applications/.Karabiner-VirtualHIDDevice-Manager.app' "$manager_stage"
-      /usr/bin/codesign --verify --deep --strict "$manager_stage"
-      /usr/bin/codesign --verify --deep --strict \
-        "$support_stage/Applications/Karabiner-VirtualHIDDevice-Daemon.app"
+          install_kanata_app() {
+            source_app="$1"
+            resign="$2"
+            app_parent="$(dirname "$kanata_app")"
+            app_stage="$app_parent/.KanataCanary.app.nix-new.$$"
+            app_backup="$app_parent/.KanataCanary.app.nix-old.$$"
+            mkdir -p "$app_parent"
+            rm -rf "$app_stage" "$app_backup"
+            /usr/bin/ditto "$source_app" "$app_stage"
+            if [ "$resign" = true ]; then
+              /usr/bin/codesign --force --deep --sign - --identifier '${bundleIdentifier}' "$app_stage"
+            fi
+            /usr/bin/codesign --verify --deep --strict "$app_stage"
+            /usr/sbin/chown -R root:wheel "$app_stage"
+            /usr/bin/find "$app_stage" -type d -exec /bin/chmod 0555 {} +
+            /usr/bin/find "$app_stage" -type f -exec /bin/chmod 0444 {} +
+            /bin/chmod 0555 "$app_stage/Contents/MacOS/${bundleExecutable}"
+            if [ -e "$kanata_app" ]; then mv "$kanata_app" "$app_backup"; fi
+            if ! mv "$app_stage" "$kanata_app"; then
+              rm -rf "$app_stage" "$kanata_app"
+              if [ -e "$app_backup" ]; then mv "$app_backup" "$kanata_app"; fi
+              echo "failed to install stable Kanata app; previous app restored" >&2
+              exit 1
+            fi
+            if ! printf '%s\n' "$expected_revision" > "$kanata_marker"; then
+              rm -rf "$kanata_app"
+              if [ -e "$app_backup" ]; then mv "$app_backup" "$kanata_app"; fi
+              echo "failed to record Kanata app revision; previous app restored" >&2
+              exit 1
+            fi
+            /usr/sbin/chown root:wheel "$kanata_marker"
+            /bin/chmod 0444 "$kanata_marker"
+            rm -rf "$app_backup"
+          }
 
-      rollback_driver_files() {
-        rm -rf "$driver_support" "$driver_manager"
-        if [ -e "$support_backup" ]; then mv "$support_backup" "$driver_support"; fi
-        if [ -e "$manager_backup" ]; then mv "$manager_backup" "$driver_manager"; fi
-        rm -rf "$support_stage" "$manager_stage"
-      }
+          if [ -f "$kanata_marker" ] \
+            && [ "$(cat "$kanata_marker")" = "$expected_revision" ] \
+            && validate_kanata_app "$kanata_app" "$adopt_cdhash"; then
+            adopt_existing=true
+          elif [ -n "$adopt_app" ] \
+            && [ -n "$adopt_cdhash" ]; then
+            if validate_kanata_app "$adopt_app" "$adopt_cdhash"; then
+              # Preserve the exact code signature/CDHash that passed the canary
+              # while moving it under the configured stable path.
+              install_kanata_app "$adopt_app" false
+              adopt_existing=true
+            else
+              echo "configured Kanata adoption failed identity validation; refusing fallback signing" >&2
+              exit 1
+            fi
+          fi
 
-      if [ -e "$driver_support" ]; then mv "$driver_support" "$support_backup"; fi
-      if [ -e "$driver_manager" ]; then mv "$driver_manager" "$manager_backup"; fi
-      if ! mv "$support_stage" "$driver_support" || ! mv "$manager_stage" "$driver_manager"; then
-        rollback_driver_files
-        echo "failed to install DriverKit ${driverVersion} payload; previous files restored" >&2
-        exit 1
-      fi
-      if [ -L "$driver_manager" ] || [ ! -x '${driverDaemonPath}' ]; then
-        rollback_driver_files
-        echo "DriverKit payload verification failed; previous files restored" >&2
-        exit 1
-      fi
-      rm -rf "$support_backup" "$manager_backup"
-    '';
+          if [ "$adopt_existing" != true ]; then
+            # Fallback for a missing or mismatched canary app. This deterministic
+            # official no-cmd bundle gets a stable identity but may need TCC regrant.
+            install_kanata_app '${cfg.appBundle}/KanataCanary.app' true
+          fi
+
+          driver_support='${driverSupportPath}'
+          driver_manager='${driverManagerPath}'
+          support_stage="${driverSupportPath}.nix-new.$$"
+          support_backup="${driverSupportPath}.nix-old.$$"
+          manager_stage="${driverManagerPath}.nix-new.$$"
+          manager_backup="${driverManagerPath}.nix-old.$$"
+          rm -rf "$support_stage" "$support_backup" "$manager_stage" "$manager_backup"
+          /usr/bin/ditto '${cfg.driverPackage}/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice' "$support_stage"
+          /usr/bin/ditto '${cfg.driverPackage}/Applications/.Karabiner-VirtualHIDDevice-Manager.app' "$manager_stage"
+          /usr/bin/codesign --verify --deep --strict "$manager_stage"
+          /usr/bin/codesign --verify --deep --strict \
+            "$support_stage/Applications/Karabiner-VirtualHIDDevice-Daemon.app"
+
+          rollback_driver_files() {
+            rm -rf "$driver_support" "$driver_manager"
+            if [ -e "$support_backup" ]; then mv "$support_backup" "$driver_support"; fi
+            if [ -e "$manager_backup" ]; then mv "$manager_backup" "$driver_manager"; fi
+            rm -rf "$support_stage" "$manager_stage"
+          }
+
+          if [ -e "$driver_support" ]; then mv "$driver_support" "$support_backup"; fi
+          if [ -e "$driver_manager" ]; then mv "$driver_manager" "$manager_backup"; fi
+          if ! mv "$support_stage" "$driver_support" || ! mv "$manager_stage" "$driver_manager"; then
+            rollback_driver_files
+            echo "failed to install DriverKit ${driverVersion} payload; previous files restored" >&2
+            exit 1
+          fi
+          if [ -L "$driver_manager" ] || [ ! -x '${driverDaemonPath}' ]; then
+            rollback_driver_files
+            echo "DriverKit payload verification failed; previous files restored" >&2
+            exit 1
+          fi
+          rm -rf "$support_backup" "$manager_backup"
+        ''
+    );
 
     launchd.daemons.kanata-virtual-hid-daemon.serviceConfig = {
       Label = driverLabel;

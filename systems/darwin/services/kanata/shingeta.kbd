@@ -12,7 +12,7 @@
 )
 
 (defsrc
-  eisu kana lctl rctl lsft rsft spc 1 2 3 4 5 6 7 8 9 0 - = q w e r t y u i o p [ ] a s d f g h j k l ; apos ¥ z x c v b n m , . / ro
+  eisu kana lctl rctl lsft rsft spc 1 2 3 4 5 6 7 8 9 0 - = q w e r t y u i o p [ ] a s d f g h j k l ; apos ¥ z x c v b n m , . / ro f1 f2 f10 f11 f12
 )
 
 (defalias
@@ -74,11 +74,11 @@
 )
 
 (deflayer ascii
-  rctl lsft @to-shingeta rctl lsft rsft spc @base-1 @base-2 @base-3 @base-4 @base-5 @base-6 @base-7 @base-8 @base-9 @base-0 @base-minus @base-equal k y o @base-r @base-t f c l p q z @base-rbrc h i e a u d s t n r v @base-yen j @base-x @base-c @base-v @base-b w g m b x @base-ro
+  rctl lsft @to-shingeta rctl lsft rsft spc @base-1 @base-2 @base-3 @base-4 @base-5 @base-6 @base-7 @base-8 @base-9 @base-0 @base-minus @base-equal k y o @base-r @base-t f c l p q z @base-rbrc h i e a u d s t n r v @base-yen j @base-x @base-c @base-v @base-b w g m b x @base-ro brdn brup mute vold volu
 )
 
 (deflayer shingeta
-  rctl lsft @to-ascii rctl lsft rsft spc @base-1 @base-2 @base-3 @base-4 @base-5 @base-6 @base-7 @base-8 @base-9 @base-0 @base-minus @base-equal @single-k @single-y @single-o @single-dot @single-equal @single-f @single-c @single-l @single-p @single-q @single-z @base-rbrc @single-h @single-i @single-e @single-a @single-u @single-d @single-s @single-t @single-n @single-r @single-v @base-yen @single-j @single-minus @single-comma @single-f24 @single-apos @single-w @single-g @single-m @single-b @single-x @base-ro
+  rctl lsft @to-ascii rctl lsft rsft spc @base-1 @base-2 @base-3 @base-4 @base-5 @base-6 @base-7 @base-8 @base-9 @base-0 @base-minus @base-equal @single-k @single-y @single-o @single-dot @single-equal @single-f @single-c @single-l @single-p @single-q @single-z @base-rbrc @single-h @single-i @single-e @single-a @single-u @single-d @single-s @single-t @single-n @single-r @single-v @base-yen @single-j @single-minus @single-comma @single-f24 @single-apos @single-w @single-g @single-m @single-b @single-x @base-ro brdn brup mute vold volu
 )
 
 (defchordsv2

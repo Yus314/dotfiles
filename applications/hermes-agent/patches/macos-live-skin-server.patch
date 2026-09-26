@@ -1,0 +1,60 @@
+--- a/tui_gateway/server.py
++++ b/tui_gateway/server.py
+@@ -2397,2 +2397,12 @@
+-
+-        init_skin_from_config(_load_cfg())
++        from hermes_cli.skin_engine import set_active_skin
++        from hermes_cli.macos_skin import live_policy
++        from hermes_constants import get_hermes_home
++
++        cfg = _load_cfg()
++        policy = live_policy((cfg.get("display") or {}).get("skin", "default"), get_hermes_home())
++        metadata = {"mode": "disabled", "appearance": None, "source": "macos"}
++        if policy is None:
++            init_skin_from_config(cfg)
++        else:
++            set_active_skin(policy.selected)
++            metadata = policy.metadata()
+@@ -2400,0 +2411 @@
++            **metadata,
+@@ -11321,0 +11333,16 @@
++@method("skin.refresh")
++def _refresh_macos_skin(rid, params: dict) -> dict:
++    # Deliberately NOT in _LONG_HANDLERS: refresh and config.set must serialize.
++    from hermes_cli.macos_skin import live_policy, effective_skin_changed
++    from hermes_constants import get_hermes_home
++
++    before = resolve_skin()
++    policy = live_policy((_load_cfg().get("display") or {}).get("skin", "default"), get_hermes_home())
++    if policy is not None:
++        policy.refresh()
++    payload = resolve_skin()
++    if effective_skin_changed(before, payload):
++        _emit("skin.changed", "", payload)
++    return _ok(rid, payload)
++
++
+@@ -11325,0 +11353,17 @@
++
++    if key in {"skin"}:
++        from hermes_cli.macos_skin import live_policy, effective_skin_changed
++        from hermes_constants import get_hermes_home
++
++        policy = live_policy((_load_cfg().get("display") or {}).get("skin", "default"), get_hermes_home())
++        if isinstance(value, str) and value.strip() == "auto" and policy is None:
++            return _err(rid, 4002, "/skin auto requires an authorized default-profile NEW TUI chat")
++        if policy is not None:
++            if not isinstance(value, str) or not value.strip():
++                return _err(rid, 4002, "skin value required")
++            before = resolve_skin()
++            policy.select(value.strip())
++            payload = resolve_skin()
++            if before != payload:
++                _emit("skin.changed", "", payload)
++            return _ok(rid, {"key": "skin", "value": payload.get("name", "default"), **policy.metadata()})
+@@ -12383,0 +12428 @@
++        payload = resolve_skin()
+@@ -12385 +12430,2 @@
+-            rid, {"value": resolve_skin().get("name", "default")}
++            rid, {"value": payload.get("name", "default"),
++                  **{key: payload.get(key) for key in ("mode", "appearance", "source")}}
