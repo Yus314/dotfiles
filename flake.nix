@@ -14,7 +14,7 @@
     emacs-overlay.url = "github:nix-community/emacs-overlay";
     # Keep the daily system package set stable while pinning the Emacs 31
     # toolchain that has passed selection-first dogfood qualification.
-    nixpkgs-emacs.url = "github:NixOS/nixpkgs/e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3";
+    nixpkgs-emacs.url = "github:NixOS/nixpkgs/718acc0659365aa86fe5e9403489d4e0fabb612c";
     emacs-overlay-31.url = "github:nix-community/emacs-overlay/723bc7fa2449e2cba507fb3bcd5caaa67728e023";
     flake-parts.url = "github:hercules-ci/flake-parts";
     git-hooks.url = "github:cachix/git-hooks.nix";
